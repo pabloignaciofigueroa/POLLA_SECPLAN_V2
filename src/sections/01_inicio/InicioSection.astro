@@ -1,0 +1,23 @@
+---
+import styles from "./InicioSection.module.css";
+import HeroCopy from "./HeroCopy.astro";
+import StepCards from "./StepCards.astro";
+import TrophyStage from "./TrophyStage.astro";
+import PrimaryCTA from "./PrimaryCTA.astro";
+import FlagMarquee from "./FlagMarquee.astro";
+---
+
+<section class={styles.inicioSection} id="inicio" data-section="inicio">
+  <div class={styles.contentGrid}>
+    <div class={styles.leftColumn}>
+      <HeroCopy />
+      <StepCards />
+      <PrimaryCTA />
+    </div>
+    <div class={styles.rightColumn}>
+      <TrophyStage />
+    </div>
+  </div>
+
+  <FlagMarquee />
+</section>

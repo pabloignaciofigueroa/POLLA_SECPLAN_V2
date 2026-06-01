@@ -1,0 +1,60 @@
+.equiposSection {
+  --section-accent: var(--pm-sec-equipos-a);
+  --section-accent-2: var(--pm-sec-equipos-b);
+  --section-accent-3: var(--pm-sec-equipos-c);
+  --section-gradient: var(--pm-sec-equipos-gradient);
+
+  position: relative;
+  min-height: calc(100svh - var(--layout-header-height));
+  overflow: hidden;
+  isolation: isolate;
+  background-image: image-set(
+    url("/assets/backgrounds/avif/08_equipos_background.avif") type("image/avif"),
+    url("/assets/backgrounds/webp/08_equipos_background.webp") type("image/webp")
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--pm-text-main);
+  font-family: var(--font-ui);
+}
+
+.contentShell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - clamp(1rem, 4vw, 3rem), 1500px);
+  min-height: calc(100svh - var(--layout-header-height));
+  margin-inline: auto;
+  padding-block: clamp(0.7rem, 1.4vw, 1.2rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.65rem, 1.3vw, 1rem);
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.3fr);
+  gap: clamp(0.85rem, 1.6vw, 1.3rem);
+  align-items: end;
+}
+
+@media (max-width: 1080px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .contentShell {
+    width: min(100% - 1rem, 1500px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .equiposSection *,
+  .equiposSection *::before,
+  .equiposSection *::after {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+  }
+}

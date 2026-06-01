@@ -1,0 +1,57 @@
+---
+import ProgressCard from "./ProgressCard.astro";
+
+interface Group {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  totalMatches: number;
+  activeGroup?: Group;
+}
+
+const { totalMatches } = Astro.props;
+---
+
+<div class="progress-summary-grid" aria-label="Resumen de progreso">
+  <ProgressCard
+    kind="general"
+    title="PARTIDOS"
+    subtitle="MARCADORES COMPLETOS"
+    current={0}
+    total={totalMatches}
+    percentage={0}
+  />
+  <ProgressCard
+    kind="groups"
+    title="GRUPOS"
+    subtitle="GRUPOS COMPLETOS"
+    current={0}
+    total={12}
+    percentage={0}
+  />
+  <ProgressCard
+    kind="qualified"
+    title="CLASIFICADOS"
+    subtitle="1° Y 2° DE CADA GRUPO"
+    current={0}
+    total={24}
+    percentage={0}
+  />
+</div>
+
+<style>
+  .progress-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.7rem, 1.4vw, 1rem);
+    min-width: 0;
+  }
+
+  @media (max-width: 720px) {
+    .progress-summary-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

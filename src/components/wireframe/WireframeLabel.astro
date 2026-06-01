@@ -1,0 +1,33 @@
+---
+interface Props {
+  variant?: "zone" | "component" | "note";
+}
+
+const { variant = "zone" } = Astro.props;
+---
+
+<span class={`wf-label wf-label--${variant}`}>
+  <slot />
+</span>
+
+<style>
+  .wf-label {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+  }
+
+  .wf-label--component {
+    border-style: solid;
+    border-color: var(--color-text);
+  }
+
+  .wf-label--note {
+    border-style: dotted;
+    color: var(--color-muted);
+  }
+</style>

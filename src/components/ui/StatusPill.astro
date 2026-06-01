@@ -1,0 +1,121 @@
+---
+interface Props {
+  label: string;
+  tone?:
+    | "neutral"
+    | "active"
+    | "locked"
+    | "warning"
+    | "live"
+    | "upcoming"
+    | "finished"
+    | "completed"
+    | "success"
+    | "error"
+    | "danger"
+    | "info";
+}
+
+const { label, tone = "neutral" } = Astro.props;
+---
+
+<span class={`status-pill status-pill--${tone}`}>{label}</span>
+
+<style>
+  .status-pill {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-sm);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: var(--pm-radius-pill);
+    border: 1px solid var(--pm-border-soft);
+    background: var(--pm-white);
+    color: var(--pm-text-main);
+  }
+
+  .status-pill--active {
+    color: var(--pm-state-active-text);
+    background: var(--pm-state-active-bg);
+    border-color: var(--pm-state-active-border);
+  }
+
+  .status-pill--locked {
+    color: var(--pm-white);
+    background: var(--pm-state-locked-bg);
+    border-color: var(--pm-state-locked-border);
+  }
+
+  .status-pill--warning {
+    color: var(--pm-state-warning-text);
+    background: var(--pm-state-warning-bg);
+    border-color: var(--pm-state-warning-border);
+  }
+
+  .status-pill--live {
+    color: var(--pm-state-live-text);
+    background: var(--pm-state-live-bg);
+    border-color: var(--pm-state-live-border);
+    animation: pulseLive 1.6s ease-in-out infinite;
+  }
+
+  .status-pill--upcoming {
+    color: var(--pm-state-upcoming-text);
+    background: var(--pm-state-upcoming-bg);
+    border-color: var(--pm-state-upcoming-border);
+  }
+
+  .status-pill--finished {
+    color: var(--pm-state-finished-text);
+    background: var(--pm-state-finished-bg);
+    border-color: var(--pm-state-finished-border);
+  }
+
+  .status-pill--completed {
+    color: var(--pm-state-completed-text);
+    background: var(--pm-state-completed-bg);
+    border-color: var(--pm-state-completed-border);
+  }
+
+  .status-pill--success {
+    color: var(--pm-state-success-text);
+    background: var(--pm-state-success-bg);
+    border-color: var(--pm-state-success-border);
+  }
+
+  .status-pill--error {
+    color: var(--pm-state-error-soft-text);
+    background: var(--pm-state-error-soft-bg);
+    border-color: var(--pm-state-error-border);
+  }
+
+  .status-pill--danger {
+    color: var(--pm-state-danger-text);
+    background: var(--pm-state-danger-bg);
+    border-color: var(--pm-state-danger-border);
+  }
+
+  .status-pill--info {
+    color: var(--pm-blue-900);
+    background: var(--pm-cyan-500);
+    border-color: var(--pm-cyan-600);
+  }
+
+  @keyframes pulseLive {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 64, 88, 0.45);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(255, 64, 88, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-pill--live {
+      animation: none;
+    }
+  }
+</style>

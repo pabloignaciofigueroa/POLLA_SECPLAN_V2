@@ -1,0 +1,104 @@
+---
+interface Group {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  group: Group;
+  active?: boolean;
+}
+
+const { group, active = false } = Astro.props;
+const groupKey = group.id.toLowerCase();
+---
+
+<button
+  class="group-tab"
+  type="button"
+  data-group-tab={group.id}
+  data-group-key={groupKey}
+  data-active={active ? "true" : "false"}
+  aria-pressed={active ? "true" : "false"}
+  aria-label={group.label}
+>
+  {group.id}
+</button>
+
+<style>
+  .group-tab {
+    position: relative;
+    min-height: 2.2rem;
+    border: 2px solid var(--group-color, var(--pm-blue-500));
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-white);
+    color: var(--group-color, var(--pm-blue-700));
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition:
+      border-color var(--pm-transition-fast),
+      background var(--pm-transition-fast),
+      color var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast),
+      transform var(--pm-transition-fast);
+  }
+
+  .group-tab:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  /* Grupo completo (6 marcadores + 2 clasificados): punto verde. */
+  .group-tab[data-complete="true"]::after {
+    content: "";
+    position: absolute;
+    top: -0.3rem;
+    right: -0.3rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: var(--pm-state-confirmed-bg);
+    border: 2px solid var(--pm-white);
+    box-shadow: 0 1px 3px rgba(6, 19, 38, 0.3);
+  }
+
+  .group-tab[data-active="true"] {
+    background: var(--group-color, var(--pm-blue-500));
+    color: var(--group-active-text, var(--pm-white));
+    box-shadow: 0 4px 12px var(--group-glow, rgba(18, 109, 255, 0.32));
+  }
+
+  /* Per-group colors A-L */
+  .group-tab[data-group-key="a"] { --group-color: var(--pm-group-a); --group-glow: rgba(34, 197, 94, 0.32); }
+  .group-tab[data-group-key="b"] { --group-color: var(--pm-group-b); --group-glow: rgba(18, 109, 255, 0.32); }
+  .group-tab[data-group-key="c"] { --group-color: var(--pm-group-c); --group-glow: rgba(255, 138, 0, 0.32); --group-active-text: var(--pm-blue-900); }
+  .group-tab[data-group-key="d"] { --group-color: var(--pm-group-d); --group-glow: rgba(124, 53, 255, 0.32); }
+  .group-tab[data-group-key="e"] { --group-color: var(--pm-group-e); --group-glow: rgba(24, 221, 242, 0.32); --group-active-text: var(--pm-blue-900); }
+  .group-tab[data-group-key="f"] { --group-color: var(--pm-group-f); --group-glow: rgba(255, 47, 179, 0.32); }
+  .group-tab[data-group-key="g"] { --group-color: var(--pm-group-g); --group-glow: rgba(245, 184, 0, 0.32); --group-active-text: var(--pm-blue-900); }
+  .group-tab[data-group-key="h"] { --group-color: var(--pm-group-h); --group-glow: rgba(0, 91, 255, 0.32); }
+  .group-tab[data-group-key="i"] { --group-color: var(--pm-group-i); --group-glow: rgba(182, 255, 0, 0.32); --group-active-text: var(--pm-blue-900); }
+  .group-tab[data-group-key="j"] { --group-color: var(--pm-group-j); --group-glow: rgba(255, 64, 88, 0.32); }
+  .group-tab[data-group-key="k"] { --group-color: var(--pm-group-k); --group-glow: rgba(217, 70, 239, 0.32); }
+  .group-tab[data-group-key="l"] { --group-color: var(--pm-group-l); --group-glow: rgba(0, 184, 217, 0.32); --group-active-text: var(--pm-blue-900); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .group-tab:hover {
+      transform: translateY(-1px);
+      background: var(--group-color, var(--pm-blue-500));
+      color: var(--group-active-text, var(--pm-white));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .group-tab {
+      transition: none;
+    }
+
+    .group-tab:hover {
+      transform: none;
+    }
+  }
+</style>

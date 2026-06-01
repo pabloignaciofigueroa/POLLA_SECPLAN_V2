@@ -1,0 +1,72 @@
+---
+import LockedPreviewCard from "./LockedPreviewCard.astro";
+---
+
+<section class="preview-panel" aria-label="Vista previa de estadisticas" data-animate="fade-up" style="--i:2">
+  <header class="panel-head">
+    <h2>
+      <svg class="h2-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      VISTA PREVIA: LO QUE PODRAS VER
+    </h2>
+  </header>
+
+  <div class="preview-grid">
+    <LockedPreviewCard title="TU CARTON VS COMUNIDAD" variant="comparison" />
+    <LockedPreviewCard title="RANKING GLOBAL" variant="ranking" />
+    <LockedPreviewCard title="TENDENCIAS DE RESULTADOS" variant="trends" />
+  </div>
+</section>
+
+<style>
+  .preview-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+    padding: 0.82rem 1rem;
+    border: 1px solid rgba(7, 23, 53, 0.1);
+    border-radius: 0.95rem;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 16px 34px rgba(7, 23, 53, 0.1);
+  }
+
+  .panel-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--pm-blue-500);
+    font-family: var(--font-display);
+    font-size: clamp(0.9rem, 1.25vw, 1.05rem);
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .h2-icon {
+    flex-shrink: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--pm-cyan-500);
+  }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1vw, 0.85rem);
+  }
+
+  @media (max-width: 1080px) {
+    .preview-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .preview-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

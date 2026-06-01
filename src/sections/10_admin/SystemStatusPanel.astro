@@ -1,0 +1,160 @@
+---
+import AdminActionButton from "./AdminActionButton.astro";
+import type { AdminDashboardViewModel } from "./admin.logic";
+import { INLINE } from "../../lib/ui-assets/uiAssets";
+
+interface Props {
+  system: AdminDashboardViewModel["system"];
+}
+
+const { system } = Astro.props;
+
+const rows = [
+  ["Modo de datos", system.dataMode],
+  ["Supabase", system.supabase],
+  ["JSON local", system.localJson],
+  ["Conexión API", system.apiConnection],
+  ["Última sincronización", system.lastSyncLabel],
+  ["Errores detectados", String(system.errors)],
+];
+const statusLower = String(system.status).toLowerCase();
+const statusKind = statusLower.includes("ok") || statusLower.includes("activ")
+  ? "success"
+  : statusLower.includes("error") || statusLower.includes("fall")
+    ? "error"
+    : statusLower.includes("pend")
+      ? "warning"
+      : "info";
+---
+
+<section class="panel" data-admin-panel="system" aria-labelledby="system-title">
+  <header class="panel-head">
+    <h2 id="system-title">
+      <span class="sys-icon" aria-hidden="true">
+        <img src={INLINE.checklist.src} alt="" width={INLINE.checklist.width} height={INLINE.checklist.height} loading="lazy" decoding="async" />
+      </span>
+      ESTADO DEL SISTEMA
+    </h2>
+    <span class="status-pill" data-status={statusKind}>{system.status}</span>
+  </header>
+  <dl class="rows">
+    {rows.map(([label, value]) => (
+      <div>
+        <dt>{label}</dt>
+        <dd>{value}</dd>
+      </div>
+    ))}
+  </dl>
+  <div class="actions">
+    <AdminActionButton label="Sincronizar ahora" action="sync-now" variant="info" />
+    <AdminActionButton label="Ver diagnóstico" action="view-diagnostics" variant="default" />
+  </div>
+</section>
+
+<style>
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-width: 0;
+    padding: 0.95rem;
+    border: 1px solid var(--pm-mint-500);
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-white);
+    box-shadow: 0 16px 36px rgba(33, 217, 154, 0.18);
+  }
+
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .sys-icon {
+    display: grid;
+    width: 1.4rem;
+    height: 1.4rem;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .sys-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .status-pill {
+    padding: 0.28rem 0.65rem;
+    border: 1px solid var(--pill-border, var(--pm-mint-500));
+    border-radius: 999px;
+    background: var(--pill-bg, var(--pm-mint-500));
+    color: var(--pill-text, var(--pm-blue-900));
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .status-pill[data-status="success"] { --pill-bg: var(--pm-state-success-bg); --pill-border: var(--pm-state-success-border); --pill-text: var(--pm-state-success-text); }
+  .status-pill[data-status="warning"] { --pill-bg: var(--pm-state-warning-bg); --pill-border: var(--pm-state-warning-border); --pill-text: var(--pm-state-warning-text); }
+  .status-pill[data-status="error"]   { --pill-bg: var(--pm-state-error-bg); --pill-border: var(--pm-state-error-border); --pill-text: var(--pm-state-error-text); }
+  .status-pill[data-status="info"]    { --pill-bg: var(--pm-state-locked-bg); --pill-border: var(--pm-state-locked-border); --pill-text: var(--pm-state-locked-text); }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    border-top: 1px solid var(--pm-border-soft);
+  }
+
+  .rows div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--pm-border-soft);
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  dt {
+    color: var(--pm-text-soft);
+    font-family: var(--font-display);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    color: var(--pm-blue-900);
+    text-align: right;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+  }
+</style>

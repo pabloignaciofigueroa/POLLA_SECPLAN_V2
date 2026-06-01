@@ -1,0 +1,64 @@
+{
+  "source": "wireframe-demo",
+  "defaultContext": {
+    "round": "Fase de grupos",
+    "importance": "Alta",
+    "weather": "24° · Parcialmente nublado",
+    "capacity": "87.000 espectadores",
+    "city": "Ciudad de México, México"
+  },
+  "matches": {
+    "match-001": {
+      "reading": [
+        "México llega con mejor promedio ofensivo y mayor posesión en el torneo.",
+        "Sudáfrica destaca por su solidez defensiva y transiciones rápidas.",
+        "Duelo físico en el mediocampo será clave para el control del juego.",
+        "Partido con alto impacto en la clasificación del grupo."
+      ],
+      "context": {
+        "round": "Fase de grupos",
+        "importance": "Alta",
+        "weather": "24° · Parcialmente nublado",
+        "capacity": "87.000 espectadores",
+        "city": "Ciudad de México, México"
+      },
+      "historical": {
+        "homeWins": 3,
+        "draws": 2,
+        "awayWins": 1
+      },
+      "communityStats": {
+        "homePercent": 45,
+        "drawPercent": 28,
+        "awayPercent": 27,
+        "avgGoals": "2.4"
+      }
+    }
+  },
+  "teams": {
+    "mexico": {
+      "keyPlayers": [
+        { "name": "Edson Álvarez", "role": "MED" },
+        { "name": "Hirving Lozano", "role": "DEL" },
+        { "name": "Santiago Giménez", "role": "DEL" }
+      ],
+      "stats": {
+        "goalsAverage": "2.10",
+        "defenseWork": "78%",
+        "titles": "6"
+      }
+    },
+    "south-africa": {
+      "keyPlayers": [
+        { "name": "Percy Tau", "role": "DEL" },
+        { "name": "Tapelo Morena", "role": "MED" },
+        { "name": "Ronwen Williams", "role": "ARQ" }
+      ],
+      "stats": {
+        "goalsAverage": "1.74",
+        "defenseWork": "72%",
+        "titles": "1"
+      }
+    }
+  }
+}

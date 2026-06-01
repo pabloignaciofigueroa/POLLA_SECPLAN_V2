@@ -1,0 +1,48 @@
+---
+import { STATUS } from "../../lib/ui-assets/uiAssets";
+---
+
+<aside class="warning-note" aria-label="Aviso de bloqueo de jugador">
+  <span class="wn-icon" aria-hidden="true">
+    <img src={STATUS.orbAlert.src} alt="" width={STATUS.orbAlert.width} height={STATUS.orbAlert.height} loading="lazy" decoding="async" />
+  </span>
+  <p>Una vez confirmada tu elección, no podrás cambiar de jugador.</p>
+</aside>
+
+<style>
+  .warning-note {
+    display: inline-grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 0;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--pm-cyan-300, #67e8f9);
+    border-radius: var(--pm-radius-md);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 4px 14px rgba(7, 23, 53, 0.08);
+  }
+
+  .wn-icon {
+    display: grid;
+    width: 1.55rem;
+    aspect-ratio: 1;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .wn-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  p {
+    margin: 0;
+    color: var(--pm-blue-700);
+    font-size: 0.74rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+</style>

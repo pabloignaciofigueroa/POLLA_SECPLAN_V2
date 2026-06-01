@@ -1,0 +1,78 @@
+---
+interface H2HInfo {
+  uiLabel?: string | null;
+  previousMeetings?: number | null;
+}
+
+interface Props {
+  h2hInfo?: H2HInfo | null;
+}
+
+const { h2hInfo = null } = Astro.props;
+const label = h2hInfo?.uiLabel ?? "Primer enfrentamiento";
+const previousMeetings = h2hInfo?.previousMeetings ?? 0;
+---
+
+<article class="historical-card" data-historical-card>
+  <h3>Antecedente historico</h3>
+  <div class="history-grid">
+    <span>
+      <strong data-history-meetings>{previousMeetings}</strong>
+      <small data-history-label>{label}</small>
+    </span>
+  </div>
+</article>
+
+<style>
+  .historical-card {
+    width: min(100%, 18rem);
+    padding: 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--pm-orange-500) 30%, var(--pm-blue-100));
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 241, 214, 0.76)),
+      radial-gradient(circle at 50% 0%, rgba(255, 138, 0, 0.14), transparent 52%);
+    box-shadow:
+      0 14px 28px rgba(7, 23, 53, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  }
+
+  h3 {
+    margin: 0 0 0.7rem;
+    color: var(--pm-blue-900);
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .history-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  span {
+    display: grid;
+    gap: 0.2rem;
+    place-items: center;
+    min-height: 3.3rem;
+  }
+
+  strong {
+    color: var(--pm-orange-500);
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    font-weight: 950;
+    line-height: 1;
+    text-shadow: 0 4px 14px rgba(255, 138, 0, 0.24);
+  }
+
+  small {
+    color: var(--pm-blue-900);
+    font-size: 0.62rem;
+    font-weight: 850;
+    text-align: center;
+    text-transform: uppercase;
+  }
+</style>

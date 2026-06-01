@@ -1,0 +1,66 @@
+---
+import styles from "./EquiposSection.module.css";
+import EquiposHero from "./EquiposHero.astro";
+import TeamsSummaryStrip from "./TeamsSummaryStrip.astro";
+import GroupFilterChips from "./GroupFilterChips.astro";
+import TeamsAlbum from "./TeamsAlbum.astro";
+import TeamDetailModal from "./TeamDetailModal.astro";
+import ConfederationStrip from "./ConfederationStrip.astro";
+
+import teamsData from "../../data/teams.json";
+import equiposInfoData from "../../data/equipos-info.json";
+
+import {
+  buildInfoIndex,
+  enrichTeams,
+  groupByGroupId,
+  uniqueConfederations,
+} from "./equipos.logic";
+import type { BaseTeam, EquipoBundle } from "./equipos.logic";
+
+import equiposClientUrl from "./equipos.client.js?url";
+
+const baseTeams = teamsData as BaseTeam[];
+const bundle = equiposInfoData as EquipoBundle;
+const infoIndex = buildInfoIndex(bundle);
+const enriched = enrichTeams(baseTeams, infoIndex);
+const grouped = groupByGroupId(enriched);
+const confederations = uniqueConfederations(baseTeams);
+const initialGroup = "A";
+
+const summaryStats = {
+  selections: baseTeams.length,
+  groups: grouped.length,
+  confederations: confederations.length,
+};
+
+const clientPayload = {
+  teams: enriched,
+  groups: grouped.map((g) => ({ id: g.id, label: g.label })),
+};
+---
+
+<section
+  class={styles.equiposSection}
+  id="equipos"
+  data-section="equipos"
+  data-active-group={initialGroup}
+>
+  <div class={styles.contentShell}>
+    <div class={styles.topRow} data-animate="fade-up">
+      <EquiposHero />
+      <TeamsSummaryStrip stats={summaryStats} />
+    </div>
+
+    <GroupFilterChips groups={grouped} initialGroup={initialGroup} />
+
+    <TeamsAlbum grouped={grouped} activeGroup={initialGroup} />
+
+    <ConfederationStrip confederations={confederations} />
+  </div>
+
+  <TeamDetailModal />
+
+  <script type="application/json" data-equipos-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={equiposClientUrl}></script>
+</section>

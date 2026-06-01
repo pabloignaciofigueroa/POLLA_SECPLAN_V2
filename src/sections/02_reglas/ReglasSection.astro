@@ -1,0 +1,108 @@
+---
+import styles from "./ReglasSection.module.css";
+import RulesHeroHeader from "./RulesHeroHeader.astro";
+import RulesCardsGrid from "./RulesCardsGrid.astro";
+import ScoringPanel from "./ScoringPanel.astro";
+import RulesActionPanel from "./RulesActionPanel.astro";
+import ChallengeMessage from "./ChallengeMessage.astro";
+import FairPlayFooter from "./FairPlayFooter.astro";
+
+const rules = [
+  {
+    number: "1",
+    title: "Predice los partidos",
+    description: "Elige el resultado de cada partido del Mundial.",
+    icon: "ball",
+    tone: "blue",
+  },
+  {
+    number: "2",
+    title: "Suma puntos",
+    description: "Cada acierto te da puntos. Exacto vale más.",
+    icon: "chart",
+    tone: "green",
+  },
+  {
+    number: "3",
+    title: "Tu cartón es único",
+    description: "No puedes editarlo después de confirmarlo.",
+    icon: "shield",
+    tone: "purple",
+  },
+  {
+    number: "4",
+    title: "Bloqueo y estadísticas",
+    description: "Se bloquea al confirmar y podrás ver tus estadísticas.",
+    icon: "lock",
+    tone: "orange",
+  },
+  {
+    number: "5",
+    title: "Gana la gloria",
+    description: "Llega a la cima del ranking y sé el campeón.",
+    icon: "trophy",
+    tone: "red",
+  },
+];
+
+/*
+  LONE WOLF:
+  Se otorga cuando un jugador acierta el resultado exacto de un partido
+  y ningún otro jugador acertó ese mismo resultado exacto.
+
+  No es un premio general por racha.
+  No es un premio manual.
+  No se aplica si más de un jugador acertó el exacto.
+*/
+const scoringRules = [
+  {
+    id: "tendencia",
+    label: "TENDENCIA",
+    description: "Aciertas ganador o empate",
+    points: "+1",
+    icon: "trend",
+  },
+  {
+    id: "exacto",
+    label: "EXACTO",
+    description: "Resultado exacto del partido",
+    points: "+3",
+    icon: "target",
+  },
+  {
+    id: "lone-wolf",
+    label: "LONE WOLF",
+    description: "Exacto único entre todos los jugadores",
+    points: "+5",
+    icon: "wolf",
+  },
+];
+---
+
+<section class={styles.reglasSection} id="reglas" data-section="reglas">
+  <div class={styles.trophyDeco} aria-hidden="true">
+    <img
+      src="/assets/copa/trophy-worldcup-main.webp"
+      alt=""
+      width="400"
+      height="560"
+      loading="lazy"
+      class={styles.trophyImg}
+    />
+  </div>
+  <div class={styles.contentShell}>
+    <RulesHeroHeader />
+
+    <RulesCardsGrid rules={rules} />
+
+    <div class={styles.bottomLayout} data-animate="fade-up" style="--i:7">
+      <div class={styles.scoringChallenge}>
+        <ScoringPanel scoringRules={scoringRules} />
+        <ChallengeMessage />
+      </div>
+      <RulesActionPanel />
+    </div>
+
+    <FairPlayFooter />
+  </div>
+</section>

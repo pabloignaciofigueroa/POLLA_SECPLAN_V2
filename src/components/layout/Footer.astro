@@ -1,0 +1,62 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" data-section="footer">
+  <p>Polla Mundialera SECPLAN 2026 — Clean V2 Alpha 01 · {year}</p>
+  <span class="fifa-plate" aria-label="FIFA World Cup 2026">
+    <img
+      src="/assets/brand/fifa/fifa-wordmark-blue.webp"
+      alt=""
+      aria-hidden="true"
+      width="120"
+      height="48"
+      loading="lazy"
+      decoding="async"
+    />
+    <span>FIFA World Cup 2026 · Experiencia interna de predicciones</span>
+  </span>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    align-items: center;
+    padding: var(--space-lg);
+    border-top: 1px solid var(--pm-cyan-200);
+    text-align: center;
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, transparent, var(--pm-panel-soft));
+  }
+
+  .footer p {
+    margin: 0;
+  }
+
+  .fifa-plate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(7, 23, 53, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--pm-blue-900);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+
+  .fifa-plate img {
+    height: 1.1rem;
+    width: auto;
+    display: block;
+  }
+</style>

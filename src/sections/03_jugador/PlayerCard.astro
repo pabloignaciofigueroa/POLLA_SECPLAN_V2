@@ -1,0 +1,192 @@
+---
+interface Player {
+  id: string;
+  name: string;
+  avatar: string;
+  avatarThumb?: string;
+  status: string;
+}
+
+interface Props {
+  player: Player;
+  selected?: boolean;
+}
+
+const { player, selected = false } = Astro.props;
+const className = selected ? "player-card player-card--selected" : "player-card";
+const thumbSrc = player.avatarThumb ?? player.avatar;
+---
+
+<button
+  class={className}
+  type="button"
+  data-player-card
+  data-player-id={player.id}
+  data-player-name={player.name}
+  data-player-avatar={player.avatar}
+  data-player-avatar-thumb={thumbSrc}
+  data-player-status={player.status}
+  data-selected={selected ? "true" : "false"}
+  aria-pressed={selected ? "true" : "false"}
+>
+  <span class="avatar-frame">
+    <img
+      class="avatar-img"
+      src={thumbSrc}
+      alt={`Avatar de ${player.name}`}
+      width="384"
+      height="512"
+      loading="eager"
+      decoding="async"
+    />
+    <span class="player-name">{player.name}</span>
+  </span>
+  <span class="selected-check" aria-hidden="true">
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="2,6 5,9 10,3" />
+    </svg>
+  </span>
+</button>
+
+<style>
+  .player-card {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: clamp(5.8rem, 8.5vw, 7.65rem);
+    overflow: hidden;
+    border: 1px solid var(--pm-border-blue);
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-white);
+    color: var(--pm-text-main);
+    cursor: pointer;
+    text-align: center;
+    transition:
+      transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1),
+      border-color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+      background var(--pm-transition-fast);
+  }
+
+  .player-card:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+    border-color: var(--pm-gold-500);
+  }
+
+  .avatar-frame {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: clamp(5.8rem, 8.5vw, 7.65rem);
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--pm-cyan-200), rgba(255, 255, 255, 0.5));
+  }
+
+  .avatar-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    aspect-ratio: 512 / 682;
+  }
+
+  .player-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.22rem 0.25rem 0.26rem;
+    background: rgba(4, 14, 35, 0.85);
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: clamp(0.65rem, 0.88vw, 0.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .selected-check {
+    position: absolute;
+    top: 0.28rem;
+    right: 0.28rem;
+    display: grid;
+    width: 1.65rem;
+    aspect-ratio: 1;
+    place-items: center;
+    transform: scale(0.88);
+    border: 1.5px solid var(--pm-gold-700);
+    border-radius: 999px;
+    background: var(--pm-gold-500);
+    color: var(--pm-blue-900);
+    opacity: 0;
+    transition:
+      opacity 140ms cubic-bezier(0.23, 1, 0.32, 1),
+      transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .selected-check svg {
+    width: 0.7rem;
+    height: 0.7rem;
+  }
+
+  .player-card[data-selected="true"] {
+    border-color: var(--pm-gold-500);
+    box-shadow: 0 0 0 3px var(--pm-gold-glow), 0 8px 24px rgba(245, 181, 27, 0.22);
+  }
+
+  .player-card[data-selected="true"] .selected-check {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .player-card[data-selected="true"] .player-name {
+    background: rgba(180, 121, 0, 0.88);
+    color: var(--pm-white);
+    font-weight: 950;
+  }
+
+  .player-card[data-selected="true"] .avatar-frame {
+    box-shadow: inset 0 0 0 2px var(--pm-gold-500);
+  }
+
+  .player-card:active {
+    transform: scale(0.98);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .player-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--pm-cyan-500);
+      box-shadow: var(--pm-shadow-cyan);
+    }
+  }
+
+  .player-card:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    background: var(--pm-state-disabled-bg);
+  }
+
+  .player-card:disabled[data-selected="true"] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .player-card,
+    .selected-check {
+      transition: none;
+    }
+
+    .player-card:hover,
+    .player-card:active {
+      transform: none;
+    }
+  }
+</style>

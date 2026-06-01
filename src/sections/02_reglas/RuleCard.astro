@@ -1,0 +1,154 @@
+---
+import { INLINE, type UiAsset } from "../../lib/ui-assets/uiAssets";
+
+interface Rule {
+  number: string;
+  title: string;
+  description: string;
+  icon: string;
+  tone: string;
+}
+
+interface Props {
+  rule: Rule;
+}
+
+const { rule } = Astro.props;
+
+// Iconos inline = familia mate (icon-circle-*). Mapeo por concepto de cada regla.
+const ICONS: Record<string, UiAsset> = {
+  ball: INLINE.calendar, // 1. Predice los partidos
+  chart: INLINE.trendUp, // 2. Suma puntos
+  shield: INLINE.star, // 3. Tu cartón es único
+  lock: INLINE.podium, // 4. Bloqueo y estadísticas
+  trophy: INLINE.trophy, // 5. Gana la gloria
+};
+const icon = ICONS[rule.icon] ?? ICONS.ball;
+---
+
+<article class={`rule-card rule-card--${rule.tone}`}>
+  <span class="rule-number" aria-label={`Regla ${rule.number}`}>{rule.number}</span>
+  <span class="rule-icon" data-icon={rule.icon} aria-hidden="true">
+    <img src={icon.src} alt="" width={icon.width} height={icon.height} loading="lazy" decoding="async" />
+  </span>
+  <h2>{rule.title}</h2>
+  <p>{rule.description}</p>
+</article>
+
+<style>
+  .rule-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    min-height: clamp(20rem, 30vw, 26.2rem);
+    height: 100%;
+    padding: clamp(2.25rem, 3.2vw, 3.15rem) clamp(0.95rem, 1.45vw, 1.25rem) clamp(1.35rem, 2vw, 1.7rem);
+    border: 1.5px solid var(--card-bg, var(--pm-blue-500));
+    border-radius: 1rem;
+    text-align: center;
+    color: var(--card-bg, var(--pm-blue-500));
+    background:
+      radial-gradient(circle at 88% 88%, color-mix(in srgb, var(--card-bg) 24%, transparent) 0 1px, transparent 1.5px) 0 0 / 9px 9px,
+      linear-gradient(145deg, rgba(255, 255, 255, 0.9), color-mix(in srgb, var(--card-bg) 12%, white));
+    box-shadow: 0 12px 26px rgba(7, 23, 53, 0.16);
+    transition: transform var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+
+  .rule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(7, 23, 53, 0.2);
+  }
+
+  .rule-number {
+    position: absolute;
+    top: -1.12rem;
+    left: 50%;
+    display: grid;
+    width: clamp(2.55rem, 3.2vw, 3.05rem);
+    height: clamp(2.55rem, 3.2vw, 3.05rem);
+    place-items: center;
+    transform: translateX(-50%);
+    border: 2px solid var(--pm-white);
+    border-radius: 999px;
+    background: var(--card-bg, var(--pm-blue-500));
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 6px 12px color-mix(in srgb, var(--card-bg) 32%, transparent);
+  }
+
+  .rule-icon {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto clamp(0.85rem, 1.3vw, 1.15rem);
+    color: var(--card-bg, var(--pm-blue-500));
+  }
+
+  .rule-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 8px color-mix(in srgb, var(--card-bg) 26%, transparent));
+  }
+
+  h2 {
+    position: relative;
+    margin: 0;
+    padding-bottom: clamp(0.7rem, 1.1vw, 0.95rem);
+    color: var(--card-bg, var(--pm-blue-500));
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.45vw, 1.32rem);
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  h2::after {
+    content: "";
+    position: absolute;
+    inset: auto 12% 0;
+    height: 1.5px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.72;
+  }
+
+  p {
+    align-self: end;
+    margin: clamp(0.8rem, 1.4vw, 1.15rem) 0 0;
+    color: var(--pm-blue-900);
+    font-size: clamp(0.9rem, 1.05vw, 1rem);
+    line-height: 1.42;
+  }
+
+  .rule-card--blue {
+    --card-bg: var(--pm-blue-500);
+  }
+
+  .rule-card--green {
+    --card-bg: var(--pm-green-500);
+  }
+
+  .rule-card--purple {
+    --card-bg: var(--pm-purple-500);
+  }
+
+  .rule-card--orange {
+    --card-bg: var(--pm-orange-500);
+  }
+
+  .rule-card--red {
+    --card-bg: var(--pm-red-500);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rule-card:hover {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+interface Player {
+  id: string;
+  name: string;
+  avatar?: string;
+  avatarThumb?: string;
+}
+
+interface Props {
+  player: Player;
+}
+
+const { player } = Astro.props;
+const thumbSrc = player.avatarThumb ?? player.avatar ?? "";
+const hasPlayer = player.id !== "generic" && Boolean(thumbSrc);
+---
+
+<article
+  class="player-status-card"
+  data-player-status-card
+  data-player-id={player.id}
+  data-player-avatar-thumb={thumbSrc}
+  data-has-player={hasPlayer ? "true" : "false"}
+>
+  <span class="player-avatar" aria-hidden="true">
+    {hasPlayer ? (
+      <img
+        data-active-player-avatar
+        src={thumbSrc}
+        alt=""
+        width="160"
+        height="160"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <span class="avatar-fallback" data-active-player-fallback>
+        <span class="person-icon" aria-hidden="true"></span>
+      </span>
+    )}
+  </span>
+  <div>
+    <h2 data-active-player-name>{player.name}</h2>
+    <p data-active-player-status>{hasPlayer ? "JUGADOR ACTIVO" : "SIN JUGADOR"}</p>
+  </div>
+</article>
+
+<style>
+  .player-status-card {
+    display: inline-grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    min-width: min(100%, 16.5rem);
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: rgba(247, 247, 242, 0.92);
+    box-shadow: 0 1px 0 rgba(17, 24, 39, 0.08);
+  }
+
+  .player-avatar {
+    display: grid;
+    width: 2.45rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--pm-cyan-200, rgba(24, 221, 242, 0.32));
+  }
+
+  .player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  :global([data-player-status-card] [data-active-player-avatar]) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .avatar-fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--color-muted);
+    font-size: 0.62rem;
+    font-weight: 900;
+  }
+
+  :global([data-player-status-card] .avatar-fallback) {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .person-icon {
+    position: relative;
+    display: block;
+    width: 1.25rem;
+    aspect-ratio: 1;
+  }
+
+  :global([data-player-status-card] .person-icon) {
+    position: relative;
+    display: block;
+    width: 1.25rem;
+    aspect-ratio: 1;
+  }
+
+  .person-icon::before,
+  .person-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--pm-blue-700);
+  }
+
+  :global([data-player-status-card] .person-icon::before),
+  :global([data-player-status-card] .person-icon::after) {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--pm-blue-700);
+  }
+
+  .person-icon::before {
+    top: 0.05rem;
+    width: 0.48rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+  }
+
+  :global([data-player-status-card] .person-icon::before) {
+    top: 0.05rem;
+    width: 0.48rem;
+    aspect-ratio: 1;
+    border-radius: 999px;
+  }
+
+  .person-icon::after {
+    bottom: 0.05rem;
+    width: 1rem;
+    height: 0.58rem;
+    border-radius: 999px 999px 0.32rem 0.32rem;
+  }
+
+  :global([data-player-status-card] .person-icon::after) {
+    bottom: 0.05rem;
+    width: 1rem;
+    height: 0.58rem;
+    border-radius: 999px 999px 0.32rem 0.32rem;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 950;
+    line-height: 1;
+    min-height: 1em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin-top: 0.25rem;
+    color: var(--color-text);
+    font-size: 0.62rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+  }
+</style>

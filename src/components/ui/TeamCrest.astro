@@ -1,0 +1,102 @@
+---
+type Size = "xs" | "sm" | "md" | "lg" | "xl";
+
+interface TeamLike {
+  id?: string;
+  name?: string;
+  shortCode?: string;
+  crest?: string;
+  crestThumb?: string;
+}
+
+interface Props {
+  team?: TeamLike;
+  src?: string;
+  alt?: string;
+  size?: Size;
+  variant?: "full" | "thumb";
+  decorative?: boolean;
+  className?: string;
+}
+
+const {
+  team,
+  src,
+  alt,
+  size = "md",
+  variant,
+  decorative = false,
+  className = "",
+} = Astro.props as Props;
+
+const resolvedVariant = variant ?? (size === "lg" || size === "xl" ? "full" : "thumb");
+const fallbackPath = team?.id
+  ? resolvedVariant === "full"
+    ? `/assets/crests/${team.id}.webp`
+    : `/assets/crests/thumbs/${team.id}.webp`
+  : "";
+
+const resolvedSrc =
+  src ??
+  (resolvedVariant === "full" ? team?.crest : team?.crestThumb) ??
+  team?.crest ??
+  team?.crestThumb ??
+  fallbackPath;
+
+const resolvedName = team?.name ?? team?.shortCode ?? "";
+const ariaLabel = decorative ? "" : alt ?? (resolvedName ? `Escudo de ${resolvedName}` : "");
+const wrapperClass = `team-crest team-crest--${size}${className ? ` ${className}` : ""}`;
+---
+
+{resolvedSrc ? (
+  <span class={wrapperClass} aria-hidden={decorative ? "true" : undefined}>
+    <img
+      src={resolvedSrc}
+      alt={ariaLabel}
+      loading="lazy"
+      decoding="async"
+      width="160"
+      height="160"
+    />
+  </span>
+) : (
+  <span class={`${wrapperClass} team-crest--fallback`} aria-hidden="true">
+    <span class="team-crest-fallback-code">{team?.shortCode ?? "—"}</span>
+  </span>
+)}
+
+<style>
+  .team-crest {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    line-height: 0;
+  }
+
+  .team-crest img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .team-crest--xs { width: 1.1rem; height: 1.1rem; }
+  .team-crest--sm { width: 1.5rem; height: 1.5rem; }
+  .team-crest--md { width: 2rem; height: 2rem; }
+  .team-crest--lg { width: 3.4rem; height: 3.4rem; }
+  .team-crest--xl { width: 4.8rem; height: 4.8rem; }
+
+  .team-crest--fallback {
+    border: 1px dashed var(--pm-border-soft, rgba(7, 23, 53, 0.2));
+    border-radius: var(--pm-radius-sm, 6px);
+    background: var(--pm-panel-soft, #f3f7ff);
+    color: var(--pm-blue-700, #1a3a8a);
+  }
+
+  .team-crest-fallback-code {
+    font-family: var(--font-display, system-ui);
+    font-size: 0.55rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+</style>

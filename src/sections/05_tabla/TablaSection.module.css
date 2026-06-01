@@ -1,0 +1,67 @@
+.tablaSection {
+  --section-accent: var(--pm-sec-tabla-a);
+  --section-accent-2: var(--pm-sec-tabla-b);
+  --section-accent-3: var(--pm-sec-tabla-c);
+  --section-gradient: var(--pm-sec-tabla-gradient);
+
+  position: relative;
+  min-height: calc(100svh - var(--layout-header-height));
+  overflow: hidden;
+  isolation: isolate;
+  background-image: image-set(
+    url("/assets/backgrounds/avif/05_tabla_background.avif") type("image/avif"),
+    url("/assets/backgrounds/webp/05_tabla_background.webp") type("image/webp")
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--pm-text-main);
+  font-family: var(--font-ui);
+}
+
+.contentShell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - clamp(1rem, 4vw, 3rem), 1500px);
+  min-height: calc(100svh - var(--layout-header-height));
+  margin-inline: auto;
+  padding-block: clamp(0.5rem, 1vw, 0.8rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 0.8vw, 0.65rem);
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(20rem, 0.85fr);
+  gap: clamp(0.65rem, 1.2vw, 0.9rem);
+  align-items: start;
+}
+
+.rankingArea,
+.liveArea {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1vw, 0.7rem);
+}
+
+@media (max-width: 1080px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .contentShell {
+    width: min(100% - 1rem, 1500px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tablaSection *,
+  .tablaSection *::before,
+  .tablaSection *::after {
+    transition-duration: 0.01ms;
+  }
+}

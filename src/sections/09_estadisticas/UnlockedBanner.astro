@@ -1,0 +1,66 @@
+---
+---
+
+<aside class="unlocked-banner" data-unlocked-banner role="status" hidden>
+  <span class="badge" aria-hidden="true">✶</span>
+  <div class="body">
+    <p class="primary">ESTADÍSTICAS DESBLOQUEADAS</p>
+    <p class="hint">Confirmaste tus 72 predicciones. El data center ya está activo.</p>
+  </div>
+</aside>
+
+<style>
+  .unlocked-banner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.7rem 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--pm-lime-500) 42%, transparent);
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, var(--pm-blue-900), color-mix(in srgb, var(--pm-blue-900) 82%, var(--pm-lime-500)));
+    color: var(--pm-white);
+    box-shadow: 0 14px 30px rgba(7, 23, 53, 0.14);
+  }
+
+  .unlocked-banner[hidden] {
+    display: none;
+  }
+
+  .badge {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    border-radius: 0.55rem;
+    color: var(--pm-white);
+    font-size: 0.9rem;
+    font-weight: 950;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .primary {
+    margin: 0;
+    color: inherit;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .hint {
+    margin: 0;
+    color: inherit;
+    opacity: 0.85;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+</style>

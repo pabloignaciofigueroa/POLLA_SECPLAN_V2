@@ -1,0 +1,106 @@
+---
+import PlayerStatusCard from "./PlayerStatusCard.astro";
+import PredictionSummaryLine from "./PredictionSummaryLine.astro";
+
+interface Player {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  player: Player;
+  totalMatches: number;
+  groupsCount: number;
+}
+
+const { player, totalMatches, groupsCount } = Astro.props;
+---
+
+<header class="prediction-hero" aria-labelledby="predicciones-title">
+  <div class="title-block">
+    <p>04_predicciones / cartón</p>
+    <h1 id="predicciones-title">
+      <span class="title-main">Tu Cartón</span>
+      <span class="title-accent">Mundialero</span>
+    </h1>
+  </div>
+
+  <div class="hero-meta">
+    <PlayerStatusCard player={player} />
+    <PredictionSummaryLine totalMatches={totalMatches} groupsCount={groupsCount} />
+  </div>
+</header>
+
+<style>
+  .prediction-hero {
+    display: flex;
+    min-width: 0;
+    overflow: visible;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: clamp(0.45rem, 0.9vw, 0.7rem);
+    border: 1px solid var(--pm-blue-300);
+    border-radius: var(--pm-radius-lg);
+    background: linear-gradient(135deg, var(--pm-white), var(--pm-panel-soft));
+    box-shadow: var(--pm-shadow-blue);
+  }
+
+  .title-block {
+    display: flex;
+    min-width: 0;
+    overflow: visible;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .title-block p {
+    width: fit-content;
+    margin: 0;
+    padding: 0.22rem 0.65rem;
+    border: 1px solid var(--pm-blue-500);
+    border-radius: 999px;
+    background: var(--pm-blue-100);
+    color: var(--pm-blue-700);
+    font-size: 0.6rem;
+    font-weight: 850;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em;
+    overflow: visible;
+    padding: 0.04em 0 0.06em;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3.05vw, 2.85rem);
+    font-style: normal;
+    font-weight: 950;
+    line-height: 1.02;
+    text-transform: uppercase;
+  }
+
+  h1 span {
+    display: inline-block;
+  }
+
+  .title-main {
+    color: var(--pm-blue-900);
+  }
+
+  .title-accent {
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-cyan-500), var(--pm-purple-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+    align-items: center;
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+import GroupSection from "./GroupSection.astro";
+import type { GroupBucket } from "./equipos.logic";
+
+interface Props {
+  grouped: GroupBucket[];
+  activeGroup: string;
+}
+
+const { grouped, activeGroup } = Astro.props;
+---
+
+<div class="teams-album" data-teams-album data-animate="fade-up" style="--i:1">
+  {grouped.map((bucket) => <GroupSection bucket={bucket} activeGroup={activeGroup} />)}
+</div>
+
+<style>
+  .teams-album {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.9rem, 1.8vw, 1.3rem);
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+import styles from "./AdminSection.module.css";
+import AdminSidebar from "./AdminSidebar.astro";
+import AdminHeroHeader from "./AdminHeroHeader.astro";
+import SessionStatusCard from "./SessionStatusCard.astro";
+import AdminKpiGrid from "./AdminKpiGrid.astro";
+import SystemStatusPanel from "./SystemStatusPanel.astro";
+import RegisteredPlayersPanel from "./RegisteredPlayersPanel.astro";
+import PredictionsLoadedPanel from "./PredictionsLoadedPanel.astro";
+import PendingRequestsPanel from "./PendingRequestsPanel.astro";
+import OfficialResultsPanel from "./OfficialResultsPanel.astro";
+import BackupExportPanel from "./BackupExportPanel.astro";
+import LocalCleanupPanel from "./LocalCleanupPanel.astro";
+import ActivityLogPanel from "./ActivityLogPanel.astro";
+
+import playersData from "../../data/players.json";
+import fixtureData from "../../data/fixture.json";
+import adminDashboardData from "../../data/admin-dashboard.json";
+import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+
+import { buildAdminDashboardViewModel } from "./admin.logic";
+import type { AdminDashboardMock, AdminFixtureMatch, AdminPlayer } from "./admin.logic";
+
+import adminClientUrl from "./admin.client.js?url";
+
+const players = playersData as AdminPlayer[];
+const matches = fixtureData.matches as AdminFixtureMatch[];
+const dashboard = buildAdminDashboardViewModel(
+  players,
+  matches,
+  adminDashboardData as AdminDashboardMock
+);
+
+const clientPayload = {
+  source: adminDashboardData.source,
+  resetStateUrl,
+  dangerousActions: ["danger-clear-cache", "danger-recalculate"],
+};
+---
+
+<section class={styles.adminSection} id="admin" data-section="admin">
+  <div class={styles.adminGate} data-admin-gate>
+    <div class={styles.adminGateCard}>
+      <span class={styles.adminGateIcon} aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
+        </svg>
+      </span>
+      <p class={styles.adminGateEyebrow}>Acceso tecnico protegido</p>
+      <h1>Acceso reservado</h1>
+      <p>
+        Esta seccion esta reservada para el administrador y la gestion interna de la pagina.
+        Si eres jugador, puedes seguir usando las otras secciones de la Polla Mundialera.
+      </p>
+      <div class={styles.adminGateActions}>
+        <a href="/admin" class={styles.adminGatePrimary} data-admin-access-trigger>Ingresar clave admin</a>
+        <a href="/" class={styles.adminGateSecondary} data-astro-prefetch="viewport">Volver al inicio</a>
+      </div>
+      <small>Esta barrera evita accesos casuales; no reemplaza una autenticacion real de servidor.</small>
+    </div>
+  </div>
+
+  <div class={styles.adminProtected} data-admin-protected hidden>
+  <div class={styles.adminShell}>
+    <AdminSidebar />
+
+    <main class={styles.adminMain} aria-labelledby="admin-title">
+      <div class={styles.topRow} data-animate="fade-up">
+        <div id="admin-title">
+          <AdminHeroHeader />
+        </div>
+        <div class={styles.sessionTools}>
+          <SessionStatusCard session={dashboard.session} />
+          <button class={styles.logoutButton} type="button" data-admin-logout>Cerrar sesion admin</button>
+        </div>
+      </div>
+
+      <AdminKpiGrid kpis={dashboard.kpis} />
+
+      <p class={styles.feedbackBar} data-admin-feedback role="status" aria-live="polite">
+        Panel admin limpio para produccion local. Sin datos de prueba cargados.
+      </p>
+
+      <div class={styles.managementGrid} data-animate="fade-up">
+        <SystemStatusPanel system={dashboard.system} />
+        <RegisteredPlayersPanel players={dashboard.players} />
+        <PredictionsLoadedPanel predictions={dashboard.predictions} />
+        <PendingRequestsPanel count={dashboard.kpis.pendingRequests} />
+        <OfficialResultsPanel results={dashboard.officialResults} totalMatches={dashboard.kpis.totalMatches} />
+        <BackupExportPanel backup={dashboard.backup} />
+        <LocalCleanupPanel />
+      </div>
+
+      <ActivityLogPanel entries={dashboard.activityLog} />
+    </main>
+  </div>
+  </div>
+
+  <script type="application/json" data-admin-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={adminClientUrl}></script>
+</section>

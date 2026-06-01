@@ -1,0 +1,470 @@
+[
+  {
+    "id": "A",
+    "label": "Grupo A",
+    "sourceLabel": "Group A",
+    "teams": [
+      {
+        "id": "mexico",
+        "name": "México",
+        "shortCode": "MEX",
+        "confederation": "CONCACAF"
+      },
+      {
+        "id": "south-africa",
+        "name": "Sudáfrica",
+        "shortCode": "RSA",
+        "confederation": "CAF"
+      },
+      {
+        "id": "korea-republic",
+        "name": "Corea del Sur",
+        "shortCode": "KOR",
+        "confederation": "AFC"
+      },
+      {
+        "id": "czechia",
+        "name": "República Checa",
+        "shortCode": "CZE",
+        "confederation": "UEFA"
+      }
+    ],
+    "matchIds": [
+      "match-001",
+      "match-002",
+      "match-025",
+      "match-028",
+      "match-053",
+      "match-054"
+    ]
+  },
+  {
+    "id": "B",
+    "label": "Grupo B",
+    "sourceLabel": "Group B",
+    "teams": [
+      {
+        "id": "canada",
+        "name": "Canadá",
+        "shortCode": "CAN",
+        "confederation": "CONCACAF"
+      },
+      {
+        "id": "bosnia-herzegovina",
+        "name": "Bosnia y Herzegovina",
+        "shortCode": "BIH",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "qatar",
+        "name": "Qatar",
+        "shortCode": "QAT",
+        "confederation": "AFC"
+      },
+      {
+        "id": "switzerland",
+        "name": "Suiza",
+        "shortCode": "SUI",
+        "confederation": "UEFA"
+      }
+    ],
+    "matchIds": [
+      "match-003",
+      "match-008",
+      "match-026",
+      "match-027",
+      "match-051",
+      "match-052"
+    ]
+  },
+  {
+    "id": "C",
+    "label": "Grupo C",
+    "sourceLabel": "Group C",
+    "teams": [
+      {
+        "id": "brazil",
+        "name": "Brasil",
+        "shortCode": "BRA",
+        "confederation": "CONMEBOL"
+      },
+      {
+        "id": "morocco",
+        "name": "Marruecos",
+        "shortCode": "MAR",
+        "confederation": "CAF"
+      },
+      {
+        "id": "haiti",
+        "name": "Haití",
+        "shortCode": "HAI",
+        "confederation": "CONCACAF"
+      },
+      {
+        "id": "scotland",
+        "name": "Escocia",
+        "shortCode": "SCO",
+        "confederation": "UEFA"
+      }
+    ],
+    "matchIds": [
+      "match-005",
+      "match-007",
+      "match-029",
+      "match-030",
+      "match-049",
+      "match-050"
+    ]
+  },
+  {
+    "id": "D",
+    "label": "Grupo D",
+    "sourceLabel": "Group D",
+    "teams": [
+      {
+        "id": "usa",
+        "name": "Estados Unidos",
+        "shortCode": "USA",
+        "confederation": "CONCACAF"
+      },
+      {
+        "id": "paraguay",
+        "name": "Paraguay",
+        "shortCode": "PAR",
+        "confederation": "CONMEBOL"
+      },
+      {
+        "id": "australia",
+        "name": "Australia",
+        "shortCode": "AUS",
+        "confederation": "AFC"
+      },
+      {
+        "id": "turkiye",
+        "name": "Türkiye",
+        "shortCode": "TUR",
+        "confederation": "UEFA"
+      }
+    ],
+    "matchIds": [
+      "match-004",
+      "match-006",
+      "match-031",
+      "match-032",
+      "match-059",
+      "match-060"
+    ]
+  },
+  {
+    "id": "E",
+    "label": "Grupo E",
+    "sourceLabel": "Group E",
+    "teams": [
+      {
+        "id": "germany",
+        "name": "Alemania",
+        "shortCode": "GER",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "curacao",
+        "name": "Curazao",
+        "shortCode": "CUW",
+        "confederation": "CONCACAF"
+      },
+      {
+        "id": "cote-divoire",
+        "name": "Costa de Marfil",
+        "shortCode": "CIV",
+        "confederation": "CAF"
+      },
+      {
+        "id": "ecuador",
+        "name": "Ecuador",
+        "shortCode": "ECU",
+        "confederation": "CONMEBOL"
+      }
+    ],
+    "matchIds": [
+      "match-009",
+      "match-010",
+      "match-033",
+      "match-034",
+      "match-055",
+      "match-056"
+    ]
+  },
+  {
+    "id": "F",
+    "label": "Grupo F",
+    "sourceLabel": "Group F",
+    "teams": [
+      {
+        "id": "netherlands",
+        "name": "Países Bajos",
+        "shortCode": "NED",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "japan",
+        "name": "Japón",
+        "shortCode": "JPN",
+        "confederation": "AFC"
+      },
+      {
+        "id": "sweden",
+        "name": "Suecia",
+        "shortCode": "SWE",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "tunisia",
+        "name": "Túnez",
+        "shortCode": "TUN",
+        "confederation": "CAF"
+      }
+    ],
+    "matchIds": [
+      "match-011",
+      "match-012",
+      "match-035",
+      "match-036",
+      "match-057",
+      "match-058"
+    ]
+  },
+  {
+    "id": "G",
+    "label": "Grupo G",
+    "sourceLabel": "Group G",
+    "teams": [
+      {
+        "id": "belgium",
+        "name": "Bélgica",
+        "shortCode": "BEL",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "egypt",
+        "name": "Egipto",
+        "shortCode": "EGY",
+        "confederation": "CAF"
+      },
+      {
+        "id": "ir-iran",
+        "name": "Irán",
+        "shortCode": "IRN",
+        "confederation": "AFC"
+      },
+      {
+        "id": "new-zealand",
+        "name": "Nueva Zelanda",
+        "shortCode": "NZL",
+        "confederation": "OFC"
+      }
+    ],
+    "matchIds": [
+      "match-015",
+      "match-016",
+      "match-039",
+      "match-040",
+      "match-063",
+      "match-064"
+    ]
+  },
+  {
+    "id": "H",
+    "label": "Grupo H",
+    "sourceLabel": "Group H",
+    "teams": [
+      {
+        "id": "spain",
+        "name": "España",
+        "shortCode": "ESP",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "cabo-verde",
+        "name": "Cabo Verde",
+        "shortCode": "CPV",
+        "confederation": "CAF"
+      },
+      {
+        "id": "saudi-arabia",
+        "name": "Arabia Saudita",
+        "shortCode": "KSA",
+        "confederation": "AFC"
+      },
+      {
+        "id": "uruguay",
+        "name": "Uruguay",
+        "shortCode": "URU",
+        "confederation": "CONMEBOL"
+      }
+    ],
+    "matchIds": [
+      "match-013",
+      "match-014",
+      "match-037",
+      "match-038",
+      "match-065",
+      "match-066"
+    ]
+  },
+  {
+    "id": "I",
+    "label": "Grupo I",
+    "sourceLabel": "Group I",
+    "teams": [
+      {
+        "id": "france",
+        "name": "Francia",
+        "shortCode": "FRA",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "senegal",
+        "name": "Senegal",
+        "shortCode": "SEN",
+        "confederation": "CAF"
+      },
+      {
+        "id": "iraq",
+        "name": "Irak",
+        "shortCode": "IRQ",
+        "confederation": "AFC"
+      },
+      {
+        "id": "norway",
+        "name": "Noruega",
+        "shortCode": "NOR",
+        "confederation": "UEFA"
+      }
+    ],
+    "matchIds": [
+      "match-017",
+      "match-018",
+      "match-041",
+      "match-042",
+      "match-061",
+      "match-062"
+    ]
+  },
+  {
+    "id": "J",
+    "label": "Grupo J",
+    "sourceLabel": "Group J",
+    "teams": [
+      {
+        "id": "argentina",
+        "name": "Argentina",
+        "shortCode": "ARG",
+        "confederation": "CONMEBOL"
+      },
+      {
+        "id": "algeria",
+        "name": "Argelia",
+        "shortCode": "ALG",
+        "confederation": "CAF"
+      },
+      {
+        "id": "austria",
+        "name": "Austria",
+        "shortCode": "AUT",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "jordan",
+        "name": "Jordania",
+        "shortCode": "JOR",
+        "confederation": "AFC"
+      }
+    ],
+    "matchIds": [
+      "match-019",
+      "match-020",
+      "match-043",
+      "match-044",
+      "match-069",
+      "match-070"
+    ]
+  },
+  {
+    "id": "K",
+    "label": "Grupo K",
+    "sourceLabel": "Group K",
+    "teams": [
+      {
+        "id": "portugal",
+        "name": "Portugal",
+        "shortCode": "POR",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "congo-dr",
+        "name": "RD del Congo",
+        "shortCode": "COD",
+        "confederation": "CAF"
+      },
+      {
+        "id": "uzbekistan",
+        "name": "Uzbekistán",
+        "shortCode": "UZB",
+        "confederation": "AFC"
+      },
+      {
+        "id": "colombia",
+        "name": "Colombia",
+        "shortCode": "COL",
+        "confederation": "CONMEBOL"
+      }
+    ],
+    "matchIds": [
+      "match-023",
+      "match-024",
+      "match-047",
+      "match-048",
+      "match-071",
+      "match-072"
+    ]
+  },
+  {
+    "id": "L",
+    "label": "Grupo L",
+    "sourceLabel": "Group L",
+    "teams": [
+      {
+        "id": "england",
+        "name": "Inglaterra",
+        "shortCode": "ENG",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "croatia",
+        "name": "Croacia",
+        "shortCode": "CRO",
+        "confederation": "UEFA"
+      },
+      {
+        "id": "ghana",
+        "name": "Ghana",
+        "shortCode": "GHA",
+        "confederation": "CAF"
+      },
+      {
+        "id": "panama",
+        "name": "Panamá",
+        "shortCode": "PAN",
+        "confederation": "CONCACAF"
+      }
+    ],
+    "matchIds": [
+      "match-021",
+      "match-022",
+      "match-045",
+      "match-046",
+      "match-067",
+      "match-068"
+    ]
+  }
+]

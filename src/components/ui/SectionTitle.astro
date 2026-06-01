@@ -1,0 +1,105 @@
+---
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  titleAccent?: string;
+  subtitle?: string;
+  tone?: "blue" | "purple" | "cyan" | "pink" | "orange";
+}
+
+const { eyebrow, title, titleAccent, subtitle, tone = "blue" } = Astro.props;
+---
+
+<header class={`section-title section-title--${tone}`}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  {(title || titleAccent) && (
+    <h2 class="title">
+      {title && <span class="title-main">{title}</span>}
+      {titleAccent && <span class="title-accent">{titleAccent}</span>}
+      <slot name="title" />
+    </h2>
+  )}
+  <slot />
+  {subtitle && <p class="subtitle">{subtitle}</p>}
+</header>
+
+<style>
+  .section-title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+    --eyebrow-color: var(--pm-blue-500);
+    --title-main-color: var(--pm-text-strong);
+    --title-accent-color: var(--pm-blue-500);
+    --accent-gradient: linear-gradient(135deg, var(--pm-blue-500), var(--pm-cyan-500));
+  }
+
+  .section-title--purple {
+    --eyebrow-color: var(--pm-purple-500);
+    --title-accent-color: var(--pm-purple-500);
+    --accent-gradient: linear-gradient(135deg, var(--pm-purple-500), var(--pm-pink-500));
+  }
+
+  .section-title--cyan {
+    --eyebrow-color: var(--pm-cyan-600);
+    --title-accent-color: var(--pm-cyan-600);
+    --accent-gradient: linear-gradient(135deg, var(--pm-cyan-500), var(--pm-blue-500));
+  }
+
+  .section-title--pink {
+    --eyebrow-color: var(--pm-pink-500);
+    --title-accent-color: var(--pm-pink-500);
+    --accent-gradient: linear-gradient(135deg, var(--pm-pink-500), var(--pm-purple-500));
+  }
+
+  .section-title--orange {
+    --eyebrow-color: var(--pm-orange-500);
+    --title-accent-color: var(--pm-orange-500);
+    --accent-gradient: linear-gradient(135deg, var(--pm-orange-500), var(--pm-red-500));
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: var(--type-small);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--eyebrow-color);
+    line-height: 1;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--type-functional);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--pm-text-strong);
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em;
+  }
+
+  .title-main {
+    color: var(--title-main-color);
+  }
+
+  .title-accent {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    font-family: var(--font-ui);
+    font-size: var(--type-body-lg);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--pm-text-soft);
+  }
+</style>

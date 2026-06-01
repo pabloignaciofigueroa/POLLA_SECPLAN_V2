@@ -1,0 +1,11 @@
+{
+  "source": "production-clean",
+  "lastUpdatedLabel": "---",
+  "matchday": {
+    "current": 0,
+    "total": 72
+  },
+  "currentMatchId": null,
+  "nextMatchId": "match-001",
+  "results": []
+}

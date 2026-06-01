@@ -1,0 +1,76 @@
+{
+  "project": "Polla Mundialera SECPLAN 2026 Clean V2",
+  "asset_group": "logos_fifa_worldcup_2026_webp",
+  "generated_at": "2026-05-24T18:04:32.535764+00:00",
+  "target_directory": "site/public/assets/brand/fifa/",
+  "public_url_base": "/assets/brand/fifa/",
+  "conversion": {
+    "source_format": "png",
+    "output_format": "webp",
+    "mode": "RGBA",
+    "alpha": "preserved_when_present",
+    "encoding": "lossless WebP",
+    "method": 6
+  },
+  "assets": [
+    {
+      "source": "fifa.png",
+      "file": "fifa-wordmark-blue.webp",
+      "path": "public/assets/brand/fifa/fifa-wordmark-blue.webp",
+      "public_url": "/assets/brand/fifa/fifa-wordmark-blue.webp",
+      "width": 1500,
+      "height": 1500,
+      "input_bytes": 15468,
+      "output_bytes": 3438,
+      "usage": "FIFA wordmark azul, uso en fondos claros"
+    },
+    {
+      "source": "fifa-world-cup-2026-official-logo-footylogos.png",
+      "file": "fifa-world-cup-2026-lockup-dark.webp",
+      "path": "public/assets/brand/fifa/fifa-world-cup-2026-lockup-dark.webp",
+      "public_url": "/assets/brand/fifa/fifa-world-cup-2026-lockup-dark.webp",
+      "width": 1500,
+      "height": 1500,
+      "input_bytes": 288673,
+      "output_bytes": 212640,
+      "usage": "Logo FIFA World Cup 2026 lockup oscuro, uso sobre fondos claros"
+    },
+    {
+      "source": "fifa-world-cup-2026-official-logo-footylogos-white.png",
+      "file": "fifa-world-cup-2026-lockup-light.webp",
+      "path": "public/assets/brand/fifa/fifa-world-cup-2026-lockup-light.webp",
+      "public_url": "/assets/brand/fifa/fifa-world-cup-2026-lockup-light.webp",
+      "width": 1500,
+      "height": 1500,
+      "input_bytes": 287842,
+      "output_bytes": 211126,
+      "usage": "Logo FIFA World Cup 2026 lockup blanco, uso sobre fondos oscuros/controlados"
+    },
+    {
+      "source": "mundial_2026.png",
+      "file": "fifa-world-cup-trophy-mark.webp",
+      "path": "public/assets/brand/fifa/fifa-world-cup-trophy-mark.webp",
+      "public_url": "/assets/brand/fifa/fifa-world-cup-trophy-mark.webp",
+      "width": 1500,
+      "height": 1500,
+      "input_bytes": 397334,
+      "output_bytes": 245266,
+      "usage": "Marca copa FIFA World Cup aislada con wordmark"
+    },
+    {
+      "source": "world-cup-2026-footballlogos-org.png",
+      "file": "fifa-world-cup-2026-hosts-logo.webp",
+      "path": "public/assets/brand/fifa/fifa-world-cup-2026-hosts-logo.webp",
+      "public_url": "/assets/brand/fifa/fifa-world-cup-2026-hosts-logo.webp",
+      "width": 1500,
+      "height": 1500,
+      "input_bytes": 120720,
+      "output_bytes": 62830,
+      "usage": "Logo 2026 anfitriones United States Canada Mexico"
+    }
+  ],
+  "totals": {
+    "input_bytes": 1110037,
+    "output_bytes": 735300
+  }
+}

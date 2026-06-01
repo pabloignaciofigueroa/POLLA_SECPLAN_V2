@@ -1,0 +1,125 @@
+---
+---
+
+<header class="admin-hero">
+  <div class="copy">
+    <p class="eyebrow">10_admin / control</p>
+    <h1>
+      <span class="title-main">Admin</span>
+      <span class="title-accent">Panel</span>
+    </h1>
+    <p class="subtitle">Centro de control</p>
+    <div class="title-bars" aria-hidden="true">
+      <span class="bar bar-1"></span>
+      <span class="bar bar-2"></span>
+      <span class="bar bar-3"></span>
+    </div>
+  </div>
+  <div class="hero-dots" aria-hidden="true">
+    {Array.from({ length: 24 }).map(() => <span></span>)}
+  </div>
+</header>
+
+<style>
+  /* ANTI-CLS: conservar min-height del hero */
+  .admin-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 4.5rem;
+  }
+
+  .copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .eyebrow {
+    margin: 0;
+    align-self: flex-start;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    background: var(--pm-blue-100);
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    font-weight: 950;
+    letter-spacing: 0;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+
+  .title-main {
+    color: var(--pm-blue-900);
+  }
+
+  .title-accent {
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-mint-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    margin: 0.15rem 0 0;
+    color: var(--pm-blue-700);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .title-bars {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
+  }
+
+  .bar {
+    display: block;
+    height: 3px;
+    border-radius: 999px;
+  }
+
+  .bar-1 { width: 3.5rem; background: var(--pm-cyan-500); }
+  .bar-2 { width: 2.5rem; background: var(--pm-blue-500); }
+  .bar-3 { width: 1.5rem; background: var(--pm-mint-500); }
+
+  .hero-dots {
+    display: grid;
+    grid-template-columns: repeat(6, 0.28rem);
+    gap: 0.35rem;
+    padding-top: 0.3rem;
+    opacity: 0.85;
+  }
+
+  .hero-dots span {
+    width: 0.28rem;
+    height: 0.28rem;
+    border-radius: 50%;
+    background: var(--pm-cyan-500);
+  }
+
+  .hero-dots span:nth-child(3n)   { background: var(--pm-blue-500); }
+  .hero-dots span:nth-child(3n+1) { background: var(--pm-mint-500); }
+
+  @media (max-width: 620px) {
+    .hero-dots {
+      display: none;
+    }
+  }
+</style>

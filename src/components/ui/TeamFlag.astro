@@ -1,0 +1,129 @@
+---
+type Size = "xs" | "sm" | "md" | "lg" | "xl";
+
+interface TeamLike {
+  id?: string;
+  name?: string;
+  shortCode?: string;
+  flag?: string;
+}
+
+interface Props {
+  team?: TeamLike;
+  src?: string;
+  alt?: string;
+  size?: Size;
+  rounded?: boolean;
+  decorative?: boolean;
+  className?: string;
+}
+
+const {
+  team,
+  src,
+  alt,
+  size = "md",
+  rounded = true,
+  decorative = false,
+  className = "",
+} = Astro.props as Props;
+
+const resolvedSrc = src ?? team?.flag ?? (team?.id ? `/assets/flags/${team.id}.svg` : "");
+const resolvedName = team?.name ?? team?.shortCode ?? "";
+const ariaLabel = decorative ? "" : alt ?? (resolvedName ? `Bandera de ${resolvedName}` : "");
+const wrapperClass = `team-flag team-flag--${size}${rounded ? " team-flag--rounded" : ""}${className ? ` ${className}` : ""}`;
+---
+
+{resolvedSrc ? (
+  <span class={wrapperClass} aria-hidden={decorative ? "true" : undefined}>
+    <img
+      src={resolvedSrc}
+      alt={ariaLabel}
+      loading="lazy"
+      decoding="async"
+      width="64"
+      height="48"
+    />
+  </span>
+) : (
+  <span class={`${wrapperClass} team-flag--fallback`} aria-hidden="true">
+    <span class="team-flag-fallback-code">{team?.shortCode ?? "—"}</span>
+  </span>
+)}
+
+<style>
+  .team-flag {
+    display: inline-grid;
+    place-items: center;
+    overflow: hidden;
+    background: var(--pm-cyan-200, rgba(24, 221, 242, 0.18));
+    border: 1px solid var(--pm-border-soft, rgba(7, 23, 53, 0.12));
+    line-height: 0;
+    flex: 0 0 auto;
+  }
+
+  .team-flag img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .team-flag--rounded {
+    border-radius: 999px;
+  }
+
+  .team-flag--xs {
+    width: 1rem;
+    height: 0.75rem;
+  }
+  .team-flag--sm {
+    width: 1.4rem;
+    height: 1.05rem;
+  }
+  .team-flag--md {
+    width: 1.85rem;
+    height: 1.4rem;
+  }
+  .team-flag--lg {
+    width: 2.6rem;
+    height: 1.95rem;
+  }
+  .team-flag--xl {
+    width: 3.4rem;
+    height: 2.55rem;
+  }
+
+  .team-flag--rounded.team-flag--xs {
+    width: 1rem;
+    height: 1rem;
+  }
+  .team-flag--rounded.team-flag--sm {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  .team-flag--rounded.team-flag--md {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+  .team-flag--rounded.team-flag--lg {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+  .team-flag--rounded.team-flag--xl {
+    width: 3.4rem;
+    height: 3.4rem;
+  }
+
+  .team-flag--fallback {
+    background: var(--pm-blue-50, rgba(18, 109, 255, 0.08));
+    color: var(--pm-blue-700, #1a3a8a);
+  }
+
+  .team-flag-fallback-code {
+    font-family: var(--font-display, system-ui);
+    font-size: 0.55rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+</style>

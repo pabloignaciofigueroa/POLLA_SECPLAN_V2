@@ -1,0 +1,107 @@
+[
+  {
+    "id": "carlos",
+    "name": "Carlos",
+    "avatar": "/assets/players/carlos.webp",
+    "avatarThumb": "/assets/players/thumbs/carlos.webp",
+    "status": "available"
+  },
+  {
+    "id": "chelo",
+    "name": "Chelo",
+    "avatar": "/assets/players/chelo.webp",
+    "avatarThumb": "/assets/players/thumbs/chelo.webp",
+    "status": "available"
+  },
+  {
+    "id": "daniel",
+    "name": "Daniel",
+    "avatar": "/assets/players/daniel.webp",
+    "avatarThumb": "/assets/players/thumbs/daniel.webp",
+    "status": "available"
+  },
+  {
+    "id": "eric",
+    "name": "Eric",
+    "avatar": "/assets/players/eric.webp",
+    "avatarThumb": "/assets/players/thumbs/eric.webp",
+    "status": "available"
+  },
+  {
+    "id": "gonzalo",
+    "name": "Gonzalo",
+    "avatar": "/assets/players/gonzalo.webp",
+    "avatarThumb": "/assets/players/thumbs/gonzalo.webp",
+    "status": "available"
+  },
+  {
+    "id": "humberto",
+    "name": "Humberto",
+    "avatar": "/assets/players/humberto.webp",
+    "avatarThumb": "/assets/players/thumbs/humberto.webp",
+    "status": "available"
+  },
+  {
+    "id": "isaias",
+    "name": "Isaías",
+    "avatar": "/assets/players/isaias.webp",
+    "avatarThumb": "/assets/players/thumbs/isaias.webp",
+    "status": "available"
+  },
+  {
+    "id": "luis",
+    "name": "Luis",
+    "avatar": "/assets/players/luis.webp",
+    "avatarThumb": "/assets/players/thumbs/luis.webp",
+    "status": "selected"
+  },
+  {
+    "id": "luis_renato",
+    "name": "Luis Renato",
+    "avatar": "/assets/players/luis_renato.webp",
+    "avatarThumb": "/assets/players/thumbs/luis_renato.webp",
+    "status": "available"
+  },
+  {
+    "id": "marcos",
+    "name": "Marcos",
+    "avatar": "/assets/players/marcos.webp",
+    "avatarThumb": "/assets/players/thumbs/marcos.webp",
+    "status": "available"
+  },
+  {
+    "id": "martin",
+    "name": "Martin",
+    "avatar": "/assets/players/martin.webp",
+    "avatarThumb": "/assets/players/thumbs/martin.webp",
+    "status": "available"
+  },
+  {
+    "id": "narigon",
+    "name": "Narigón",
+    "avatar": "/assets/players/narigon.webp",
+    "avatarThumb": "/assets/players/thumbs/narigon.webp",
+    "status": "available"
+  },
+  {
+    "id": "pancho",
+    "name": "Pancho",
+    "avatar": "/assets/players/pancho.webp",
+    "avatarThumb": "/assets/players/thumbs/pancho.webp",
+    "status": "available"
+  },
+  {
+    "id": "ratinha",
+    "name": "Ratinha",
+    "avatar": "/assets/players/ratinha.webp",
+    "avatarThumb": "/assets/players/thumbs/ratinha.webp",
+    "status": "available"
+  },
+  {
+    "id": "tanke",
+    "name": "Tanke",
+    "avatar": "/assets/players/tanke.webp",
+    "avatarThumb": "/assets/players/thumbs/tanke.webp",
+    "status": "available"
+  }
+]

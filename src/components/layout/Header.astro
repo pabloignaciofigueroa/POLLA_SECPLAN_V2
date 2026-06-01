@@ -1,0 +1,164 @@
+---
+import MobileMenu from "./MobileMenu.astro";
+import AdminAccessModal from "./AdminAccessModal.astro";
+import adminAccessClientUrl from "./admin-access.client.js?url";
+
+const normalizePath = (path: string) => {
+  if (path === "/") return "/";
+  return path.replace(/\/$/, "");
+};
+
+const currentPath = normalizePath(Astro.url.pathname);
+
+const links = [
+  { href: "/", label: "Inicio" },
+  { href: "/reglas", label: "Reglas" },
+  { href: "/jugador", label: "Jugador" },
+  { href: "/predicciones", label: "Predicciones" },
+  { href: "/tabla", label: "Tabla" },
+  { href: "/proximo-partido", label: "Próximo Partido" },
+  { href: "/fixture", label: "Fixture" },
+  { href: "/equipos", label: "Equipos" },
+  { href: "/estadisticas", label: "Estadísticas" },
+  { href: "/admin", label: "Admin" },
+].map((link) => ({
+  ...link,
+  isActive: normalizePath(link.href) === currentPath,
+}));
+---
+
+<header class="header" data-section="header">
+  <a class="brand" href="/" data-astro-prefetch="viewport">Polla SECPLAN 2026</a>
+
+  <nav class="nav-desktop" aria-label="Navegación principal">
+    <ul>
+      {links.map((link) => {
+        const isAdminLink = link.href === "/admin";
+        return (
+        <li>
+          <a
+            href={link.href}
+            aria-current={link.isActive ? "page" : undefined}
+            data-admin-access-trigger={isAdminLink ? true : undefined}
+            data-astro-prefetch={isAdminLink ? undefined : "viewport"}
+          >
+            {isAdminLink ? (
+              <>
+                <span class="admin-lock" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
+                  </svg>
+                </span>
+                <span>Admin</span>
+              </>
+            ) : (
+              link.label
+            )}
+          </a>
+        </li>
+        );
+      })}
+    </ul>
+  </nav>
+
+  <MobileMenu links={links} />
+</header>
+
+<AdminAccessModal />
+<script type="module" src={adminAccessClientUrl}></script>
+
+<style>
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--pm-navbar-border);
+    background: linear-gradient(90deg, var(--pm-navbar-bg), var(--pm-navbar-bg-2));
+    color: var(--pm-white);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    box-shadow: 0 10px 28px rgba(6, 19, 38, 0.22);
+    /* Persiste/morfea entre páginas durante el view-transition cross-document
+       (el resto del contenido hace el wipe/punch como grupo "root"). */
+    view-transition-name: site-header;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1rem, 1.1vw, 1.15rem);
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    color: var(--pm-white);
+  }
+
+  .nav-desktop ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .nav-desktop a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.34rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pm-navbar-text);
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid transparent;
+    border-radius: var(--pm-radius-pill);
+    transition: color var(--pm-transition-fast), background var(--pm-transition-fast),
+      border-color var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+
+  .admin-lock {
+    display: inline-grid;
+    width: 0.9rem;
+    height: 0.9rem;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .admin-lock svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  .nav-desktop a:hover {
+    color: var(--pm-navbar-text-hover);
+    border-color: var(--pm-cyan-500);
+    background: rgba(24, 221, 242, 0.08);
+  }
+
+  .nav-desktop a:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .nav-desktop a[aria-current="page"] {
+    color: var(--pm-navbar-active-text);
+    background: var(--pm-navbar-active-bg);
+    border-color: var(--pm-yellow-600);
+    font-weight: 800;
+    box-shadow: 0 0 18px var(--pm-gold-glow);
+  }
+
+  .nav-desktop a[aria-current="page"]:focus-visible {
+    box-shadow: 0 0 18px var(--pm-gold-glow), var(--pm-focus-ring-yellow);
+  }
+
+  @media (max-width: 900px) {
+    .nav-desktop {
+      display: none;
+    }
+  }
+</style>

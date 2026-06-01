@@ -1,0 +1,146 @@
+---
+import styles from "./FixtureSection.module.css";
+import FixtureHero from "./FixtureHero.astro";
+import FixtureSummaryCards from "./FixtureSummaryCards.astro";
+import FixtureFilters from "./FixtureFilters.astro";
+import FixtureListPanel from "./FixtureListPanel.astro";
+import SelectedMatchPanel from "./SelectedMatchPanel.astro";
+import TimezoneNotice from "./TimezoneNotice.astro";
+import DayAgendaPanel from "./DayAgendaPanel.astro";
+import MatchInfoPanel from "./MatchInfoPanel.astro";
+
+import fixtureData from "../../data/fixture.json";
+import groupsData from "../../data/groups.json";
+import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
+
+import {
+  getRelevantMatches,
+  getTodayMatches,
+  getMatchesForChileDate,
+  getCurrentRound,
+  getMatchInfo,
+  uniqueLocationCount,
+  filterByStage,
+  filterByGroup,
+  getStageLabel,
+} from "./fixture.logic";
+import type { FixtureMatch, MatchInfoBundle, StageFilter } from "./fixture.logic";
+
+import fixtureClientUrl from "./fixture.client.js?url";
+
+const matches = fixtureData.matches as FixtureMatch[];
+const groups = (groupsData as { id: string; label: string }[]).map((g) => ({ id: g.id, label: g.label }));
+const infoBundle: MatchInfoBundle = {
+  defaultInfo: {
+    referee: { name: "", country: "" },
+    assistants: [],
+    weather: { temperatureC: null, condition: "Por confirmar" },
+    capacity: null,
+    broadcast: [],
+    stadium: { name: null, city: null, country: null },
+  },
+  matches: {},
+};
+
+const now = new Date();
+const relevant = getRelevantMatches(matches, now);
+const primaryMatch = relevant.primaryMatch ?? matches[0];
+const todayMatches = getTodayMatches(matches, now);
+const currentRound = getCurrentRound(matches, now);
+const venues = uniqueLocationCount(matches);
+
+const initialStage: StageFilter = "group";
+const initialGroup = "all";
+
+const stagesConfig: { id: StageFilter; label: string; available: boolean }[] = [
+  { id: "today", label: getStageLabel("today"), available: true },
+  { id: "all", label: getStageLabel("all"), available: true },
+  { id: "group", label: getStageLabel("group"), available: true },
+  { id: "round-of-16", label: getStageLabel("round-of-16"), available: false },
+  { id: "quarter", label: getStageLabel("quarter"), available: false },
+  { id: "semi", label: getStageLabel("semi"), available: false },
+  { id: "final", label: getStageLabel("final"), available: false },
+];
+
+const initialFiltered = filterByGroup(filterByStage(matches, initialStage, now), initialGroup);
+const stageHeading = `${getStageLabel(initialStage)} · Jornada ${currentRound.current}`;
+const selectedInfo = getMatchInfo(infoBundle, primaryMatch.id);
+const agendaMatches = getMatchesForChileDate(matches, primaryMatch.dateChile).slice(0, 5);
+
+const summaryStats = {
+  totalMatches: matches.length,
+  todayMatches: todayMatches.length,
+  currentRound: currentRound.current,
+  totalRounds: currentRound.total,
+  venues,
+};
+
+const stadiumsByLocation = Object.fromEntries(
+  Array.from(new Set(matches.map((match) => match.location))).map((location) => {
+    const asset = getStadiumAsset(location);
+    return [
+      location,
+      asset
+        ? {
+            src: asset.asset,
+            name: asset.stadiumOfficialName,
+          }
+        : null,
+    ];
+  })
+);
+
+const clientPayload = {
+  matches,
+  groups,
+  info: infoBundle,
+  stadiumsByLocation,
+  initialStage,
+  initialGroup,
+  initialSelectedId: primaryMatch.id,
+};
+---
+
+<section
+  class={styles.fixtureSection}
+  id="fixture"
+  data-section="fixture"
+  data-initial-stage={initialStage}
+  data-initial-group={initialGroup}
+  data-initial-selected={primaryMatch.id}
+>
+  <div class={styles.contentShell}>
+    <div class={styles.topRow} data-animate="fade-up">
+      <FixtureHero />
+      <FixtureSummaryCards stats={summaryStats} />
+    </div>
+
+    <FixtureFilters
+      stages={stagesConfig}
+      groups={groups}
+      initialStage={initialStage}
+      initialGroup={initialGroup}
+    />
+
+    <div class={styles.mainGrid} data-animate="fade-up" style="--i:1">
+      <FixtureListPanel
+        matches={initialFiltered}
+        selectedId={primaryMatch.id}
+        stageHeading={stageHeading}
+      />
+
+      <SelectedMatchPanel
+        match={primaryMatch}
+        info={selectedInfo}
+      >
+        <MatchInfoPanel match={primaryMatch} info={selectedInfo} />
+        <DayAgendaPanel agendaMatches={agendaMatches} selectedDateChile={primaryMatch.dateChile} />
+      </SelectedMatchPanel>
+    </div>
+
+    <TimezoneNotice />
+  </div>
+
+  <script type="application/json" data-fixture-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={fixtureClientUrl}></script>
+</section>

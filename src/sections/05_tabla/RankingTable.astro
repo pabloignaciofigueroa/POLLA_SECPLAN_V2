@@ -1,0 +1,159 @@
+---
+import RankingRow from "./RankingRow.astro";
+import type { RankingRow as RankingRowType } from "../../lib/tabla/types";
+
+interface Props {
+  rows: RankingRowType[];
+}
+
+const { rows } = Astro.props;
+---
+
+<section class="ranking-panel" aria-labelledby="ranking-title">
+  <div class="panel-header">
+    <h2 id="ranking-title">Ranking de jugadores</h2>
+    <span>{rows.length} jugadores</span>
+  </div>
+
+  <div class="table-scroll">
+    <table data-ranking-table>
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Jugador</th>
+          <th>Pts</th>
+          <th data-column="played">PJ</th>
+          <th data-column="exact">G</th>
+          <th data-column="tendency">E</th>
+          <th data-column="misses">P</th>
+          <th data-column="difference">DG</th>
+          <th>Rend.</th>
+          <th>Racha</th>
+        </tr>
+      </thead>
+      <tbody data-ranking-body>
+        {rows.map((row) => <RankingRow row={row} />)}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .ranking-panel {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--pm-sec-tabla-b) 36%, transparent);
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--pm-sec-tabla-a) 22%, transparent),
+        color-mix(in srgb, var(--pm-sec-tabla-b) 30%, transparent)
+      ),
+      var(--pm-panel-soft);
+    box-shadow: 0 18px 45px rgba(7, 23, 53, 0.08);
+  }
+
+  @media (max-width: 640px) {
+    .ranking-panel {
+      background:
+        linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--pm-sec-tabla-a) 12%, transparent),
+          color-mix(in srgb, var(--pm-sec-tabla-b) 18%, transparent)
+        ),
+        var(--pm-panel-soft);
+    }
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--pm-sec-tabla-b) 30%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--pm-sec-tabla-a) 22%, transparent),
+      color-mix(in srgb, var(--pm-sec-tabla-b) 18%, transparent)
+    );
+  }
+
+  h2,
+  .panel-header span {
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .panel-header span {
+    color: var(--color-muted);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+  }
+
+  th {
+    padding: 0.38rem 0.52rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text);
+    font-size: 0.66rem;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  th:nth-child(2) {
+    text-align: left;
+  }
+
+  th[data-column="played"],
+  th[data-column="exact"],
+  th[data-column="tendency"],
+  th[data-column="misses"],
+  th[data-column="difference"] {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    .table-scroll {
+      overflow: visible;
+      padding: 0.75rem;
+    }
+
+    table,
+    thead,
+    tbody {
+      display: block;
+      min-width: 0;
+      width: 100%;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: grid;
+      gap: 0.75rem;
+    }
+  }
+</style>

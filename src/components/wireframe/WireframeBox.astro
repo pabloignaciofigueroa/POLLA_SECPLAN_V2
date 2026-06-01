@@ -1,0 +1,39 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+<div class="wf-box">
+  {label && <p class="wf-box__label">[{label}]</p>}
+  <div class="wf-box__body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .wf-box {
+    padding: var(--space-md);
+    border: 2px dashed var(--color-line);
+    border-radius: var(--radius-md);
+    background: transparent;
+  }
+
+  .wf-box__label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .wf-box__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+</style>

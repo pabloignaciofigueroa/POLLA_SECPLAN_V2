@@ -1,0 +1,945 @@
+{
+  "schemaVersion": "1.0",
+  "assetType": "team-cover-images",
+  "project": "Polla Mundialera SECPLAN 2026 - Clean V2",
+  "section": "08_equipos",
+  "generatedAt": "2026-05-24T13:37:24Z",
+  "count": 48,
+  "items": [
+    {
+      "id": "alemania",
+      "seleccion": "Alemania",
+      "confederacion": "UEFA",
+      "titulo": "Presión alta y números 10",
+      "featuredPlayers": [
+        "Florian Wirtz",
+        "Jamal Musiala"
+      ],
+      "coverImage": "/assets/teams/covers/alemania.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/alemania.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "alemania.webp"
+    },
+    {
+      "id": "arabia-saudita",
+      "seleccion": "Arabia Saudita",
+      "confederacion": "AFC",
+      "titulo": "Energía media, falta de nueve",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/arabia-saudita.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/arabia-saudita.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "arabia_saudita.webp"
+    },
+    {
+      "id": "argelia",
+      "seleccion": "Argelia",
+      "confederacion": "CAF",
+      "titulo": "Despierta después del descanso",
+      "featuredPlayers": [
+        "Mohamed Amoura"
+      ],
+      "coverImage": "/assets/teams/covers/argelia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/argelia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "argelia.webp"
+    },
+    {
+      "id": "argentina",
+      "seleccion": "Argentina",
+      "confederacion": "CONMEBOL",
+      "titulo": "El mismo plan, más veterano",
+      "featuredPlayers": [
+        "Lionel Messi"
+      ],
+      "coverImage": "/assets/teams/covers/argentina.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/argentina.webp",
+      "dimensions": {
+        "width": 896,
+        "height": 1200
+      },
+      "thumbDimensions": {
+        "width": 418,
+        "height": 560
+      },
+      "sourceFilename": "argentina.webp"
+    },
+    {
+      "id": "australia",
+      "seleccion": "Australia",
+      "confederacion": "AFC",
+      "titulo": "Tres centrales y eficiencia",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/australia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/australia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "australia.webp"
+    },
+    {
+      "id": "austria",
+      "seleccion": "Austria",
+      "confederacion": "UEFA",
+      "titulo": "Máquina europea de presión",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/austria.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/austria.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "austria.webp"
+    },
+    {
+      "id": "belgica",
+      "seleccion": "Bélgica",
+      "confederacion": "UEFA",
+      "titulo": "Cuando Bélgica ataca, regatea",
+      "featuredPlayers": [
+        "Jérémy Doku",
+        "Kevin De Bruyne"
+      ],
+      "coverImage": "/assets/teams/covers/belgica.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/belgica.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "belgica.webp"
+    },
+    {
+      "id": "bosnia-y-herzegovina",
+      "seleccion": "Bosnia y Herzegovina",
+      "confederacion": "UEFA",
+      "titulo": "Poder físico aéreo",
+      "featuredPlayers": [
+        "Edin Džeko",
+        "Ermedin Demirović",
+        "Haris Tabaković"
+      ],
+      "coverImage": "/assets/teams/covers/bosnia-y-herzegovina.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/bosnia-y-herzegovina.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "bosnia_y_herzegovina.webp"
+    },
+    {
+      "id": "brasil",
+      "seleccion": "Brasil",
+      "confederacion": "CONMEBOL",
+      "titulo": "Obra en construcción",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/brasil.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/brasil.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "brasil.webp"
+    },
+    {
+      "id": "cabo-verde",
+      "seleccion": "Cabo Verde",
+      "confederacion": "CAF",
+      "titulo": "Debutante maduro",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/cabo-verde.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/cabo-verde.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "cabo_verde.webp"
+    },
+    {
+      "id": "canada",
+      "seleccion": "Canadá",
+      "confederacion": "CONCACAF",
+      "titulo": "La revolución Maplepress",
+      "featuredPlayers": [
+        "Jonathan David"
+      ],
+      "coverImage": "/assets/teams/covers/canada.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/canada.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "canada.webp"
+    },
+    {
+      "id": "colombia",
+      "seleccion": "Colombia",
+      "confederacion": "CONMEBOL",
+      "titulo": "Máquina de remates",
+      "featuredPlayers": [
+        "Luis Díaz",
+        "James Rodríguez",
+        "Daniel Muñoz"
+      ],
+      "coverImage": "/assets/teams/covers/colombia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/colombia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "colombia.webp"
+    },
+    {
+      "id": "corea-del-sur",
+      "seleccion": "Corea del Sur",
+      "confederacion": "AFC",
+      "titulo": "Más allá de Son",
+      "featuredPlayers": [
+        "Son Heung-Min"
+      ],
+      "coverImage": "/assets/teams/covers/corea-del-sur.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/corea-del-sur.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "corea_del_sur.webp"
+    },
+    {
+      "id": "costa-de-marfil",
+      "seleccion": "Costa de Marfil",
+      "confederacion": "CAF",
+      "titulo": "Estructura y columna vertebral",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/costa-de-marfil.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/costa-de-marfil.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "costa_de_marfil.webp"
+    },
+    {
+      "id": "croacia",
+      "seleccion": "Croacia",
+      "confederacion": "UEFA",
+      "titulo": "Posesión medida y paciente",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/croacia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/croacia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "croacia.webp"
+    },
+    {
+      "id": "curazao",
+      "seleccion": "Curazao",
+      "confederacion": "CONCACAF",
+      "titulo": "Fútbol Total Caribeño",
+      "featuredPlayers": [
+        "Leandro Bacuna",
+        "Juninho Bacuna"
+      ],
+      "coverImage": "/assets/teams/covers/curazao.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/curazao.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "curazao.webp"
+    },
+    {
+      "id": "ecuador",
+      "seleccion": "Ecuador",
+      "confederacion": "CONMEBOL",
+      "titulo": "El muro de Beccacece",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/ecuador.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/ecuador.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "ecuador.webp"
+    },
+    {
+      "id": "egipto",
+      "seleccion": "Egipto",
+      "confederacion": "CAF",
+      "titulo": "Todo pasa por Salah",
+      "featuredPlayers": [
+        "Mohamed Salah"
+      ],
+      "coverImage": "/assets/teams/covers/egipto.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/egipto.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "egipto.webp"
+    },
+    {
+      "id": "escocia",
+      "seleccion": "Escocia",
+      "confederacion": "UEFA",
+      "titulo": "Los veteranos",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/escocia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/escocia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "escocia.webp"
+    },
+    {
+      "id": "espana",
+      "seleccion": "España",
+      "confederacion": "UEFA",
+      "titulo": "Renovación moderna",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/espana.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/espana.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "espana.webp"
+    },
+    {
+      "id": "estados-unidos",
+      "seleccion": "Estados Unidos",
+      "confederacion": "CONCACAF",
+      "titulo": "Seguridad o riesgo",
+      "featuredPlayers": [
+        "Christian Pulisic"
+      ],
+      "coverImage": "/assets/teams/covers/estados-unidos.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/estados-unidos.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "estados_unidos.webp"
+    },
+    {
+      "id": "francia",
+      "seleccion": "Francia",
+      "confederacion": "UEFA",
+      "titulo": "La defensa ante todo",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/francia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/francia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "francia.webp"
+    },
+    {
+      "id": "ghana",
+      "seleccion": "Ghana",
+      "confederacion": "CAF",
+      "titulo": "Dependencia de Ayew",
+      "featuredPlayers": [
+        "Jordan Ayew",
+        "Mohammed Kudus",
+        "Kamaldeen Sulemana"
+      ],
+      "coverImage": "/assets/teams/covers/ghana.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/ghana.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "ghana.webp"
+    },
+    {
+      "id": "haiti",
+      "seleccion": "Haití",
+      "confederacion": "CONCACAF",
+      "titulo": "Recuperación notable",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/haiti.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/haiti.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "haiti.webp"
+    },
+    {
+      "id": "inglaterra",
+      "seleccion": "Inglaterra",
+      "confederacion": "UEFA",
+      "titulo": "Reyes inesperados de la posesión",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/inglaterra.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/inglaterra.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "inglaterra.webp"
+    },
+    {
+      "id": "irak",
+      "seleccion": "Irak",
+      "confederacion": "AFC",
+      "titulo": "Sobrevivir y golpear",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/irak.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/irak.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "irak.webp"
+    },
+    {
+      "id": "iran",
+      "seleccion": "Irán",
+      "confederacion": "AFC",
+      "titulo": "Genera, pero debe marcar más",
+      "featuredPlayers": [
+        "Mehdi Taremi",
+        "Sardar Azmoun"
+      ],
+      "coverImage": "/assets/teams/covers/iran.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/iran.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "iran.webp"
+    },
+    {
+      "id": "japon",
+      "seleccion": "Japón",
+      "confederacion": "AFC",
+      "titulo": "Estructura, creación y eficiencia",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/japon.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/japon.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "japon.webp"
+    },
+    {
+      "id": "jordania",
+      "seleccion": "Jordania",
+      "confederacion": "AFC",
+      "titulo": "Cuidado con la transición",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/jordania.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/jordania.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "jordania.webp"
+    },
+    {
+      "id": "marruecos",
+      "seleccion": "Marruecos",
+      "confederacion": "CAF",
+      "titulo": "Difícil de desarmar",
+      "featuredPlayers": [
+        "Achraf Hakimi",
+        "Azzedine Ounahi",
+        "Brahim Díaz"
+      ],
+      "coverImage": "/assets/teams/covers/marruecos.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/marruecos.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "marruecos.webp"
+    },
+    {
+      "id": "mexico",
+      "seleccion": "México",
+      "confederacion": "CONCACAF",
+      "titulo": "El dilema del doble nueve",
+      "featuredPlayers": [
+        "Raúl Jiménez",
+        "Santiago Giménez"
+      ],
+      "coverImage": "/assets/teams/covers/mexico.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/mexico.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "mexico.webp"
+    },
+    {
+      "id": "noruega",
+      "seleccion": "Noruega",
+      "confederacion": "UEFA",
+      "titulo": "Implacable en el último tercio",
+      "featuredPlayers": [
+        "Erling Haaland"
+      ],
+      "coverImage": "/assets/teams/covers/noruega.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/noruega.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "noruega.webp"
+    },
+    {
+      "id": "nueva-zelanda",
+      "seleccion": "Nueva Zelanda",
+      "confederacion": "OFC",
+      "titulo": "Se necesita más de Wood",
+      "featuredPlayers": [
+        "Chris Wood"
+      ],
+      "coverImage": "/assets/teams/covers/nueva-zelanda.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/nueva-zelanda.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "nueva-zelanda.webp"
+    },
+    {
+      "id": "paises-bajos",
+      "seleccion": "Países Bajos",
+      "confederacion": "UEFA",
+      "titulo": "Pragmatismo sobre ideología",
+      "featuredPlayers": [
+        "Denzel Dumfries"
+      ],
+      "coverImage": "/assets/teams/covers/paises-bajos.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/paises-bajos.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "paises-bajos.webp"
+    },
+    {
+      "id": "panama",
+      "seleccion": "Panamá",
+      "confederacion": "CONCACAF",
+      "titulo": "Hecho en Barcelona",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/panama.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/panama.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "panama.webp"
+    },
+    {
+      "id": "paraguay",
+      "seleccion": "Paraguay",
+      "confederacion": "CONMEBOL",
+      "titulo": "Vieja escuela albirroja",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/paraguay.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/paraguay.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "paraguay.webp"
+    },
+    {
+      "id": "portugal",
+      "seleccion": "Portugal",
+      "confederacion": "UEFA",
+      "titulo": "El equilibrio pendiente",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/portugal.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/portugal.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "portugal.webp"
+    },
+    {
+      "id": "qatar",
+      "seleccion": "Qatar",
+      "confederacion": "AFC",
+      "titulo": "Preocupaciones defensivas",
+      "featuredPlayers": [
+        "Almoez Ali"
+      ],
+      "coverImage": "/assets/teams/covers/qatar.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/qatar.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "qatar.webp"
+    },
+    {
+      "id": "rd-del-congo",
+      "seleccion": "RD del Congo",
+      "confederacion": "CAF",
+      "titulo": "Talento sin contundencia",
+      "featuredPlayers": [
+        "Yoane Wissa",
+        "Cédric Bakambu",
+        "Théo Bongonda"
+      ],
+      "coverImage": "/assets/teams/covers/rd-del-congo.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/rd-del-congo.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "rd_del_congo.webp"
+    },
+    {
+      "id": "republica-checa",
+      "seleccion": "República Checa",
+      "confederacion": "UEFA",
+      "titulo": "Dominio del balón parado",
+      "featuredPlayers": [
+        "Patrik Schick",
+        "Ladislav Krejčí",
+        "Pavel Sulc"
+      ],
+      "coverImage": "/assets/teams/covers/republica-checa.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/republica-checa.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "republica_checa.webp"
+    },
+    {
+      "id": "senegal",
+      "seleccion": "Senegal",
+      "confederacion": "CAF",
+      "titulo": "Aspirante serio",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/senegal.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/senegal.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "senegal.webp"
+    },
+    {
+      "id": "sudafrica",
+      "seleccion": "Sudáfrica",
+      "confederacion": "CAF",
+      "titulo": "ADN Sundowns",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/sudafrica.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/sudafrica.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "sudafrica.webp"
+    },
+    {
+      "id": "suecia",
+      "seleccion": "Suecia",
+      "confederacion": "UEFA",
+      "titulo": "El efecto Potter y Gyökeres",
+      "featuredPlayers": [
+        "Viktor Gyökeres",
+        "Alexander Isak"
+      ],
+      "coverImage": "/assets/teams/covers/suecia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/suecia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "suecia.webp"
+    },
+    {
+      "id": "suiza",
+      "seleccion": "Suiza",
+      "confederacion": "UEFA",
+      "titulo": "Estabilidad en el mediocampo",
+      "featuredPlayers": [
+        "Granit Xhaka",
+        "Remo Freuler"
+      ],
+      "coverImage": "/assets/teams/covers/suiza.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/suiza.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "suiza.webp"
+    },
+    {
+      "id": "tunez",
+      "seleccion": "Túnez",
+      "confederacion": "CAF",
+      "titulo": "Excelente atrás, poca pegada",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/tunez.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/tunez.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "tunez.webp"
+    },
+    {
+      "id": "turquia",
+      "seleccion": "Turquía",
+      "confederacion": "UEFA",
+      "titulo": "Creadores de juego al mando",
+      "featuredPlayers": [
+        "Arda Güler",
+        "Kenan Yildiz",
+        "Hakan Çalhanoğlu"
+      ],
+      "coverImage": "/assets/teams/covers/turquia.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/turquia.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "turquia.webp"
+    },
+    {
+      "id": "uruguay",
+      "seleccion": "Uruguay",
+      "confederacion": "CONMEBOL",
+      "titulo": "Bielsa, pero con mesura",
+      "featuredPlayers": [],
+      "coverImage": "/assets/teams/covers/uruguay.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/uruguay.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "uruguay.webp"
+    },
+    {
+      "id": "uzbekistan",
+      "seleccion": "Uzbekistán",
+      "confederacion": "AFC",
+      "titulo": "Centrar pronto y seguido",
+      "featuredPlayers": [
+        "Abdukodir Khusanov"
+      ],
+      "coverImage": "/assets/teams/covers/uzbekistan.webp",
+      "coverImageThumb": "/assets/teams/covers/thumbs/uzbekistan.webp",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      },
+      "thumbDimensions": {
+        "width": 420,
+        "height": 560
+      },
+      "sourceFilename": "uzbekistan.webp"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+---
+import { INLINE } from "../../lib/ui-assets/uiAssets";
+
+interface Props {
+  stats: {
+    selections: number;
+    groups: number;
+    confederations: number;
+  };
+}
+
+const { stats } = Astro.props;
+---
+
+<aside class="summary-strip" aria-label="Resumen del álbum">
+  <article class="stat-card" data-stat="selections">
+    <span class="icon" aria-hidden="true">
+      <img src={INLINE.star.src} alt="" width={INLINE.star.width} height={INLINE.star.height} loading="lazy" decoding="async" />
+    </span>
+    <strong class="value" data-countup>{stats.selections}</strong>
+    <span class="label">SELECCIONES</span>
+    <span class="hint">coleccionables</span>
+  </article>
+
+  <article class="stat-card" data-stat="groups">
+    <span class="icon" aria-hidden="true">
+      <img src={INLINE.podium.src} alt="" width={INLINE.podium.width} height={INLINE.podium.height} loading="lazy" decoding="async" />
+    </span>
+    <strong class="value" data-countup>{stats.groups}</strong>
+    <span class="label">GRUPOS</span>
+    <span class="hint">en competencia</span>
+  </article>
+
+  <article class="stat-card" data-stat="confederations">
+    <span class="icon" aria-hidden="true">
+      <img src={INLINE.player.src} alt="" width={INLINE.player.width} height={INLINE.player.height} loading="lazy" decoding="async" />
+    </span>
+    <strong class="value" data-countup>{stats.confederations}</strong>
+    <span class="label">CONFEDERACIONES</span>
+    <span class="hint">representadas</span>
+  </article>
+
+  <article class="stat-card" data-stat="passion">
+    <span class="icon" aria-hidden="true">
+      <img src={INLINE.fire.src} alt="" width={INLINE.fire.width} height={INLINE.fire.height} loading="lazy" decoding="async" />
+    </span>
+    <strong class="value" data-countup>100%</strong>
+    <span class="label">PASIÓN</span>
+    <span class="hint">mundialista</span>
+  </article>
+</aside>
+
+<style>
+  .summary-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1vw, 0.85rem);
+    min-width: 0;
+  }
+
+  .stat-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "icon value"
+      "icon label"
+      "icon hint";
+    column-gap: 0.7rem;
+    row-gap: 0.05rem;
+    align-items: center;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-white);
+    min-width: 0;
+    overflow: hidden;
+    box-shadow: var(--pm-shadow-soft);
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--stat-color, var(--pm-blue-500));
+  }
+
+  .stat-card[data-stat="selections"]     { --stat-color: var(--pm-blue-500); border-color: var(--pm-blue-100); }
+  .stat-card[data-stat="groups"]         { --stat-color: var(--pm-purple-500); border-color: var(--pm-purple-200); }
+  .stat-card[data-stat="confederations"] { --stat-color: var(--pm-cyan-500); border-color: var(--pm-cyan-200); }
+  .stat-card[data-stat="passion"]        { --stat-color: var(--pm-lime-500); border-color: var(--pm-lime-100); }
+
+  .icon {
+    grid-area: icon;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0.22rem;
+    border-radius: var(--pm-radius-sm);
+    background: color-mix(in srgb, var(--stat-color, var(--pm-blue-500)) 14%, white);
+  }
+
+  .icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .value {
+    grid-area: value;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .label {
+    grid-area: label;
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .hint {
+    grid-area: hint;
+    color: var(--pm-text-soft);
+    font-size: 0.66rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 1080px) {
+    .summary-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .summary-strip {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,219 @@
+---
+import type { ProgressSnapshot } from "./estadisticas.logic";
+
+interface Props {
+  snapshot: ProgressSnapshot;
+}
+
+const { snapshot } = Astro.props;
+---
+
+<article class="progress-card" data-progress-card data-state={snapshot.state}>
+  <span class="ghost-cup" aria-hidden="true"></span>
+  <header class="card-head">
+    <span class="eyebrow">TU PROGRESO</span>
+    <span class="lock-mini" aria-hidden="true">🔒</span>
+  </header>
+
+  <p class="value">
+    <strong data-progress-completed>{snapshot.completed}</strong>
+    <span class="divider" aria-hidden="true">/</span>
+    <span class="total" data-progress-total>{snapshot.total}</span>
+  </p>
+
+  <div class="bar-shell" aria-hidden="true">
+    <span class="bar-fill" data-progress-bar style={`width:${snapshot.percent}%`}></span>
+  </div>
+
+  <p class="percent" data-progress-percent>{snapshot.percent}%</p>
+
+  <p class="helper" data-progress-helper>
+    Cada predicción confirmada te acerca a desbloquear todas las estadísticas.
+  </p>
+
+  <a href="/predicciones" class="primary-cta" data-primary-cta>
+    <span data-cta-label>IR A PREDICCIONES</span>
+    <span aria-hidden="true">→</span>
+  </a>
+</article>
+
+<style>
+  .progress-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+    min-width: 0;
+    overflow: hidden;
+    padding: clamp(1rem, 1.7vw, 1.35rem);
+    border: 1px solid rgba(7, 23, 53, 0.12);
+    border-radius: 1rem;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 252, 255, 0.96)),
+      var(--pm-white);
+    box-shadow: 0 16px 36px rgba(7, 23, 53, 0.14);
+  }
+
+  .ghost-cup {
+    position: absolute;
+    top: 1.1rem;
+    right: 1.1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 0.42rem solid rgba(7, 23, 53, 0.06);
+    border-bottom-width: 0.8rem;
+    border-radius: 0.55rem 0.55rem 1.2rem 1.2rem;
+    opacity: 0.8;
+  }
+
+  .ghost-cup::before,
+  .ghost-cup::after {
+    content: "";
+    position: absolute;
+    top: 0.4rem;
+    width: 1rem;
+    height: 1.6rem;
+    border: 0.28rem solid rgba(7, 23, 53, 0.05);
+    border-radius: 999px;
+  }
+
+  .ghost-cup::before {
+    left: -1.15rem;
+  }
+
+  .ghost-cup::after {
+    right: -1.15rem;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .eyebrow {
+    color: var(--pm-blue-500);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lock-mini {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-purple-500));
+    color: var(--pm-white);
+    font-size: 0.78rem;
+  }
+
+  .value {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    line-height: 0.95;
+  }
+
+  .value strong {
+    font-size: clamp(2.6rem, 4.3vw, 3.35rem);
+    font-weight: 800;
+    color: var(--pm-blue-900);
+  }
+
+  .divider {
+    color: var(--pm-text-soft);
+    font-size: 1.6rem;
+    font-weight: 900;
+  }
+
+  .total {
+    color: var(--pm-text-soft);
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    font-weight: 900;
+  }
+
+  .bar-shell {
+    position: relative;
+    height: 0.62rem;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--pm-blue-900) 14%, white);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--pm-cyan-500), var(--pm-blue-500), var(--pm-purple-500));
+    border-radius: inherit;
+    transition: width 0.25s ease;
+  }
+
+  .percent {
+    margin: 0;
+    color: var(--pm-blue-500);
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-align: right;
+  }
+
+  .helper {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .primary-cta {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.95rem;
+    border: 2px solid var(--pm-cta-border);
+    border-radius: 0.6rem;
+    background: var(--pm-cta-bg);
+    color: var(--pm-cta-text);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--pm-cta-shadow);
+    transition: transform var(--pm-transition-fast),
+      background var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast);
+  }
+
+  .primary-cta:hover {
+    transform: translateY(-1px);
+    background: var(--pm-cta-bg-hover);
+    box-shadow: var(--pm-cta-shadow-hover);
+  }
+
+  .primary-cta:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-cta-shadow), var(--pm-focus-ring-yellow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill {
+      transition: none;
+    }
+    .primary-cta:hover {
+      transform: none;
+    }
+  }
+</style>

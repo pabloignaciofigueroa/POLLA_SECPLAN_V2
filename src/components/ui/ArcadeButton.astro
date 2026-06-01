@@ -1,0 +1,187 @@
+---
+interface Props {
+  label?: string;
+  href?: string;
+  variant?:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "danger"
+    | "success"
+    | "info"
+    | "purple"
+    | "pink"
+    | "orange"
+    | "lime";
+}
+
+const { label = "Botón", href = "#", variant = "primary" } = Astro.props;
+---
+
+<a class={`arcade-button arcade-button--${variant}`} href={href}>
+  {label}
+</a>
+
+<style>
+  .arcade-button {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--pm-radius-md);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast),
+      background var(--pm-transition-fast),
+      border-color var(--pm-transition-fast),
+      color var(--pm-transition-fast);
+  }
+
+  .arcade-button:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  /* --- PRIMARY (CTA Rey amarillo, intacto) --- */
+  .arcade-button--primary {
+    background: var(--pm-cta-bg);
+    color: var(--pm-cta-text);
+    border: 1px solid var(--pm-cta-border);
+    box-shadow: var(--pm-cta-shadow);
+  }
+
+  .arcade-button--primary:hover {
+    transform: translateY(-1px);
+    background: var(--pm-cta-bg-hover);
+    box-shadow: var(--pm-cta-shadow-hover);
+  }
+
+  .arcade-button--primary:focus-visible {
+    box-shadow: var(--pm-cta-shadow), var(--pm-focus-ring-yellow);
+  }
+
+  /* --- SECONDARY (blanca, borde azul) --- */
+  .arcade-button--secondary {
+    background: var(--pm-white);
+    color: var(--pm-blue-800);
+    border: 1px solid var(--pm-border-blue);
+  }
+
+  .arcade-button--secondary:hover {
+    border-color: var(--pm-blue-500);
+    color: var(--pm-blue-700);
+    box-shadow: var(--pm-shadow-blue);
+  }
+
+  /* --- GHOST (transparente, borde color) --- */
+  .arcade-button--ghost {
+    background: transparent;
+    color: var(--pm-blue-700);
+    border: 1px solid var(--pm-border-blue);
+  }
+
+  .arcade-button--ghost:hover {
+    background: rgba(18, 109, 255, 0.06);
+    border-color: var(--pm-blue-500);
+  }
+
+  /* --- DANGER (rojo coral) --- */
+  .arcade-button--danger {
+    background: var(--pm-state-danger-bg);
+    color: var(--pm-state-danger-text);
+    border: 1px solid var(--pm-state-danger-border);
+    box-shadow: var(--pm-shadow-coral);
+  }
+
+  .arcade-button--danger:hover {
+    transform: translateY(-1px);
+    background: var(--pm-red-600);
+  }
+
+  /* --- SUCCESS (verde) --- */
+  .arcade-button--success {
+    background: var(--pm-state-success-bg);
+    color: var(--pm-state-success-text);
+    border: 1px solid var(--pm-state-success-border);
+  }
+
+  .arcade-button--success:hover {
+    transform: translateY(-1px);
+    background: var(--pm-green-600);
+    color: var(--pm-white);
+  }
+
+  /* --- INFO (cian) --- */
+  .arcade-button--info {
+    background: var(--pm-cyan-500);
+    color: var(--pm-blue-900);
+    border: 1px solid var(--pm-cyan-600);
+    box-shadow: var(--pm-shadow-cyan);
+  }
+
+  .arcade-button--info:hover {
+    transform: translateY(-1px);
+    background: var(--pm-cyan-400);
+  }
+
+  /* --- PURPLE --- */
+  .arcade-button--purple {
+    background: var(--pm-purple-500);
+    color: var(--pm-white);
+    border: 1px solid var(--pm-purple-600);
+    box-shadow: var(--pm-shadow-purple);
+  }
+
+  .arcade-button--purple:hover {
+    transform: translateY(-1px);
+    background: var(--pm-purple-600);
+  }
+
+  /* --- PINK / FUCSIA --- */
+  .arcade-button--pink {
+    background: var(--pm-pink-500);
+    color: var(--pm-white);
+    border: 1px solid var(--pm-pink-600);
+    box-shadow: var(--pm-shadow-pink);
+  }
+
+  .arcade-button--pink:hover {
+    transform: translateY(-1px);
+    background: var(--pm-pink-600);
+  }
+
+  /* --- ORANGE --- */
+  .arcade-button--orange {
+    background: var(--pm-orange-500);
+    color: var(--pm-blue-900);
+    border: 1px solid var(--pm-orange-600);
+    box-shadow: var(--pm-shadow-orange);
+  }
+
+  .arcade-button--orange:hover {
+    transform: translateY(-1px);
+    background: var(--pm-orange-600);
+    color: var(--pm-white);
+  }
+
+  /* --- LIME (verde lima fluor) --- */
+  .arcade-button--lime {
+    background: var(--pm-lime-500);
+    color: var(--pm-blue-900);
+    border: 1px solid var(--pm-green-600);
+    box-shadow: var(--pm-shadow-lime);
+  }
+
+  .arcade-button--lime:hover {
+    transform: translateY(-1px);
+    background: var(--pm-lime-400);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arcade-button:hover {
+      transform: none;
+    }
+  }
+</style>

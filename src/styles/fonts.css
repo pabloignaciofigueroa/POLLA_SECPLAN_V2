@@ -1,0 +1,68 @@
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/fonts/barlow-condensed-600.woff2") format("woff2"),
+    url("/fonts/barlow-condensed-600.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/fonts/barlow-condensed-700.woff2") format("woff2"),
+    url("/fonts/barlow-condensed-700.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/fonts/barlow-condensed-800.woff2") format("woff2"),
+    url("/fonts/barlow-condensed-800.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/fonts/barlow-condensed-900.woff2") format("woff2"),
+    url("/fonts/barlow-condensed-900.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-variable.woff2") format("woff2"),
+    url("/fonts/inter-variable.ttf") format("truetype");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("/fonts/rajdhani-600.woff2") format("woff2"),
+    url("/fonts/rajdhani-600.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("/fonts/rajdhani-700.woff2") format("woff2"),
+    url("/fonts/rajdhani-700.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+
+:root {
+  --font-display: "Barlow Condensed", system-ui, sans-serif;
+  --font-ui: "Inter", system-ui, sans-serif;
+  --font-score: "Barlow Condensed", "Rajdhani", system-ui, sans-serif;
+}

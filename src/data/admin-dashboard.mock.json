@@ -1,0 +1,38 @@
+{
+  "source": "wireframe-admin-dashboard",
+  "session": {
+    "status": "active",
+    "statusLabel": "Sesión activa",
+    "email": "admin@secplan.cl",
+    "name": "Admin SECPLAN",
+    "role": "administrador"
+  },
+  "system": {
+    "status": "OK",
+    "dataMode": "MOCK",
+    "supabase": "NO CONFIGURADO",
+    "localJson": "ACTIVO",
+    "apiConnection": "PENDIENTE",
+    "lastSyncLabel": "22 may 2026, 10:09:06 a. m.",
+    "errors": 0
+  },
+  "admin": {
+    "confirmedCards": 0,
+    "pendingRequests": 0,
+    "officialResultsLoaded": 0,
+    "predictionsWithErrors": 0,
+    "backupsAvailable": 0,
+    "exportsCompleted": 0,
+    "lastBackupLabel": "---",
+    "lastResultsUpdateLabel": "---",
+    "resultsSource": "Manual"
+  },
+  "activityLog": [
+    {
+      "date": "22 may 2026",
+      "time": "09:41 a. m.",
+      "event": "Sesión admin iniciada",
+      "user": "Admin SECPLAN"
+    }
+  ]
+}

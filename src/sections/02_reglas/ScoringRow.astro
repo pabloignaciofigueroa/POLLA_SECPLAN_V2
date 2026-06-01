@@ -1,0 +1,139 @@
+---
+import { INLINE, type UiAsset } from "../../lib/ui-assets/uiAssets";
+
+interface ScoringRule {
+  id: string;
+  label: string;
+  description: string;
+  points: string;
+  icon: string;
+}
+
+interface Props {
+  rule: ScoringRule;
+}
+
+const { rule } = Astro.props;
+
+// Iconos inline = familia mate (icon-circle-*). El grupo de filas debe ser homogéneo.
+const ICONS: Record<string, UiAsset> = {
+  target: INLINE.star, // EXACTO
+  trend: INLINE.trendUp, // TENDENCIA
+  wolf: INLINE.fire, // LONE WOLF (racha única)
+};
+const icon = ICONS[rule.icon] ?? ICONS.target;
+---
+
+<article class="scoring-row" data-rule={rule.id} data-icon={rule.icon}>
+  <span class="score-icon" aria-hidden="true">
+    <img src={icon.src} alt="" width={icon.width} height={icon.height} loading="lazy" decoding="async" />
+  </span>
+  <h3>{rule.label}</h3>
+  <p>{rule.description}</p>
+  <strong>{rule.points}</strong>
+</article>
+
+<style>
+  .scoring-row {
+    display: grid;
+    grid-template-columns: 3.3rem minmax(6.4rem, 0.52fr) minmax(0, 1fr) 3.1rem;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3.25rem;
+    padding: 0.46rem 0.8rem;
+    border-bottom: 1px solid var(--pm-border-soft);
+    transition: background var(--pm-transition-fast);
+  }
+
+  .scoring-row:last-child {
+    border-bottom: 0;
+  }
+
+  .scoring-row:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .score-icon {
+    display: grid;
+    width: 2.25rem;
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 0.18rem;
+    border: 1px solid transparent;
+    border-radius: 0.55rem;
+  }
+
+  .score-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3,
+  strong {
+    font-family: var(--font-display);
+    font-weight: 900;
+  }
+
+  h3 {
+    color: var(--pm-blue-900);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: var(--pm-text-body);
+    font-size: 0.76rem;
+    line-height: 1.35;
+  }
+
+  strong {
+    text-align: right;
+    font-size: 1.22rem;
+    color: var(--pm-blue-900);
+  }
+
+  .scoring-row[data-icon="target"] .score-icon {
+    background: color-mix(in srgb, var(--pm-blue-500) 14%, white);
+    border-color: color-mix(in srgb, var(--pm-blue-500) 32%, transparent);
+  }
+
+  .scoring-row[data-icon="target"] strong {
+    color: var(--pm-blue-600);
+  }
+
+  .scoring-row[data-icon="trend"] .score-icon {
+    background: color-mix(in srgb, var(--pm-green-500) 14%, white);
+    border-color: color-mix(in srgb, var(--pm-green-500) 32%, transparent);
+  }
+
+  .scoring-row[data-icon="trend"] strong {
+    color: var(--pm-green-600);
+  }
+
+  .scoring-row[data-icon="wolf"] .score-icon {
+    background: color-mix(in srgb, var(--pm-purple-500) 14%, white);
+    border-color: color-mix(in srgb, var(--pm-purple-500) 32%, transparent);
+  }
+
+  .scoring-row[data-icon="wolf"] strong {
+    color: var(--pm-purple-600);
+  }
+
+  @media (max-width: 560px) {
+    .scoring-row {
+      grid-template-columns: 2.8rem 1fr auto;
+    }
+
+    p {
+      grid-column: 2 / -1;
+    }
+  }
+</style>

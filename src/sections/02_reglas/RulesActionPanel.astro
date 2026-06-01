@@ -1,0 +1,107 @@
+---
+---
+
+<aside class="action-panel" aria-label="Acciones de reglas">
+  <a class="primary-cta" href="/jugador">
+    <span>ELEGIR JUGADOR</span>
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+      <polyline points="9 5 16 12 9 19" />
+    </svg>
+  </a>
+</aside>
+
+<style>
+  .action-panel {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(0.7rem, 1.2vw, 0.95rem);
+    overflow: visible;
+    padding-inline: clamp(0.35rem, 0.8vw, 0.7rem);
+  }
+
+  .primary-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    transition: transform var(--pm-transition-fast),
+      border-color var(--pm-transition-fast),
+      background var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast),
+      color var(--pm-transition-fast);
+  }
+
+  .primary-cta {
+    position: relative;
+    gap: 0.7rem;
+    width: calc(100% - clamp(0.6rem, 1.4vw, 1.2rem));
+    margin-inline: auto;
+    min-height: clamp(4.45rem, 7.4vw, 5.75rem);
+    padding: 1rem 1.35rem;
+    border: 3px solid var(--pm-purple-700);
+    border-radius: 0.9rem;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--pm-orange-500) 28%, transparent), transparent 28% 78%, color-mix(in srgb, var(--pm-purple-600) 30%, transparent) 78%),
+      linear-gradient(180deg, var(--pm-yellow-300, #ffe15a), var(--pm-yellow-500));
+    overflow: hidden;
+    color: var(--pm-blue-950, #071735);
+    font-size: clamp(1.55rem, 3.05vw, 2.75rem);
+    line-height: 0.95;
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.42),
+      0 8px 0 var(--pm-purple-700),
+      0 18px 34px rgba(7, 23, 53, 0.2);
+  }
+
+  .primary-cta:hover {
+    transform: translateY(-1px);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--pm-orange-500) 35%, transparent), transparent 28% 78%, color-mix(in srgb, var(--pm-purple-600) 36%, transparent) 78%),
+      linear-gradient(180deg, var(--pm-yellow-200, #fff2a6), var(--pm-yellow-500));
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.48),
+      0 9px 0 var(--pm-purple-700),
+      0 22px 40px rgba(7, 23, 53, 0.24);
+  }
+
+  .primary-cta:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.42),
+      0 8px 0 var(--pm-purple-700),
+      0 18px 34px rgba(7, 23, 53, 0.2),
+      var(--pm-focus-ring-yellow);
+  }
+
+  .primary-cta svg {
+    width: clamp(1.35rem, 2.5vw, 2.2rem);
+    height: clamp(1.35rem, 2.5vw, 2.2rem);
+    flex: 0 0 auto;
+  }
+
+  .primary-cta span {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .primary-cta:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primary-cta {
+      transition: none;
+    }
+
+    .primary-cta:hover,
+    .primary-cta:active {
+      transform: none;
+    }
+  }
+</style>

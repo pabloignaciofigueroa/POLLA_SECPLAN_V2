@@ -1,0 +1,223 @@
+---
+interface NavLink {
+  href: string;
+  label: string;
+  isActive?: boolean;
+}
+
+interface Props {
+  links: NavLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<details class="mobile-menu" data-section="mobile-menu">
+  <summary aria-label="Abrir menú">
+    <span class="icon icon-open" aria-hidden="true">☰</span>
+    <span class="icon icon-close" aria-hidden="true">✕</span>
+    <span class="sr-only">Menú</span>
+  </summary>
+  <nav class="overlay" aria-label="Navegación móvil">
+    <ul>
+      {links.map((link) => {
+        const isAdminLink = link.href === "/admin";
+        return (
+        <li>
+          <a
+            href={link.href}
+            aria-current={link.isActive ? "page" : undefined}
+            data-admin-access-trigger={isAdminLink ? true : undefined}
+            data-astro-prefetch={isAdminLink ? undefined : "viewport"}
+          >
+            {isAdminLink ? (
+              <>
+                <span class="admin-lock" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
+                  </svg>
+                </span>
+                <span>Admin</span>
+              </>
+            ) : (
+              link.label
+            )}
+          </a>
+        </li>
+        );
+      })}
+    </ul>
+  </nav>
+</details>
+
+<style>
+  .mobile-menu {
+    position: relative;
+    display: none;
+  }
+
+  .mobile-menu summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--pm-radius-pill);
+    border: 1px solid var(--pm-navbar-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--pm-white);
+    user-select: none;
+    transition: background var(--pm-transition-fast), border-color var(--pm-transition-fast);
+  }
+
+  .mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-menu summary:hover {
+    background: rgba(24, 221, 242, 0.12);
+    border-color: var(--pm-cyan-500);
+  }
+
+  .mobile-menu summary:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .icon-close {
+    display: none;
+  }
+
+  /* Overlay full-screen cuando el menu esta abierto */
+  .mobile-menu[open] summary {
+    position: fixed;
+    top: calc(var(--space-md) + 0.15rem);
+    right: var(--space-lg);
+    z-index: calc(var(--z-overlay) + 1);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--pm-cyan-500);
+  }
+
+  .mobile-menu[open] .icon-open {
+    display: none;
+  }
+
+  .mobile-menu[open] .icon-close {
+    display: inline;
+  }
+
+  .mobile-menu .overlay {
+    display: none;
+  }
+
+  .mobile-menu[open] .overlay {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, var(--pm-navbar-bg), var(--pm-navbar-bg-2));
+    z-index: var(--z-overlay);
+    padding: calc(var(--layout-header-height) + var(--space-lg)) var(--space-lg) var(--space-xl);
+    overflow-y: auto;
+    animation: overlayFadeIn var(--pm-transition-base);
+  }
+
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .mobile-menu[open] .overlay ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 28rem;
+    margin-inline: auto;
+  }
+
+  .mobile-menu .overlay a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pm-white);
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid var(--pm-navbar-border);
+    border-radius: var(--pm-radius-md);
+    background: rgba(255, 255, 255, 0.04);
+    transition: color var(--pm-transition-fast), background var(--pm-transition-fast),
+      border-color var(--pm-transition-fast), transform var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast);
+  }
+
+  .admin-lock {
+    display: inline-grid;
+    width: 1.15rem;
+    height: 1.15rem;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .admin-lock svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  .mobile-menu .overlay a:hover {
+    background: rgba(24, 221, 242, 0.14);
+    border-color: var(--pm-cyan-500);
+    color: var(--pm-cyan-400);
+    transform: translateX(4px);
+  }
+
+  .mobile-menu .overlay a:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+    border-color: var(--pm-cyan-500);
+  }
+
+  .mobile-menu .overlay a[aria-current="page"] {
+    color: var(--pm-navbar-active-text);
+    background: var(--pm-navbar-active-bg);
+    border-color: var(--pm-yellow-600);
+    font-weight: 800;
+    box-shadow: 0 0 18px var(--pm-gold-glow);
+  }
+
+  .mobile-menu .overlay a[aria-current="page"]:hover {
+    transform: translateX(4px);
+    color: var(--pm-navbar-active-text);
+  }
+
+  /* Lock body scroll cuando overlay esta abierto */
+  :global(body:has(.mobile-menu[open])) {
+    overflow: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .mobile-menu {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu[open] .overlay {
+      animation: none;
+    }
+    .mobile-menu .overlay a:hover {
+      transform: none;
+    }
+  }
+</style>

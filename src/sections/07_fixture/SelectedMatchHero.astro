@@ -1,0 +1,222 @@
+---
+import type { FixtureMatch } from "./fixture.logic";
+import { formatChileDateLong, formatChileTime } from "./fixture.logic";
+
+interface Props {
+  match: FixtureMatch;
+  stadiumName?: string | null;
+  city?: string | null;
+}
+
+const { match, stadiumName, city } = Astro.props;
+const dateLong = formatChileDateLong(match.dateUtc);
+const timeChile = formatChileTime(match.dateUtc);
+const stadium = stadiumName ?? match.location;
+const cityLabel = city ?? "Sede por confirmar";
+---
+
+<article class="selected-hero" data-selected-hero>
+  <header class="selected-header">
+    <span class="badge">Partido seleccionado</span>
+    <span class="stage" data-selected-stage>{match.stage.replace(" - fecha ", " / Jornada ")}</span>
+  </header>
+
+  <div class="versus">
+    <div class="team home" data-selected-home>
+      <span class="flag" data-selected-home-flag>
+        <img src={`/assets/flags/${match.homeTeam.id}.svg`} alt={`Bandera ${match.homeTeam.name}`} loading="lazy" decoding="async" width="160" height="120" />
+      </span>
+      <h3 data-selected-home-name>{match.homeTeam.name}</h3>
+    </div>
+
+    <div class="versus-core" aria-hidden="true">
+      <span>VS</span>
+    </div>
+
+    <div class="team away" data-selected-away>
+      <span class="flag" data-selected-away-flag>
+        <img src={`/assets/flags/${match.awayTeam.id}.svg`} alt={`Bandera ${match.awayTeam.name}`} loading="lazy" decoding="async" width="160" height="120" />
+      </span>
+      <h3 data-selected-away-name>{match.awayTeam.name}</h3>
+    </div>
+  </div>
+
+  <dl class="meta-grid">
+    <div>
+      <dt>Fecha</dt>
+      <dd data-selected-date>{dateLong}</dd>
+    </div>
+    <div>
+      <dt>Hora Chile</dt>
+      <dd data-selected-time>{timeChile} hrs</dd>
+    </div>
+    <div>
+      <dt>Estadio</dt>
+      <dd data-selected-stadium>{stadium}</dd>
+    </div>
+    <div>
+      <dt>Sede</dt>
+      <dd data-selected-city>{cityLabel}</dd>
+    </div>
+    <div>
+      <dt>Grupo</dt>
+      <dd data-selected-group>{match.groupLabel}</dd>
+    </div>
+  </dl>
+</article>
+
+<style>
+  .selected-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.62rem;
+    border: 1px solid color-mix(in srgb, var(--pm-blue-500) 30%, transparent);
+    border-radius: 1rem;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.94), color-mix(in srgb, var(--pm-cyan-500) 10%, white)),
+      var(--pm-panel-soft);
+    box-shadow: 0 10px 22px rgba(7, 23, 53, 0.09);
+  }
+
+  .selected-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-cyan-500));
+    color: var(--pm-white);
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .stage {
+    color: var(--pm-blue-700);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .versus {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.45rem;
+    align-items: center;
+  }
+
+  .team {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.16rem;
+    text-align: center;
+  }
+
+  .flag {
+    display: block;
+    width: 4.7rem;
+    max-width: 100%;
+    aspect-ratio: 1.4 / 1;
+    overflow: hidden;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 0.52rem;
+    background: rgba(255, 255, 255, 0.9);
+    line-height: 0;
+  }
+
+  .flag img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  :global([data-selected-home-flag] img),
+  :global([data-selected-away-flag] img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(0.86rem, 1.35vw, 1.08rem);
+    font-weight: 950;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .versus-core {
+    display: grid;
+    place-items: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.76rem;
+    font-weight: 900;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.28rem 0.45rem;
+    margin: 0;
+    padding-top: 0.38rem;
+    border-top: 1px solid rgba(7, 23, 53, 0.1);
+  }
+
+  dt {
+    color: var(--pm-blue-700);
+    font-size: 0.5rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-size: 0.64rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .meta-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .versus {
+      grid-template-columns: 1fr;
+    }
+
+    .versus-core {
+      justify-self: center;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

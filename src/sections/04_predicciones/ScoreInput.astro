@@ -1,0 +1,92 @@
+---
+interface Props {
+  side: "home" | "away";
+  label: string;
+}
+
+const { side, label } = Astro.props;
+---
+
+<label class="score-input-label">
+  <span class="sr-only">{label}</span>
+  <input
+    data-score-input={side}
+    inputmode="numeric"
+    min="0"
+    pattern="[0-9]*"
+    type="number"
+    placeholder=" "
+    aria-label={label}
+  />
+</label>
+
+<style>
+  .score-input-label {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  input {
+    width: clamp(3.1rem, 5vw, 4.15rem);
+    height: 3rem;
+    border: 2px solid var(--pm-border-blue);
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-white);
+    color: var(--pm-blue-800);
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: center;
+    transition: border-color var(--pm-transition-fast),
+      background var(--pm-transition-fast),
+      box-shadow var(--pm-transition-fast),
+      color var(--pm-transition-fast);
+  }
+
+  input:hover {
+    border-color: var(--pm-cyan-500);
+  }
+
+  input:focus,
+  input:focus-visible {
+    outline: none;
+    border-color: var(--pm-cyan-500);
+    background: var(--pm-cyan-200);
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  /* Completo (tiene valor — usa truco placeholder=" ") */
+  input:not(:placeholder-shown),
+  input[data-filled="true"] {
+    border-color: var(--pm-state-completed-border);
+    background: var(--pm-green-100);
+    color: var(--pm-green-700);
+  }
+
+  /* Error (data-state error desde JS) */
+  input[data-state="error"] {
+    border-color: var(--pm-state-error-border);
+    background: var(--pm-state-error-soft-bg);
+    color: var(--pm-state-error-soft-text);
+  }
+
+  /* Bloqueado (despues de cierre de prediccion) */
+  input[data-state="locked"],
+  input:disabled {
+    border-color: var(--pm-purple-400);
+    background: linear-gradient(135deg, var(--pm-purple-200), var(--pm-cyan-200));
+    color: var(--pm-purple-700);
+    cursor: not-allowed;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+  }
+
+  input[type="number"] {
+    appearance: textfield;
+  }
+</style>

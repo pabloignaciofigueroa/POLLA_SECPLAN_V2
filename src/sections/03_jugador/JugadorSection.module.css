@@ -1,0 +1,291 @@
+.jugadorSection {
+  --section-accent: var(--pm-sec-jugador-a);
+  --section-accent-2: var(--pm-sec-jugador-b);
+  --section-accent-3: var(--pm-sec-jugador-c);
+  --section-gradient: var(--pm-sec-jugador-gradient);
+
+  position: relative;
+  min-height: calc(100svh - var(--layout-header-height));
+  overflow: hidden;
+  isolation: isolate;
+  background-image: image-set(
+    url("/assets/backgrounds/avif/03_jugador_background.avif") type("image/avif"),
+    url("/assets/backgrounds/webp/03_jugador_background.webp") type("image/webp")
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--pm-text-main);
+  font-family: var(--font-ui);
+}
+
+.contentShell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - clamp(1rem, 4vw, 3rem), 1500px);
+  min-height: calc(100svh - var(--layout-header-height));
+  margin-inline: auto;
+  padding-block: clamp(0.9rem, 2vw, 1.6rem);
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.88fr) minmax(32rem, 1.42fr);
+  gap: clamp(1rem, 2.8vw, 2.5rem);
+  align-items: center;
+}
+
+.selectionPanel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.45rem);
+  min-width: 0;
+}
+
+.actionZone {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.92fr) minmax(16rem, 1fr);
+  gap: clamp(0.9rem, 1.8vw, 1.25rem);
+  align-items: stretch;
+}
+
+.secondaryActionCluster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(0.55rem, 1vw, 0.75rem);
+  align-items: stretch;
+  min-width: 0;
+}
+
+.secondaryActionCluster > * {
+  min-width: 0;
+}
+
+.resetZone {
+  position: relative;
+  display: grid;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.resetFeedback {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 2;
+  width: min(24rem, 100vw - 2rem);
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--pm-green-500, #16a34a) 35%, transparent);
+  border-radius: var(--pm-radius-pill);
+  background: color-mix(in srgb, var(--pm-green-500, #16a34a) 12%, white);
+  color: var(--pm-blue-900);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.resetFeedback[hidden] {
+  display: none;
+}
+
+.resetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--pm-red-500);
+  border-radius: var(--pm-radius-pill);
+  background: color-mix(in srgb, var(--pm-red-100) 72%, white);
+  color: var(--pm-red-600);
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 0.95vw, 0.92rem);
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(6, 19, 38, 0.1);
+  transition:
+    transform var(--pm-transition-fast),
+    background var(--pm-transition-fast),
+    box-shadow var(--pm-transition-fast);
+}
+
+.resetButton:focus-visible {
+  outline: none;
+  box-shadow: 0 8px 18px rgba(6, 19, 38, 0.1), var(--pm-focus-ring-pink);
+}
+
+.resetButton:active {
+  transform: scale(0.98);
+}
+
+.resetModal[hidden] {
+  display: none;
+}
+
+.resetModal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.resetModalBackdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(6, 19, 38, 0.56);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.resetDialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  margin: 0;
+  padding: clamp(1.25rem, 3vw, 1.8rem);
+  border: 3px solid var(--pm-red-500);
+  border-radius: var(--pm-radius-lg);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 24px 60px rgba(6, 19, 38, 0.28);
+}
+
+.resetEyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--pm-red-600);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.resetTitle {
+  margin: 0;
+  color: var(--pm-blue-900);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 950;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.resetCopy {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+  color: var(--pm-blue-900);
+  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.resetCopy p {
+  margin: 0;
+}
+
+.resetActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+.resetCancelButton,
+.resetConfirmButton {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--pm-radius-pill);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform var(--pm-transition-fast),
+    background var(--pm-transition-fast),
+    box-shadow var(--pm-transition-fast);
+}
+
+.resetCancelButton {
+  border: 2px solid var(--pm-blue-300);
+  background: white;
+  color: var(--pm-blue-700);
+}
+
+.resetConfirmButton {
+  border: 2px solid var(--pm-red-600);
+  background: linear-gradient(135deg, var(--pm-red-500), var(--pm-orange-500));
+  color: white;
+  box-shadow: 0 12px 22px rgba(225, 29, 72, 0.25);
+}
+
+.resetCancelButton:focus-visible,
+.resetConfirmButton:focus-visible {
+  outline: none;
+  box-shadow: var(--pm-focus-ring-pink);
+}
+
+.resetCancelButton:active,
+.resetConfirmButton:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 1120px) {
+  .contentShell {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .contentShell {
+    width: min(100% - 1rem, 1500px);
+  }
+
+  .actionZone {
+    grid-template-columns: 1fr;
+  }
+
+  .secondaryActionCluster {
+    grid-template-columns: 1fr;
+  }
+
+  .resetActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .resetButton:hover {
+    transform: translateY(-1px);
+    background: var(--pm-red-100);
+    box-shadow: 0 12px 24px rgba(6, 19, 38, 0.14);
+  }
+
+  .resetCancelButton:hover,
+  .resetConfirmButton:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jugadorSection *,
+  .jugadorSection *::before,
+  .jugadorSection *::after {
+    transition-duration: 0.01ms;
+  }
+}

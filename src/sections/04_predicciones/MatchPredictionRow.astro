@@ -1,0 +1,201 @@
+---
+import ScoreInput from "./ScoreInput.astro";
+import PredictionStatusIcon from "./PredictionStatusIcon.astro";
+import TeamFlag from "../../components/ui/TeamFlag.astro";
+
+interface Team {
+  id: string;
+  name: string;
+  shortCode: string;
+  flag?: string;
+}
+
+interface Match {
+  id: string;
+  groupId: string;
+  matchNumber: number;
+  homeTeam: Team;
+  awayTeam: Team;
+}
+
+interface Props {
+  match: Match;
+  rowNumber: number;
+}
+
+const { match, rowNumber } = Astro.props;
+const padded = String(rowNumber).padStart(2, "0");
+const groupKey = match.groupId.toLowerCase();
+---
+
+<article
+  class="match-row"
+  data-match-row
+  data-match-id={match.id}
+  data-match-number={match.matchNumber}
+  data-group-id={match.groupId}
+  data-group-key={groupKey}
+  data-status="empty"
+>
+  <span class="row-number">{padded}</span>
+
+  <div class="team team-home">
+    <TeamFlag team={match.homeTeam} size="md" rounded={false} decorative />
+    <strong>{match.homeTeam.name}</strong>
+  </div>
+
+  <div class="score-pair" aria-label={`Marcador ${match.homeTeam.name} contra ${match.awayTeam.name}`}>
+    <ScoreInput side="home" label={`${match.homeTeam.name} goles`} />
+    <span class="score-divider" aria-hidden="true">:</span>
+    <ScoreInput side="away" label={`${match.awayTeam.name} goles`} />
+  </div>
+
+  <div class="team team-away">
+    <strong>{match.awayTeam.name}</strong>
+    <TeamFlag team={match.awayTeam} size="md" rounded={false} decorative />
+  </div>
+
+  <PredictionStatusIcon />
+</article>
+
+<style>
+  .match-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4rem minmax(10rem, 1fr) minmax(11rem, 0.7fr) minmax(10rem, 1fr) 3rem;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3.35rem;
+    padding: 0.42rem 0.85rem;
+    border-bottom: 1px solid var(--pm-border-soft);
+    background: var(--pm-white);
+    transition: background var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+
+  .match-row::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--row-accent, transparent);
+    transition: background var(--pm-transition-fast);
+  }
+
+  .match-row:last-child {
+    border-bottom: 0;
+  }
+
+  .row-number {
+    display: grid;
+    width: 2.2rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border: none;
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-blue-600);
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  .team {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  .team-away {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .team strong {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(0.82rem, 1.1vw, 0.98rem);
+    font-weight: 900;
+    line-height: 1.12;
+    text-transform: uppercase;
+  }
+
+  .flag-placeholder {
+    display: grid;
+    width: 2.25rem;
+    aspect-ratio: 1;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px dashed var(--pm-cyan-500);
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-cyan-200);
+    color: var(--pm-blue-700);
+    font-size: 0.55rem;
+    font-weight: 900;
+  }
+
+  .score-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+  }
+
+  .score-divider {
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 950;
+  }
+
+  .match-row:hover {
+    background: var(--pm-panel-soft);
+    box-shadow: inset 0 0 0 1px var(--pm-blue-300);
+  }
+
+  /* Estados desde JS via data-status */
+  .match-row[data-status="complete"] {
+    --row-accent: var(--pm-state-completed-bg);
+    background: var(--pm-green-100);
+  }
+
+  .match-row[data-status="partial"] {
+    --row-accent: var(--pm-state-warning-bg);
+    background: var(--pm-orange-100);
+  }
+
+  .match-row[data-status="error"] {
+    --row-accent: var(--pm-state-error-border);
+    background: var(--pm-state-error-soft-bg);
+  }
+
+  .match-row[data-status="locked"] {
+    --row-accent: var(--pm-purple-500);
+    background: var(--pm-purple-200);
+  }
+
+  @media (max-width: 760px) {
+    .match-row {
+      grid-template-columns: auto 1fr auto;
+      gap: 0.75rem;
+      padding: 0.85rem 0.85rem 0.85rem 1rem;
+    }
+
+    .team {
+      grid-column: 2 / 4;
+    }
+
+    .team-away {
+      grid-column: 2 / 4;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .score-pair {
+      grid-column: 1 / 3;
+      justify-content: flex-start;
+    }
+  }
+</style>

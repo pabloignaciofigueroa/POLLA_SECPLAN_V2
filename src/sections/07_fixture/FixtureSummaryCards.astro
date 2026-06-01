@@ -1,0 +1,150 @@
+---
+interface Stats {
+  totalMatches: number;
+  todayMatches: number;
+  currentRound: number;
+  totalRounds: number;
+  venues: number;
+}
+
+interface Props {
+  stats: Stats;
+}
+
+const { stats } = Astro.props;
+---
+
+<div class="summary-band" aria-label="Resumen del fixture">
+  <article class="summary-card" data-card="total">
+    <span class="icon" aria-hidden="true">72</span>
+    <div class="body">
+      <strong class="value" data-summary="total">{stats.totalMatches}</strong>
+      <span class="label">Partidos en total</span>
+    </div>
+  </article>
+
+  <article class="summary-card" data-card="today">
+    <span class="icon" aria-hidden="true">HOY</span>
+    <div class="body">
+      <strong class="value" data-summary="today">{stats.todayMatches}</strong>
+      <span class="label">Partidos hoy</span>
+    </div>
+  </article>
+
+  <article class="summary-card" data-card="round">
+    <span class="icon" aria-hidden="true">FASE</span>
+    <div class="body">
+      <strong class="value">Grupos</strong>
+      <span class="label">Jornada {stats.currentRound} de {stats.totalRounds}</span>
+    </div>
+  </article>
+
+  <article class="summary-card" data-card="venues">
+    <span class="icon" aria-hidden="true">SED</span>
+    <div class="body">
+      <strong class="value">{stats.venues}</strong>
+      <span class="label">Sedes en total</span>
+    </div>
+  </article>
+</div>
+
+<style>
+  .summary-band {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 0.95rem;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 26px rgba(7, 23, 53, 0.1);
+  }
+
+  .summary-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.42rem;
+    align-items: center;
+    min-width: 0;
+    padding: 0.52rem 0.62rem;
+    border-right: 1px solid rgba(7, 23, 53, 0.08);
+  }
+
+  .summary-card:last-child {
+    border-right: 0;
+  }
+
+  .summary-card[data-card="total"] { --card-accent: var(--pm-blue-500); }
+  .summary-card[data-card="today"] { --card-accent: var(--pm-green-500); }
+  .summary-card[data-card="round"] { --card-accent: var(--pm-purple-500); }
+  .summary-card[data-card="venues"] { --card-accent: var(--pm-yellow-500); }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 1.72rem;
+    height: 1.72rem;
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--card-accent) 15%, white);
+    color: var(--card-accent);
+    font-family: var(--font-display);
+    font-size: 0.54rem;
+    font-weight: 950;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 28%, transparent);
+  }
+
+  .body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.06rem;
+  }
+
+  .value {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(0.88rem, 1.15vw, 1.18rem);
+    font-weight: 950;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .label {
+    color: var(--pm-blue-700);
+    font-size: 0.56rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .summary-band {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .summary-card:nth-child(2) {
+      border-right: 0;
+    }
+
+    .summary-card:nth-child(-n + 2) {
+      border-bottom: 1px solid rgba(7, 23, 53, 0.08);
+    }
+  }
+
+  @media (max-width: 440px) {
+    .summary-band {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-card {
+      border-right: 0;
+      border-bottom: 1px solid rgba(7, 23, 53, 0.08);
+    }
+
+    .summary-card:last-child {
+      border-bottom: 0;
+    }
+  }
+</style>

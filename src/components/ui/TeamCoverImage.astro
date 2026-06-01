@@ -1,0 +1,60 @@
+---
+interface TeamLike {
+  id?: string;
+  name?: string;
+  coverImage?: string;
+  coverImageThumb?: string;
+}
+
+interface Props {
+  team: TeamLike;
+  variant?: "full" | "thumb";
+  alt?: string;
+  className?: string;
+}
+
+const { team, variant = "full", alt, className = "" } = Astro.props as Props;
+
+const fallback = team.id
+  ? variant === "full"
+    ? `/assets/teams/covers/${team.id}.webp`
+    : `/assets/teams/covers/thumbs/${team.id}.webp`
+  : "";
+
+const src = (variant === "full" ? team.coverImage : team.coverImageThumb) ?? fallback;
+const altText = alt ?? (team.name ? `Portada de ${team.name}` : "");
+---
+
+{src ? (
+  <figure class={`team-cover ${className}`} data-team-cover>
+    <img
+      src={src}
+      alt={altText}
+      loading="lazy"
+      decoding="async"
+      width="640"
+      height="425"
+    />
+  </figure>
+) : null}
+
+<style>
+  .team-cover {
+    margin: 0;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--pm-radius-sm, 6px);
+    background: var(--pm-panel-soft, #f3f7ff);
+    line-height: 0;
+  }
+
+  .team-cover img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+</style>

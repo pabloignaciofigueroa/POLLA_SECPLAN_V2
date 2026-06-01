@@ -1,0 +1,64 @@
+---
+import ScoringRow from "./ScoringRow.astro";
+
+interface ScoringRule {
+  id: string;
+  label: string;
+  description: string;
+  points: string;
+  icon: string;
+}
+
+interface Props {
+  scoringRules: ScoringRule[];
+}
+
+const { scoringRules } = Astro.props;
+---
+
+<section class="scoring-panel" aria-labelledby="scoring-title">
+  <div class="panel-header">
+    <p id="scoring-title">Como sumas puntos?</p>
+  </div>
+
+  <div class="rows">
+    {scoringRules.map((rule) => <ScoringRow rule={rule} />)}
+  </div>
+</section>
+
+<style>
+  .scoring-panel {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--pm-blue-500) 45%, transparent);
+    border-radius: 0.95rem;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--pm-cyan-500) 13%, white)),
+      var(--pm-panel-soft);
+    box-shadow: 0 14px 32px rgba(7, 23, 53, 0.12);
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: 0.48rem 0.95rem;
+    background:
+      linear-gradient(120deg, var(--pm-blue-600) 0 78%, var(--pm-yellow-400) 78% 82%, var(--pm-white) 82%);
+    color: var(--pm-white);
+  }
+
+  .panel-header p {
+    margin: 0;
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .rows {
+    display: grid;
+  }
+</style>

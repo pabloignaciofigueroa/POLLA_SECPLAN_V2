@@ -1,0 +1,109 @@
+---
+---
+
+<button
+  class="save-cta"
+  type="button"
+  data-save-continue
+  data-submit-state="incomplete"
+  aria-disabled="true"
+  disabled
+>
+  <svg class="star-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.44.91-5.32L2.27 6.62l5.34-.78L10 1z"/>
+  </svg>
+  <span data-save-label>COMPLETA TODO PARA DESCARGAR</span>
+  <span class="arrow-glyph" aria-hidden="true">→</span>
+</button>
+
+<style>
+  .save-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 3.8rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--pm-state-disabled-border);
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-state-disabled-bg);
+    color: var(--pm-state-disabled-text);
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    cursor: not-allowed;
+    text-transform: uppercase;
+    box-shadow: none;
+    transition:
+      background 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      border-color 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      transform var(--pm-transition-fast),
+      box-shadow 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .star-icon {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  /* COMPLETO: CTA rey amarillo, habilitado */
+  .save-cta[data-submit-state="complete"] {
+    border-color: var(--pm-cta-border);
+    background: var(--pm-cta-bg);
+    color: var(--pm-cta-text);
+    cursor: pointer;
+    box-shadow: var(--pm-cta-shadow);
+  }
+
+  .save-cta[data-submit-state="complete"] .star-icon {
+    opacity: 0.9;
+  }
+
+  /* DESCARGANDO: bloqueado, tono neutro-activo */
+  .save-cta[data-submit-state="downloading"] {
+    border-color: var(--pm-state-active-border);
+    background: var(--pm-state-active-bg);
+    color: var(--pm-state-active-text);
+    cursor: progress;
+  }
+
+  /* DESCARGADO: confirmado verde */
+  .save-cta[data-submit-state="downloaded"] {
+    border-color: var(--pm-state-confirmed-border);
+    background: var(--pm-state-confirmed-bg);
+    color: var(--pm-state-confirmed-text);
+    cursor: default;
+  }
+
+  .save-cta[data-submit-state="error"] {
+    border-color: var(--pm-red-500);
+    background: var(--pm-red-100);
+    color: var(--pm-red-600);
+    cursor: pointer;
+  }
+
+  .save-cta:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring-yellow);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .save-cta[data-submit-state="complete"]:hover {
+      transform: translateY(-1px);
+      background: var(--pm-cta-bg-hover);
+      box-shadow: var(--pm-cta-shadow-hover);
+    }
+
+    .save-cta[data-submit-state="complete"]:hover .star-icon {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .save-cta:hover {
+      transform: none;
+    }
+  }
+</style>

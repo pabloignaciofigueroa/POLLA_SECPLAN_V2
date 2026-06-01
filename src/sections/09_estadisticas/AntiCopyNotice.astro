@@ -1,0 +1,61 @@
+---
+---
+
+<aside class="anti-copy" role="note">
+  <span class="icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="1.2rem" height="1.2rem">
+      <path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.25C17.25 21.15 21 16.25 21 11V5L12 1z"/>
+      <path d="M9 12l2 2 4-4" fill="none" stroke="rgba(7,23,53,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
+  <div class="body">
+    <p class="primary">Los datos se habilitan al confirmar tu carton.</p>
+    <p class="hint">Sistema anti-copia activo. Tu progreso es personal e intransferible.</p>
+  </div>
+</aside>
+
+<style>
+  .anti-copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: center;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, var(--pm-blue-700, #1749d8), var(--pm-blue-900, #071735));
+    box-shadow: 0 8px 24px rgba(7, 23, 53, 0.32);
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.65rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--pm-white);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .primary {
+    margin: 0;
+    color: var(--pm-white);
+    font-size: 0.85rem;
+    font-weight: 850;
+  }
+
+  .hint {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+</style>

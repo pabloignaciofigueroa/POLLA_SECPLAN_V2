@@ -1,0 +1,89 @@
+---
+import confederationsData from "../../data/confederations-assets.json";
+
+type Size = "xs" | "sm" | "md" | "lg";
+
+interface ConfederationItem {
+  id: string;
+  code: string;
+  displayName: string;
+  fullName?: string;
+  asset: string;
+}
+
+const items = confederationsData.items as ConfederationItem[];
+const byCode = new Map(items.map((item) => [item.code.toUpperCase(), item]));
+
+interface Props {
+  code?: string;
+  confederation?: string;
+  size?: Size;
+  decorative?: boolean;
+  className?: string;
+}
+
+const {
+  code,
+  confederation,
+  size = "md",
+  decorative = false,
+  className = "",
+} = Astro.props as Props;
+
+const lookup = (code ?? confederation ?? "").toUpperCase();
+const item = byCode.get(lookup) ?? null;
+const ariaLabel = decorative ? "" : item ? `Logo ${item.displayName}` : "";
+const wrapperClass = `conf-logo conf-logo--${size}${className ? ` ${className}` : ""}`;
+---
+
+{item ? (
+  <span class={wrapperClass} aria-hidden={decorative ? "true" : undefined}>
+    <img
+      src={item.asset}
+      alt={ariaLabel}
+      loading="lazy"
+      decoding="async"
+      width="160"
+      height="160"
+    />
+  </span>
+) : (
+  <span class={`${wrapperClass} conf-logo--fallback`} aria-hidden="true">
+    <span class="conf-logo-code">{lookup || "—"}</span>
+  </span>
+)}
+
+<style>
+  .conf-logo {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    line-height: 0;
+  }
+
+  .conf-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .conf-logo--xs { width: 1rem; height: 1rem; }
+  .conf-logo--sm { width: 1.35rem; height: 1.35rem; }
+  .conf-logo--md { width: 1.85rem; height: 1.85rem; }
+  .conf-logo--lg { width: 2.6rem; height: 2.6rem; }
+
+  .conf-logo--fallback {
+    border: 1px dashed var(--pm-border-soft, rgba(7, 23, 53, 0.2));
+    border-radius: 50%;
+    background: var(--pm-panel-soft, #f3f7ff);
+    color: var(--pm-blue-700, #1a3a8a);
+  }
+
+  .conf-logo-code {
+    font-family: var(--font-display, system-ui);
+    font-size: 0.45rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+</style>

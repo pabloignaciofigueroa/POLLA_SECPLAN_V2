@@ -1,0 +1,161 @@
+---
+import { INLINE } from "../../lib/ui-assets/uiAssets";
+
+const steps = [
+  {
+    number: "01",
+    title: "Aprende",
+    description: "Explora reglas y datos clave.",
+    tone: "blue",
+    icon: INLINE.checklist,
+  },
+  {
+    number: "02",
+    title: "Elige",
+    description: "Tu jugador y tu equipo favorito.",
+    tone: "green",
+    icon: INLINE.player,
+  },
+  {
+    number: "03",
+    title: "Predice",
+    description: "Completa tus pronosticos.",
+    tone: "purple",
+    icon: INLINE.calendar,
+  },
+  {
+    number: "04",
+    title: "Gana",
+    description: "Acumula puntos y sube.",
+    tone: "orange",
+    icon: INLINE.trophy,
+  },
+];
+---
+
+<ol class="steps" aria-label="Como jugar" data-stagger>
+  {steps.map((step, index) => (
+    <li class="step" data-tone={step.tone} data-animate="deal-in" style={`--i:${index + 1}`}>
+      <span class="step-number">{step.number}</span>
+      <span class="step-icon" aria-hidden="true">
+        <img src={step.icon.src} alt="" width={step.icon.width} height={step.icon.height} loading="lazy" decoding="async" />
+      </span>
+      <span class="step-body">
+        <span class="step-title">{step.title}</span>
+        <span class="step-description">{step.description}</span>
+      </span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1.15vw, 0.9rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon body";
+    gap: 0.68rem;
+    align-items: center;
+    min-height: clamp(5.2rem, 7.2vw, 6.3rem);
+    padding: 0.85rem 0.9rem;
+    border: 1px solid rgba(7, 23, 53, 0.12);
+    border-radius: var(--pm-radius-md);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 12px 28px rgba(7, 23, 53, 0.12);
+    overflow: hidden;
+  }
+
+  .step::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-top: 4px solid var(--step-color, var(--pm-blue-500));
+    pointer-events: none;
+  }
+
+  .step[data-tone="blue"] { --step-color: var(--pm-blue-500); }
+  .step[data-tone="green"] { --step-color: var(--pm-mint-500); }
+  .step[data-tone="purple"] { --step-color: var(--pm-purple-500); }
+  .step[data-tone="orange"] { --step-color: var(--pm-orange-500); }
+
+  .step-number {
+    position: absolute;
+    top: 0;
+    left: 0.85rem;
+    display: grid;
+    min-width: 2rem;
+    min-height: 1.65rem;
+    place-items: center;
+    border-radius: 0 0 var(--pm-radius-sm) var(--pm-radius-sm);
+    background: var(--step-color, var(--pm-blue-500));
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 950;
+  }
+
+  .step-icon {
+    grid-area: icon;
+    display: grid;
+    place-items: center;
+    width: clamp(2.4rem, 3.5vw, 3.15rem);
+    aspect-ratio: 1;
+    margin-top: 0.45rem;
+  }
+
+  .step-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 7px color-mix(in srgb, var(--step-color, var(--pm-blue-500)) 22%, transparent));
+  }
+
+  .step-body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+    min-width: 0;
+    margin-top: 0.25rem;
+  }
+
+  .step-title {
+    color: var(--step-color, var(--pm-blue-500));
+    font-family: var(--font-display);
+    font-size: clamp(0.96rem, 1.35vw, 1.25rem);
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .step-description {
+    color: var(--pm-blue-900);
+    font-size: clamp(0.68rem, 0.8vw, 0.78rem);
+    font-weight: 650;
+    line-height: 1.22;
+  }
+
+  @media (max-width: 1080px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 520px) {
+    .steps {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

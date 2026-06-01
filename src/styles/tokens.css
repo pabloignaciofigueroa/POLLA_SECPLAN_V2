@@ -1,0 +1,421 @@
+/* =========================================================
+   tokens.css — Idioma visual base Clean V2 (Fase 3A).
+   Solo variables. Sin selectores de componentes.
+   Paleta arcade luminosa: azul tinta + cian + amarillo + acentos.
+   ========================================================= */
+
+:root {
+  /* =========================================================
+     FONTS
+     ========================================================= */
+  --font-display: "Barlow Condensed", "Bebas Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ui: "Inter", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-score: "Rajdhani", "Barlow Condensed", system-ui, -apple-system, sans-serif;
+
+  /* =========================================================
+     ESCALA TIPOGRAFICA FLUIDA
+     ========================================================= */
+  --type-mega:        clamp(4.5rem, 8vw,    8rem);
+  --type-hero:        clamp(3.8rem, 7vw,    7rem);
+  --type-section:     clamp(3.2rem, 5.8vw,  5.8rem);
+  --type-functional:  clamp(2.8rem, 4.8vw,  4.8rem);
+  --type-block:       clamp(2rem,   3vw,    3.25rem);
+  --type-card:        clamp(1.25rem, 1.8vw, 2rem);
+  --type-body-lg:     clamp(1rem,   1.35vw, 1.35rem);
+  --type-body:        clamp(0.92rem, 1vw,   1.05rem);
+  --type-small:       clamp(0.78rem, 0.85vw, 0.92rem);
+  --type-micro:       0.72rem;
+
+  /* =========================================================
+     BASE CLARA
+     ========================================================= */
+  --pm-white:       #FFFFFF;
+  --pm-smoke:       #F6F8FB;
+  --pm-ice:         #EAF1F8;
+  --pm-sky-soft:    #DDF3FF;
+  --pm-blue-mist:   #BFEAFF;
+  --pm-panel-soft:  #F8FBFF;
+
+  /* =========================================================
+     AZUL ESTRUCTURAL
+     ========================================================= */
+  --pm-blue-900: #061326;
+  --pm-blue-800: #071A35;
+  --pm-blue-700: #073B9A;
+  --pm-blue-600: #005BFF;
+  --pm-blue-500: #126DFF;
+  --pm-blue-400: #1B8CFF;
+  --pm-blue-300: #55BFFF;
+  --pm-blue-100: #DCEBFF;
+
+  /* =========================================================
+     CIAN
+     ========================================================= */
+  --pm-cyan-600: #00B8D9;
+  --pm-cyan-500: #18DDF2;
+  --pm-cyan-400: #46F1FF;
+  --pm-cyan-200: #B8F7FF;
+  --pm-cyan-glow: rgba(24, 221, 242, 0.35);
+
+  /* =========================================================
+     AMARILLO / DORADO
+     ========================================================= */
+  --pm-yellow-300: #FFEC8F;
+  --pm-yellow-500: #FFD21F;
+  --pm-yellow-400: #FFE45C;
+  --pm-yellow-600: #F5B800;
+  --pm-gold-500:   #F5B51B;
+  --pm-gold-700:   #B87900;
+  --pm-gold-glow:  rgba(255, 210, 31, 0.45);
+
+  /* =========================================================
+     MORADO
+     ========================================================= */
+  --pm-purple-700: #4B18B8;
+  --pm-purple-600: #6D28FF;
+  --pm-purple-500: #7C35FF;
+  --pm-purple-400: #A66BFF;
+  --pm-purple-200: #E9DDFF;
+  --pm-purple-glow: rgba(124, 53, 255, 0.35);
+
+  /* =========================================================
+     VERDE / EXITO
+     ========================================================= */
+  --pm-green-700: #047857;
+  --pm-green-600: #16A34A;
+  --pm-green-500: #22C55E;
+  --pm-mint-500:  #21D99A;
+  --pm-mint-300:  #8EF5D0;
+  --pm-green-100: #DCFCE7;
+
+  /* =========================================================
+     ROJO / ALERTA
+     ========================================================= */
+  --pm-red-600: #E11D48;
+  --pm-red-500: #FF4058;
+  --pm-red-400: #FF6B7A;
+  --pm-red-100: #FFE4E8;
+  --pm-red-glow: rgba(255, 64, 88, 0.25);
+
+  /* =========================================================
+     NARANJA
+     ========================================================= */
+  --pm-orange-600: #EA580C;
+  --pm-orange-500: #FF8A00;
+  --pm-orange-400: #FFA733;
+  --pm-orange-100: #FFF1D6;
+
+  /* =========================================================
+     NEUTRALES
+     ========================================================= */
+  --pm-text-main:   #071735;
+  --pm-text-strong: #020B1F;
+  --pm-text-body:   #25324A;
+  --pm-text-soft:   #5C6880;
+  --pm-text-muted:  #8A96AA;
+  --pm-border-soft: #D8E2F0;
+  --pm-border-blue: #BFD5F5;
+
+  /* =========================================================
+     RADIOS
+     ========================================================= */
+  --pm-radius-sm:   10px;
+  --pm-radius-md:   16px;
+  --pm-radius-lg:   24px;
+  --pm-radius-xl:   32px;
+  --pm-radius-pill: 999px;
+
+  /* =========================================================
+     SOMBRAS
+     ========================================================= */
+  --pm-shadow-card:        0 18px 45px rgba(7, 26, 53, 0.08);
+  --pm-shadow-card-strong: 0 24px 60px rgba(7, 26, 53, 0.14);
+  --pm-shadow-yellow:      0 16px 36px rgba(245, 184, 0, 0.26);
+  --pm-shadow-blue:        0 18px 44px rgba(18, 109, 255, 0.18);
+
+  /* =========================================================
+     NAVBAR
+     ========================================================= */
+  --pm-navbar-bg:         #061326;
+  --pm-navbar-bg-2:       #071A35;
+  --pm-navbar-text:       rgba(255, 255, 255, 0.86);
+  --pm-navbar-text-hover: #FFFFFF;
+  --pm-navbar-border:     rgba(255, 255, 255, 0.12);
+
+  /* =========================================================
+     CTA REY (amarillo)
+     ========================================================= */
+  --pm-cta-bg:     linear-gradient(135deg, #FFD21F, #F5B800);
+  --pm-cta-text:   #061326;
+  --pm-cta-border: #B87900;
+  --pm-cta-shadow: 0 14px 30px rgba(245, 184, 0, 0.28);
+
+  /* =========================================================
+     SPACING
+     ========================================================= */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  2rem;
+  --space-xl:  4rem;
+  --space-2xl: 6rem;
+
+  /* =========================================================
+     Z-INDEX
+     ========================================================= */
+  --z-base:    1;
+  --z-header:  100;
+  --z-overlay: 200;
+
+  /* =========================================================
+     LAYOUT
+     ========================================================= */
+  --layout-header-height: 4rem;
+
+  /* =========================================================
+     ALIASES RETROCOMPATIBLES (Fase 3A).
+     Los subcomponentes wireframe usan los nombres viejos.
+     Aqui los redirigimos a la paleta nueva --pm-* / --font-*.
+     A medida que los subcomponentes se intervengan visualmente
+     en fases siguientes, deben pasar a usar los tokens --pm-*
+     directamente. Estos aliases pueden retirarse en Fase 4.
+     ========================================================= */
+  --font-body:           var(--font-ui);
+  --color-bg:            var(--pm-smoke);
+  --color-text:          var(--pm-text-main);
+  --color-muted:         var(--pm-text-soft);
+  --color-line:          var(--pm-border-soft);
+  --color-arcade-blue:   var(--pm-blue-500);
+  --color-arcade-yellow: var(--pm-yellow-500);
+  --color-arcade-pink:   var(--pm-purple-500);
+  --color-arcade-green:  var(--pm-mint-500);
+  --radius-sm:           var(--pm-radius-sm);
+  --radius-md:           var(--pm-radius-md);
+  --radius-lg:           var(--pm-radius-lg);
+  --radius-xl:           var(--pm-radius-xl);
+
+  /* =========================================================
+     FASE 6 — FLUOR / ARCADE HIGH INTENSITY
+     ========================================================= */
+  --pm-lime-500: #B6FF00;
+  --pm-lime-400: #CCFF33;
+  --pm-lime-300: #E0FF75;
+  --pm-lime-100: #F0FFD6;
+
+  --pm-pink-600: #E6007E;
+  --pm-pink-500: #FF2FB3;
+  --pm-pink-400: #FF63C7;
+  --pm-pink-100: #FFE1F4;
+
+  --pm-magenta-600: #C600FF;
+  --pm-magenta-500: #D946EF;
+  --pm-magenta-400: #EC7CFF;
+  --pm-magenta-100: #F8D9FF;
+
+  /* Neon aliases (equivalentes vivos para uso semantico) */
+  --pm-neon-blue:   #006BFF;
+  --pm-neon-cyan:   #18DDF2;
+  --pm-neon-purple: #7C35FF;
+  --pm-neon-pink:   #FF2FB3;
+  --pm-neon-lime:   #B6FF00;
+  --pm-neon-orange: #FF8A00;
+  --pm-neon-coral:  #FF4058;
+
+  /* =========================================================
+     FASE 6 — PODIUM (oro / plata / bronce)
+     ========================================================= */
+  --pm-rank-gold:   #FFD21F;
+  --pm-rank-silver: #C7D2E5;
+  --pm-rank-bronze: #C9823B;
+
+  --pm-rank-gold-bg:   linear-gradient(135deg, #FFD21F, #FFB800);
+  --pm-rank-silver-bg: linear-gradient(135deg, #F5F7FB, #B7C4D8);
+  --pm-rank-bronze-bg: linear-gradient(135deg, #E9A45E, #A85F20);
+
+  /* =========================================================
+     FASE 6 — CTA REY (refuerzo hover)
+     ========================================================= */
+  --pm-cta-bg-hover:     linear-gradient(135deg, #FFE45C, #FFD21F);
+  --pm-cta-shadow-hover: 0 18px 42px rgba(245, 184, 0, 0.42);
+
+  /* =========================================================
+     FASE 6 — NAVBAR (active refuerzo)
+     ========================================================= */
+  --pm-navbar-active-bg:   #FFD21F;
+  --pm-navbar-active-text: #061326;
+
+  /* =========================================================
+     FASE 6 — FOCUS RINGS
+     ========================================================= */
+  --pm-focus-ring:        0 0 0 4px rgba(24, 221, 242, 0.35);
+  --pm-focus-ring-yellow: 0 0 0 4px rgba(255, 210, 31, 0.42);
+  --pm-focus-ring-pink:   0 0 0 4px rgba(255, 47, 179, 0.35);
+
+  /* =========================================================
+     FASE 6 — SOMBRAS DE COLOR
+     ========================================================= */
+  --pm-shadow-cyan:   0 16px 36px rgba(24, 221, 242, 0.28);
+  --pm-shadow-purple: 0 16px 36px rgba(124, 53, 255, 0.28);
+  --pm-shadow-pink:   0 16px 36px rgba(255, 47, 179, 0.26);
+  --pm-shadow-lime:   0 16px 36px rgba(182, 255, 0, 0.22);
+  --pm-shadow-orange: 0 16px 36px rgba(255, 138, 0, 0.26);
+  --pm-shadow-coral:  0 16px 36px rgba(255, 64, 88, 0.24);
+  --pm-shadow-soft:   0 12px 30px rgba(6, 19, 38, 0.10);
+
+  /* =========================================================
+     FASE 6 — RADIOS (extras)
+     ========================================================= */
+  --pm-radius-xs: 8px;
+
+  /* =========================================================
+     FASE 6 — TRANSICIONES
+     ========================================================= */
+  --pm-transition-fast: 140ms ease;
+  --pm-transition-base: 220ms ease;
+  --pm-transition-slow: 360ms ease;
+
+  /* Curvas de easing fuertes (Emil) — para entradas/salidas y movimiento UI.
+     Entrada/salida = ease-out; movimiento on-screen = ease-in-out; nunca ease-in. */
+  --ease-out:     cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out:  cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer:  cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* =========================================================
+     FASE 6 — ESTADOS FUNCIONALES
+     ========================================================= */
+  --pm-state-default-bg:     #FFFFFF;
+  --pm-state-default-text:   #071735;
+  --pm-state-default-border: #D8E2F0;
+
+  --pm-state-hover-bg:     #F8FBFF;
+  --pm-state-hover-border: #55BFFF;
+
+  --pm-state-active-bg:     #126DFF;
+  --pm-state-active-text:   #FFFFFF;
+  --pm-state-active-border: #005BFF;
+
+  --pm-state-selected-bg:     #18DDF2;
+  --pm-state-selected-text:   #061326;
+  --pm-state-selected-border: #00B8D9;
+
+  --pm-state-confirmed-bg:     #21D99A;
+  --pm-state-confirmed-text:   #061326;
+  --pm-state-confirmed-border: #16A34A;
+
+  --pm-state-completed-bg:     #22C55E;
+  --pm-state-completed-text:   #061326;
+  --pm-state-completed-border: #047857;
+
+  --pm-state-locked-bg:     linear-gradient(135deg, #7C35FF, #18DDF2);
+  --pm-state-locked-text:   #FFFFFF;
+  --pm-state-locked-border: #6D28FF;
+
+  --pm-state-disabled-bg:     #EAF1F8;
+  --pm-state-disabled-text:   #8A96AA;
+  --pm-state-disabled-border: #D8E2F0;
+
+  --pm-state-error-bg:        #FF4058;
+  --pm-state-error-text:      #FFFFFF;
+  --pm-state-error-border:    #E11D48;
+  --pm-state-error-soft-bg:   #FFE4E8;
+  --pm-state-error-soft-text: #9F1239;
+
+  --pm-state-warning-bg:      #FF8A00;
+  --pm-state-warning-text:    #061326;
+  --pm-state-warning-border:  #EA580C;
+  --pm-state-warning-soft-bg: #FFF1D6;
+
+  --pm-state-success-bg:     #22C55E;
+  --pm-state-success-text:   #061326;
+  --pm-state-success-border: #047857;
+
+  --pm-state-live-bg:     #FF4058;
+  --pm-state-live-text:   #FFFFFF;
+  --pm-state-live-border: #E11D48;
+
+  --pm-state-upcoming-bg:     #FF8A00;
+  --pm-state-upcoming-text:   #061326;
+  --pm-state-upcoming-border: #EA580C;
+
+  --pm-state-finished-bg:     #7C35FF;
+  --pm-state-finished-text:   #FFFFFF;
+  --pm-state-finished-border: #4B18B8;
+
+  --pm-state-danger-bg:     #FF4058;
+  --pm-state-danger-text:   #FFFFFF;
+  --pm-state-danger-border: #E11D48;
+
+  /* =========================================================
+     FASE 6 — TOKENS POR SECCION
+     Cada seccion los redirige a --section-accent / --section-accent-2
+     en su Section.module.css local.
+     ========================================================= */
+  --pm-sec-inicio-a:        #126DFF;
+  --pm-sec-inicio-b:        #18DDF2;
+  --pm-sec-inicio-c:        #7C35FF;
+  --pm-sec-inicio-gradient: linear-gradient(135deg, #126DFF, #18DDF2);
+
+  --pm-sec-reglas-a:        #7C35FF;
+  --pm-sec-reglas-b:        #FF2FB3;
+  --pm-sec-reglas-c:        #18DDF2;
+  --pm-sec-reglas-gradient: linear-gradient(135deg, #7C35FF, #FF2FB3);
+
+  --pm-sec-jugador-a:        #18DDF2;
+  --pm-sec-jugador-b:        #126DFF;
+  --pm-sec-jugador-c:        #B6FF00;
+  --pm-sec-jugador-gradient: linear-gradient(135deg, #18DDF2, #126DFF);
+
+  --pm-sec-predicciones-a:        #126DFF;
+  --pm-sec-predicciones-b:        #22C55E;
+  --pm-sec-predicciones-c:        #7C35FF;
+  --pm-sec-predicciones-gradient: linear-gradient(135deg, #126DFF, #22C55E);
+
+  --pm-sec-tabla-a:        #FF2FB3;
+  --pm-sec-tabla-b:        #126DFF;
+  --pm-sec-tabla-c:        #7C35FF;
+  --pm-sec-tabla-gradient: linear-gradient(135deg, #FF2FB3, #126DFF);
+
+  --pm-sec-partido-a:        #FF8A00;
+  --pm-sec-partido-b:        #FF4058;
+  --pm-sec-partido-c:        #FFD21F;
+  --pm-sec-partido-gradient: linear-gradient(135deg, #FF8A00, #FF4058);
+
+  --pm-sec-fixture-a:        #18DDF2;
+  --pm-sec-fixture-b:        #126DFF;
+  --pm-sec-fixture-c:        #00B8D9;
+  --pm-sec-fixture-gradient: linear-gradient(135deg, #18DDF2, #126DFF);
+
+  --pm-sec-equipos-a:        #126DFF;
+  --pm-sec-equipos-b:        #7C35FF;
+  --pm-sec-equipos-c:        #FF2FB3;
+  --pm-sec-equipos-gradient: linear-gradient(135deg, #126DFF, #7C35FF, #FF2FB3);
+
+  --pm-sec-estadisticas-a:        #7C35FF;
+  --pm-sec-estadisticas-b:        #18DDF2;
+  --pm-sec-estadisticas-c:        #21D99A;
+  --pm-sec-estadisticas-gradient: linear-gradient(135deg, #7C35FF, #18DDF2);
+
+  --pm-sec-admin-a:        #126DFF;
+  --pm-sec-admin-b:        #21D99A;
+  --pm-sec-admin-c:        #FF4058;
+  --pm-sec-admin-gradient: linear-gradient(135deg, #126DFF, #21D99A);
+
+  /* =========================================================
+     FASE 6 — TOKENS POR GRUPO (A-L)
+     Para tabs A-L, chips de grupo, badges, filtros, mini indicadores.
+     Grupo G usa dorado solido (--pm-yellow-600 alias) para no
+     competir con el CTA Rey amarillo principal.
+     ========================================================= */
+  --pm-group-a: #22C55E;
+  --pm-group-b: #126DFF;
+  --pm-group-c: #FF8A00;
+  --pm-group-d: #7C35FF;
+  --pm-group-e: #18DDF2;
+  --pm-group-f: #FF2FB3;
+  --pm-group-g: #F5B800;
+  --pm-group-h: #005BFF;
+  --pm-group-i: #B6FF00;
+  --pm-group-j: #FF4058;
+  --pm-group-k: #D946EF;
+  --pm-group-l: #00B8D9;
+}

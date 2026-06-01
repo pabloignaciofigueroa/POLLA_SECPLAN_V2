@@ -1,0 +1,127 @@
+---
+import LiveMatchCard from "./LiveMatchCard.astro";
+import { HERO } from "../../lib/ui-assets/uiAssets";
+import type { Match, MatchResult } from "../../lib/tabla/types";
+
+interface Props {
+  match?: Match;
+  result?: MatchResult;
+}
+
+const { match, result } = Astro.props;
+---
+
+<header class="tabla-hero" aria-labelledby="tabla-title" data-animate="fade-up">
+  <div class="title-cluster">
+    <span class="section-icon" aria-hidden="true">
+      <img src={HERO.trophyLaurel.src} alt="" width={HERO.trophyLaurel.width} height={HERO.trophyLaurel.height} loading="eager" decoding="async" />
+    </span>
+    <div>
+      <p>05_tabla / ranking vivo</p>
+      <h1 id="tabla-title">
+        <span class="title-main">Tabla Dinámica</span>
+        <span class="title-accent">de Jugadores</span>
+      </h1>
+      <span class="subtitle">Así va la competencia en tiempo real</span>
+    </div>
+  </div>
+
+  {match && <LiveMatchCard match={match} result={result} />}
+</header>
+
+<style>
+  .tabla-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.62fr);
+    gap: clamp(0.65rem, 1.2vw, 0.9rem);
+    align-items: stretch;
+    padding: clamp(0.42rem, 0.8vw, 0.6rem);
+    border: 1px solid var(--pm-pink-400);
+    border-radius: var(--pm-radius-lg);
+    background: linear-gradient(135deg, var(--pm-white), var(--pm-pink-100));
+    box-shadow: var(--pm-shadow-pink);
+  }
+
+  .title-cluster {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(0.8rem, 1.5vw, 1rem);
+    align-items: center;
+    min-width: 0;
+  }
+
+  .section-icon {
+    display: grid;
+    width: clamp(3rem, 5vw, 3.8rem);
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 0.32rem;
+    border: 2px solid var(--pm-pink-600);
+    border-radius: var(--pm-radius-md);
+    background: linear-gradient(135deg, var(--pm-pink-500), var(--pm-purple-500));
+  }
+
+  .section-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 6px rgba(7, 23, 53, 0.35));
+  }
+
+  p,
+  h1,
+  .subtitle {
+    margin: 0;
+  }
+
+  p {
+    color: var(--pm-pink-600);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin-top: 0.15rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.6vw, 2.2rem);
+    font-weight: 950;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .title-main {
+    color: var(--pm-blue-900);
+  }
+
+  .title-accent {
+    background: linear-gradient(135deg, var(--pm-pink-500), var(--pm-blue-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--pm-blue-700);
+    font-size: clamp(0.78rem, 1vw, 0.88rem);
+    font-weight: 700;
+  }
+
+  @media (max-width: 980px) {
+    .tabla-hero {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .title-cluster {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

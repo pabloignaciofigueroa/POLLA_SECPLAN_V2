@@ -1,0 +1,80 @@
+.fixtureSection {
+  --section-accent: var(--pm-sec-fixture-a);
+  --section-accent-2: var(--pm-sec-fixture-b);
+  --section-accent-3: var(--pm-sec-fixture-c);
+  --section-gradient: var(--pm-sec-fixture-gradient);
+
+  position: relative;
+  min-height: calc(100svh - var(--layout-header-height));
+  overflow: hidden;
+  isolation: isolate;
+  background-image: image-set(
+    url("/assets/backgrounds/avif/07_fixture_background.avif") type("image/avif"),
+    url("/assets/backgrounds/webp/07_fixture_background.webp") type("image/webp")
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--pm-text-main);
+  font-family: var(--font-ui);
+}
+
+.contentShell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - clamp(1rem, 4vw, 3rem), 1500px);
+  min-height: calc(100svh - var(--layout-header-height));
+  margin-inline: auto;
+  padding-block: clamp(0.55rem, 1vw, 0.9rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.45rem, 0.9vw, 0.75rem);
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.45fr);
+  gap: clamp(0.8rem, 1.6vw, 1.25rem);
+  align-items: end;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(0.7rem, 1.35vw, 1rem);
+  align-items: stretch;
+}
+
+@media (max-width: 920px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
+
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mainGrid > :first-child {
+    order: 2;
+  }
+
+  .mainGrid > :last-child {
+    order: 1;
+  }
+
+}
+
+@media (max-width: 720px) {
+  .contentShell {
+    width: min(100% - 1rem, 1500px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fixtureSection *,
+  .fixtureSection *::before,
+  .fixtureSection *::after {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+  }
+}

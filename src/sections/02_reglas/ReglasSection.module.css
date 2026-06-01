@@ -1,0 +1,97 @@
+.reglasSection {
+  --section-accent: var(--pm-sec-reglas-a);
+  --section-accent-2: var(--pm-sec-reglas-b);
+  --section-accent-3: var(--pm-sec-reglas-c);
+  --section-gradient: var(--pm-sec-reglas-gradient);
+
+  position: relative;
+  min-height: calc(100svh - var(--layout-header-height));
+  overflow: hidden;
+  isolation: isolate;
+  background-image: image-set(
+    url("/assets/backgrounds/avif/02_reglas_background.avif") type("image/avif"),
+    url("/assets/backgrounds/webp/02_reglas_background.webp") type("image/webp")
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--pm-text-main);
+  font-family: var(--font-ui);
+}
+
+.trophyDeco {
+  position: absolute;
+  left: -3rem;
+  top: 50%;
+  transform: translateY(-58%);
+  width: clamp(7rem, 11vw, 12rem);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.82;
+  filter: drop-shadow(0 12px 28px rgba(7, 23, 53, 0.22));
+}
+
+.trophyImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.contentShell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - clamp(1rem, 4vw, 3rem), 1500px);
+  min-height: calc(100svh - var(--layout-header-height));
+  margin-inline: auto;
+  padding-block: clamp(0.7rem, 1.25vw, 1rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.65rem, 1.15vw, 0.9rem);
+}
+
+.bottomLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.9fr);
+  gap: clamp(0.75rem, 1.45vw, 1rem);
+  align-items: stretch;
+}
+
+.scoringChallenge {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(16rem, 1fr);
+  gap: clamp(0.7rem, 1.25vw, 0.95rem);
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .bottomLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .scoringChallenge {
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.85fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .scoringChallenge {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .contentShell {
+    width: min(100% - 1rem, 1500px);
+    padding-block-end: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reglasSection *,
+  .reglasSection *::before,
+  .reglasSection *::after {
+    transition-duration: 0.01ms;
+  }
+}

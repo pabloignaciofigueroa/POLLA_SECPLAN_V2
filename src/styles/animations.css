@@ -1,0 +1,273 @@
+/* =========================================================
+   animations.css — Capa de animación global "brave & bold".
+   - Keyframes reutilizables (entradas, momentos arcade, page swap).
+   - Utilidades por atributo: [data-animate] + .in-view, [data-stagger].
+   - Page transitions cross-document (@view-transition).
+   - Respeta prefers-reduced-motion (ver bloque final + accessibility.css).
+
+   Reglas de oro (disciplina Fase 13):
+   - Solo se animan transform / opacity / filter (compositor-friendly).
+   - Las entradas parten desde la posición final (translate/opacity) → CLS 0.
+   - El DOM inyectado por client.js (innerHTML) NO recibe CSS scoped; por eso
+     las clases de momento (.is-*) viven aquí (globales) y aplican igual.
+
+   Activación sin FOUC: BaseLayout añade `.motion-ready` a <html> por inline
+   script (solo si el usuario permite movimiento). Por eso [data-animate] solo
+   se oculta bajo `.motion-ready` → si no hay JS o hay reduced-motion, todo es
+   visible y estático.
+   ========================================================= */
+
+:root {
+  /* Tokens de motion extra (complementan tokens.css --pm-transition-* y --ease-*) */
+  --pm-stagger:        60ms;
+  --pm-dur-entrance:   560ms;
+  --pm-dur-pop:        420ms;
+  --pm-dur-hero:       900ms;
+  --pm-translate-in:   28px;
+  --pm-spring-out:     cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot suave */
+}
+
+/* =========================================================
+   KEYFRAMES — entradas
+   ========================================================= */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translate3d(0, var(--pm-translate-in), 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translate3d(0, calc(var(--pm-translate-in) * -1), 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes blurIn {
+  from { opacity: 0; filter: blur(12px); transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translate3d(-40px, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translate3d(40px, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes clipReveal {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to   { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes dealIn {
+  0%   { opacity: 0; transform: translate3d(0, 36px, 0) rotateX(22deg) scale(0.94); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0) scale(1); }
+}
+
+/* =========================================================
+   KEYFRAMES — loops decorativos / arcade
+   ========================================================= */
+@keyframes shineSweep {
+  0%   { transform: translateX(-130%) skewX(-18deg); }
+  100% { transform: translateX(230%) skewX(-18deg); }
+}
+@keyframes ctaBreathing {
+  0%, 100% { transform: scale(1); box-shadow: var(--pm-cta-shadow); }
+  50%      { transform: scale(1.018); box-shadow: var(--pm-cta-shadow-hover); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.06); }
+}
+@keyframes floatBob {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -12px, 0); }
+}
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--pm-red-glow); }
+  50%      { box-shadow: 0 0 0 8px rgba(255, 64, 88, 0); }
+}
+@keyframes countdownTick {
+  0%   { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* =========================================================
+   KEYFRAMES — momentos arcade (disparados por client.js con .is-*)
+   ========================================================= */
+@keyframes scorePop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+@keyframes selectedBurst {
+  0%   { box-shadow: 0 0 0 0 var(--pm-gold-glow); transform: scale(1); }
+  45%  { box-shadow: 0 0 0 16px rgba(255, 210, 31, 0); transform: scale(1.05); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 210, 31, 0); transform: scale(1); }
+}
+@keyframes savedPunch {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(0.94); }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes checkPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes unlockBurst {
+  0%   { transform: scale(1); filter: brightness(1); opacity: 1; }
+  50%  { transform: scale(1.18); filter: brightness(1.6); opacity: 1; }
+  100% { transform: scale(1.6); filter: brightness(2); opacity: 0; }
+}
+@keyframes rowRise {
+  0%   { background: var(--pm-gold-glow); }
+  100% { background: transparent; }
+}
+
+/* =========================================================
+   KEYFRAMES — page transition arcade (cross-document)
+   ========================================================= */
+@keyframes pageWipeOutBlue {
+  0%   { opacity: 1; transform: translate3d(0, 0, 0); clip-path: inset(0 0 0 0); }
+  100% { opacity: 0; transform: translate3d(-4%, 0, 0); clip-path: inset(0 0 0 100%); }
+}
+@keyframes pagePunchInYellow {
+  0%   { opacity: 0; transform: scale(1.04); clip-path: inset(0 100% 0 0); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); clip-path: inset(0 0 0 0); }
+}
+
+/* =========================================================
+   UTILIDADES DE ENTRADA — [data-animate] + .in-view
+   Solo se ocultan bajo .motion-ready (sin JS / reduced-motion → visible).
+   ========================================================= */
+.motion-ready [data-animate] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.motion-ready [data-animate].in-view {
+  animation-duration: var(--pm-dur-entrance);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
+  animation-delay: calc(var(--i, 0) * var(--pm-stagger));
+}
+
+.motion-ready [data-animate="fade-up"].in-view    { animation-name: fadeUp; }
+.motion-ready [data-animate="fade-down"].in-view  { animation-name: fadeDown; }
+.motion-ready [data-animate="fade-in"].in-view    { animation-name: fadeIn; }
+.motion-ready [data-animate="scale-in"].in-view   { animation-name: scaleIn; }
+.motion-ready [data-animate="pop-in"].in-view     { animation-name: popIn; animation-timing-function: var(--pm-spring-out); animation-duration: var(--pm-dur-pop); }
+.motion-ready [data-animate="blur-in"].in-view    { animation-name: blurIn; }
+.motion-ready [data-animate="slide-left"].in-view { animation-name: slideInLeft; }
+.motion-ready [data-animate="slide-right"].in-view{ animation-name: slideInRight; }
+.motion-ready [data-animate="clip-reveal"].in-view{ animation-name: clipReveal; }
+.motion-ready [data-animate="deal-in"].in-view    { animation-name: dealIn; animation-duration: var(--pm-dur-pop); }
+
+/* Stagger: el contenedor lleva [data-stagger]; cada hijo recibe --i por motion.js
+   o inline en el markup. Fallback: progresión por nth-child para grids pequeñas. */
+.motion-ready [data-stagger] > * { --i: 0; }
+
+/* will-change se libera al terminar */
+.motion-ready [data-animate].in-view { will-change: auto; }
+
+/* =========================================================
+   CLASES DE MOMENTO ARCADE (las agrega/quita el client.js)
+   ========================================================= */
+/* Sin fill-mode en los que tienen estado de reposo (box-shadow/transform):
+   así al terminar revierten al CSS del elemento (sombra dorada/verde, hover…). */
+.is-selected-burst { animation: selectedBurst 620ms var(--ease-out); }
+.is-saved-punch    { animation: savedPunch 460ms var(--pm-spring-out); }
+.is-check-pop      { animation: checkPop 380ms var(--pm-spring-out) both; }
+.is-unlock-burst   { animation: unlockBurst 620ms var(--ease-out) forwards; }
+.is-row-rise       { animation: rowRise 900ms var(--ease-out); }
+.is-live-pulse     { animation: livePulse 1.5s ease-in-out infinite; }
+.is-score-pop      { animation: scorePop 460ms var(--pm-spring-out); }
+.is-countdown-tick { animation: countdownTick 320ms var(--ease-out); }
+
+/* Swap de contenido al filtrar (equipos/fixture): replay de entrada. */
+.is-swap-in { animation: fadeUp var(--pm-dur-entrance) var(--ease-out) both; }
+
+/* Flash de feedback (admin): nudge vertical + brillo, sin escalar el ancho. */
+@keyframes feedbackFlash {
+  0%   { transform: translateY(-4px); filter: brightness(1.3); }
+  100% { transform: translateY(0); filter: brightness(1); }
+}
+.is-feedback-flash { animation: feedbackFlash 420ms var(--ease-out); }
+
+/* Modal de equipo (<dialog>): pop al abrir + backdrop fade. */
+dialog[data-team-modal][open] { animation: popIn var(--pm-dur-pop) var(--pm-spring-out) both; }
+dialog[data-team-modal]::backdrop { animation: fadeIn 240ms var(--ease-out) both; }
+
+/* Brillo arcade reutilizable (botón/card): elemento ::after con .has-shine */
+.has-shine { position: relative; overflow: hidden; }
+.has-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-130%) skewX(-18deg);
+  pointer-events: none;
+}
+.has-shine:hover::after { animation: shineSweep 720ms var(--ease-out); }
+
+/* =========================================================
+   PAGE TRANSITIONS — cross-document (sin ClientRouter)
+   ========================================================= */
+@view-transition {
+  navigation: auto;
+}
+
+/* Elementos compartidos que persisten entre páginas (set también en sus .astro). */
+::view-transition-old(root) {
+  animation: pageWipeOutBlue 320ms var(--ease-in-out) both;
+}
+::view-transition-new(root) {
+  animation: pagePunchInYellow 460ms var(--ease-out) both;
+}
+
+/* =========================================================
+   REDUCED MOTION — anula entradas, loops y page swap.
+   (accessibility.css ya neutraliza animation/transition de *; aquí
+   reforzamos los pseudos de view-transition y el estado oculto.)
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  [data-animate],
+  .motion-ready [data-animate] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+  }
+  .is-selected-burst,
+  .is-saved-punch,
+  .is-check-pop,
+  .is-unlock-burst,
+  .is-row-rise,
+  .is-live-pulse,
+  .is-score-pop,
+  .is-countdown-tick {
+    animation: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

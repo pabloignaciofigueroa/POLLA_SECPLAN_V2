@@ -1,0 +1,45 @@
+---
+import SelectedMatchHero from "./SelectedMatchHero.astro";
+import type { FixtureMatch, MatchInfo } from "./fixture.logic";
+
+interface Props {
+  match: FixtureMatch;
+  info: MatchInfo;
+}
+
+const { match, info } = Astro.props;
+---
+
+<aside class="selected-panel" data-selected-panel aria-label="Detalle del partido seleccionado">
+  <SelectedMatchHero
+    match={match}
+    stadiumName={info.stadium?.name ?? match.location}
+    city={info.stadium?.city ?? null}
+  />
+
+  <div class="details-grid">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .selected-panel {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.46rem;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 0.46rem;
+    min-width: 0;
+  }
+
+  @media (max-width: 560px) {
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

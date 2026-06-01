@@ -1,0 +1,265 @@
+---
+interface Props {
+  title: string;
+  variant: "comparison" | "ranking" | "trends";
+}
+
+const { title, variant } = Astro.props;
+---
+
+<article class="preview-card" data-preview-variant={variant}>
+  <span class="lock" aria-hidden="true">LOCK</span>
+  <h3 class="title">{title}</h3>
+
+  {variant === "comparison" && (
+    <div class="comparison" aria-hidden="true">
+      <div class="vs-side">
+        <span class="label">TU</span>
+        <span class="big">--%</span>
+        <span class="hint">Acierto</span>
+      </div>
+      <div class="vs-core">VS</div>
+      <div class="vs-side right">
+        <span class="label">COMUNIDAD</span>
+        <span class="big">--%</span>
+        <span class="hint">Acierto</span>
+      </div>
+    </div>
+  )}
+
+  {variant === "ranking" && (
+    <ul class="ranking" aria-hidden="true">
+      {["01", "02", "03", "04", "05"].map((rank) => (
+        <li>
+          <span class="rank">{rank}</span>
+          <span class="bar"></span>
+          <span class="pts">--- pts</span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {variant === "trends" && (
+    <div class="trends" aria-hidden="true">
+      <div class="trend">
+        <span class="label">GANA LOCAL</span>
+        <span class="big">--%</span>
+      </div>
+      <div class="trend">
+        <span class="label">EMPATE</span>
+        <span class="big">--%</span>
+      </div>
+      <div class="trend">
+        <span class="label">GANA VISITANTE</span>
+        <span class="big">--%</span>
+      </div>
+    </div>
+  )}
+
+  <div class="mini-chart" aria-hidden="true">
+    {Array.from({ length: 10 }).map((_, i) => {
+      const h = 22 + ((i * 11) % 58);
+      return <span class="chart-bar" style={`height:${h}%`}></span>;
+    })}
+  </div>
+</article>
+
+<style>
+  .preview-card {
+    --variant-accent: var(--pm-blue-500);
+    --variant-soft: var(--pm-blue-100);
+
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 9.4rem;
+    flex-direction: column;
+    gap: 0.58rem;
+    overflow: hidden;
+    padding: 0.78rem 0.82rem 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--variant-accent) 28%, transparent);
+    border-radius: 0.72rem;
+    background:
+      radial-gradient(circle at 86% 24%, color-mix(in srgb, var(--variant-accent) 12%, transparent), transparent 34%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.98), color-mix(in srgb, var(--variant-soft) 34%, white));
+    box-shadow: 0 10px 24px rgba(7, 23, 53, 0.08);
+  }
+
+  .preview-card::before {
+    content: "";
+    position: absolute;
+    right: 0.7rem;
+    bottom: 0.5rem;
+    left: 0.7rem;
+    height: 2.1rem;
+    background-image: linear-gradient(90deg, color-mix(in srgb, var(--variant-accent) 14%, transparent) 1px, transparent 1px);
+    background-size: 12px 100%;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .preview-card[data-preview-variant="comparison"] {
+    --variant-accent: var(--pm-blue-500);
+    --variant-soft: var(--pm-blue-100);
+  }
+
+  .preview-card[data-preview-variant="ranking"] {
+    --variant-accent: var(--pm-purple-500);
+    --variant-soft: var(--pm-purple-200);
+  }
+
+  .preview-card[data-preview-variant="trends"] {
+    --variant-accent: var(--pm-cyan-500);
+    --variant-soft: var(--pm-cyan-200);
+  }
+
+  .lock {
+    position: absolute;
+    top: 0.72rem;
+    left: 0.72rem;
+    display: grid;
+    place-items: center;
+    width: 1.95rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-purple-500), var(--pm-blue-500));
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.44rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .title {
+    margin: 0;
+    padding-left: 2.35rem;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .comparison {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vs-side,
+  .trend {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.18rem;
+  }
+
+  .vs-side.right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .label {
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .big {
+    color: var(--variant-accent);
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .hint {
+    color: var(--pm-blue-700);
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+
+  .vs-core {
+    display: grid;
+    place-items: center;
+    width: 2.55rem;
+    height: 2.55rem;
+    border: 0.35rem solid color-mix(in srgb, var(--variant-accent) 26%, white);
+    border-radius: 50%;
+    background: var(--pm-white);
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-weight: 950;
+  }
+
+  .ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ranking li {
+    display: grid;
+    grid-template-columns: 1.35rem minmax(0, 1fr) 3.15rem;
+    gap: 0.42rem;
+    align-items: center;
+  }
+
+  .rank,
+  .pts {
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.58rem;
+    font-weight: 950;
+  }
+
+  .pts {
+    text-align: right;
+  }
+
+  .bar {
+    height: 0.42rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--variant-accent), color-mix(in srgb, var(--variant-accent) 14%, white));
+  }
+
+  .trends {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.42rem;
+  }
+
+  .trend {
+    align-items: center;
+    padding: 0.36rem 0.25rem;
+    border-radius: 0.48rem;
+    background: color-mix(in srgb, var(--variant-accent) 9%, white);
+    text-align: center;
+  }
+
+  .mini-chart {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.22rem;
+    height: 2.2rem;
+    margin-top: auto;
+    opacity: 0.55;
+  }
+
+  .chart-bar {
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: 2px 2px 0 0;
+    background: linear-gradient(180deg, var(--variant-accent), color-mix(in srgb, var(--variant-accent) 18%, white));
+  }
+</style>

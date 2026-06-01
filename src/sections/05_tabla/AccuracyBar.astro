@@ -1,0 +1,60 @@
+---
+import type { AccuracyLevel } from "../../lib/tabla/types";
+
+interface Props {
+  percent: number;
+  level: AccuracyLevel;
+}
+
+const { percent, level } = Astro.props;
+---
+
+<span class="accuracy-bar" data-accuracy-level={level} aria-label={`${percent}% de precisión`}>
+  <span data-accuracy-fill style={`width: ${percent}%`}></span>
+</span>
+
+<style>
+  .accuracy-bar {
+    display: block;
+    overflow: hidden;
+    width: min(100%, 5.2rem);
+    height: 0.52rem;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 999px;
+    background: var(--pm-panel-soft);
+  }
+
+  .accuracy-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--pm-blue-500);
+    transition: width 160ms cubic-bezier(0.23, 1, 0.32, 1), background var(--pm-transition-fast);
+  }
+
+  .accuracy-bar[data-accuracy-level="excellent"] span {
+    background: var(--pm-lime-500);
+  }
+
+  .accuracy-bar[data-accuracy-level="close"] span {
+    background: var(--pm-cyan-500);
+  }
+
+  .accuracy-bar[data-accuracy-level="regular"] span {
+    background: var(--pm-orange-500);
+  }
+
+  .accuracy-bar[data-accuracy-level="far"] span {
+    background: var(--pm-red-500);
+  }
+
+  .accuracy-bar[data-accuracy-level="very_far"] span {
+    background: var(--pm-purple-500);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .accuracy-bar span {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,246 @@
+---
+import type { FixtureMatch, MatchInfo } from "./fixture.logic";
+import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
+
+interface Props {
+  match: FixtureMatch;
+  info: MatchInfo;
+}
+
+const { match, info } = Astro.props;
+const stadiumAsset = getStadiumAsset(match.location);
+const refereeLine = info.referee?.name ? `${info.referee.name} (${info.referee.country})` : "Por confirmar";
+const assistantsLine = info.assistants?.length
+  ? info.assistants.map((a) => `${a.name}${a.country ? ` (${a.country})` : ""}`).join(", ")
+  : "Por confirmar";
+const weatherLine = info.weather?.temperatureC != null
+  ? `${info.weather.temperatureC}C · ${info.weather.condition}`
+  : info.weather?.condition ?? "Por confirmar";
+const capacityLine = info.capacity != null
+  ? `${info.capacity.toLocaleString("es-CL")} espectadores`
+  : "Por confirmar";
+const broadcastLine = info.broadcast?.length ? info.broadcast.join(" / ") : "-";
+const stadiumName = info.stadium?.name ?? match.location;
+const stadiumCity = info.stadium?.city ?? "Sede por confirmar";
+const stadiumCountry = info.stadium?.country ?? "";
+const stadiumLine = stadiumCountry ? `${stadiumCity}, ${stadiumCountry}` : stadiumCity;
+---
+
+<section class="info-panel" data-info-panel aria-label="Informacion del partido">
+  <header class="info-header">
+    <span class="icon" aria-hidden="true">INF</span>
+    <h3>Informacion del partido</h3>
+  </header>
+
+  <div class="info-grid">
+    <figure class="stadium-preview" data-stadium-preview>
+      {stadiumAsset ? (
+        <img
+          src={stadiumAsset.asset}
+          alt={`Vista del estadio ${stadiumAsset.stadiumOfficialName}`}
+          loading="lazy"
+          decoding="async"
+          width="1600"
+          height="900"
+        />
+      ) : (
+        <span class="preview-empty" aria-hidden="true">stadium-preview</span>
+      )}
+      <figcaption>
+        <strong class="preview-name" data-info-stadium-name>{stadiumName}</strong>
+        <span class="preview-city" data-info-stadium-city>{stadiumLine}</span>
+      </figcaption>
+    </figure>
+
+    <dl class="rows">
+      <div>
+        <dt>Arbitro</dt>
+        <dd data-info-referee>{refereeLine}</dd>
+      </div>
+      <div>
+        <dt>Asistentes</dt>
+        <dd data-info-assistants>{assistantsLine}</dd>
+      </div>
+      <div>
+        <dt>Clima</dt>
+        <dd data-info-weather>{weatherLine}</dd>
+      </div>
+      <div>
+        <dt>Aforo</dt>
+        <dd data-info-capacity>{capacityLine}</dd>
+      </div>
+      <div>
+        <dt>Transmision</dt>
+        <dd data-info-broadcast>{broadcastLine}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
+    min-height: 14rem;
+    padding: 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--pm-cyan-500) 26%, transparent);
+    border-radius: 0.72rem;
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--pm-cyan-500) 16%, transparent),
+        color-mix(in srgb, var(--pm-purple-500) 18%, transparent)
+      ),
+      var(--pm-panel-soft);
+  }
+
+  .info-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.32rem;
+    align-items: center;
+    padding-bottom: 0.26rem;
+    border-bottom: 1px solid rgba(7, 23, 53, 0.1);
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    min-width: 1.22rem;
+    height: 1.22rem;
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--pm-cyan-500) 14%, white);
+    color: var(--pm-cyan-600);
+    font-size: 0.44rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.58rem;
+    align-items: start;
+  }
+
+  .rows {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 0.62rem;
+  }
+
+  .rows > div {
+    display: grid;
+    gap: 0.12rem;
+    min-width: 0;
+  }
+
+  dt {
+    color: var(--pm-blue-700);
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-size: 0.66rem;
+    line-height: 1.25;
+    font-weight: 800;
+  }
+
+  .stadium-preview {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 0.75rem;
+    background: rgba(229, 231, 235, 0.35);
+  }
+
+  :global([data-section="fixture"] [data-stadium-preview]) {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .stadium-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  :global([data-section="fixture"] [data-stadium-preview] img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .stadium-preview figcaption {
+    display: none;
+  }
+
+  .preview-empty {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    color: var(--pm-blue-700);
+    font-size: 0.5rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .preview-name {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.76rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .preview-city {
+    color: var(--pm-blue-900);
+    font-size: 0.62rem;
+    font-weight: 750;
+  }
+
+  @media (max-width: 720px) {
+    .info-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rows {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

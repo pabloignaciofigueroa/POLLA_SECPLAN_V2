@@ -1,0 +1,63 @@
+{
+  "source": "match-info.mock.json",
+  "generatedFor": "07_fixture",
+  "notes": [
+    "Datos editoriales placeholder para Fase 2 wireframe.",
+    "Si el match-id no aparece en 'matches', se usa 'defaultInfo'.",
+    "Si stadium.name es null, el render usa match.location como fallback."
+  ],
+  "defaultInfo": {
+    "referee": { "name": "Por confirmar", "country": "—" },
+    "assistants": [],
+    "weather": { "temperatureC": null, "condition": "Por confirmar" },
+    "capacity": null,
+    "broadcast": ["Chilevisión", "DSports"],
+    "stadium": { "name": null, "city": null, "country": null }
+  },
+  "matches": {
+    "match-001": {
+      "referee": { "name": "Daniel Siebert", "country": "GER" },
+      "assistants": [
+        { "name": "Jan Seidel", "country": "GER" },
+        { "name": "Rafael Foltyn", "country": "GER" }
+      ],
+      "weather": { "temperatureC": 22, "condition": "Despejado" },
+      "capacity": 87523,
+      "broadcast": ["Chilevisión", "DSports"],
+      "stadium": { "name": "Estadio Azteca", "city": "Ciudad de México", "country": "México" }
+    },
+    "match-013": {
+      "referee": { "name": "Slavko Vinčić", "country": "SVN" },
+      "assistants": [
+        { "name": "Tomaž Klančnik", "country": "SVN" },
+        { "name": "Andraž Kovačič", "country": "SVN" }
+      ],
+      "weather": { "temperatureC": 19, "condition": "Parcialmente nublado" },
+      "capacity": 70000,
+      "broadcast": ["Chilevisión HD", "DSports 2"],
+      "stadium": { "name": "MetLife Stadium", "city": "East Rutherford", "country": "Estados Unidos" }
+    },
+    "match-025": {
+      "referee": { "name": "Facundo Tello", "country": "ARG" },
+      "assistants": [
+        { "name": "Ezequiel Brailovsky", "country": "ARG" },
+        { "name": "Gabriel Chade", "country": "ARG" }
+      ],
+      "weather": { "temperatureC": 26, "condition": "Soleado" },
+      "capacity": 72000,
+      "broadcast": ["Chilevisión", "DSports"],
+      "stadium": { "name": "Mercedes-Benz Stadium", "city": "Atlanta", "country": "Estados Unidos" }
+    },
+    "match-049": {
+      "referee": { "name": "Stéphanie Frappart", "country": "FRA" },
+      "assistants": [
+        { "name": "Neuza Back", "country": "BRA" },
+        { "name": "Karen Díaz", "country": "MEX" }
+      ],
+      "weather": { "temperatureC": 17, "condition": "Lluvia ligera" },
+      "capacity": 68500,
+      "broadcast": ["Chilevisión", "DSports"],
+      "stadium": { "name": "BMO Field", "city": "Toronto", "country": "Canadá" }
+    }
+  }
+}

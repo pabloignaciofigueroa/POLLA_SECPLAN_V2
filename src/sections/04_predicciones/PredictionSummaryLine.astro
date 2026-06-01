@@ -1,0 +1,35 @@
+---
+interface Props {
+  totalMatches: number;
+  groupsCount: number;
+}
+
+const { totalMatches, groupsCount } = Astro.props;
+---
+
+<p class="summary-line">
+  Completa tu tarjeta del Mundial en minutos
+  <strong>{totalMatches}</strong> partidos
+  <span aria-hidden="true">•</span>
+  <strong>{groupsCount}</strong> grupos
+  <span aria-hidden="true">•</span>
+  <strong>1</strong> campeón
+</p>
+
+<style>
+  .summary-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(0.88rem, 1.2vw, 1rem);
+    line-height: 1.45;
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-weight: 950;
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import styles from "./TablaSection.module.css";
+import TablaHero from "./TablaHero.astro";
+import RankingTable from "./RankingTable.astro";
+import PlayerPredictionsPanel from "./PlayerPredictionsPanel.astro";
+import NextMatchCard from "./NextMatchCard.astro";
+import playersData from "../../data/players.json";
+import fixtureData from "../../data/fixture.json";
+import resultsData from "../../data/results.json";
+import scoringRulesData from "../../data/scoring-rules.json";
+import predictionsData from "../../data/predictions.json";
+import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+import { calculatePlayerStandings } from "../../lib/tabla/calculatePlayerStandings";
+import { calculateCurrentMatchAccuracy } from "../../lib/tabla/calculateCurrentMatchAccuracy";
+import { getLiveOrRelevantMatch } from "../../lib/tabla/getLiveOrRelevantMatch";
+import type { Match, MatchResult, Player, Prediction, ScoringRules } from "../../lib/tabla/types";
+import tablaClientUrl from "./tabla.client.js?url";
+
+const players = playersData as Player[];
+const matches = fixtureData.matches as Match[];
+const results = resultsData.results as MatchResult[];
+const predictions = predictionsData.predictions as Prediction[];
+const scoringRules = scoringRulesData.rules as ScoringRules;
+const previousPositions = predictionsData.previousPositions as Record<string, number>;
+const { currentMatch, currentResult } = getLiveOrRelevantMatch({
+  matches,
+  results,
+  currentMatchId: resultsData.currentMatchId,
+  nextMatchId: resultsData.nextMatchId,
+});
+const rankingRows = calculatePlayerStandings(players, predictions, results, scoringRules, previousPositions);
+const nextMatch = matches.find(m => m.id === resultsData.nextMatchId);
+const displayMatch = currentMatch ?? nextMatch;
+const accuracyRows = displayMatch
+  ? calculateCurrentMatchAccuracy(displayMatch, currentResult, predictions, players)
+  : [];
+
+const clientPayload = {
+  players,
+  matches,
+  results,
+  predictions,
+  scoringRules,
+  previousPositions,
+  currentMatchId: displayMatch?.id ?? resultsData.currentMatchId,
+  displayMatchId: displayMatch?.id,
+  resetStateUrl,
+};
+---
+
+<section class={styles.tablaSection} id="tabla" data-section="tabla">
+  <div class={styles.contentShell}>
+    <TablaHero match={displayMatch} result={currentResult} />
+
+    <div class={styles.dashboardGrid}>
+      <div class={styles.rankingArea}>
+        <RankingTable rows={rankingRows} />
+      </div>
+
+      <aside class={styles.liveArea} data-animate="fade-up" style="--i:2">
+        <PlayerPredictionsPanel rows={accuracyRows} />
+        <NextMatchCard match={nextMatch} />
+      </aside>
+    </div>
+  </div>
+
+  <script type="application/json" data-tabla-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={tablaClientUrl}></script>
+</section>

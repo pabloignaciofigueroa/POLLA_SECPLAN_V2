@@ -1,0 +1,3194 @@
+{
+  "schema_version": "2.0",
+  "dataset": "polla_secplan_2026_match_h2h_fifa_wikipedia",
+  "generatedAt": "2026-05-31T14:55:53.402384+00:00",
+  "source_policy": {
+    "priority_order": [
+      "FIFA official website for tournament structure, host countries, groups, fixture, dates, kick-off times, venues and official match numbering.",
+      "Wikipedia only for historical head-to-head context when the information is explicitly published and attributable.",
+      "Local project JSON only as working cache derived from official or cited sources."
+    ],
+    "official_fifa_sources": {
+      "tournament_home_es": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026",
+      "scores_fixtures_es": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+      "scores_fixtures_en": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+      "match_schedule_article_en": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums",
+      "group_stage_article_es": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/articles/fase-grupos-copa-mundial-2026-partidos-zonas"
+    },
+    "wikipedia_scope": "Solo historial entre selecciones, antecedentes mundialistas y textos históricos verificables por páginas de grupo/equipo. No usar Wikipedia para reemplazar fixture oficial FIFA si existe diferencia.",
+    "no_invention_rule": "No se permite crear lecturas tácticas, favoritos, rachas, porcentajes, cuotas, narrativas de forma actual o datos H2H si no aparecen en fuentes verificables.",
+    "ui_rule": "summaryEs debe presentarse como antecedente histórico, no como predicción ni análisis inventado.",
+    "fallback_rule": "Si no hay historial verificable, usar status first_meeting y texto explícito: No registran enfrentamientos previos verificables en la fuente revisada.",
+    "production_check": "Antes de producción final, revalidar fixture completo contra FIFA Scores & Fixtures y actualizar fechas/horas/sedes si FIFA modifica el calendario."
+  },
+  "matches": [
+    {
+      "matchNumber": 1,
+      "id": "match-001-h2h",
+      "group": "Group A",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-11T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Mexico City Stadium",
+      "homeTeam": "Mexico",
+      "awayTeam": "South Africa",
+      "homeTeamSlug": "mexico",
+      "awayTeamSlug": "south-africa",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 4,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2010: empate 1-1 en el partido inaugural.",
+        "summaryEs": "México y Sudáfrica se han enfrentado cuatro veces. El antecedente más recordado es el 1-1 del partido inaugural del Mundial 2010, con Sudáfrica como anfitrión. Este duelo de 2026 se juega exactamente 16 años después.",
+        "uiLabel": "4 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 2,
+      "id": "match-002-h2h",
+      "group": "Group A",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-11T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Guadalajara Stadium",
+      "homeTeam": "Korea Republic",
+      "awayTeam": "Czechia",
+      "homeTeamSlug": "korea-republic",
+      "awayTeamSlug": "czechia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Corea del Sur y República Checa han jugado tres veces. El antecedente más reciente fue un amistoso de 2016 ganado 2-1 por los surcoreanos.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 3,
+      "id": "match-003-h2h",
+      "group": "Group B",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-12T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Toronto Stadium",
+      "homeTeam": "Canada",
+      "awayTeam": "Bosnia and Herzegovina",
+      "homeTeamSlug": "canada",
+      "awayTeamSlug": "bosnia-and-herzegovina",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Canadá y Bosnia y Herzegovina no registran enfrentamientos previos según la página del Grupo B de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 4,
+      "id": "match-004-h2h",
+      "group": "Group D",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-12T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Los Angeles Stadium",
+      "homeTeam": "USA",
+      "awayTeam": "Paraguay",
+      "homeTeamSlug": "usa",
+      "awayTeamSlug": "paraguay",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 9,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1930: Estados Unidos ganó 3-0.",
+        "summaryEs": "Estados Unidos y Paraguay se han enfrentado nueve veces. Ya jugaron una vez en un Mundial, con triunfo 3-0 de Estados Unidos en la fase de grupos de 1930. El antecedente más reciente citado es un amistoso de 2025 ganado 2-1 por Estados Unidos.",
+        "uiLabel": "9 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 5,
+      "id": "match-005-h2h",
+      "group": "Group C",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-13T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Boston Stadium",
+      "homeTeam": "Haiti",
+      "awayTeam": "Scotland",
+      "homeTeamSlug": "haiti",
+      "awayTeamSlug": "scotland",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Haití y Escocia no registran enfrentamientos previos según la página del Grupo C de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 6,
+      "id": "match-006-h2h",
+      "group": "Group D",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-14T00:00:00-04:00",
+      "timeChile": "00:00",
+      "location": "BC Place Vancouver",
+      "homeTeam": "Australia",
+      "awayTeam": "Türkiye",
+      "homeTeamSlug": "australia",
+      "awayTeamSlug": "turkiye",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 2,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Australia y Turquía jugaron dos veces antes, ambas en amistosos de mayo de 2004, con dos victorias de Turquía.",
+        "uiLabel": "2 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 7,
+      "id": "match-007-h2h",
+      "group": "Group C",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-13T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "New York/New Jersey Stadium",
+      "homeTeam": "Brazil",
+      "awayTeam": "Morocco",
+      "homeTeamSlug": "brazil",
+      "awayTeamSlug": "morocco",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1998: Brasil ganó 3-0.",
+        "summaryEs": "Brasil y Marruecos se han enfrentado tres veces, incluyendo un triunfo 3-0 de Brasil en la fase de grupos del Mundial 1998. El antecedente más reciente citado es una victoria 2-1 de Marruecos en un amistoso de 2023, su primera ante Brasil.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 8,
+      "id": "match-008-h2h",
+      "group": "Group B",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-13T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "San Francisco Bay Area Stadium",
+      "homeTeam": "Qatar",
+      "awayTeam": "Switzerland",
+      "homeTeamSlug": "qatar",
+      "awayTeamSlug": "switzerland",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Qatar y Suiza se han enfrentado una vez: triunfo 1-0 de Qatar en un amistoso de 2018.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 9,
+      "id": "match-009-h2h",
+      "group": "Group E",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-14T19:00:00-04:00",
+      "timeChile": "19:00",
+      "location": "Philadelphia Stadium",
+      "homeTeam": "Côte d'Ivoire",
+      "awayTeam": "Ecuador",
+      "homeTeamSlug": "cote-d-ivoire",
+      "awayTeamSlug": "ecuador",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Costa de Marfil y Ecuador no registran enfrentamientos previos según la página del Grupo E de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 10,
+      "id": "match-010-h2h",
+      "group": "Group E",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-14T13:00:00-04:00",
+      "timeChile": "13:00",
+      "location": "Houston Stadium",
+      "homeTeam": "Germany",
+      "awayTeam": "Curaçao",
+      "homeTeamSlug": "germany",
+      "awayTeamSlug": "curacao",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Alemania y Curazao no registran enfrentamientos previos según la página del Grupo E de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 11,
+      "id": "match-011-h2h",
+      "group": "Group F",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-14T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "Dallas Stadium",
+      "homeTeam": "Netherlands",
+      "awayTeam": "Japan",
+      "homeTeamSlug": "netherlands",
+      "awayTeamSlug": "japan",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2010: Países Bajos ganó 1-0.",
+        "summaryEs": "Países Bajos y Japón se han enfrentado tres veces. Incluye victoria 1-0 neerlandesa en la fase de grupos del Mundial 2010. El antecedente más reciente citado es un empate amistoso 2-2 en 2013.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 12,
+      "id": "match-012-h2h",
+      "group": "Group F",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-14T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Monterrey Stadium",
+      "homeTeam": "Sweden",
+      "awayTeam": "Tunisia",
+      "homeTeamSlug": "sweden",
+      "awayTeamSlug": "tunisia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 4,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Suecia y Túnez se han enfrentado cuatro veces, siempre en amistosos. Túnez ganó el antecedente más reciente, 1-0 en 2003.",
+        "uiLabel": "4 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 13,
+      "id": "match-013-h2h",
+      "group": "Group H",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-15T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Miami Stadium",
+      "homeTeam": "Saudi Arabia",
+      "awayTeam": "Uruguay",
+      "homeTeamSlug": "saudi-arabia",
+      "awayTeamSlug": "uruguay",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2018: Uruguay ganó 1-0.",
+        "summaryEs": "Arabia Saudita y Uruguay se han enfrentado tres veces. El antecedente más reciente fue el triunfo 1-0 de Uruguay en el Mundial 2018.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 14,
+      "id": "match-014-h2h",
+      "group": "Group H",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-15T12:00:00-04:00",
+      "timeChile": "12:00",
+      "location": "Atlanta Stadium",
+      "homeTeam": "Spain",
+      "awayTeam": "Cabo Verde",
+      "homeTeamSlug": "spain",
+      "awayTeamSlug": "cabo-verde",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "España y Cabo Verde no registran enfrentamientos previos según la página del Grupo H de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 15,
+      "id": "match-015-h2h",
+      "group": "Group G",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-15T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Los Angeles Stadium",
+      "homeTeam": "IR Iran",
+      "awayTeam": "New Zealand",
+      "homeTeamSlug": "ir-iran",
+      "awayTeamSlug": "new-zealand",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 2,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Irán y Nueva Zelanda se han enfrentado dos veces. El antecedente más reciente citado fue la AFC–OFC Challenge Cup 2003, ganada 3-0 por Irán.",
+        "uiLabel": "2 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 16,
+      "id": "match-016-h2h",
+      "group": "Group G",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-15T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Seattle Stadium",
+      "homeTeam": "Belgium",
+      "awayTeam": "Egypt",
+      "homeTeamSlug": "belgium",
+      "awayTeamSlug": "egypt",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 4,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Bélgica y Egipto se han enfrentado cuatro veces. El antecedente más reciente citado es un amistoso de 2022 ganado 2-1 por Egipto.",
+        "uiLabel": "4 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 17,
+      "id": "match-017-h2h",
+      "group": "Group I",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-16T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "New York/New Jersey Stadium",
+      "homeTeam": "France",
+      "awayTeam": "Senegal",
+      "homeTeamSlug": "france",
+      "awayTeamSlug": "senegal",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2002: Senegal ganó 1-0 en el partido inaugural.",
+        "summaryEs": "Francia y Senegal se han enfrentado una vez: Senegal derrotó 1-0 a la campeona vigente Francia en el partido inaugural del Mundial 2002.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 18,
+      "id": "match-018-h2h",
+      "group": "Group I",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-16T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Boston Stadium",
+      "homeTeam": "Iraq",
+      "awayTeam": "Norway",
+      "homeTeamSlug": "iraq",
+      "awayTeamSlug": "norway",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Irak y Noruega no registran enfrentamientos previos según la página del Grupo I de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 19,
+      "id": "match-019-h2h",
+      "group": "Group J",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-16T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Kansas City Stadium",
+      "homeTeam": "Argentina",
+      "awayTeam": "Algeria",
+      "homeTeamSlug": "argentina",
+      "awayTeamSlug": "algeria",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Argentina y Argelia se han enfrentado una vez: triunfo 4-3 de Argentina en un amistoso de 2007.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 20,
+      "id": "match-020-h2h",
+      "group": "Group J",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-17T00:00:00-04:00",
+      "timeChile": "00:00",
+      "location": "San Francisco Bay Area Stadium",
+      "homeTeam": "Austria",
+      "awayTeam": "Jordan",
+      "homeTeamSlug": "austria",
+      "awayTeamSlug": "jordan",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Austria y Jordania no registran enfrentamientos previos según la página del Grupo J de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 21,
+      "id": "match-021-h2h",
+      "group": "Group L",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-17T19:00:00-04:00",
+      "timeChile": "19:00",
+      "location": "Toronto Stadium",
+      "homeTeam": "Ghana",
+      "awayTeam": "Panama",
+      "homeTeamSlug": "ghana",
+      "awayTeamSlug": "panama",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Ghana y Panamá no registran enfrentamientos previos según la página del Grupo L de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 22,
+      "id": "match-022-h2h",
+      "group": "Group L",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-17T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "Dallas Stadium",
+      "homeTeam": "England",
+      "awayTeam": "Croatia",
+      "homeTeamSlug": "england",
+      "awayTeamSlug": "croatia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 11,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2018: Croacia ganó 2-1 en semifinales.",
+        "summaryEs": "Inglaterra y Croacia se han enfrentado once veces. Incluye la semifinal del Mundial 2018, ganada 2-1 por Croacia para llegar a su primera final. El antecedente más reciente citado es la fase de grupos de la Euro 2020, ganada 1-0 por Inglaterra.",
+        "uiLabel": "11 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 23,
+      "id": "match-023-h2h",
+      "group": "Group K",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-17T13:00:00-04:00",
+      "timeChile": "13:00",
+      "location": "Houston Stadium",
+      "homeTeam": "Portugal",
+      "awayTeam": "Congo DR",
+      "homeTeamSlug": "portugal",
+      "awayTeamSlug": "congo-dr",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Portugal y RD del Congo no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 24,
+      "id": "match-024-h2h",
+      "group": "Group K",
+      "roundNumber": 1,
+      "stage": "Fase de grupos - fecha 1",
+      "dateChile": "2026-06-17T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Mexico City Stadium",
+      "homeTeam": "Uzbekistan",
+      "awayTeam": "Colombia",
+      "homeTeamSlug": "uzbekistan",
+      "awayTeamSlug": "colombia",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Uzbekistán y Colombia no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 25,
+      "id": "match-025-h2h",
+      "group": "Group A",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-18T12:00:00-04:00",
+      "timeChile": "12:00",
+      "location": "Atlanta Stadium",
+      "homeTeam": "Czechia",
+      "awayTeam": "South Africa",
+      "homeTeamSlug": "czechia",
+      "awayTeamSlug": "south-africa",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "República Checa y Sudáfrica se han enfrentado una vez: empate 2-2 en la Copa FIFA Confederaciones 1997.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 26,
+      "id": "match-026-h2h",
+      "group": "Group B",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-18T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Los Angeles Stadium",
+      "homeTeam": "Switzerland",
+      "awayTeam": "Bosnia and Herzegovina",
+      "homeTeamSlug": "switzerland",
+      "awayTeamSlug": "bosnia-and-herzegovina",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Suiza y Bosnia y Herzegovina se enfrentaron una vez, en un amistoso de 2016 ganado 2-0 por Bosnia.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 27,
+      "id": "match-027-h2h",
+      "group": "Group B",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-18T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "BC Place Vancouver",
+      "homeTeam": "Canada",
+      "awayTeam": "Qatar",
+      "homeTeamSlug": "canada",
+      "awayTeamSlug": "qatar",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Canadá y Qatar se enfrentaron una vez, en 2022, con triunfo 2-0 de Canadá en un amistoso.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 28,
+      "id": "match-028-h2h",
+      "group": "Group A",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-18T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Guadalajara Stadium",
+      "homeTeam": "Mexico",
+      "awayTeam": "Korea Republic",
+      "homeTeamSlug": "mexico",
+      "awayTeamSlug": "korea-republic",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 15,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundiales 1998 y 2018: México ganó ambos partidos.",
+        "summaryEs": "México y Corea del Sur se han enfrentado 15 veces. Incluye dos cruces mundialistas, ambos ganados por México: 3-1 en 1998 y 2-1 en 2018. El antecedente más reciente citado es un empate 2-2 en 2025.",
+        "uiLabel": "15 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 29,
+      "id": "match-029-h2h",
+      "group": "Group C",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-19T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Philadelphia Stadium",
+      "homeTeam": "Brazil",
+      "awayTeam": "Haiti",
+      "homeTeamSlug": "brazil",
+      "awayTeamSlug": "haiti",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Brasil y Haití se han enfrentado tres veces. El antecedente más reciente citado es un triunfo 7-1 de Brasil en la fase de grupos de la Copa América Centenario 2016.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 30,
+      "id": "match-030-h2h",
+      "group": "Group C",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-19T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Boston Stadium",
+      "homeTeam": "Scotland",
+      "awayTeam": "Morocco",
+      "homeTeamSlug": "scotland",
+      "awayTeamSlug": "morocco",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1998: Marruecos ganó 3-0.",
+        "summaryEs": "Escocia y Marruecos se enfrentaron una vez, en el último partido de fase de grupos del Mundial 1998, con triunfo 3-0 de Marruecos.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 31,
+      "id": "match-031-h2h",
+      "group": "Group D",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-20T00:00:00-04:00",
+      "timeChile": "00:00",
+      "location": "San Francisco Bay Area Stadium",
+      "homeTeam": "Türkiye",
+      "awayTeam": "Paraguay",
+      "homeTeamSlug": "turkiye",
+      "awayTeamSlug": "paraguay",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Turquía y Paraguay se han enfrentado una vez: empate 0-0 en 1995.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 32,
+      "id": "match-032-h2h",
+      "group": "Group D",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-19T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Seattle Stadium",
+      "homeTeam": "USA",
+      "awayTeam": "Australia",
+      "homeTeamSlug": "usa",
+      "awayTeamSlug": "australia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 4,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Estados Unidos y Australia se han enfrentado cuatro veces antes del torneo. El antecedente más reciente citado es un amistoso de 2025 ganado 2-1 por Estados Unidos.",
+        "uiLabel": "4 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 33,
+      "id": "match-033-h2h",
+      "group": "Group E",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-20T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "Toronto Stadium",
+      "homeTeam": "Germany",
+      "awayTeam": "Côte d'Ivoire",
+      "homeTeamSlug": "germany",
+      "awayTeamSlug": "cote-d-ivoire",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Alemania y Costa de Marfil se enfrentaron una vez, en un amistoso de 2009 que terminó 2-2.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 34,
+      "id": "match-034-h2h",
+      "group": "Group E",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-20T20:00:00-04:00",
+      "timeChile": "20:00",
+      "location": "Kansas City Stadium",
+      "homeTeam": "Ecuador",
+      "awayTeam": "Curaçao",
+      "homeTeamSlug": "ecuador",
+      "awayTeamSlug": "curacao",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Ecuador y Curazao no registran enfrentamientos previos según la página del Grupo E de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 35,
+      "id": "match-035-h2h",
+      "group": "Group F",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-20T13:00:00-04:00",
+      "timeChile": "13:00",
+      "location": "Houston Stadium",
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "homeTeamSlug": "netherlands",
+      "awayTeamSlug": "sweden",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 20,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1974: empate 0-0.",
+        "summaryEs": "Países Bajos y Suecia se han enfrentado 20 veces. Incluye un empate 0-0 en la fase de grupos del Mundial 1974. El antecedente más reciente citado es un triunfo 2-0 de Países Bajos en eliminatorias mundialistas de 2017.",
+        "uiLabel": "20 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 36,
+      "id": "match-036-h2h",
+      "group": "Group F",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-21T00:00:00-04:00",
+      "timeChile": "00:00",
+      "location": "Monterrey Stadium",
+      "homeTeam": "Tunisia",
+      "awayTeam": "Japan",
+      "homeTeamSlug": "tunisia",
+      "awayTeamSlug": "japan",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 6,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2002: Japón ganó 2-0.",
+        "summaryEs": "Túnez y Japón se han enfrentado seis veces. Incluye victoria 2-0 de Japón en la fase de grupos del Mundial 2002. El antecedente más reciente citado es otro 2-0 de Japón en la Kirin Challenge Cup 2023. Además, el partido de 2026 será el partido número 1000 en la historia de los Mundiales.",
+        "uiLabel": "6 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 37,
+      "id": "match-037-h2h",
+      "group": "Group H",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-21T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Miami Stadium",
+      "homeTeam": "Uruguay",
+      "awayTeam": "Cabo Verde",
+      "homeTeamSlug": "uruguay",
+      "awayTeamSlug": "cabo-verde",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Uruguay y Cabo Verde no registran enfrentamientos previos según la página del Grupo H de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 38,
+      "id": "match-038-h2h",
+      "group": "Group H",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-21T12:00:00-04:00",
+      "timeChile": "12:00",
+      "location": "Atlanta Stadium",
+      "homeTeam": "Spain",
+      "awayTeam": "Saudi Arabia",
+      "homeTeamSlug": "spain",
+      "awayTeamSlug": "saudi-arabia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2006: España ganó 1-0.",
+        "summaryEs": "España y Arabia Saudita se han enfrentado tres veces. España ganó todos los partidos, incluyendo un 1-0 en la fase de grupos del Mundial 2006. El antecedente más reciente citado es un amistoso 5-0 para España en 2012.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 39,
+      "id": "match-039-h2h",
+      "group": "Group G",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-21T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Los Angeles Stadium",
+      "homeTeam": "Belgium",
+      "awayTeam": "IR Iran",
+      "homeTeamSlug": "belgium",
+      "awayTeamSlug": "ir-iran",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Bélgica e Irán no registran enfrentamientos previos según la página del Grupo G de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 40,
+      "id": "match-040-h2h",
+      "group": "Group G",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-21T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "BC Place Vancouver",
+      "homeTeam": "New Zealand",
+      "awayTeam": "Egypt",
+      "homeTeamSlug": "new-zealand",
+      "awayTeamSlug": "egypt",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Nueva Zelanda y Egipto se han enfrentado tres veces. El antecedente más reciente citado es la FIFA Series 2024, con triunfo 1-0 de Egipto.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 41,
+      "id": "match-041-h2h",
+      "group": "Group I",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-22T20:00:00-04:00",
+      "timeChile": "20:00",
+      "location": "New York/New Jersey Stadium",
+      "homeTeam": "Norway",
+      "awayTeam": "Senegal",
+      "homeTeamSlug": "norway",
+      "awayTeamSlug": "senegal",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Noruega y Senegal se enfrentaron una vez, en un amistoso de 2006 ganado 2-1 por Senegal.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 42,
+      "id": "match-042-h2h",
+      "group": "Group I",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-22T17:00:00-04:00",
+      "timeChile": "17:00",
+      "location": "Philadelphia Stadium",
+      "homeTeam": "France",
+      "awayTeam": "Iraq",
+      "homeTeamSlug": "france",
+      "awayTeamSlug": "iraq",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Francia e Irak no registran enfrentamientos previos según la página del Grupo I de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 43,
+      "id": "match-043-h2h",
+      "group": "Group J",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-22T13:00:00-04:00",
+      "timeChile": "13:00",
+      "location": "Dallas Stadium",
+      "homeTeam": "Argentina",
+      "awayTeam": "Austria",
+      "homeTeamSlug": "argentina",
+      "awayTeamSlug": "austria",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Argentina y Austria se han enfrentado tres veces, todas en amistosos. El antecedente más reciente citado es un empate 1-1 en 1990.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 44,
+      "id": "match-044-h2h",
+      "group": "Group J",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-22T23:00:00-04:00",
+      "timeChile": "23:00",
+      "location": "San Francisco Bay Area Stadium",
+      "homeTeam": "Jordan",
+      "awayTeam": "Algeria",
+      "homeTeamSlug": "jordan",
+      "awayTeamSlug": "algeria",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Jordania y Argelia se han enfrentado tres veces. El antecedente más reciente citado es un empate amistoso 1-1 en 2004.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 45,
+      "id": "match-045-h2h",
+      "group": "Group L",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-23T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "Boston Stadium",
+      "homeTeam": "England",
+      "awayTeam": "Ghana",
+      "homeTeamSlug": "england",
+      "awayTeamSlug": "ghana",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Inglaterra y Ghana se enfrentaron una vez: empate 1-1 en un amistoso de 2011.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 46,
+      "id": "match-046-h2h",
+      "group": "Group L",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-23T19:00:00-04:00",
+      "timeChile": "19:00",
+      "location": "Toronto Stadium",
+      "homeTeam": "Panama",
+      "awayTeam": "Croatia",
+      "homeTeamSlug": "panama",
+      "awayTeamSlug": "croatia",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Panamá y Croacia no registran enfrentamientos previos según la página del Grupo L de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 47,
+      "id": "match-047-h2h",
+      "group": "Group K",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-23T13:00:00-04:00",
+      "timeChile": "13:00",
+      "location": "Houston Stadium",
+      "homeTeam": "Portugal",
+      "awayTeam": "Uzbekistan",
+      "homeTeamSlug": "portugal",
+      "awayTeamSlug": "uzbekistan",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Portugal y Uzbekistán no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 48,
+      "id": "match-048-h2h",
+      "group": "Group K",
+      "roundNumber": 2,
+      "stage": "Fase de grupos - fecha 2",
+      "dateChile": "2026-06-23T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Guadalajara Stadium",
+      "homeTeam": "Colombia",
+      "awayTeam": "Congo DR",
+      "homeTeamSlug": "colombia",
+      "awayTeamSlug": "congo-dr",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Colombia y RD del Congo no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 49,
+      "id": "match-049-h2h",
+      "group": "Group C",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Miami Stadium",
+      "homeTeam": "Scotland",
+      "awayTeam": "Brazil",
+      "homeTeamSlug": "scotland",
+      "awayTeamSlug": "brazil",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 10,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundiales 1974, 1982, 1990 y 1998: Brasil invicto ante Escocia.",
+        "summaryEs": "Escocia y Brasil se han enfrentado diez veces, incluyendo cuatro partidos mundialistas de primera ronda. Empataron 0-0 en 1974; luego Brasil ganó 4-1 en 1982, 1-0 en 1990 y 2-1 en el partido inaugural de 1998. El antecedente más reciente citado fue un amistoso de 2011 ganado 2-0 por Brasil, manteniendo su invicto ante Escocia.",
+        "uiLabel": "10 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 50,
+      "id": "match-050-h2h",
+      "group": "Group C",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T18:00:00-04:00",
+      "timeChile": "18:00",
+      "location": "Atlanta Stadium",
+      "homeTeam": "Morocco",
+      "awayTeam": "Haiti",
+      "homeTeamSlug": "morocco",
+      "awayTeamSlug": "haiti",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Marruecos y Haití no registran enfrentamientos previos según la página del Grupo C de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group C",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_C",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 51,
+      "id": "match-051-h2h",
+      "group": "Group B",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "BC Place Vancouver",
+      "homeTeam": "Switzerland",
+      "awayTeam": "Canada",
+      "homeTeamSlug": "switzerland",
+      "awayTeamSlug": "canada",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Suiza y Canadá se enfrentaron una vez, en 2002, con triunfo 3-1 de Canadá en un amistoso.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 52,
+      "id": "match-052-h2h",
+      "group": "Group B",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Seattle Stadium",
+      "homeTeam": "Bosnia and Herzegovina",
+      "awayTeam": "Qatar",
+      "homeTeamSlug": "bosnia-and-herzegovina",
+      "awayTeamSlug": "qatar",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 2,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Bosnia y Herzegovina y Qatar se han enfrentado dos veces: Qatar ganó 2-0 en 2000 y el antecedente más reciente fue un empate 1-1 en 2010.",
+        "uiLabel": "2 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group B",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 53,
+      "id": "match-053-h2h",
+      "group": "Group A",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Mexico City Stadium",
+      "homeTeam": "Czechia",
+      "awayTeam": "Mexico",
+      "homeTeamSlug": "czechia",
+      "awayTeamSlug": "mexico",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1962: México ganó 3-1 a Checoslovaquia, predecesora histórica checa.",
+        "summaryEs": "República Checa y México se enfrentaron una vez en 2000, con triunfo 2-1 checo. Como antecedente histórico, Checoslovaquia jugó contra México en el Mundial 1962: marcó a los 15 segundos, pero México remontó y ganó 3-1.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 54,
+      "id": "match-054-h2h",
+      "group": "Group A",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-24T21:00:00-04:00",
+      "timeChile": "21:00",
+      "location": "Monterrey Stadium",
+      "homeTeam": "South Africa",
+      "awayTeam": "Korea Republic",
+      "homeTeamSlug": "south-africa",
+      "awayTeamSlug": "korea-republic",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Sudáfrica y Corea del Sur no registran enfrentamientos previos según la página del Grupo A de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group A",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 55,
+      "id": "match-055-h2h",
+      "group": "Group E",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "Philadelphia Stadium",
+      "homeTeam": "Curaçao",
+      "awayTeam": "Côte d'Ivoire",
+      "homeTeamSlug": "curacao",
+      "awayTeamSlug": "cote-d-ivoire",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Curazao y Costa de Marfil no registran enfrentamientos previos según la página del Grupo E de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 56,
+      "id": "match-056-h2h",
+      "group": "Group E",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T16:00:00-04:00",
+      "timeChile": "16:00",
+      "location": "New York/New Jersey Stadium",
+      "homeTeam": "Ecuador",
+      "awayTeam": "Germany",
+      "homeTeamSlug": "ecuador",
+      "awayTeamSlug": "germany",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 2,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2006: Alemania ganó 3-0.",
+        "summaryEs": "Ecuador y Alemania se han enfrentado dos veces, ambas ganadas por Alemania: 3-0 en la fase de grupos del Mundial 2006 y 4-2 en un amistoso de 2013.",
+        "uiLabel": "2 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group E",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_E",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 57,
+      "id": "match-057-h2h",
+      "group": "Group F",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T19:00:00-04:00",
+      "timeChile": "19:00",
+      "location": "Dallas Stadium",
+      "homeTeam": "Japan",
+      "awayTeam": "Sweden",
+      "homeTeamSlug": "japan",
+      "awayTeamSlug": "sweden",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 7,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Japón y Suecia se han enfrentado siete veces. La única victoria japonesa fue en el partido de primera ronda de los Juegos Olímpicos de 1936. El antecedente más reciente citado fue un amistoso de 2002 que terminó 1-1.",
+        "uiLabel": "7 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 58,
+      "id": "match-058-h2h",
+      "group": "Group F",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T19:00:00-04:00",
+      "timeChile": "19:00",
+      "location": "Kansas City Stadium",
+      "homeTeam": "Tunisia",
+      "awayTeam": "Netherlands",
+      "homeTeamSlug": "tunisia",
+      "awayTeamSlug": "netherlands",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 3,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Túnez y Países Bajos se han enfrentado tres veces. El antecedente más reciente citado es un amistoso de 2009 que terminó 1-1.",
+        "uiLabel": "3 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group F",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_F",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 59,
+      "id": "match-059-h2h",
+      "group": "Group D",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Los Angeles Stadium",
+      "homeTeam": "Türkiye",
+      "awayTeam": "USA",
+      "homeTeamSlug": "turkiye",
+      "awayTeamSlug": "usa",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 5,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Turquía y Estados Unidos se han enfrentado cinco veces antes del torneo. El antecedente más reciente citado es un amistoso de 2025 ganado 2-1 por Turquía.",
+        "uiLabel": "5 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 60,
+      "id": "match-060-h2h",
+      "group": "Group D",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-25T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "San Francisco Bay Area Stadium",
+      "homeTeam": "Paraguay",
+      "awayTeam": "Australia",
+      "homeTeamSlug": "paraguay",
+      "awayTeamSlug": "australia",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 5,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Paraguay y Australia se han enfrentado cinco veces. El antecedente más reciente citado fue un amistoso de 2010 ganado 1-0 por Australia.",
+        "uiLabel": "5 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group D",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_D",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 61,
+      "id": "match-061-h2h",
+      "group": "Group I",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Boston Stadium",
+      "homeTeam": "Norway",
+      "awayTeam": "France",
+      "homeTeamSlug": "norway",
+      "awayTeamSlug": "france",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 16,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Noruega y Francia se han enfrentado 16 veces. El antecedente más reciente citado fue un amistoso de 2014 ganado 4-0 por Francia.",
+        "uiLabel": "16 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 62,
+      "id": "match-062-h2h",
+      "group": "Group I",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T15:00:00-04:00",
+      "timeChile": "15:00",
+      "location": "Toronto Stadium",
+      "homeTeam": "Senegal",
+      "awayTeam": "Iraq",
+      "homeTeamSlug": "senegal",
+      "awayTeamSlug": "iraq",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Senegal e Irak no registran enfrentamientos previos según la página del Grupo I de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group I",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_I",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 63,
+      "id": "match-063-h2h",
+      "group": "Group G",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T23:00:00-04:00",
+      "timeChile": "23:00",
+      "location": "Seattle Stadium",
+      "homeTeam": "Egypt",
+      "awayTeam": "IR Iran",
+      "homeTeamSlug": "egypt",
+      "awayTeamSlug": "ir-iran",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 2,
+        "isFirstMeeting": false,
+        "worldCupContext": null,
+        "summaryEs": "Egipto e Irán se han enfrentado dos veces. El antecedente más reciente citado es la LG Cup 2000: empate 1-1 y triunfo de Egipto 8-7 por penales.",
+        "uiLabel": "2 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 64,
+      "id": "match-064-h2h",
+      "group": "Group G",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T23:00:00-04:00",
+      "timeChile": "23:00",
+      "location": "BC Place Vancouver",
+      "homeTeam": "New Zealand",
+      "awayTeam": "Belgium",
+      "homeTeamSlug": "new-zealand",
+      "awayTeamSlug": "belgium",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Nueva Zelanda y Bélgica no registran enfrentamientos previos según la página del Grupo G de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group G",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_G",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 65,
+      "id": "match-065-h2h",
+      "group": "Group H",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T20:00:00-04:00",
+      "timeChile": "20:00",
+      "location": "Houston Stadium",
+      "homeTeam": "Cabo Verde",
+      "awayTeam": "Saudi Arabia",
+      "homeTeamSlug": "cabo-verde",
+      "awayTeamSlug": "saudi-arabia",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Cabo Verde y Arabia Saudita no registran enfrentamientos previos según la página del Grupo H de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 66,
+      "id": "match-066-h2h",
+      "group": "Group H",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-26T20:00:00-04:00",
+      "timeChile": "20:00",
+      "location": "Guadalajara Stadium",
+      "homeTeam": "Uruguay",
+      "awayTeam": "Spain",
+      "homeTeamSlug": "uruguay",
+      "awayTeamSlug": "spain",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 10,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundiales 1950 y 1990: dos empates.",
+        "summaryEs": "Uruguay y España se han enfrentado diez veces, incluyendo dos cruces mundialistas: empate 2-2 en la ronda final de 1950 y empate 0-0 en la fase de grupos de 1990. El antecedente más reciente citado es una victoria 2-1 de España en la fase de grupos de la Copa Confederaciones 2013, manteniendo su invicto en el historial.",
+        "uiLabel": "10 enfrentamientos previos",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group H",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_H",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 67,
+      "id": "match-067-h2h",
+      "group": "Group L",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T17:00:00-04:00",
+      "timeChile": "17:00",
+      "location": "New York/New Jersey Stadium",
+      "homeTeam": "Panama",
+      "awayTeam": "England",
+      "homeTeamSlug": "panama",
+      "awayTeamSlug": "england",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 2018: Inglaterra ganó 6-1.",
+        "summaryEs": "Panamá e Inglaterra se han enfrentado una vez: Inglaterra derrotó 6-1 a Panamá en la fase de grupos del Mundial 2018.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 68,
+      "id": "match-068-h2h",
+      "group": "Group L",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T17:00:00-04:00",
+      "timeChile": "17:00",
+      "location": "Philadelphia Stadium",
+      "homeTeam": "Croatia",
+      "awayTeam": "Ghana",
+      "homeTeamSlug": "croatia",
+      "awayTeamSlug": "ghana",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Croacia y Ghana no registran enfrentamientos previos según la página del Grupo L de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group L",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_L",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 69,
+      "id": "match-069-h2h",
+      "group": "Group J",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Kansas City Stadium",
+      "homeTeam": "Algeria",
+      "awayTeam": "Austria",
+      "homeTeamSlug": "algeria",
+      "awayTeamSlug": "austria",
+      "h2h": {
+        "status": "has_history",
+        "previousMeetings": 1,
+        "isFirstMeeting": false,
+        "worldCupContext": "Mundial 1982: Austria ganó 2-0.",
+        "summaryEs": "Argelia y Austria se han enfrentado una vez: victoria 2-0 de Austria en la fase de grupos del Mundial 1982.",
+        "uiLabel": "1 enfrentamiento previo",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 70,
+      "id": "match-070-h2h",
+      "group": "Group J",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T22:00:00-04:00",
+      "timeChile": "22:00",
+      "location": "Dallas Stadium",
+      "homeTeam": "Jordan",
+      "awayTeam": "Argentina",
+      "homeTeamSlug": "jordan",
+      "awayTeamSlug": "argentina",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Jordania y Argentina no registran enfrentamientos previos según la página del Grupo J de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group J",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_J",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 71,
+      "id": "match-071-h2h",
+      "group": "Group K",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T19:30:00-04:00",
+      "timeChile": "19:30",
+      "location": "Miami Stadium",
+      "homeTeam": "Colombia",
+      "awayTeam": "Portugal",
+      "homeTeamSlug": "colombia",
+      "awayTeamSlug": "portugal",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "Colombia y Portugal no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    },
+    {
+      "matchNumber": 72,
+      "id": "match-072-h2h",
+      "group": "Group K",
+      "roundNumber": 3,
+      "stage": "Fase de grupos - fecha 3",
+      "dateChile": "2026-06-27T19:30:00-04:00",
+      "timeChile": "19:30",
+      "location": "Atlanta Stadium",
+      "homeTeam": "Congo DR",
+      "awayTeam": "Uzbekistan",
+      "homeTeamSlug": "congo-dr",
+      "awayTeamSlug": "uzbekistan",
+      "h2h": {
+        "status": "first_meeting",
+        "previousMeetings": 0,
+        "isFirstMeeting": true,
+        "worldCupContext": null,
+        "summaryEs": "RD del Congo y Uzbekistán no registran enfrentamientos previos según la página del Grupo K de Wikipedia.",
+        "uiLabel": "Primer enfrentamiento",
+        "safeForMatchReading": true,
+        "inventedData": false,
+        "sourceAuthority": "Wikipedia"
+      },
+      "sources": [
+        {
+          "type": "wikipedia_group_page",
+          "title": "2026 FIFA World Cup Group K",
+          "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K",
+          "note": "Resumen histórico del duelo publicado en la sección Matches de la página del grupo."
+        }
+      ],
+      "fixtureAuthority": "FIFA",
+      "fixtureSource": {
+        "type": "official_fifa_fixture",
+        "url": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures",
+        "note": "Usar FIFA Scores & Fixtures como fuente de verdad para fecha, hora, sede, grupo, estado y resultado oficial."
+      },
+      "dataQuality": {
+        "fixtureOfficial": true,
+        "h2hCited": true,
+        "requiresManualReviewBeforePublish": false
+      }
+    }
+  ]
+}

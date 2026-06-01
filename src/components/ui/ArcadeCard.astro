@@ -1,0 +1,122 @@
+---
+interface Props {
+  variant?:
+    | "default"
+    | "highlight"
+    | "locked"
+    | "solid-blue"
+    | "solid-cyan"
+    | "solid-purple"
+    | "solid-pink"
+    | "solid-orange"
+    | "solid-coral"
+    | "solid-lime"
+    | "striped"
+    | "danger";
+}
+
+const { variant = "default" } = Astro.props;
+---
+
+<article class={`arcade-card arcade-card--${variant}`}>
+  <slot />
+</article>
+
+<style>
+  .arcade-card {
+    padding: var(--space-lg);
+    border: 1px solid var(--pm-border-soft);
+    border-radius: var(--pm-radius-lg);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--pm-shadow-card);
+    color: var(--pm-text-main);
+    transition: box-shadow var(--pm-transition-base), transform var(--pm-transition-base);
+  }
+
+  .arcade-card--highlight {
+    border-width: 2px;
+    border-color: var(--pm-blue-500);
+    box-shadow: var(--pm-shadow-blue);
+  }
+
+  .arcade-card--locked {
+    background: var(--pm-state-locked-bg);
+    color: var(--pm-state-locked-text);
+    border-color: var(--pm-state-locked-border);
+    box-shadow: var(--pm-shadow-purple);
+  }
+
+  /* --- SOLID variants (texto blanco por defecto) --- */
+  .arcade-card--solid-blue {
+    background: var(--pm-blue-500);
+    color: var(--pm-white);
+    border-color: var(--pm-blue-600);
+    box-shadow: var(--pm-shadow-blue);
+  }
+
+  .arcade-card--solid-cyan {
+    background: var(--pm-cyan-500);
+    color: var(--pm-blue-900);
+    border-color: var(--pm-cyan-600);
+    box-shadow: var(--pm-shadow-cyan);
+  }
+
+  .arcade-card--solid-purple {
+    background: var(--pm-purple-500);
+    color: var(--pm-white);
+    border-color: var(--pm-purple-600);
+    box-shadow: var(--pm-shadow-purple);
+  }
+
+  .arcade-card--solid-pink {
+    background: var(--pm-pink-500);
+    color: var(--pm-white);
+    border-color: var(--pm-pink-600);
+    box-shadow: var(--pm-shadow-pink);
+  }
+
+  .arcade-card--solid-orange {
+    background: var(--pm-orange-500);
+    color: var(--pm-blue-900);
+    border-color: var(--pm-orange-600);
+    box-shadow: var(--pm-shadow-orange);
+  }
+
+  .arcade-card--solid-coral {
+    background: var(--pm-red-500);
+    color: var(--pm-white);
+    border-color: var(--pm-red-600);
+    box-shadow: var(--pm-shadow-coral);
+  }
+
+  .arcade-card--solid-lime {
+    background: var(--pm-lime-500);
+    color: var(--pm-blue-900);
+    border-color: var(--pm-green-600);
+    box-shadow: var(--pm-shadow-lime);
+  }
+
+  /* --- STRIPED (blanca con franja superior cian/azul) --- */
+  .arcade-card--striped {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arcade-card--striped::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--pm-blue-500), var(--pm-cyan-500));
+  }
+
+  /* --- DANGER (rojo, para zona peligrosa) --- */
+  .arcade-card--danger {
+    background: var(--pm-state-danger-bg);
+    color: var(--pm-state-danger-text);
+    border-color: var(--pm-state-danger-border);
+    box-shadow: var(--pm-shadow-coral);
+  }
+</style>

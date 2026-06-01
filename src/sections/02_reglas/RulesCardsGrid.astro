@@ -1,0 +1,58 @@
+---
+import RuleCard from "./RuleCard.astro";
+
+interface Rule {
+  number: string;
+  title: string;
+  description: string;
+  icon: string;
+  tone: string;
+}
+
+interface Props {
+  rules: Rule[];
+}
+
+const { rules } = Astro.props;
+---
+
+<ol class="rules-grid" aria-label="Cinco reglas clave" data-stagger>
+  {rules.map((rule, index) => (
+    <li data-animate="pop-in" style={`--i:${index + 1}`}>
+      <RuleCard rule={rule} />
+    </li>
+  ))}
+</ol>
+
+<style>
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(0.75rem, 1.6vw, 1.15rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rules-grid > li {
+    min-width: 0;
+  }
+
+  @media (max-width: 900px) {
+    .rules-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .rules-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 520px) {
+    .rules-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

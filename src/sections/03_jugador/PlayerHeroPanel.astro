@@ -1,0 +1,74 @@
+---
+import SelectedPlayerCard from "./SelectedPlayerCard.astro";
+
+interface Player {
+  id: string;
+  name: string;
+  avatar: string;
+  status: string;
+}
+
+interface Props {
+  player: Player;
+}
+
+const { player } = Astro.props;
+---
+
+<section class="player-hero-panel" aria-labelledby="jugador-title">
+  <div class="title-block">
+    <h1 id="jugador-title">
+      <span class="title-main">Elige tu </span><span class="title-accent">Jugador</span>
+    </h1>
+    <p class="title-sub">Esta será tu identidad en la Polla 2026.</p>
+  </div>
+
+  <SelectedPlayerCard player={player} />
+</section>
+
+<style>
+  .player-hero-panel {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.6rem, 1.2vw, 0.85rem);
+    min-width: 0;
+  }
+
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  h1 {
+    margin: 0;
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.5vw, 3.2rem);
+    font-weight: 950;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .title-main {
+    color: var(--pm-blue-900);
+  }
+
+  .title-accent {
+    background: linear-gradient(135deg, var(--pm-orange-500) 0%, var(--pm-red-500) 64%, var(--pm-yellow-600) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 4px 12px rgba(255, 64, 88, 0.22));
+  }
+
+  .title-sub {
+    margin: 0;
+    color: var(--pm-blue-700);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.3;
+    opacity: 0.85;
+  }
+</style>

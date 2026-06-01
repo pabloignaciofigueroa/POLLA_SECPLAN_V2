@@ -1,0 +1,124 @@
+---
+import styles from "./ProximoPartidoSection.module.css";
+import MatchHeroHeader from "./MatchHeroHeader.astro";
+import FeaturedMatchLayout from "./FeaturedMatchLayout.astro";
+import MatchReadingPanel from "./MatchReadingPanel.astro";
+import MatchContextPanel from "./MatchContextPanel.astro";
+import NextActionPanel from "./NextActionPanel.astro";
+import fixtureData from "../../data/fixture.json";
+import teamsData from "../../data/teams.json";
+import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
+import { getRelevantMatches } from "./proximo-partido.logic";
+import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
+import proximoPartidoClientUrl from "./proximo-partido.client.js?url";
+
+interface Team {
+  id: string;
+  name: string;
+  shortCode: string;
+  confederation?: string;
+}
+
+interface Match {
+  id: string;
+  matchNumber: number;
+  groupId: string;
+  groupLabel: string;
+  stage: string;
+  dateUtc: string;
+  dateChile: string;
+  timeChile: string;
+  location: string;
+  homeTeam: Team;
+  awayTeam: Team;
+}
+
+interface H2HMatch {
+  matchNumber: number;
+  h2h: {
+    status?: string;
+    previousMeetings?: number;
+    isFirstMeeting?: boolean;
+    worldCupContext?: string | null;
+    summaryEs?: string | null;
+    uiLabel?: string | null;
+  };
+}
+
+const matches = fixtureData.matches as Match[];
+const teams = teamsData as Team[];
+const h2hMatches = h2hData.matches as H2HMatch[];
+const teamById = new Map(teams.map((team) => [team.id, team]));
+const h2hByMatchNumber = new Map(h2hMatches.map((match) => [match.matchNumber, match.h2h]));
+const relevant = getRelevantMatches(matches);
+const primaryMatch = relevant.primaryMatch ?? matches[0];
+const h2hInfo = h2hByMatchNumber.get(primaryMatch.matchNumber) ?? {
+  previousMeetings: 0,
+  isFirstMeeting: true,
+  summaryEs: "No hay antecedentes historicos confirmados para este duelo.",
+  uiLabel: "Primer enfrentamiento",
+  worldCupContext: null,
+};
+const context = {
+  round: primaryMatch.stage,
+  group: primaryMatch.groupLabel,
+  status: "Por jugar",
+  venue: primaryMatch.location,
+};
+
+const toStadium = (location: string) => {
+  const asset = getStadiumAsset(location);
+  return asset
+    ? {
+        src: asset.asset,
+        name: asset.knownAs ?? asset.stadiumOfficialName,
+        city: asset.city ?? null,
+      }
+    : null;
+};
+
+const stadium = toStadium(primaryMatch.location);
+const stadiumsByMatchId = Object.fromEntries(
+  matches.map((match) => [match.id, toStadium(match.location)]),
+);
+
+const clientPayload = {
+  matches,
+  teams,
+  h2hMatches,
+  stadiums: stadiumsByMatchId,
+};
+---
+
+<section
+  class={styles.proximoPartidoSection}
+  id="proximo-partido"
+  data-section="proximo-partido"
+  data-display-mode={relevant.displayMode}
+  data-primary-match-id={primaryMatch.id}
+  data-primary-group-id={primaryMatch.groupId}
+>
+  <div class={styles.contentShell}>
+    <MatchHeroHeader match={primaryMatch} displayMode={relevant.displayMode} />
+
+    <FeaturedMatchLayout
+      match={primaryMatch}
+      homeInfo={teamById.get(primaryMatch.homeTeam.id)}
+      awayInfo={teamById.get(primaryMatch.awayTeam.id)}
+      h2hInfo={h2hInfo}
+    />
+
+    <div class={styles.detailsGrid} data-animate="fade-up" style="--i:1">
+      <MatchReadingPanel h2hInfo={h2hInfo} />
+      <MatchContextPanel context={context} stadium={stadium} />
+      <NextActionPanel
+        homeTeamName={primaryMatch.homeTeam.name}
+        awayTeamName={primaryMatch.awayTeam.name}
+        groupId={primaryMatch.groupId}
+      />
+    </div>
+  </div>
+
+  <script type="application/json" data-proximo-partido-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={proximoPartidoClientUrl}></script>
+</section>

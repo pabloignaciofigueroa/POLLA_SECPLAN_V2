@@ -1,0 +1,145 @@
+---
+import BackGroupButton from "./BackGroupButton.astro";
+import NextGroupIndicator from "./NextGroupIndicator.astro";
+import SaveAndContinueCTA from "./SaveAndContinueCTA.astro";
+
+interface Group {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  activeGroup: Group;
+  groups: Group[];
+}
+
+const { activeGroup, groups } = Astro.props;
+const activeIndex = groups.findIndex((group) => group.id === activeGroup.id);
+const nextGroup = groups[activeIndex + 1] ?? null;
+const activeGroupKey = activeGroup.id.toLowerCase();
+---
+
+<footer class="prediction-bottom-bar" aria-label="Acciones de navegación de predicciones" data-animate="fade-up" style="--i:3">
+  <BackGroupButton />
+
+  <div class="completion-status" data-completion-status data-current-group={activeGroupKey}>
+    <span aria-hidden="true">OK</span>
+    <strong data-bottom-group-label>{activeGroup.label}</strong>
+    <p><span data-bottom-group-complete>0</span> / 6 partidos completos</p>
+  </div>
+
+  <NextGroupIndicator group={nextGroup} />
+
+  <SaveAndContinueCTA />
+
+  <p class="live-message" data-prediction-message role="status" aria-live="polite"></p>
+  <p class="download-note">
+    Descarga tu JSON y envialo al administrador. Ese archivo sera tu registro oficial.
+  </p>
+</footer>
+
+<style>
+  .prediction-bottom-bar {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.32fr) minmax(16rem, 0.72fr) minmax(11rem, 0.42fr) minmax(16rem, 0.58fr);
+    gap: clamp(0.55rem, 1.1vw, 0.85rem);
+    align-items: center;
+    padding: 0.6rem 0.85rem;
+    border: 1px dashed rgba(37, 99, 235, 0.52);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.54);
+  }
+
+  .completion-status {
+    --status-color: var(--pm-group-a);
+    --status-color-2: var(--pm-green-600);
+    --status-text: var(--pm-white);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.85rem;
+    border: 2px solid var(--status-color);
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--status-color), var(--status-color-2));
+    color: var(--status-text);
+    box-shadow: 0 10px 24px rgba(34, 197, 94, 0.28);
+  }
+
+  .completion-status[data-current-group="a"] { --status-color: #22C55E; --status-color-2: #16A34A; }
+  .completion-status[data-current-group="b"] { --status-color: #126DFF; --status-color-2: #005BFF; }
+  .completion-status[data-current-group="c"] { --status-color: #FFB000; --status-color-2: #FF8A00; --status-text: var(--pm-blue-900); }
+  .completion-status[data-current-group="d"] { --status-color: #7C35FF; --status-color-2: #4B18B8; }
+  .completion-status[data-current-group="e"] { --status-color: #46F1FF; --status-color-2: #18DDF2; --status-text: var(--pm-blue-900); }
+  .completion-status[data-current-group="f"] { --status-color: #FF2FB3; --status-color-2: #D946EF; }
+  .completion-status[data-current-group="g"] { --status-color: #FFD21F; --status-color-2: #F5B800; --status-text: var(--pm-blue-900); }
+  .completion-status[data-current-group="h"] { --status-color: #1B8CFF; --status-color-2: #005BFF; }
+  .completion-status[data-current-group="i"] { --status-color: #B6FF00; --status-color-2: #8AD600; --status-text: var(--pm-blue-900); }
+  .completion-status[data-current-group="j"] { --status-color: #FF4058; --status-color-2: #E11D48; }
+  .completion-status[data-current-group="k"] { --status-color: #D946EF; --status-color-2: #A21CAF; }
+  .completion-status[data-current-group="l"] { --status-color: #18DDF2; --status-color-2: #00B8D9; --status-text: var(--pm-blue-900); }
+
+  .completion-status > span {
+    display: grid;
+    width: 1.7rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 0.55rem;
+    font-weight: 950;
+  }
+
+  strong,
+  p {
+    margin: 0;
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  p {
+    font-size: 0.82rem;
+  }
+
+  .live-message {
+    grid-column: 1 / -1;
+    min-height: 1.1rem;
+    color: var(--color-text);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .download-note {
+    grid-column: 1 / -1;
+    margin: -0.15rem 0 0;
+    color: var(--pm-blue-700);
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  @media (max-width: 980px) {
+    .prediction-bottom-bar {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .prediction-bottom-bar {
+      position: sticky;
+      bottom: 0.5rem;
+      grid-template-columns: 1fr;
+      z-index: 5;
+      backdrop-filter: blur(8px);
+    }
+  }
+</style>

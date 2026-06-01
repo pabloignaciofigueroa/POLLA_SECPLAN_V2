@@ -1,0 +1,239 @@
+---
+// Modal global para el acceso amable al panel Admin.
+---
+
+<div class="admin-access-modal" data-admin-access-modal hidden>
+  <button class="admin-access-backdrop" type="button" aria-label="Cerrar acceso admin" data-admin-access-close></button>
+
+  <section
+    class="admin-access-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="admin-access-title"
+    aria-describedby="admin-access-description"
+  >
+    <div class="admin-access-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" focusable="false">
+        <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
+      </svg>
+    </div>
+
+    <h2 id="admin-access-title">Acceso reservado</h2>
+
+    <p id="admin-access-description" class="admin-access-copy">
+      Esta seccion esta reservada para el administrador y la gestion interna de la pagina.
+      Si eres jugador, puedes seguir interactuando en las otras secciones de la Polla Mundialera.
+    </p>
+
+    <form class="admin-access-form" data-admin-access-form>
+      <label for="admin-access-password">Clave de administrador</label>
+      <input
+        id="admin-access-password"
+        name="admin-access-password"
+        type="password"
+        placeholder="Ingresa la clave"
+        autocomplete="current-password"
+        data-admin-access-input
+      />
+
+      <p class="admin-access-error" data-admin-access-error hidden>
+        La clave no es correcta. Revisa e intenta nuevamente.
+      </p>
+
+      <div class="admin-access-actions">
+        <button class="admin-access-submit" type="submit">Entrar al Admin</button>
+        <button class="admin-access-secondary" type="button" data-admin-access-close>Volver a la pagina</button>
+      </div>
+    </form>
+
+    <p class="admin-access-note">
+      Gracias por cuidar el orden de la Polla Mundialera SECPLAN 2026.
+    </p>
+  </section>
+</div>
+
+<style>
+  .admin-access-modal {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-overlay) + 20);
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 4vw, 2rem);
+  }
+
+  .admin-access-modal[hidden] {
+    display: none;
+  }
+
+  .admin-access-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(7, 23, 53, 0.35);
+    cursor: pointer;
+  }
+
+  .admin-access-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 31rem);
+    max-height: min(88svh, 42rem);
+    overflow-y: auto;
+    padding: clamp(1.1rem, 3vw, 1.65rem);
+    border: 1px solid #d8e2f0;
+    border-radius: var(--pm-radius-lg);
+    background:
+      radial-gradient(circle at 18% 0%, rgba(255, 210, 31, 0.22), transparent 34%),
+      linear-gradient(180deg, #ffffff, #f7faff);
+    color: #071735;
+    box-shadow: 0 24px 60px rgba(7, 23, 53, 0.28);
+  }
+
+  .admin-access-icon {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    margin-bottom: 0.8rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-yellow-400), var(--pm-yellow-600));
+    color: var(--pm-blue-950);
+    box-shadow: 0 10px 24px rgba(255, 210, 31, 0.3);
+  }
+
+  .admin-access-icon svg {
+    display: block;
+    width: 1.45rem;
+    height: 1.45rem;
+    fill: currentColor;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: #071735;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 950;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .admin-access-copy {
+    margin-top: 0.65rem;
+    color: #25324a;
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  .admin-access-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 1rem;
+  }
+
+  label {
+    color: #071735;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  input {
+    min-height: 3rem;
+    width: 100%;
+    border: 1px solid #d8e2f0;
+    border-radius: var(--pm-radius-sm);
+    background: #ffffff;
+    color: #071735;
+    font: inherit;
+    font-weight: 700;
+    padding: 0.75rem 0.85rem;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--pm-blue-500);
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .admin-access-error {
+    color: #ff4058;
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
+  .admin-access-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.2rem;
+  }
+
+  .admin-access-submit,
+  .admin-access-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.85rem;
+    padding: 0.72rem 1rem;
+    border-radius: var(--pm-radius-sm);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .admin-access-submit {
+    border: 1px solid var(--pm-yellow-600);
+    background: linear-gradient(135deg, var(--pm-yellow-300), var(--pm-yellow-500));
+    color: var(--pm-blue-950);
+  }
+
+  .admin-access-secondary {
+    border: 1px solid #d8e2f0;
+    background: #ffffff;
+    color: var(--pm-blue-700);
+  }
+
+  .admin-access-submit:focus-visible,
+  .admin-access-secondary:focus-visible,
+  .admin-access-backdrop:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .admin-access-note {
+    margin-top: 0.95rem;
+    color: rgba(37, 50, 74, 0.78);
+    font-size: 0.78rem;
+    font-weight: 750;
+    line-height: 1.35;
+  }
+
+  :global(body:has([data-admin-access-modal]:not([hidden]))) {
+    overflow: hidden;
+  }
+
+  @media (max-width: 520px) {
+    .admin-access-actions {
+      flex-direction: column;
+    }
+
+    .admin-access-submit,
+    .admin-access-secondary {
+      width: 100%;
+    }
+  }
+</style>

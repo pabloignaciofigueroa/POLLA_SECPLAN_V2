@@ -1,0 +1,45 @@
+---
+import AdminKpiCard from "./AdminKpiCard.astro";
+import type { AdminDashboardViewModel } from "./admin.logic";
+
+interface Props {
+  kpis: AdminDashboardViewModel["kpis"];
+}
+
+const { kpis } = Astro.props;
+
+const cards = [
+  { icon: "JG", title: "Jugadores registrados", value: kpis.registeredPlayers, helper: "Ver detalle" },
+  { icon: "CT", title: "Cartones confirmados", value: `${kpis.confirmedCards} / ${kpis.totalCards}`, helper: "0% completado" },
+  { icon: "PR", title: "Predicciones cargadas", value: kpis.loadedPredictions, helper: "Partidos totales" },
+  { icon: "SO", title: "Solicitudes pendientes", value: kpis.pendingRequests, helper: "Ver bandeja" },
+  { icon: "RO", title: "Resultados oficiales", value: `${kpis.officialResultsLoaded} / ${kpis.totalMatches}`, helper: "0% cargados" },
+  { icon: "OK", title: "Estado del sistema", value: kpis.systemStatus, helper: "Todo funcionando" },
+];
+---
+
+<section class="kpi-grid" aria-label="Métricas rápidas" data-animate="fade-up">
+  {cards.map((card) => (
+    <AdminKpiCard icon={card.icon} title={card.title} value={card.value} helper={card.helper} />
+  ))}
+</section>
+
+<style>
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1vw, 0.85rem);
+  }
+
+  @media (max-width: 1100px) {
+    .kpi-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 680px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+import styles from "./JugadorSection.module.css";
+---
+
+<div class={styles.resetZone} data-player-reset-zone>
+  <p class={styles.resetFeedback} data-player-reset-feedback hidden>
+    Jugador y predicciones reiniciados.
+  </p>
+
+  <button type="button" class={styles.resetButton} data-player-reset-open>
+    RESETEAR JUGADOR
+  </button>
+
+  <div class={styles.resetModal} data-player-reset-modal hidden>
+    <button
+      type="button"
+      class={styles.resetModalBackdrop}
+      data-player-reset-cancel
+      aria-label="Cerrar modal de reset"
+    ></button>
+
+    <article
+      class={styles.resetDialog}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reset-player-title"
+      aria-describedby="reset-player-description"
+    >
+      <p class={styles.resetEyebrow}>Zona de reinicio</p>
+
+      <h2 id="reset-player-title" class={styles.resetTitle}>
+        ¿Resetear jugador?
+      </h2>
+
+      <div id="reset-player-description" class={styles.resetCopy}>
+        <p>
+          Si reseteas tu jugador, también se eliminarán tus predicciones guardadas y tus clasificados por grupo.
+        </p>
+        <p>
+          Esta acción dejará tu participación como si entraras por primera vez.
+        </p>
+      </div>
+
+      <div class={styles.resetActions}>
+        <button type="button" class={styles.resetCancelButton} data-player-reset-cancel>
+          Cancelar
+        </button>
+
+        <button type="button" class={styles.resetConfirmButton} data-player-reset-confirm>
+          Sí, resetear todo
+        </button>
+      </div>
+    </article>
+  </div>
+</div>

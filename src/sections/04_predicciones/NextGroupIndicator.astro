@@ -1,0 +1,64 @@
+---
+interface Group {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  group: Group | null;
+}
+
+const { group } = Astro.props;
+const groupKey = group?.id.toLowerCase() ?? "review";
+---
+
+<div class="next-group-indicator" data-next-group-indicator data-next-group={groupKey}>
+  <span>Siguiente:</span>
+  <strong data-next-group-label>{group ? group.label : "Revisión"}</strong>
+  <span aria-hidden="true">›</span>
+</div>
+
+<style>
+  .next-group-indicator {
+    --next-color: var(--pm-group-b);
+    --next-color-2: var(--pm-blue-600);
+    --next-text: var(--pm-white);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 3.35rem;
+    padding: 0.65rem 1rem;
+    border: 2px solid var(--next-color);
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--next-color), var(--next-color-2));
+    color: var(--next-text);
+    box-shadow: var(--pm-shadow-blue);
+  }
+
+  .next-group-indicator[data-next-group="a"] { --next-color: #22C55E; --next-color-2: #16A34A; }
+  .next-group-indicator[data-next-group="b"] { --next-color: #126DFF; --next-color-2: #005BFF; }
+  .next-group-indicator[data-next-group="c"] { --next-color: #FFB000; --next-color-2: #FF8A00; --next-text: var(--pm-blue-900); }
+  .next-group-indicator[data-next-group="d"] { --next-color: #7C35FF; --next-color-2: #4B18B8; }
+  .next-group-indicator[data-next-group="e"] { --next-color: #46F1FF; --next-color-2: #18DDF2; --next-text: var(--pm-blue-900); }
+  .next-group-indicator[data-next-group="f"] { --next-color: #FF2FB3; --next-color-2: #D946EF; }
+  .next-group-indicator[data-next-group="g"] { --next-color: #FFD21F; --next-color-2: #F5B800; --next-text: var(--pm-blue-900); }
+  .next-group-indicator[data-next-group="h"] { --next-color: #1B8CFF; --next-color-2: #005BFF; }
+  .next-group-indicator[data-next-group="i"] { --next-color: #B6FF00; --next-color-2: #8AD600; --next-text: var(--pm-blue-900); }
+  .next-group-indicator[data-next-group="j"] { --next-color: #FF4058; --next-color-2: #E11D48; }
+  .next-group-indicator[data-next-group="k"] { --next-color: #D946EF; --next-color-2: #A21CAF; }
+  .next-group-indicator[data-next-group="l"] { --next-color: #18DDF2; --next-color-2: #00B8D9; --next-text: var(--pm-blue-900); }
+  .next-group-indicator[data-next-group="review"] { --next-color: #7C35FF; --next-color-2: #4B18B8; }
+
+  span {
+    font-size: 0.82rem;
+    font-weight: 750;
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+</style>

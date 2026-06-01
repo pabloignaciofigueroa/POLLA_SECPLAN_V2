@@ -1,0 +1,402 @@
+---
+import styles from "./JugadorSection.module.css";
+import PlayerHeroPanel from "./PlayerHeroPanel.astro";
+import PlayersGrid from "./PlayersGrid.astro";
+import PlayerSelectionCTA from "./PlayerSelectionCTA.astro";
+import PlayerWarningNote from "./PlayerWarningNote.astro";
+import PlayerResetAction from "./PlayerResetAction.astro";
+import playersData from "../../data/players.json";
+import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+import playerIdentityUrl from "../../lib/playerIdentity.js?url";
+
+interface Player {
+  id: string;
+  name: string;
+  avatar: string;
+  status: "available" | "selected" | "disabled" | "confirmed";
+}
+
+const players = playersData as Player[];
+const selectedPlayerId = "luis";
+const selectedPlayer =
+  players.find((player) => player.id === selectedPlayerId) ?? players[0];
+---
+
+<section
+  class={styles.jugadorSection}
+  id="jugador"
+  data-section="jugador"
+  data-default-player-id={selectedPlayer.id}
+  data-selected-player-id={selectedPlayer.id}
+  data-confirmed="false"
+  data-reset-state-url={resetStateUrl}
+  data-player-identity-url={playerIdentityUrl}
+>
+  <div class={styles.contentShell}>
+    <PlayerHeroPanel player={selectedPlayer} />
+
+    <div class={styles.selectionPanel}>
+      <PlayersGrid players={players} selectedPlayerId={selectedPlayer.id} />
+
+      <div class={styles.actionZone}>
+        <PlayerSelectionCTA href="/predicciones" />
+        <div class={styles.secondaryActionCluster}>
+          <PlayerWarningNote />
+          <PlayerResetAction />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (async () => {
+      const section = document.querySelector('[data-section="jugador"]');
+
+      if (!section) return;
+
+      let resetPollaLocalState = null;
+      try {
+        const resetModule = await import(section.dataset.resetStateUrl);
+        resetModule.ensurePollaStorageVersion?.();
+        resetPollaLocalState = resetModule.resetPollaLocalState ?? null;
+      } catch {
+        // La seleccion sigue funcionando aunque no se pueda cargar el reset.
+      }
+
+      let identityModule = null;
+      try {
+        identityModule = await import(section.dataset.playerIdentityUrl);
+      } catch {
+        // La seleccion mantiene el fallback local aunque no cargue el modulo compartido.
+      }
+
+      const selectedKey = "polla:selectedPlayerId";
+      const confirmedKey = "polla:playerConfirmed";
+      const snapshotKey = "polla:selectedPlayerSnapshot";
+      const cards = Array.from(section.querySelectorAll("[data-player-card]"));
+      const selectedCard = section.querySelector("[data-selected-card]");
+      const selectedName = section.querySelector("[data-selected-player-name]");
+      const selectedStatus = section.querySelector("[data-selected-status]");
+      const selectedAvatarImg = section.querySelector("[data-selected-avatar-img]");
+      const cta = section.querySelector("[data-player-cta]");
+      const resetOpen = section.querySelector("[data-player-reset-open]");
+      const resetModal = section.querySelector("[data-player-reset-modal]");
+      const resetCancelButtons = Array.from(section.querySelectorAll("[data-player-reset-cancel]"));
+      const resetConfirm = section.querySelector("[data-player-reset-confirm]");
+      const resetFeedback = section.querySelector("[data-player-reset-feedback]");
+      const predictionLinks = Array.from(document.querySelectorAll('a[href="/predicciones"], a[href^="/predicciones?"]'));
+      let lastResetTrigger = null;
+
+      const showResetFeedback = () => {
+        if (!resetFeedback) return;
+        let shouldShow = false;
+        try {
+          shouldShow = window.sessionStorage.getItem("polla:playerResetFeedback") === "true";
+          if (shouldShow) {
+            window.sessionStorage.removeItem("polla:playerResetFeedback");
+          }
+        } catch {
+          shouldShow = false;
+        }
+        resetFeedback.hidden = !shouldShow;
+      };
+
+      const openResetModal = () => {
+        if (!resetModal) return;
+        lastResetTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : resetOpen;
+        resetModal.hidden = false;
+        section.dataset.resetModalOpen = "true";
+        window.requestAnimationFrame(() => {
+          const cancelButton = resetModal.querySelector("[data-player-reset-cancel]");
+          if (cancelButton instanceof HTMLElement) {
+            cancelButton.focus();
+          }
+        });
+      };
+
+      const closeResetModal = () => {
+        if (!resetModal) return;
+        resetModal.hidden = true;
+        section.dataset.resetModalOpen = "false";
+        if (lastResetTrigger instanceof HTMLElement) {
+          lastResetTrigger.focus();
+        }
+      };
+
+      const fallbackHardReset = () => {
+        const localKeys = [
+          "polla:selectedPlayerId",
+          "polla:playerConfirmed",
+          "polla:selectedPlayerSnapshot",
+          "polla:predictions",
+          "polla:qualifiedPredictions",
+          "polla:activePredictionGroup",
+          "polla:favoriteTeams",
+          "polla:finalDownloaded",
+          "polla:finalDownloadedAt",
+          "polla:finalDownloadedFilename",
+          "polla:finalSubmissionPayload",
+        ];
+        const sessionKeys = [
+          "polla:selectedPlayerId",
+          "polla:playerConfirmed",
+          "polla:selectedPlayerSnapshot",
+          "polla:activePredictionGroupIntent",
+        ];
+
+        localKeys.forEach((key) => {
+          try {
+            window.localStorage.removeItem(key);
+          } catch {
+            // Storage puede no estar disponible; el redirect mantiene el flujo.
+          }
+        });
+
+        sessionKeys.forEach((key) => {
+          try {
+            window.sessionStorage.removeItem(key);
+          } catch {
+            // Storage puede no estar disponible; el redirect mantiene el flujo.
+          }
+        });
+      };
+
+      const hardResetPlayer = () => {
+        if (typeof resetPollaLocalState === "function") {
+          resetPollaLocalState({ preserveIdentity: false });
+        } else {
+          fallbackHardReset();
+        }
+
+        [
+          "polla:selectedPlayerId",
+          "polla:playerConfirmed",
+          "polla:selectedPlayerSnapshot",
+        ].forEach((key) => {
+          try {
+            window.sessionStorage.removeItem(key);
+          } catch {
+            // Storage puede no estar disponible; el redirect mantiene el flujo.
+          }
+        });
+
+        try {
+          window.sessionStorage.setItem("polla:playerResetFeedback", "true");
+        } catch {
+          // Feedback opcional; el reset ya fue ejecutado.
+        }
+
+        closeResetModal();
+        window.location.href = "/jugador";
+      };
+
+      const getStoredConfirmed = () => {
+        try {
+          return window.localStorage.getItem(confirmedKey) === "true";
+        } catch {
+          return false;
+        }
+      };
+
+      const getStoredSelectedId = () => {
+        try {
+          return window.localStorage.getItem(selectedKey);
+        } catch {
+          return null;
+        }
+      };
+
+      const setStoredSelection = (playerId) => {
+        const card = cards.find((item) => item.dataset.playerId === playerId);
+        const snapshot = {
+          id: card?.dataset.playerId ?? playerId,
+          name: card?.dataset.playerName ?? "",
+          avatar: card?.dataset.playerAvatar ?? "",
+          avatarThumb: card?.dataset.playerAvatarThumb ?? card?.dataset.playerAvatar ?? "",
+        };
+
+        try {
+          window.localStorage.setItem(selectedKey, playerId);
+          window.localStorage.setItem(confirmedKey, "true");
+          window.localStorage.setItem(snapshotKey, JSON.stringify(snapshot));
+          window.sessionStorage.setItem(selectedKey, playerId);
+          window.sessionStorage.setItem(confirmedKey, "true");
+          window.sessionStorage.setItem(snapshotKey, JSON.stringify(snapshot));
+        } catch {
+          // El wireframe debe seguir navegando aunque localStorage no esté disponible.
+        }
+        identityModule?.publishConfirmedPlayer?.(snapshot);
+      };
+
+      const publishConfirmedIdentity = (playerId) => {
+        const card = cards.find((item) => item.dataset.playerId === playerId);
+        identityModule?.publishConfirmedPlayer?.({
+          id: card?.dataset.playerId ?? playerId,
+          name: card?.dataset.playerName ?? "",
+          avatar: card?.dataset.playerAvatar ?? "",
+          avatarThumb: card?.dataset.playerAvatarThumb ?? card?.dataset.playerAvatar ?? "",
+        });
+      };
+
+      const withPlayerParam = (href, playerId) => {
+        try {
+          const url = new URL(href, window.location.origin);
+          url.searchParams.set("player", playerId);
+          return `${url.pathname}${url.search}${url.hash}`;
+        } catch {
+          return `/predicciones?player=${encodeURIComponent(playerId)}`;
+        }
+      };
+
+      const syncPredictionLinks = () => {
+        const playerId = section.dataset.selectedPlayerId;
+        const confirmed = section.dataset.confirmed === "true";
+        predictionLinks.forEach((link) => {
+          if (!playerId || !confirmed) {
+            link.setAttribute("href", "/predicciones");
+            return;
+          }
+          link.setAttribute("href", withPlayerParam(link.getAttribute("href") || "/predicciones", playerId));
+        });
+        if (confirmed && playerId) {
+          identityModule?.syncPredictionLinks?.(document, { id: playerId });
+        }
+      };
+
+      const persistConfirmedSelection = () => {
+        const playerId = section.dataset.selectedPlayerId;
+        if (!playerId || section.dataset.confirmed !== "true") return;
+        setStoredSelection(playerId);
+        syncPredictionLinks();
+      };
+
+      const findCard = (playerId) => {
+        return cards.find((card) => card.dataset.playerId === playerId) ?? cards[0];
+      };
+
+      const paintSelected = (card, confirmed) => {
+        if (!card) return;
+
+        const playerId = card.dataset.playerId ?? "";
+        const playerName = card.dataset.playerName ?? "";
+        const playerAvatar = card.dataset.playerAvatar ?? "";
+        const playerAvatarThumb = card.dataset.playerAvatarThumb ?? playerAvatar;
+
+        section.dataset.selectedPlayerId = playerId;
+        section.dataset.confirmed = confirmed ? "true" : "false";
+
+        cards.forEach((item) => {
+          const isSelected = item === card;
+          item.dataset.selected = isSelected ? "true" : "false";
+          item.setAttribute("aria-pressed", isSelected ? "true" : "false");
+          item.disabled = confirmed;
+        });
+
+        if (selectedCard) {
+          selectedCard.dataset.playerId = playerId;
+          selectedCard.dataset.playerAvatar = playerAvatar;
+          selectedCard.dataset.playerAvatarThumb = playerAvatarThumb;
+        }
+
+        if (selectedName) {
+          selectedName.textContent = playerName;
+        }
+
+        if (selectedStatus) {
+          selectedStatus.textContent = confirmed ? "JUGADOR CONFIRMADO" : "JUGADOR SELECCIONADO";
+        }
+
+        if (selectedAvatarImg && playerAvatar) {
+          const previewAvatar = playerAvatarThumb || playerAvatar;
+          const currentAvatar = selectedAvatarImg.getAttribute("src");
+          if (previewAvatar && currentAvatar !== playerAvatar && currentAvatar !== previewAvatar) {
+            selectedAvatarImg.setAttribute("src", previewAvatar);
+          }
+          selectedAvatarImg.setAttribute("alt", `Avatar de ${playerName}`);
+
+          if (playerAvatar !== previewAvatar && currentAvatar !== playerAvatar) {
+            const requestId = `${playerId}:${playerAvatar}`;
+            selectedAvatarImg.dataset.fullAvatarRequest = requestId;
+            const fullAvatar = new Image();
+            fullAvatar.decoding = "async";
+            fullAvatar.onload = () => {
+              if (selectedAvatarImg.dataset.fullAvatarRequest !== requestId) return;
+              if (selectedAvatarImg.getAttribute("src") !== playerAvatar) {
+                selectedAvatarImg.setAttribute("src", playerAvatar);
+              }
+            };
+            fullAvatar.src = playerAvatar;
+          }
+        }
+
+        if (confirmed && playerId) {
+          setStoredSelection(playerId);
+        }
+
+        syncPredictionLinks();
+      };
+
+      const initialConfirmed = getStoredConfirmed();
+      const initialPlayerId =
+        (initialConfirmed && getStoredSelectedId()) || section.dataset.defaultPlayerId || "luis";
+      const initialCard = findCard(initialPlayerId);
+
+      paintSelected(initialCard, initialConfirmed);
+      section.dataset.playerReady = "true";
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const burstSelected = () => {
+        if (reduceMotion || !selectedCard) return;
+        selectedCard.classList.remove("is-selected-burst");
+        void selectedCard.offsetWidth; // reflow para re-disparar
+        selectedCard.classList.add("is-selected-burst");
+      };
+
+      cards.forEach((card) => {
+        card.addEventListener("click", () => {
+          if (section.dataset.confirmed === "true") return;
+          paintSelected(card, false);
+          burstSelected();
+        });
+      });
+
+      if (cta) {
+        cta.addEventListener("pointerdown", () => {
+          const playerId = section.dataset.selectedPlayerId;
+          if (!playerId) return;
+          setStoredSelection(playerId);
+          paintSelected(findCard(playerId), true);
+          burstSelected();
+        });
+
+        cta.addEventListener("click", () => {
+          const playerId = section.dataset.selectedPlayerId;
+          if (!playerId) return;
+          setStoredSelection(playerId);
+          paintSelected(findCard(playerId), true);
+        });
+      }
+
+      predictionLinks.forEach((link) => {
+        link.addEventListener("pointerdown", persistConfirmedSelection);
+        link.addEventListener("click", persistConfirmedSelection);
+      });
+
+      showResetFeedback();
+
+      resetOpen?.addEventListener("click", openResetModal);
+
+      resetCancelButtons.forEach((button) => {
+        button.addEventListener("click", closeResetModal);
+      });
+
+      resetConfirm?.addEventListener("click", hardResetPlayer);
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && resetModal && !resetModal.hidden) {
+          closeResetModal();
+        }
+      });
+    })();
+  </script>
+</section>

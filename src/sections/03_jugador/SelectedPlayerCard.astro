@@ -1,0 +1,130 @@
+---
+interface Player {
+  id: string;
+  name: string;
+  avatar: string;
+  avatarThumb?: string;
+  status: string;
+}
+
+interface Props {
+  player: Player;
+}
+
+const { player } = Astro.props;
+---
+
+<article
+  class="selected-player-card"
+  data-selected-card
+  data-moment="selected-card"
+  data-player-id={player.id}
+  data-player-avatar={player.avatar}
+>
+  <div class="portrait-zone">
+    <img
+      class="portrait-img"
+      data-selected-avatar-img
+      src={player.avatar}
+      alt={`Avatar de ${player.name}`}
+      width="1086"
+      height="1448"
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+    />
+    <div class="name-band">
+      <h2 data-selected-player-name>{player.name}</h2>
+      <p data-selected-status>&#9733; JUGADOR SELECCIONADO</p>
+    </div>
+  </div>
+</article>
+
+<style>
+  .selected-player-card {
+    overflow: hidden;
+    border: 3px solid var(--pm-gold-500);
+    border-radius: var(--pm-radius-lg);
+    background: var(--pm-white);
+    box-shadow: 0 0 0 5px var(--pm-gold-glow), 0 18px 42px rgba(245, 181, 27, 0.22);
+  }
+
+  .portrait-zone {
+    position: relative;
+    display: block;
+    min-height: clamp(12rem, 20vw, 20rem);
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--pm-cyan-200), rgba(255, 255, 255, 0.5));
+  }
+
+  .portrait-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: clamp(12rem, 20vw, 20rem);
+    object-fit: cover;
+    object-position: center top;
+    aspect-ratio: 1086 / 1448;
+  }
+
+  .name-band {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 0.35rem;
+    padding: clamp(0.55rem, 1.2vw, 0.8rem);
+    text-align: center;
+    background: rgba(4, 14, 35, 0.85);
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.2vw, 2.8rem);
+    font-weight: 950;
+    line-height: 0.9;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  p {
+    width: fit-content;
+    margin-inline: auto;
+    padding: 0.28rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--pm-white);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+  }
+
+  /* El portrait se renderiza en el server con el jugador por defecto, asi que es
+     visible siempre. No se gatea la visibilidad en una clase JS: en carga lenta,
+     render headless o sin-JS, el recuadro quedaria en blanco (anti-pattern). JS
+     solo cruza-difumina cuando actualiza al jugador guardado. */
+  .portrait-zone {
+    opacity: 1;
+  }
+
+  :global([data-section="jugador"][data-player-ready]) .portrait-zone {
+    transition: opacity 150ms var(--ease-out, ease);
+  }
+
+  :global([data-section="jugador"][data-confirmed="true"]) .selected-player-card {
+    border-color: var(--pm-state-confirmed-border);
+    box-shadow: 0 0 0 5px rgba(33, 217, 154, 0.25), 0 18px 42px rgba(33, 217, 154, 0.22);
+  }
+
+  :global([data-section="jugador"][data-confirmed="true"]) .name-band {
+    background: rgba(33, 153, 100, 0.85);
+  }
+</style>

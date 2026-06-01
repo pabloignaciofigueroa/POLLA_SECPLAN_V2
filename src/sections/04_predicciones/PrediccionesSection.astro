@@ -1,0 +1,91 @@
+---
+import styles from "./PrediccionesSection.module.css";
+import PredictionHeroHeader from "./PredictionHeroHeader.astro";
+import ProgressSummaryGrid from "./ProgressSummaryGrid.astro";
+import GroupTabs from "./GroupTabs.astro";
+import PredictionWorkspace from "./PredictionWorkspace.astro";
+import PredictionBottomBar from "./PredictionBottomBar.astro";
+import fixtureData from "../../data/fixture.json";
+import groupsData from "../../data/groups.json";
+import playersData from "../../data/players.json";
+import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+import playerIdentityUrl from "../../lib/playerIdentity.js?url";
+import prediccionesClientUrl from "./predicciones.client.js?url";
+import predValidationUrl from "./predicciones.validation.js?url";
+import predExportUrl from "./predicciones.export.js?url";
+
+interface Team {
+  id: string;
+  name: string;
+  shortCode: string;
+}
+
+interface Match {
+  id: string;
+  matchNumber: number;
+  roundNumber: number;
+  groupId: string;
+  groupLabel: string;
+  stage: string;
+  homeTeam: Team;
+  awayTeam: Team;
+}
+
+interface Group {
+  id: string;
+  label: string;
+  teams: Team[];
+  matchIds: string[];
+}
+
+interface Player {
+  id: string;
+  name: string;
+}
+
+const groups = groupsData as Group[];
+const matches = fixtureData.matches as Match[];
+const players = playersData as Player[];
+const activeGroupId = "A";
+const activeGroup = groups.find((group) => group.id === activeGroupId) ?? groups[0];
+const fallbackPlayer = {
+  id: "generic",
+  name: "Jugador",
+};
+const totalMatches = fixtureData.totalMatches;
+
+const clientPayload = {
+  groups,
+  matches,
+  players,
+  defaultPlayerId: "",
+  resetStateUrl,
+  playerIdentityUrl,
+  validationUrl: predValidationUrl,
+  exportUrl: predExportUrl,
+};
+---
+
+<section
+  class={styles.prediccionesSection}
+  id="predicciones"
+  data-section="predicciones"
+  data-active-group-id={activeGroup.id}
+  data-player-id={fallbackPlayer.id}
+>
+  <div class={styles.contentShell}>
+    <div class={styles.topGrid} data-animate="fade-up">
+      <PredictionHeroHeader player={fallbackPlayer} totalMatches={totalMatches} groupsCount={groups.length} />
+      <ProgressSummaryGrid totalMatches={totalMatches} activeGroup={activeGroup} />
+    </div>
+
+    <GroupTabs groups={groups} activeGroupId={activeGroup.id} />
+
+    <PredictionWorkspace matches={matches} groups={groups} activeGroupId={activeGroup.id} />
+
+    <PredictionBottomBar activeGroup={activeGroup} groups={groups} />
+  </div>
+
+  <script type="application/json" data-predictions-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={prediccionesClientUrl}></script>
+</section>

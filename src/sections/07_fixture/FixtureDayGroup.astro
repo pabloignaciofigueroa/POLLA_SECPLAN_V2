@@ -1,0 +1,82 @@
+---
+import FixtureMatchRow from "./FixtureMatchRow.astro";
+import type { FixtureMatch, MatchStatusVisual } from "./fixture.logic";
+import { formatChileDateHeader, formatChileTime, getMatchStatusVisual } from "./fixture.logic";
+
+interface Props {
+  dateKey: string;
+  matches: FixtureMatch[];
+  selectedId: string;
+  stageLabel?: string;
+}
+
+const { dateKey, matches, selectedId, stageLabel } = Astro.props;
+const now = new Date();
+const header = formatChileDateHeader(matches[0]?.dateChile ?? dateKey);
+---
+
+<section class="day-group" data-day-group={dateKey}>
+  <header class="day-header">
+    {stageLabel && <span class="stage-label">{stageLabel}</span>}
+    <span class="day-label">{header}</span>
+  </header>
+
+  <ul class="day-rows" role="list">
+    {matches.map((match) => {
+      const status: MatchStatusVisual = getMatchStatusVisual(match, now);
+      return (
+        <li>
+          <FixtureMatchRow
+            match={match}
+            status={status}
+            selected={match.id === selectedId}
+            timeChile={formatChileTime(match.dateUtc)}
+          />
+        </li>
+      );
+    })}
+  </ul>
+</section>
+
+<style>
+  .day-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .day-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: baseline;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid rgba(7, 23, 53, 0.1);
+  }
+
+  .stage-label {
+    color: var(--pm-blue-700);
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .day-label {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .day-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

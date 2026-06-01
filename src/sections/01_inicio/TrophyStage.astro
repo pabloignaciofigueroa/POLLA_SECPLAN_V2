@@ -1,0 +1,182 @@
+---
+// TrophyStage — Copa Polla Mundialera SECPLAN 2026.
+// Hero principal del Home, sobre el fold inicial.
+---
+
+<figure class="trophy-stage" aria-label="Copa Polla Mundialera SECPLAN 2026" data-moment="trophy">
+  <span class="trophy-rays" aria-hidden="true" data-trophy-rays></span>
+  <span class="trophy-glow" aria-hidden="true" data-moment="trophy-glow"></span>
+  <div class="trophy-art">
+    <img
+      class="trophy-image"
+      data-trophy-img
+      src="/assets/polla-mundialera/sections/01_inicio/trophy-secplan-worldcup-gold.webp"
+      alt="Copa Polla Mundialera SECPLAN 2026"
+      width="1086"
+      height="1448"
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+    />
+    <span class="trophy-shine" aria-hidden="true" data-trophy-shine></span>
+    <span class="trophy-sparkles" aria-hidden="true">
+      <span class="spark" style="top:14%;left:50%"></span>
+      <span class="spark" style="top:24%;left:34%"></span>
+      <span class="spark" style="top:30%;left:66%"></span>
+      <span class="spark" style="top:54%;left:44%"></span>
+    </span>
+  </div>
+</figure>
+
+<style>
+  .trophy-stage {
+    position: relative;
+    display: grid;
+    place-items: end center;
+    margin: 0;
+    width: 100%;
+    min-height: clamp(374px, 58vh, 646px);
+    isolation: isolate;
+    /* Contiene los rayos (124% de ancho) para que no generen scroll horizontal
+       en móvil (la sección pasa a overflow:visible <900px). No recorta la copa:
+       está centrada con margen dentro del figure. */
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .trophy-stage::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: clamp(0.8rem, 2.2vw, 2rem);
+    width: min(92%, 620px);
+    height: clamp(4.5rem, 8vw, 7rem);
+    border-radius: 999px;
+    background:
+      radial-gradient(ellipse at center, rgba(255, 210, 31, 0.34), transparent 52%),
+      linear-gradient(180deg, rgba(24, 221, 242, 0.35), rgba(0, 91, 255, 0.08));
+    filter: blur(3px);
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+
+  /* Rayos de luz girando detrás de la copa ("victory shine"). JS los revela. */
+  .trophy-rays {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: min(124%, 700px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(255, 238, 180, 0) 0deg,
+      rgba(255, 238, 180, 0.18) 5deg,
+      rgba(255, 238, 180, 0) 11deg
+    );
+    -webkit-mask: radial-gradient(circle, #000 8%, rgba(0, 0, 0, 0.55) 38%, transparent 64%);
+    mask: radial-gradient(circle, #000 8%, rgba(0, 0, 0, 0.55) 38%, transparent 64%);
+    filter: blur(1px);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .trophy-glow {
+    position: absolute;
+    width: min(82%, 560px);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle, rgba(255, 210, 31, 0.38), transparent 62%),
+      radial-gradient(circle, rgba(24, 221, 242, 0.22), transparent 70%);
+    filter: blur(18px);
+    transform: translateY(0);
+    z-index: 0;
+  }
+
+  /* Wrapper visual: envuelve copa + shine + chispas y reserva el espacio del asset. */
+  .trophy-art {
+    position: relative;
+    z-index: 1;
+    width: min(92%, 502px);
+    /* Reserva la altura (= ratio de la copa) para que no haya CLS mientras el
+       <img> resuelve su tamaño. La copa llena este box. */
+    aspect-ratio: 1086 / 1448;
+  }
+
+  .trophy-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    aspect-ratio: 1086 / 1448;
+    filter:
+      drop-shadow(0 28px 48px rgba(7, 23, 53, 0.24))
+      drop-shadow(0 0 22px rgba(245, 181, 27, 0.22));
+  }
+
+  /* Destello especular recortado a la silueta de la copa (mask = mismo webp). */
+  .trophy-shine {
+    position: absolute;
+    inset: 0;
+    -webkit-mask: url("/assets/polla-mundialera/sections/01_inicio/trophy-secplan-worldcup-gold.webp") center / contain no-repeat;
+    mask: url("/assets/polla-mundialera/sections/01_inicio/trophy-secplan-worldcup-gold.webp") center / contain no-repeat;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.92) 50%,
+      transparent 62%
+    );
+    background-size: 250% 100%;
+    background-position: 150% 0;
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .trophy-sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .spark {
+    position: absolute;
+    width: 0.55rem;
+    height: 0.55rem;
+    transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    border-radius: 1px;
+    background: radial-gradient(circle, #fff 0%, rgba(255, 236, 160, 0.9) 45%, transparent 70%);
+    box-shadow: 0 0 8px rgba(255, 240, 180, 0.85);
+    opacity: 0;
+  }
+
+  @media (max-width: 760px) {
+    .trophy-stage {
+      min-height: auto;
+      margin-top: 1.25rem;
+    }
+
+    .trophy-art {
+      width: min(78vw, 360px);
+    }
+
+    .trophy-glow {
+      width: min(66vw, 320px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trophy-image {
+      filter: drop-shadow(0 18px 28px rgba(7, 23, 53, 0.2));
+    }
+
+    /* Sin JS de movimiento: ocultar overlays decorativos, copa estática. */
+    .trophy-rays,
+    .trophy-shine,
+    .spark {
+      opacity: 0 !important;
+    }
+  }
+</style>

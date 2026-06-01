@@ -1,0 +1,22 @@
+{
+  "source": "02_reglas-wireframe",
+  "rules": {
+    "exact": 3,
+    "tendency": 1,
+    "loneWolf": 5
+  },
+  "labels": [
+    {
+      "id": "exact",
+      "label": "Resultado exacto"
+    },
+    {
+      "id": "tendency",
+      "label": "Ganador o empate correcto"
+    },
+    {
+      "id": "loneWolf",
+      "label": "Exacto único entre todos los jugadores"
+    }
+  ]
+}

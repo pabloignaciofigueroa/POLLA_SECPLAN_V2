@@ -1,0 +1,213 @@
+---
+import MovementIndicator from "./MovementIndicator.astro";
+import StreakPill from "./StreakPill.astro";
+import type { RankingRow as RankingRowType } from "../../lib/tabla/types";
+
+interface Props {
+  row: RankingRowType;
+}
+
+const { row } = Astro.props;
+const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : "other";
+---
+
+<tr
+  data-ranking-row
+  data-player-id={row.playerId}
+  data-rank={rankClass}
+  data-position={row.position}
+  data-animate="fade-in"
+  style={`--i:${row.position}`}
+>
+  <td data-cell="position">
+    <span class="position-badge" data-rank-position>{row.position}</span>
+  </td>
+  <td data-cell="player">
+    <span class="player-avatar" aria-hidden="true">
+      <img
+        src={row.avatarThumb ?? row.avatar}
+        alt=""
+        width="160"
+        height="160"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+    <strong data-rank-name>{row.name}</strong>
+    <MovementIndicator movement={row.movement} />
+  </td>
+  <td data-cell="points"><strong data-rank-points data-countup>{row.points}</strong></td>
+  <td data-cell="played" data-rank-played>{row.played}</td>
+  <td data-cell="exact" data-rank-exact>{row.exactHits}</td>
+  <td data-cell="tendency" data-rank-tendency>{row.tendencyHits}</td>
+  <td data-cell="misses" data-rank-misses>{row.misses}</td>
+  <td data-cell="difference" data-rank-difference>{row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}</td>
+  <td data-cell="performance"><span data-rank-performance>{row.performance}%</span></td>
+  <td data-cell="streak">
+    <span class="streak-list" data-rank-streak>
+      {row.streak.map((item) => <StreakPill value={item} />)}
+    </span>
+  </td>
+</tr>
+
+<style>
+  tr {
+    border-bottom: 1px solid var(--pm-border-soft);
+    background: var(--pm-white);
+    transition: background var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+
+  tr:last-child {
+    border-bottom: 0;
+  }
+
+  tr:hover {
+    background: var(--pm-panel-soft);
+    box-shadow: inset 4px 0 0 var(--pm-pink-500);
+  }
+
+  /* PODIUM: top 1/2/3 con oro/plata/bronce */
+  tr[data-rank="top-1"] {
+    background: linear-gradient(90deg, rgba(255, 210, 31, 0.18), transparent 60%);
+    box-shadow: inset 4px 0 0 var(--pm-rank-gold);
+  }
+
+  tr[data-rank="top-2"] {
+    background: linear-gradient(90deg, rgba(199, 210, 229, 0.32), transparent 60%);
+    box-shadow: inset 4px 0 0 var(--pm-rank-silver);
+  }
+
+  tr[data-rank="top-3"] {
+    background: linear-gradient(90deg, rgba(201, 130, 59, 0.18), transparent 60%);
+    box-shadow: inset 4px 0 0 var(--pm-rank-bronze);
+  }
+
+  td {
+    padding: 0.36rem 0.5rem;
+    color: var(--pm-blue-900);
+    font-size: 0.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  td[data-cell="player"] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.42rem;
+    align-items: center;
+    min-width: 10rem;
+    text-align: left;
+  }
+
+  .position-badge {
+    display: inline-grid;
+    min-width: 2rem;
+    min-height: 1.65rem;
+    place-items: center;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-white);
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-weight: 950;
+  }
+
+  tr[data-rank="top-1"] .position-badge {
+    background: var(--pm-rank-gold-bg);
+    border-color: var(--pm-gold-700);
+    color: var(--pm-blue-900);
+    box-shadow: 0 0 12px var(--pm-gold-glow);
+  }
+
+  tr[data-rank="top-2"] .position-badge {
+    background: var(--pm-rank-silver-bg);
+    border-color: var(--pm-rank-silver);
+    color: var(--pm-blue-900);
+  }
+
+  tr[data-rank="top-3"] .position-badge {
+    background: var(--pm-rank-bronze-bg);
+    border-color: var(--pm-rank-bronze);
+    color: var(--pm-white);
+  }
+
+  .player-avatar {
+    display: grid;
+    width: 1.65rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid var(--pm-cyan-200);
+    border-radius: 999px;
+    background: var(--pm-cyan-200);
+  }
+
+  .player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-weight: 950;
+    color: var(--pm-blue-900);
+  }
+
+  td[data-cell="points"] strong {
+    color: var(--pm-pink-600);
+    font-size: 0.92rem;
+  }
+
+  td[data-cell="played"],
+  td[data-cell="exact"],
+  td[data-cell="tendency"],
+  td[data-cell="misses"],
+  td[data-cell="difference"] {
+    display: none;
+  }
+
+  tr[data-rank="top-1"] td[data-cell="points"] strong {
+    color: var(--pm-gold-700);
+  }
+
+  .streak-list {
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+
+  @media (max-width: 720px) {
+    tr {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.45rem;
+      padding: 0.85rem;
+      border: 1px solid var(--pm-border-soft);
+      border-radius: var(--pm-radius-md);
+    }
+
+    td {
+      display: grid;
+      gap: 0.18rem;
+      padding: 0;
+      text-align: left;
+    }
+
+    td::before {
+      content: attr(data-cell);
+      color: var(--pm-text-soft);
+      font-size: 0.58rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    td[data-cell="player"] {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+  }
+</style>

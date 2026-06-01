@@ -1,0 +1,49 @@
+---
+import styles from "./EstadisticasSection.module.css";
+import StatsHeroLocked from "./StatsHeroLocked.astro";
+import UnlockBenefitsPanel from "./UnlockBenefitsPanel.astro";
+import UnlockedBanner from "./UnlockedBanner.astro";
+import LockedPreviewPanel from "./LockedPreviewPanel.astro";
+import AntiCopyNotice from "./AntiCopyNotice.astro";
+
+import { TOTAL_PREDICTIONS } from "./estadisticas.logic";
+import type { ProgressSnapshot } from "./estadisticas.logic";
+import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+
+import estadisticasClientUrl from "./estadisticas.client.js?url";
+
+const initialSnapshot: ProgressSnapshot = {
+  completed: 0,
+  total: TOTAL_PREDICTIONS,
+  percent: 0,
+  state: "locked",
+};
+
+const clientPayload = {
+  totalPredictions: TOTAL_PREDICTIONS,
+  targetRoute: "/predicciones",
+  resetStateUrl,
+};
+---
+
+<section
+  class={styles.estadisticasSection}
+  id="estadisticas"
+  data-section="estadisticas"
+  data-state={initialSnapshot.state}
+>
+  <div class={styles.contentShell}>
+    <UnlockedBanner />
+
+    <StatsHeroLocked snapshot={initialSnapshot} />
+
+    <UnlockBenefitsPanel />
+
+    <LockedPreviewPanel />
+
+    <AntiCopyNotice />
+  </div>
+
+  <script type="application/json" data-estadisticas-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="module" src={estadisticasClientUrl}></script>
+</section>

@@ -1,0 +1,343 @@
+{
+  "schemaVersion": "1.0",
+  "project": "Polla Mundialera SECPLAN 2026 Clean V2",
+  "total": 16,
+  "assets": [
+    {
+      "id": "atl",
+      "slug": "stadium-atl",
+      "asset": "/assets/stadiums/stadium-atl.webp",
+      "width": 1335,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "atl.png",
+      "optimizedBytes": 311382,
+      "stadiumOfficialName": "Atlanta Stadium",
+      "knownAs": "Mercedes-Benz Stadium",
+      "city": "Atlanta",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-atl.webp"
+    },
+    {
+      "id": "bos",
+      "slug": "stadium-bos",
+      "asset": "/assets/stadiums/stadium-bos.webp",
+      "width": 1500,
+      "height": 994,
+      "format": "webp",
+      "sourceFile": "bos.png",
+      "optimizedBytes": 390664,
+      "stadiumOfficialName": "Boston Stadium",
+      "knownAs": "Gillette Stadium",
+      "city": "Foxborough / Boston",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-bos.webp"
+    },
+    {
+      "id": "dal",
+      "slug": "stadium-dal",
+      "asset": "/assets/stadiums/stadium-dal.webp",
+      "width": 1582,
+      "height": 827,
+      "format": "webp",
+      "sourceFile": "dal.png",
+      "optimizedBytes": 148122,
+      "stadiumOfficialName": "Dallas Stadium",
+      "knownAs": "AT&T Stadium",
+      "city": "Arlington / Dallas",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-dal.webp"
+    },
+    {
+      "id": "gdl",
+      "slug": "stadium-gdl",
+      "asset": "/assets/stadiums/stadium-gdl.webp",
+      "width": 1582,
+      "height": 889,
+      "format": "webp",
+      "sourceFile": "gdl.png",
+      "optimizedBytes": 89256,
+      "stadiumOfficialName": "Guadalajara Stadium",
+      "knownAs": "Estadio Akron / Estadio Guadalajara",
+      "city": "Guadalajara",
+      "country": "Mexico",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-gdl.webp"
+    },
+    {
+      "id": "hou",
+      "slug": "stadium-hou",
+      "asset": "/assets/stadiums/stadium-hou.webp",
+      "width": 1498,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "hou.png",
+      "optimizedBytes": 162110,
+      "stadiumOfficialName": "Houston Stadium",
+      "knownAs": "NRG Stadium",
+      "city": "Houston",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-hou.webp"
+    },
+    {
+      "id": "kcy",
+      "slug": "stadium-kcy",
+      "asset": "/assets/stadiums/stadium-kcy.webp",
+      "width": 1500,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "kcy.png",
+      "optimizedBytes": 317274,
+      "stadiumOfficialName": "Kansas City Stadium",
+      "knownAs": "GEHA Field at Arrowhead Stadium",
+      "city": "Kansas City",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-kcy.webp"
+    },
+    {
+      "id": "lax",
+      "slug": "stadium-lax",
+      "asset": "/assets/stadiums/stadium-lax.webp",
+      "width": 1582,
+      "height": 781,
+      "format": "webp",
+      "sourceFile": "lax.png",
+      "optimizedBytes": 352786,
+      "stadiumOfficialName": "Los Angeles Stadium",
+      "knownAs": "SoFi Stadium",
+      "city": "Los Angeles",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-lax.webp"
+    },
+    {
+      "id": "mex",
+      "slug": "stadium-mex",
+      "asset": "/assets/stadiums/stadium-mex.webp",
+      "width": 1500,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "mex.png",
+      "optimizedBytes": 480598,
+      "stadiumOfficialName": "Mexico City Stadium",
+      "knownAs": "Estadio Azteca",
+      "city": "Ciudad de México",
+      "country": "Mexico",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-mex.webp"
+    },
+    {
+      "id": "mia",
+      "slug": "stadium-mia",
+      "asset": "/assets/stadiums/stadium-mia.webp",
+      "width": 1582,
+      "height": 904,
+      "format": "webp",
+      "sourceFile": "mia.png",
+      "optimizedBytes": 385676,
+      "stadiumOfficialName": "Miami Stadium",
+      "knownAs": "Hard Rock Stadium",
+      "city": "Miami",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-mia.webp"
+    },
+    {
+      "id": "mty",
+      "slug": "stadium-mty",
+      "asset": "/assets/stadiums/stadium-mty.webp",
+      "width": 1000,
+      "height": 564,
+      "format": "webp",
+      "sourceFile": "mty.png",
+      "optimizedBytes": 182614,
+      "stadiumOfficialName": "Monterrey Stadium",
+      "knownAs": "Estadio BBVA",
+      "city": "Monterrey",
+      "country": "Mexico",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-mty.webp"
+    },
+    {
+      "id": "nyc",
+      "slug": "stadium-nyc",
+      "asset": "/assets/stadiums/stadium-nyc.webp",
+      "width": 1256,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "nyc.png",
+      "optimizedBytes": 262760,
+      "stadiumOfficialName": "New York/New Jersey Stadium",
+      "knownAs": "MetLife Stadium",
+      "city": "East Rutherford / New York-New Jersey",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-nyc.webp"
+    },
+    {
+      "id": "phl",
+      "slug": "stadium-phl",
+      "asset": "/assets/stadiums/stadium-phl.webp",
+      "width": 1335,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "phl.png",
+      "optimizedBytes": 474602,
+      "stadiumOfficialName": "Philadelphia Stadium",
+      "knownAs": "Lincoln Financial Field",
+      "city": "Philadelphia",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-phl.webp"
+    },
+    {
+      "id": "sea",
+      "slug": "stadium-sea",
+      "asset": "/assets/stadiums/stadium-sea.webp",
+      "width": 1500,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "sea.png",
+      "optimizedBytes": 485414,
+      "stadiumOfficialName": "Seattle Stadium",
+      "knownAs": "Lumen Field",
+      "city": "Seattle",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-sea.webp"
+    },
+    {
+      "id": "sfo",
+      "slug": "stadium-sfo",
+      "asset": "/assets/stadiums/stadium-sfo.webp",
+      "width": 1500,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "sfo.png",
+      "optimizedBytes": 243402,
+      "stadiumOfficialName": "San Francisco Bay Area Stadium",
+      "knownAs": "Levi's Stadium",
+      "city": "Santa Clara / San Francisco Bay Area",
+      "country": "USA",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-sfo.webp"
+    },
+    {
+      "id": "tor",
+      "slug": "stadium-tor",
+      "asset": "/assets/stadiums/stadium-tor.webp",
+      "width": 1582,
+      "height": 836,
+      "format": "webp",
+      "sourceFile": "tor.png",
+      "optimizedBytes": 249532,
+      "stadiumOfficialName": "Toronto Stadium",
+      "knownAs": "BMO Field",
+      "city": "Toronto",
+      "country": "Canada",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-tor.webp"
+    },
+    {
+      "id": "van",
+      "slug": "stadium-van",
+      "asset": "/assets/stadiums/stadium-van.webp",
+      "width": 1500,
+      "height": 1000,
+      "format": "webp",
+      "sourceFile": "van.png",
+      "optimizedBytes": 215048,
+      "stadiumOfficialName": "BC Place Vancouver",
+      "knownAs": "BC Place",
+      "city": "Vancouver",
+      "country": "Canada",
+      "recommendedUse": [
+        "fixture",
+        "proximo-partido",
+        "equipos",
+        "estadios"
+      ],
+      "astroPublicPath": "public/assets/stadiums/stadium-van.webp"
+    }
+  ]
+}

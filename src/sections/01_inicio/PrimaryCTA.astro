@@ -1,0 +1,114 @@
+---
+// PrimaryCTA: placa arcade principal del home.
+---
+
+<a class="cta" href="/reglas" data-animate="pop-in" style="--i:7">
+  <span class="label">Jugar</span>
+  <span class="arrow" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 8l12 12-12 12" />
+    </svg>
+  </span>
+</a>
+
+<style>
+  .cta {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    width: min(100%, 47rem);
+    min-height: clamp(4.7rem, 7.2vw, 6.4rem);
+    padding: 0.72rem clamp(1.1rem, 3vw, 2.5rem);
+    border: 0;
+    color: var(--pm-blue-950, #071735);
+    font-family: var(--font-display);
+    text-decoration: none;
+    text-transform: uppercase;
+    filter: drop-shadow(0 18px 18px rgba(7, 23, 53, 0.22));
+    transition: transform var(--pm-transition-fast), filter var(--pm-transition-fast);
+    isolation: isolate;
+  }
+
+  .cta::before,
+  .cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(3% 0, 91% 0, 98% 50%, 91% 100%, 3% 100%, 0 50%);
+    border-radius: var(--pm-radius-sm);
+    z-index: -2;
+  }
+
+  .cta::before {
+    background: linear-gradient(180deg, var(--pm-yellow-400), var(--pm-yellow-600));
+  }
+
+  .cta::after {
+    inset: 0.34rem;
+    background:
+      radial-gradient(circle at 12% 50%, rgba(255, 255, 255, 0.45), transparent 18%),
+      linear-gradient(135deg, var(--pm-yellow-300), var(--pm-yellow-500) 58%, var(--pm-yellow-600));
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.58),
+      inset 0 -10px 0 rgba(245, 138, 0, 0.2);
+    z-index: -1;
+  }
+
+  .cta:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 22px 22px rgba(7, 23, 53, 0.24));
+  }
+
+  .cta:active {
+    transform: translateY(0) scale(0.985);
+  }
+
+  .cta:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring-yellow);
+  }
+
+  .label {
+    justify-self: center;
+    font-size: clamp(2.5rem, 5.4vw, 4.7rem);
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    line-height: 0.82;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, 0.42);
+  }
+
+  .arrow {
+    display: grid;
+    place-items: center;
+    width: clamp(2.1rem, 4vw, 3.5rem);
+    aspect-ratio: 1;
+    color: var(--pm-blue-950, #071735);
+  }
+
+  .arrow svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .cta {
+      min-height: 4.2rem;
+    }
+
+    .label {
+      font-size: clamp(2rem, 12vw, 3.2rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta {
+      transition: none;
+    }
+
+    .cta:hover,
+    .cta:active {
+      transform: none;
+    }
+  }
+</style>

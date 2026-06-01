@@ -1,0 +1,24 @@
+---
+interface Props {
+  message?: string;
+}
+
+const { message = "Sin contenido aún." } = Astro.props;
+---
+
+<div class="empty-state">
+  <p>{message}</p>
+</div>
+
+<style>
+  .empty-state {
+    padding: var(--space-lg);
+    border: 1px dashed var(--pm-cyan-400);
+    border-radius: var(--pm-radius-md);
+    background: linear-gradient(180deg, var(--pm-cyan-200), rgba(248, 251, 255, 0.85));
+    text-align: center;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    color: var(--pm-blue-700);
+  }
+</style>
