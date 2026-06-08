@@ -19,6 +19,20 @@
   const scoringRules = payload.scoringRules ?? { exact: 3, tendency: 1, loneWolf: 5 };
   const previousPositions = payload.previousPositions ?? {};
   const currentMatchId = payload.displayMatchId ?? payload.currentMatchId;
+  const matches = payload.matches ?? [];
+  const matchById = new Map(matches.map((match) => [match.id, match]));
+  const matchIdByNumber = new Map(matches.map((match) => [match.matchNumber, match.id]));
+
+  // Fuente unica de calculo (mismo modulo que usa el SSR). Puntaje 5/3/1/0 y
+  // precision visual separada del puntaje. Sin el, no recalculamos en vivo.
+  let scoring = null;
+  if (payload.liveScoringUrl) {
+    try {
+      scoring = await import(payload.liveScoringUrl);
+    } catch {
+      scoring = null;
+    }
+  }
 
   const safeGet = (key) => {
     try {
@@ -37,17 +51,6 @@
       return fallback;
     }
   };
-
-  const outcome = (homeScore, awayScore) => {
-    if (homeScore > awayScore) return "home";
-    if (awayScore > homeScore) return "away";
-    return "draw";
-  };
-
-  const complete = (prediction) =>
-    prediction && Number.isInteger(prediction.homeScore) && Number.isInteger(prediction.awayScore);
-
-  const predictionKey = (prediction) => `${prediction.matchId}:${prediction.homeScore}-${prediction.awayScore}`;
 
   const calculateMovement = (position, previousPosition) => {
     if (!previousPosition) return "new";
@@ -75,25 +78,17 @@
     return Array.from(merged.values());
   };
 
-  const calculateStandings = (predictions) => {
-    const finishedResults = results.filter(
+  // Puntaje y precision via el modulo unico `scoring` (mismo que el SSR).
+  const calculateStandings = (predictions, resultsArg = results) => {
+    const finishedResults = resultsArg.filter(
       (result) => result.status === "finished" && Number.isInteger(result.homeScore) && Number.isInteger(result.awayScore)
     );
     const byPlayerMatch = new Map(predictions.map((prediction) => [`${prediction.playerId}:${prediction.matchId}`, prediction]));
-    const exactCounts = new Map();
-
-    finishedResults.forEach((result) => {
-      predictions
-        .filter(
-          (prediction) =>
-            prediction.matchId === result.matchId &&
-            prediction.homeScore === result.homeScore &&
-            prediction.awayScore === result.awayScore
-        )
-        .forEach((prediction) => {
-          const key = predictionKey(prediction);
-          exactCounts.set(key, (exactCounts.get(key) ?? 0) + 1);
-        });
+    const predsByMatch = new Map();
+    predictions.forEach((prediction) => {
+      const list = predsByMatch.get(prediction.matchId) ?? [];
+      list.push(prediction);
+      predsByMatch.set(prediction.matchId, list);
     });
 
     const rows = players.map((player) => {
@@ -106,38 +101,27 @@
 
       finishedResults.forEach((result) => {
         const prediction = byPlayerMatch.get(`${player.id}:${result.matchId}`);
-        if (!complete(prediction)) {
-          misses += 1;
-          streak.push("P");
-          return;
-        }
+        const allForMatch = predsByMatch.get(result.matchId) ?? [];
+        const { points: matchPoints, hitType } = scoring.calculatePointsForPrediction(prediction, result, allForMatch);
+        points += matchPoints;
 
-        const exact = prediction.homeScore === result.homeScore && prediction.awayScore === result.awayScore;
-        const tendency = outcome(prediction.homeScore, prediction.awayScore) === outcome(result.homeScore, result.awayScore);
-        const distance = Math.abs(prediction.homeScore - result.homeScore) + Math.abs(prediction.awayScore - result.awayScore);
-        goalDifference += Math.max(0, 4 - distance);
-
-        if (exact) {
+        if (hitType === "lone_wolf" || hitType === "exact") {
           exactHits += 1;
-          points += scoringRules.exact;
-          if ((exactCounts.get(predictionKey(prediction)) ?? 0) === 1) points += scoringRules.loneWolf;
+          goalDifference += 4;
           streak.push("G");
-          return;
-        }
-
-        if (tendency) {
+        } else if (hitType === "tendency") {
           tendencyHits += 1;
-          points += scoringRules.tendency;
+          goalDifference += Math.max(0, 4 - scoring.getGoalDistance(prediction, result));
           streak.push("E");
-          return;
+        } else {
+          misses += 1;
+          if (hitType === "none") goalDifference += Math.max(0, 4 - scoring.getGoalDistance(prediction, result));
+          streak.push("P");
         }
-
-        misses += 1;
-        streak.push("P");
       });
 
       const played = finishedResults.length;
-      const maxPoints = played * scoringRules.exact;
+      const maxPoints = played * scoringRules.loneWolf;
       return {
         playerId: player.id,
         name: player.name,
@@ -163,53 +147,53 @@
     }));
   };
 
-  const accuracyLevel = (distance) => {
-    if (distance === 0) return ["excellent", "EXACTO", 100];
-    if (distance === 1) return ["close", "-1 GOL", 75];
-    if (distance === 2) return ["regular", "-2 GOLES", 55];
-    if (distance <= 4) return ["far", "LEJOS", 30];
-    return ["very_far", "MUY LEJOS", 5];
-  };
-
-  const calculateAccuracy = (predictions) => {
-    const currentResult = results.find(
+  // Precision visual (NO es puntaje) + puntos por separado, para el panel.
+  const calculateAccuracy = (predictions, matchId = currentMatchId, resultsArg = results) => {
+    const currentResult = resultsArg.find(
       (result) =>
-        result.matchId === currentMatchId &&
+        result.matchId === matchId &&
         Number.isInteger(result.homeScore) &&
         Number.isInteger(result.awayScore)
     );
-    const byPlayer = new Map(predictions.filter((prediction) => prediction.matchId === currentMatchId).map((prediction) => [prediction.playerId, prediction]));
+    const predsForMatch = predictions.filter((prediction) => prediction.matchId === matchId);
+    const byPlayer = new Map(predsForMatch.map((prediction) => [prediction.playerId, prediction]));
     const hasResult = Boolean(currentResult);
 
     return players
       .map((player) => {
         const prediction = byPlayer.get(player.id);
-        const hasPrediction = complete(prediction);
+        const hasPrediction = scoring.hasCompletePrediction(prediction);
+        const predictionLabel = hasPrediction ? `${prediction.homeScore} - ${prediction.awayScore}` : "--";
+
         if (!hasResult) {
           return {
             playerId: player.id,
             name: player.name,
-            prediction: hasPrediction ? `${prediction.homeScore} - ${prediction.awayScore}` : "--",
+            prediction: predictionLabel,
+            points: 0,
+            hitType: hasPrediction ? "pending" : "no_info",
             differenceLabel: hasPrediction ? "EN ESPERA" : "SIN INFO",
             accuracyPercent: 0,
+            accuracyLabel: hasPrediction ? "EN ESPERA" : "SIN INFO",
             level: "very_far",
           };
         }
 
-        const distance = hasPrediction
-          ? Math.abs(prediction.homeScore - currentResult.homeScore) + Math.abs(prediction.awayScore - currentResult.awayScore)
-          : 99;
-        const [level, label, percent] = accuracyLevel(distance);
+        const accuracy = scoring.calculateLiveAccuracy(prediction, currentResult);
+        const score = scoring.calculatePointsForPrediction(prediction, currentResult, predsForMatch);
         return {
           playerId: player.id,
           name: player.name,
-          prediction: hasPrediction ? `${prediction.homeScore} - ${prediction.awayScore}` : "--",
-          differenceLabel: hasPrediction ? label : "SIN INFO",
-          accuracyPercent: hasPrediction ? percent : 0,
-          level,
+          prediction: predictionLabel,
+          points: score.points,
+          hitType: score.hitType,
+          differenceLabel: score.label,
+          accuracyPercent: accuracy.percentage,
+          accuracyLabel: accuracy.label,
+          level: scoring.accuracyLevelFromPercent(accuracy.percentage),
         };
       })
-      .sort((a, b) => hasResult ? b.accuracyPercent - a.accuracyPercent || a.name.localeCompare(b.name) : 0);
+      .sort((a, b) => (hasResult ? b.points - a.points || b.accuracyPercent - a.accuracyPercent || a.name.localeCompare(b.name) : 0));
   };
 
   const updateMovement = (rowNode, movement) => {
@@ -242,6 +226,8 @@
     rows.forEach((row) => {
       const rowNode = body.querySelector(`[data-ranking-row][data-player-id="${row.playerId}"]`);
       if (!rowNode) return;
+      rowNode.dataset.position = row.position;
+      rowNode.dataset.rank = row.points > 0 && row.position <= 3 ? `top-${row.position}` : "other";
       rowNode.querySelector("[data-rank-position]").textContent = row.position;
       rowNode.querySelector("[data-rank-points]").textContent = row.points;
       rowNode.querySelector("[data-rank-played]").textContent = row.played;
@@ -259,13 +245,25 @@
     const list = section.querySelector("[data-player-predictions-list]");
     if (!list) return;
 
+    const setText = (node, sel, val) => {
+      const target = node.querySelector(sel);
+      if (target && val != null) target.textContent = val;
+    };
+
     rows.forEach((row) => {
       const rowNode = list.querySelector(`[data-player-prediction-row][data-player-id="${row.playerId}"]`);
       if (!rowNode) return;
       rowNode.dataset.accuracyLevel = row.level;
-      rowNode.querySelector("[data-prediction-score]").textContent = row.prediction;
-      rowNode.querySelector("[data-prediction-diff]").textContent = row.differenceLabel;
-      rowNode.querySelector("[data-prediction-percent]").textContent = `${row.accuracyPercent}%`;
+      rowNode.dataset.hitType = row.hitType ?? "";
+      setText(rowNode, "[data-prediction-score]", row.prediction);
+      // PUNTOS (oficiales) — separados de la precision visual.
+      setText(rowNode, "[data-prediction-points]", row.points > 0 ? `+${row.points}` : "0");
+      setText(rowNode, "[data-prediction-type]", row.differenceLabel);
+      // PRECISION % (solo visual, no entrega puntos).
+      setText(rowNode, "[data-prediction-percent]", `${row.accuracyPercent}%`);
+      setText(rowNode, "[data-prediction-acc-label]", row.accuracyLabel);
+      // Compat con markup viejo si existiera.
+      setText(rowNode, "[data-prediction-diff]", row.differenceLabel);
       const bar = rowNode.querySelector("[data-accuracy-level]");
       const fill = rowNode.querySelector("[data-accuracy-fill]");
       if (bar) bar.dataset.accuracyLevel = row.level;
@@ -274,7 +272,129 @@
     });
   };
 
-  // La tabla publica ya sale calculada desde SSR con predictions.json.
-  // No mezclamos drafts de localStorage durante la hidratacion inicial: eso
-  // reordenaba filas despues del primer paint y se percibia como flash.
+  // ── Pipeline marcador en vivo -> tabla ──────────────────────────────────
+  // La tabla SSR ya sale calculada con predictions.json. Solo recalculamos
+  // cuando hay marcador en vivo u oficiales que sobreponer (asi no se reordena
+  // tras el primer paint sin motivo = sin flash). El marcador del admin llega
+  // por subscribeLiveData: hoy localStorage/eventos, manana Supabase realtime.
+
+  const officialToResults = (officialResults) =>
+    (officialResults ?? [])
+      .filter((r) => r && r.matchId && Number.isInteger(r.homeTeamScore) && Number.isInteger(r.awayTeamScore))
+      .map((r) => ({ matchId: r.matchId, status: "finished", homeScore: r.homeTeamScore, awayScore: r.awayTeamScore }));
+
+  const liveToResult = (liveMatch) => {
+    if (!liveMatch) return null;
+    const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
+    if (!matchId || !Number.isInteger(liveMatch.homeTeamScore) || !Number.isInteger(liveMatch.awayTeamScore)) return null;
+    return { matchId, status: "finished", homeScore: liveMatch.homeTeamScore, awayScore: liveMatch.awayTeamScore };
+  };
+
+  const toggleProvisional = (on) => {
+    const banner = section.querySelector("[data-tabla-provisional]");
+    if (banner) banner.hidden = !on;
+    section.dataset.provisional = on ? "true" : "false";
+  };
+
+  const updateLiveMatchCard = (liveMatch, fixtureMatch) => {
+    const card = section.querySelector("[data-live-match-card]");
+    if (!card) return;
+    const setText = (sel, val) => {
+      const node = card.querySelector(sel);
+      if (node && val != null) node.textContent = val;
+    };
+    card.dataset.liveState = "in_progress";
+    if (liveMatch.matchId) card.dataset.matchId = liveMatch.matchId;
+    setText("[data-live-status]", "EN VIVO");
+    setText("[data-live-home-score]", String(liveMatch.homeTeamScore));
+    setText("[data-live-away-score]", String(liveMatch.awayTeamScore));
+    setText("[data-live-separator]", "vs");
+    setText("[data-live-minute]", "EN VIVO");
+    const home = fixtureMatch?.homeTeam;
+    const away = fixtureMatch?.awayTeam;
+    if (home) {
+      setText("[data-live-home]", home.name);
+      const flag = card.querySelector("[data-live-home-flag]");
+      if (flag) flag.src = `/assets/flags/${home.id}.svg`;
+    }
+    if (away) {
+      setText("[data-live-away]", away.name);
+      const flag = card.querySelector("[data-live-away-flag]");
+      if (flag) flag.src = `/assets/flags/${away.id}.svg`;
+    }
+    if (fixtureMatch?.location) setText("[data-live-stadium]", fixtureMatch.location);
+  };
+
+  const updateNextMatchCard = (liveMatchId, officialResults) => {
+    const card = section.querySelector("[data-next-match-card]");
+    if (!card) return;
+    const finalized = new Set((officialResults ?? []).map((r) => r.matchId));
+    const liveNumber = matchById.get(liveMatchId)?.matchNumber ?? 0;
+    const next = [...matches]
+      .sort((a, b) => a.matchNumber - b.matchNumber)
+      .find((m) => m.matchNumber > liveNumber && m.id !== liveMatchId && !finalized.has(m.id));
+    if (!next) return;
+    const setText = (sel, val) => {
+      const node = card.querySelector(sel);
+      if (node && val != null) node.textContent = val;
+    };
+    setText("[data-next-home]", next.homeTeam?.name);
+    setText("[data-next-away]", next.awayTeam?.name);
+    const dateLabel = next.dateChile
+      ? new Intl.DateTimeFormat("es-CL", { day: "2-digit", month: "short" }).format(new Date(next.dateChile))
+      : "--";
+    setText("[data-next-date]", dateLabel);
+    setText("[data-next-time]", next.timeChile ?? "--:--");
+  };
+
+  const recompute = ({ liveMatch, officialResults }) => {
+    if (!scoring) return; // sin el modulo de calculo, no tocamos el SSR
+    const live = liveToResult(liveMatch);
+    const official = officialToResults(officialResults);
+    const officialIds = new Set(official.map((r) => r.matchId));
+    const liveActive = Boolean(live) && !officialIds.has(live.matchId);
+
+    // Nada que sobreponer: respetar el SSR (evita flash en la carga inicial).
+    if (!liveActive && official.length === 0) {
+      toggleProvisional(false);
+      return;
+    }
+
+    const predictions = mergeLocalPredictions();
+    const baseResults = [...results.filter((r) => !officialIds.has(r.matchId)), ...official];
+    const effectiveResults = liveActive
+      ? [...baseResults.filter((r) => r.matchId !== live.matchId), live]
+      : baseResults;
+
+    let rows = calculateStandings(predictions, effectiveResults);
+    if (liveActive) {
+      // Flechas de movimiento = efecto del marcador en vivo vs el ranking oficial.
+      const basePos = new Map(
+        calculateStandings(predictions, baseResults).map((row) => [row.playerId, row.position])
+      );
+      rows = rows.map((row) => {
+        const previousPosition = basePos.get(row.playerId) ?? row.previousPosition;
+        return { ...row, previousPosition, movement: calculateMovement(row.position, previousPosition) };
+      });
+    }
+    renderRanking(rows);
+
+    const accuracyMatchId = liveActive ? live.matchId : currentMatchId;
+    renderAccuracy(calculateAccuracy(predictions, accuracyMatchId, effectiveResults));
+
+    if (liveActive) {
+      updateLiveMatchCard(liveMatch, matchById.get(live.matchId));
+      updateNextMatchCard(live.matchId, officialResults);
+    }
+    toggleProvisional(liveActive);
+  };
+
+  if (payload.liveMatchStateUrl) {
+    try {
+      const { subscribeLiveData } = await import(payload.liveMatchStateUrl);
+      subscribeLiveData(recompute);
+    } catch {
+      // Sin pipeline disponible: la tabla queda en su estado SSR.
+    }
+  }
 })();

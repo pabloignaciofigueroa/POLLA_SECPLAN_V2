@@ -2,7 +2,7 @@
 import styles from "./AdminSection.module.css";
 import AdminSidebar from "./AdminSidebar.astro";
 import AdminHeroHeader from "./AdminHeroHeader.astro";
-import SessionStatusCard from "./SessionStatusCard.astro";
+import MiniLiveScoreControl from "./MiniLiveScoreControl.astro";
 import AdminKpiGrid from "./AdminKpiGrid.astro";
 import SystemStatusPanel from "./SystemStatusPanel.astro";
 import RegisteredPlayersPanel from "./RegisteredPlayersPanel.astro";
@@ -20,6 +20,8 @@ import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 
 import { buildAdminDashboardViewModel } from "./admin.logic";
 import type { AdminDashboardMock, AdminFixtureMatch, AdminPlayer } from "./admin.logic";
+import { resolveCurrentMatch } from "../../lib/liveMatch/liveMatchState.js";
+import liveMatchStateUrl from "../../lib/liveMatch/liveMatchState.js?url";
 
 import adminClientUrl from "./admin.client.js?url";
 
@@ -31,10 +33,33 @@ const dashboard = buildAdminDashboardViewModel(
   adminDashboardData as AdminDashboardMock
 );
 
+// Lista slim del fixture para el control de marcador (id/numero/fecha/equipos).
+// El fixture es calendario fijo: aqui solo se lee, nunca se modifica.
+const liveMatches = fixtureData.matches.map((match) => ({
+  id: match.id,
+  matchNumber: match.matchNumber,
+  dateUtc: match.dateUtc,
+  homeTeam: {
+    id: match.homeTeam.id,
+    name: match.homeTeam.name,
+    shortCode: match.homeTeam.shortCode,
+  },
+  awayTeam: {
+    id: match.awayTeam.id,
+    name: match.awayTeam.name,
+    shortCode: match.awayTeam.shortCode,
+  },
+}));
+
+// Partido inicial resuelto en server (anti-CLS). El client re-resuelve en runtime.
+const initialLiveMatch = resolveCurrentMatch(liveMatches) ?? liveMatches[0];
+
 const clientPayload = {
   source: adminDashboardData.source,
   resetStateUrl,
   dangerousActions: ["danger-clear-cache", "danger-recalculate"],
+  liveMatches,
+  liveMatchStateUrl,
 };
 ---
 
@@ -70,8 +95,7 @@ const clientPayload = {
           <AdminHeroHeader />
         </div>
         <div class={styles.sessionTools}>
-          <SessionStatusCard session={dashboard.session} />
-          <button class={styles.logoutButton} type="button" data-admin-logout>Cerrar sesion admin</button>
+          <MiniLiveScoreControl match={initialLiveMatch} />
         </div>
       </div>
 

@@ -33,7 +33,7 @@ const state = hasScore ? result?.status ?? "in_progress" : "waiting";
   <div class="score-layout">
     <div class="team-block">
       <span class="team-flag" aria-hidden="true">
-        <img src={`/assets/flags/${match.homeTeam.id}.svg`} alt="" width="160" height="120" loading="lazy" decoding="async" />
+        <img src={`/assets/flags/${match.homeTeam.id}.svg`} alt="" width="160" height="120" loading="lazy" decoding="async" data-live-home-flag />
       </span>
       <strong data-live-home>{match.homeTeam.name}</strong>
     </div>
@@ -45,7 +45,7 @@ const state = hasScore ? result?.status ?? "in_progress" : "waiting";
 
     <div class="team-block team-away">
       <span class="team-flag" aria-hidden="true">
-        <img src={`/assets/flags/${match.awayTeam.id}.svg`} alt="" width="160" height="120" loading="lazy" decoding="async" />
+        <img src={`/assets/flags/${match.awayTeam.id}.svg`} alt="" width="160" height="120" loading="lazy" decoding="async" data-live-away-flag />
       </span>
       <strong data-live-away>{match.awayTeam.name}</strong>
     </div>

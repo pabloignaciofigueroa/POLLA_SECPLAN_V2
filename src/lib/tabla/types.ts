@@ -76,4 +76,8 @@ export interface MatchAccuracyRow {
   differenceLabel: string;
   accuracyPercent: number;
   level: AccuracyLevel;
+  // Puntos oficiales (separados de la precision visual).
+  points: number;
+  hitType: string;
+  accuracyLabel: string;
 }

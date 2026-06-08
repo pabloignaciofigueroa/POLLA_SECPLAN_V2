@@ -100,3 +100,38 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 
 - MovementIndicator (up/down/same/new): `icon-trend-up-green` / `icon-trend-down-red` / `icon-trend-neutral-gray` / `icon-star-blue`; tabla.client.js actualiza `img.src` (no textContent) + `:global([data-section=tabla] [data-movement] img)`.
 - Ranking sigue saliendo de data/logica; los assets solo decoran el movimiento.
+
+## Fase 12 - Pipeline marcador en vivo -> tabla dinamica (2026-06-08)
+
+La tabla ahora reacciona al marcador que el admin edita en `/admin`.
+
+- Fuente viva: `tabla.client.js` se suscribe con `subscribeLiveData(callback)` del seam `src/lib/liveMatch/liveMatchState.js` (hoy localStorage + eventos `polla:live-score-updated` / `polla:official-results-updated` + `storage` para otra pestaña; manana Supabase realtime reimplementando solo esa funcion).
+- Recompute por snapshot `{ liveMatch, officialResults }`:
+  - `officialResults` (key `polla:officialResults`) se folden como resultados `finished`.
+  - el `liveMatch` (key `polla:liveMatchState`) se sobrepone como provisional contado.
+  - se recalculan standings (`calculateStandings(preds, resultsArg)`) y accuracy (`calculateAccuracy(preds, matchId, resultsArg)`) — ambas refactorizadas para recibir resultados por parametro.
+  - flechas de movimiento = posicion provisional vs ranking oficial (sin live).
+  - se re-apunta `LiveMatchCard` (hooks `data-live-*`, banderas `data-live-home/away-flag`) y `NextMatchCard` (`data-next-*`).
+  - se revela el banner `data-tabla-provisional` y `section[data-provisional]`.
+- Anti-flash: solo recalcula si hay live u oficiales que sobreponer; si no, respeta el SSR.
+- Predicciones: la tabla publica puntua contra oficiales (`predictions.json`); el recompute mergea `polla:predictions` solo para uso local (ver nota de testing del plan).
+- No se modifica `fixture.json` (calendario fijo).
+
+## Fase 13 - Puntaje correcto + precision visual separada (2026-06-08)
+
+Fuente UNICA de calculo: `src/lib/liveMatch/liveScoring.js` (la usan el SSR
+`lib/tabla/calculatePlayerStandings.ts` + `calculateCurrentMatchAccuracy.ts` y el
+recompute en vivo `tabla.client.js`). Sin logica duplicada.
+
+- PUNTOS (ordena el ranking), modelo NO aditivo:
+  - exacto unico (Lone Wolf) = 5; exacto compartido = 3; tendencia = 1; nada = 0.
+  - `calculatePointsForPrediction(pred, result, allPredsForMatch)` -> `{ points, hitType, label }`.
+  - Bug corregido: el modelo aditivo daba 8 a un exacto unico; ademas `Number()` en
+    los cruces evita que un exacto `"2"` vs `2` quedara en 0.
+- PRECISION % (solo visual, NO da puntos): `calculateLiveAccuracy(pred, liveResult)`.
+  - Distingue exacto alcanzable (`pred>=live` en ambos) vs imposible (los goles no bajan):
+    con 5-2, la prediccion 6-3 tiene mas % que 4-1 aunque ambas esten a 2 goles.
+- UI `PlayerPredictionRow.astro`: columna "Dif." -> "Puntos" (`data-prediction-points`
+  + `data-prediction-type`, coloreado por `data-hit-type`); precision aparte
+  (`data-prediction-percent` + barra + `data-prediction-acc-label`).
+- Tests: `node` sobre `liveScoring.js` cubre los 8 casos del spec + coercion (15 asserts).

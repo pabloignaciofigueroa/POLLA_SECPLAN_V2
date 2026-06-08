@@ -36,7 +36,7 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     <strong data-rank-name>{row.name}</strong>
     <MovementIndicator movement={row.movement} />
   </td>
-  <td data-cell="points"><strong data-rank-points data-countup>{row.points}</strong></td>
+  <td data-cell="points"><strong data-rank-points>{row.points}</strong></td>
   <td data-cell="played" data-rank-played>{row.played}</td>
   <td data-cell="exact" data-rank-exact>{row.exactHits}</td>
   <td data-cell="tendency" data-rank-tendency>{row.tendencyHits}</td>

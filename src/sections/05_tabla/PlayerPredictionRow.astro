@@ -9,7 +9,7 @@ interface Props {
 const { row } = Astro.props;
 ---
 
-<article class="prediction-row" data-player-prediction-row data-player-id={row.playerId} data-accuracy-level={row.level}>
+<article class="prediction-row" data-player-prediction-row data-player-id={row.playerId} data-accuracy-level={row.level} data-hit-type={row.hitType}>
   <div class="player-cell">
     <span class="player-avatar" aria-hidden="true">
       <img
@@ -24,10 +24,16 @@ const { row } = Astro.props;
     <strong data-prediction-name>{row.name}</strong>
   </div>
   <span class="score-chip" data-prediction-score>{row.prediction}</span>
-  <span class="difference-label" data-prediction-diff>{row.differenceLabel}</span>
+  <div class="points-cell">
+    <strong class="points-value" data-prediction-points>{row.points > 0 ? `+${row.points}` : "0"}</strong>
+    <span class="points-type" data-prediction-type>{row.differenceLabel}</span>
+  </div>
   <div class="accuracy-cell">
-    <span data-prediction-percent>{row.accuracyPercent}%</span>
-    <AccuracyBar percent={row.accuracyPercent} level={row.level} />
+    <span class="acc-top">
+      <span class="acc-percent" data-prediction-percent>{row.accuracyPercent}%</span>
+      <AccuracyBar percent={row.accuracyPercent} level={row.level} />
+    </span>
+    <small class="acc-label" data-prediction-acc-label title={row.accuracyLabel}>{row.accuracyLabel}</small>
   </div>
 </article>
 
@@ -96,17 +102,66 @@ const { row } = Astro.props;
     font-weight: 950;
   }
 
-  .difference-label {
-    color: var(--color-text);
-    font-size: 0.68rem;
-    font-weight: 950;
+  /* PUNTOS (oficiales) — separados de la precision visual. */
+  .points-cell {
+    display: grid;
+    gap: 0.05rem;
+    min-width: 0;
   }
 
+  .points-value {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 950;
+    color: var(--pm-blue-900);
+    line-height: 1;
+  }
+
+  .points-type {
+    font-size: 0.56rem;
+    font-weight: 850;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Color del puntaje segun tipo de acierto. */
+  .prediction-row[data-hit-type="lone_wolf"] .points-value { color: var(--pm-gold-700, #b8860b); }
+  .prediction-row[data-hit-type="exact"] .points-value { color: var(--pm-mint-600, #16a34a); }
+  .prediction-row[data-hit-type="tendency"] .points-value { color: var(--pm-blue-700); }
+  .prediction-row[data-hit-type="none"] .points-value,
+  .prediction-row[data-hit-type="no_info"] .points-value { color: var(--color-muted); }
+
+  /* PRECISION % (solo visual). */
   .accuracy-cell {
+    display: grid;
+    gap: 0.18rem;
+    min-width: 0;
+  }
+
+  .acc-top {
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr);
     gap: 0.45rem;
     align-items: center;
+  }
+
+  .acc-percent {
+    font-weight: 950;
+  }
+
+  .acc-label {
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   @media (max-width: 560px) {

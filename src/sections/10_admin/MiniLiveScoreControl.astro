@@ -1,0 +1,265 @@
+---
+interface TeamSlim {
+  id: string;
+  name: string;
+  shortCode: string;
+}
+
+interface MatchSlim {
+  id: string;
+  matchNumber: number;
+  dateUtc: string;
+  homeTeam: TeamSlim;
+  awayTeam: TeamSlim;
+}
+
+interface Props {
+  match: MatchSlim;
+}
+
+const { match } = Astro.props;
+---
+
+<article
+  class="live-control"
+  data-live-score-control
+  data-status="live"
+  data-match-number={match.matchNumber}
+  aria-label="Control de marcador en vivo"
+>
+  <header class="head">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="label">Marcador en vivo</span>
+    <span class="match-tag" data-live-match-tag>P{match.matchNumber}</span>
+  </header>
+
+  <div class="board">
+    <div class="team team-home">
+      <span class="team-name" data-live-home-name>{match.homeTeam.shortCode}</span>
+      <div class="stepper">
+        <button type="button" class="step minus" data-live-btn="home-minus" aria-label={`Quitar gol a ${match.homeTeam.name}`}>−</button>
+        <span class="score" data-live-home-score>0</span>
+        <button type="button" class="step plus" data-live-btn="home-plus" aria-label={`Sumar gol a ${match.homeTeam.name}`}>+</button>
+      </div>
+    </div>
+
+    <span class="versus" aria-hidden="true">—</span>
+
+    <div class="team team-away">
+      <span class="team-name" data-live-away-name>{match.awayTeam.shortCode}</span>
+      <div class="stepper">
+        <button type="button" class="step minus" data-live-btn="away-minus" aria-label={`Quitar gol a ${match.awayTeam.name}`}>−</button>
+        <span class="score" data-live-away-score>0</span>
+        <button type="button" class="step plus" data-live-btn="away-plus" aria-label={`Sumar gol a ${match.awayTeam.name}`}>+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="update" data-live-update>Actualizar marcador</button>
+    <button type="button" class="finalize" data-live-finalize>Finalizar partido</button>
+  </div>
+</article>
+
+<style>
+  /* ANTI-CLS: reservar alto similar al de la card de sesion que reemplaza */
+  .live-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--pm-mint-500);
+    border-radius: var(--pm-radius-lg);
+    background: linear-gradient(135deg, var(--pm-white), var(--pm-panel-soft));
+    min-width: 0;
+    min-height: 4.4rem;
+    box-shadow: 0 12px 30px rgba(33, 217, 154, 0.18);
+  }
+
+  /* Borde verde/cian solo cuando esta en vivo */
+  .live-control[data-status="live"] {
+    border-color: var(--pm-mint-500);
+    box-shadow: 0 12px 30px rgba(33, 217, 154, 0.22);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--pm-mint-500);
+    box-shadow: 0 0 10px var(--pm-mint-500);
+    animation: pulseDot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.85); }
+  }
+
+  .label {
+    color: var(--pm-green-700);
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .match-tag {
+    margin-left: auto;
+    padding: 0.12rem 0.42rem;
+    border-radius: 999px;
+    background: var(--pm-blue-100);
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .team-name {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 950;
+    letter-spacing: 0.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .score {
+    min-width: 1.6rem;
+    color: var(--pm-blue-950);
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    font-weight: 950;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 1px solid var(--pm-blue-500);
+    border-radius: var(--pm-radius-sm);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 950;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .step.plus {
+    border-color: var(--pm-mint-500);
+    color: var(--pm-green-700);
+  }
+
+  .step:hover {
+    border-color: var(--pm-cyan-500);
+    background: rgba(24, 221, 242, 0.12);
+  }
+
+  .step:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .step:focus-visible,
+  .update:focus-visible,
+  .finalize:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .versus {
+    color: var(--pm-text-soft);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 900;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 0.45rem;
+  }
+
+  .update,
+  .finalize {
+    min-height: 2.35rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--pm-radius-sm);
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 950;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .update {
+    border: 1px solid var(--pm-mint-500);
+    background: linear-gradient(135deg, var(--pm-mint-500), var(--pm-cyan-500));
+    color: var(--pm-white);
+  }
+
+  .update:hover {
+    box-shadow: 0 10px 24px rgba(33, 217, 154, 0.28);
+  }
+
+  .update[data-saved="true"] {
+    background: linear-gradient(135deg, var(--pm-green-700), var(--pm-mint-500));
+  }
+
+  .finalize {
+    border: 1px solid var(--pm-blue-500);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--pm-blue-700);
+  }
+
+  .finalize:hover {
+    border-color: var(--pm-cyan-500);
+    background: rgba(24, 221, 242, 0.12);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot {
+      animation: none;
+    }
+  }
+</style>

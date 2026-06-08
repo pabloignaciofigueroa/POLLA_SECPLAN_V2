@@ -25,7 +25,8 @@ AdminSection.module.css
 - AdminSidebarItem.astro — item reutilizable del menú lateral.
 - DangerousZone.astro — acciones críticas simuladas.
 - AdminHeroHeader.astro — título `ADMIN PANEL` + centro de control.
-- SessionStatusCard.astro — sesión activa y perfil admin.
+- MiniLiveScoreControl.astro — mini control de marcador en vivo en el hero (reemplaza la card de sesión).
+- SessionStatusCard.astro — (legacy, sin montar) sesión activa y perfil admin; ya no se renderiza en el hero.
 - AdminKpiGrid.astro — grilla de seis métricas rápidas.
 - AdminKpiCard.astro — card reutilizable de KPI.
 - SystemStatusPanel.astro — modo de datos, Supabase, JSON local y API.
@@ -97,3 +98,30 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 - AdminSidebar: brand-mark `PM` -> `19-shield-secplan-blue-gold-star` (identidad).
 - DangerousZone: glifo warning -> `11-badge-alert-orange-circle`.
 - SystemStatusPanel: header -> `icon-checklist-blue`.
+
+## Fase 12 - Mini marcador en vivo en el hero (2026-06-08)
+
+Se reemplaza la card de sesión + botón "Cerrar sesión admin" del hero por
+`MiniLiveScoreControl.astro` (control remoto de goles, arriba a la derecha).
+
+- Componente: `MiniLiveScoreControl.astro`, con `<style>` scoped propio (sin CSS global, sin React).
+  - Props: `match` (partido inicial resuelto en server, anti-CLS).
+  - Marcador compacto + botones `+/-` por equipo + botón `ACTUALIZAR MARCADOR`.
+  - Borde verde/cian cuando `data-status="live"`. Sin goles negativos (botón `-` deshabilitado en 0).
+- Lógica de marcador: `admin.client.js` -> `initLiveScoreControl()`.
+  - Hidrata desde `polla:liveMatchState` si existe; si no, `resolveCurrentMatch()` (en vivo/próximo) en 0-0.
+  - `ACTUALIZAR MARCADOR` llama `saveLiveMatchState(state)` y dispara `polla:live-score-updated`.
+- Contrato y helpers: `src/lib/liveMatch/liveMatchState.js` (seam único para futuro Supabase).
+  - Storage key: `polla:liveMatchState` (localStorage).
+  - El fixture es calendario fijo: el control solo lee la lista slim, nunca modifica `fixture.json`.
+- Logout eliminado: la sesión admin solo expira por tiempo (2h) o limpiando `sessionStorage`.
+- `SessionStatusCard.astro` queda legacy (no se monta).
+
+## Fase 13 - FINALIZAR partido -> oficiales acumulados (2026-06-08)
+
+`MiniLiveScoreControl` gana un segundo botón `data-live-finalize` ("FINALIZAR PARTIDO").
+
+- `ACTUALIZAR MARCADOR` (`data-live-update`) -> `saveLiveMatchState()` (provisional, mueve la tabla en vivo).
+- `FINALIZAR PARTIDO` (`data-live-finalize`) -> `saveOfficialResult()` en `polla:officialResults` y avanza al próximo partido no finalizado en 0-0.
+- El contrato de `liveMatchState` ahora incluye `matchId` (la tabla keyea por matchId).
+- La tabla (`/tabla`) consume todo esto via `subscribeLiveData`. Ver flujo "Marcador en vivo (admin) -> Tabla dinamica" en el mapa principal.

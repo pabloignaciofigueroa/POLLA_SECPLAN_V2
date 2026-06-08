@@ -1,20 +1,7 @@
 import { calculatePlayerMovement } from "./calculatePlayerMovement";
 import { formatRankingRows } from "./formatRankingRows";
 import type { MatchResult, Player, Prediction, RankingRow, ScoringRules } from "./types";
-
-function outcome(homeScore: number, awayScore: number): "home" | "away" | "draw" {
-  if (homeScore > awayScore) return "home";
-  if (awayScore > homeScore) return "away";
-  return "draw";
-}
-
-function predictionKey(prediction: Prediction): string {
-  return `${prediction.matchId}:${prediction.homeScore}-${prediction.awayScore}`;
-}
-
-function hasCompletePrediction(prediction?: Prediction): prediction is Prediction {
-  return Boolean(prediction && prediction.homeScore !== null && prediction.awayScore !== null);
-}
+import { calculatePointsForPrediction, getGoalDistance } from "../liveMatch/liveScoring.js";
 
 export function calculatePlayerStandings(
   players: Player[],
@@ -48,21 +35,14 @@ export function calculatePlayerStandings(
       }))
     );
   }
-  const predictionsByPlayerMatch = new Map(predictions.map((prediction) => [`${prediction.playerId}:${prediction.matchId}`, prediction]));
-  const exactCounts = new Map<string, number>();
 
-  finishedResults.forEach((result) => {
-    predictions
-      .filter(
-        (prediction) =>
-          prediction.matchId === result.matchId &&
-          prediction.homeScore === result.homeScore &&
-          prediction.awayScore === result.awayScore
-      )
-      .forEach((prediction) => {
-        const key = predictionKey(prediction);
-        exactCounts.set(key, (exactCounts.get(key) ?? 0) + 1);
-      });
+  const predictionsByPlayerMatch = new Map(predictions.map((prediction) => [`${prediction.playerId}:${prediction.matchId}`, prediction]));
+  // Predicciones por partido, para el conteo Lone Wolf.
+  const predictionsByMatch = new Map<string, Prediction[]>();
+  predictions.forEach((prediction) => {
+    const list = predictionsByMatch.get(prediction.matchId) ?? [];
+    list.push(prediction);
+    predictionsByMatch.set(prediction.matchId, list);
   });
 
   const rows = players.map((player) => {
@@ -75,39 +55,28 @@ export function calculatePlayerStandings(
 
     finishedResults.forEach((result) => {
       const prediction = predictionsByPlayerMatch.get(`${player.id}:${result.matchId}`);
-      if (!hasCompletePrediction(prediction)) {
-        misses += 1;
-        streak.push("P");
-        return;
-      }
+      const allForMatch = predictionsByMatch.get(result.matchId) ?? [];
+      const { points: matchPoints, hitType } = calculatePointsForPrediction(prediction, result, allForMatch);
 
-      const exact = prediction.homeScore === result.homeScore && prediction.awayScore === result.awayScore;
-      const tendency =
-        outcome(prediction.homeScore ?? 0, prediction.awayScore ?? 0) === outcome(result.homeScore ?? 0, result.awayScore ?? 0);
-      const distance = Math.abs((prediction.homeScore ?? 0) - (result.homeScore ?? 0)) + Math.abs((prediction.awayScore ?? 0) - (result.awayScore ?? 0));
-      goalDifference += Math.max(0, 4 - distance);
+      points += matchPoints;
 
-      if (exact) {
+      if (hitType === "lone_wolf" || hitType === "exact") {
         exactHits += 1;
-        points += scoringRules.exact;
-        if ((exactCounts.get(predictionKey(prediction)) ?? 0) === 1) points += scoringRules.loneWolf;
+        goalDifference += 4; // exacto = distancia 0
         streak.push("G");
-        return;
-      }
-
-      if (tendency) {
+      } else if (hitType === "tendency") {
         tendencyHits += 1;
-        points += scoringRules.tendency;
+        goalDifference += Math.max(0, 4 - getGoalDistance(prediction, result));
         streak.push("E");
-        return;
+      } else {
+        misses += 1;
+        if (hitType === "none") goalDifference += Math.max(0, 4 - getGoalDistance(prediction, result));
+        streak.push("P");
       }
-
-      misses += 1;
-      streak.push("P");
     });
 
     const played = finishedResults.length;
-    const maxPoints = played * scoringRules.exact;
+    const maxPoints = played * scoringRules.loneWolf;
     const performance = maxPoints > 0 ? (points / maxPoints) * 100 : 0;
 
     return {

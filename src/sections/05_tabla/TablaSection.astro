@@ -10,6 +10,8 @@ import resultsData from "../../data/results.json";
 import scoringRulesData from "../../data/scoring-rules.json";
 import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
+import liveMatchStateUrl from "../../lib/liveMatch/liveMatchState.js?url";
+import liveScoringUrl from "../../lib/liveMatch/liveScoring.js?url";
 import { calculatePlayerStandings } from "../../lib/tabla/calculatePlayerStandings";
 import { calculateCurrentMatchAccuracy } from "../../lib/tabla/calculateCurrentMatchAccuracy";
 import { getLiveOrRelevantMatch } from "../../lib/tabla/getLiveOrRelevantMatch";
@@ -45,6 +47,8 @@ const clientPayload = {
   currentMatchId: displayMatch?.id ?? resultsData.currentMatchId,
   displayMatchId: displayMatch?.id,
   resetStateUrl,
+  liveMatchStateUrl,
+  liveScoringUrl,
 };
 ---
 
@@ -54,6 +58,10 @@ const clientPayload = {
 
     <div class={styles.dashboardGrid}>
       <div class={styles.rankingArea}>
+        <p class={styles.provisionalBanner} data-tabla-provisional hidden>
+          <span class={styles.provisionalDot} aria-hidden="true"></span>
+          Tabla provisional · incluye marcador en vivo
+        </p>
         <RankingTable rows={rankingRows} />
       </div>
 
