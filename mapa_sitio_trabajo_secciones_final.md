@@ -170,7 +170,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### Reset y version de storage
 
 - Archivo central: `src/lib/storage/resetPollaState.js`.
-- Version actual: `production-reset-2026-05-31`.
+- Version actual: `production-reset-2026-06-09-jaime`.
 - `ensurePollaStorageVersion()` limpia drafts al detectar version distinta, preservando identidad cuando corresponde.
 - El hard reset desde jugador limpia identidad, predicciones, clasificados, favoritos y descarga final local.
 
@@ -326,6 +326,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-09: Jugador Marcos reemplazado por Jaime en la misma posicion del array (`players.json`), assets `jaime.webp` + `thumbs/jaime.webp`, mock `table-predictions.mock.json` migrado de `marcos` a `jaime`. Storage local sube a `production-reset-2026-06-09-jaime` para purgar drafts viejos. Cero apariciones productivas de Marcos.
 - 2026-06-08: Supabase pasa a ser fuente compartida del marcador y resultados. Lectura publica con RLS + Realtime; escritura solo por RPC con sesion admin temporal. `localStorage` queda como cache. Migracion versionada bajo `supabase/migrations/`.
 - 2026-06-08: Puntaje correcto + precision separada. Fuente unica `lib/liveMatch/liveScoring.js` (SSR + vivo). Modelo NO aditivo: Lone Wolf 5, exacto compartido 3, tendencia 1, nada 0 (antes daba 8 a un exacto unico). Coercion `Number()` corrige exacto que quedaba en 0. Precision visual = lectura aparte (alcanzable/imposible), no entrega puntos. Panel separa Puntos de Precision.
 - 2026-06-08: Pipeline marcador en vivo -> tabla. `tabla.client.js` consume `subscribeLiveData` y mueve el ranking provisional con el snapshot remoto. Admin gana `FINALIZAR PARTIDO`, que persiste oficiales en Supabase y actualiza la cache local.

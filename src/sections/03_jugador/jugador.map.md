@@ -87,7 +87,7 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 - Total jugadores: 15
 - Nuevo jugador: Martin
 - Asset: /assets/players/martin.webp (+ /assets/players/thumbs/martin.webp)
-- Orden: despues de Marcos, antes de Narigon (alfabetico)
+- Orden: despues de Jaime, antes de Narigon (alfabetico)
 - id: "martin" (misma forma que el resto: id/name/avatar/avatarThumb/status; status "available")
 - Estado: integrado (grilla seleccionable/confirmable; guarda "martin" en polla:selectedPlayerId)
 - Propagacion automatica (deriva de players.json): tabla, predicciones, estadisticas, admin. En table-predictions.mock.json se agrego previousPositions["martin"]=15 para no marcarlo NEW.

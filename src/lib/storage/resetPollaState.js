@@ -1,4 +1,4 @@
-export const POLLA_STORAGE_VERSION = "production-reset-2026-05-31";
+export const POLLA_STORAGE_VERSION = "production-reset-2026-06-09-jaime";
 
 export const POLLA_IDENTITY_STORAGE_KEYS = [
   "polla:selectedPlayerId",
