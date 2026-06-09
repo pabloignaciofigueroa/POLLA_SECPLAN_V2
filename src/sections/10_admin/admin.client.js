@@ -8,6 +8,11 @@ import {
   saveLiveMatchState,
   validateAdminSession,
 } from "../../lib/liveMatch/liveMatchState.js";
+import {
+  createPredictionEditCode,
+  listPredictionEditAccess,
+  revokePredictionEditAccess,
+} from "../../lib/predictions/predictionEditAccess.js";
 
 (async () => {
   const section = document.querySelector('[data-section="admin"]');
@@ -74,6 +79,7 @@ import {
   };
 
   await initLiveScoreControl(section, payload, setFeedback);
+  await initPredictionEditAccess(section, setFeedback);
 
   section.querySelectorAll("[data-admin-tab]").forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -132,6 +138,153 @@ import {
     });
   });
 })();
+
+async function initPredictionEditAccess(section, setFeedback) {
+  const panel = section.querySelector("[data-prediction-edit-admin]");
+  if (!panel) return;
+
+  const rows = Array.from(panel.querySelectorAll("[data-edit-player]"));
+  const summary = panel.querySelector("[data-edit-access-summary]");
+  const revokeTimers = new WeakMap();
+
+  const formatDate = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "---";
+    return new Intl.DateTimeFormat("es-CL", {
+      dateStyle: "short",
+      timeStyle: "short",
+      timeZone: "America/Santiago",
+    }).format(date);
+  };
+
+  const paintStatuses = ({ codes = [], sessions = [] } = {}) => {
+    const codeByPlayer = new Map(codes.map((entry) => [entry.playerId, entry]));
+    const sessionByPlayer = new Map();
+    sessions
+      .slice()
+      .sort((a, b) => Date.parse(b.expiresAt) - Date.parse(a.expiresAt))
+      .forEach((entry) => {
+        if (!sessionByPlayer.has(entry.playerId)) {
+          sessionByPlayer.set(entry.playerId, entry);
+        }
+      });
+    let active = 0;
+
+    rows.forEach((row) => {
+      const playerId = row.dataset.playerId;
+      const status = row.querySelector("[data-edit-player-status]");
+      const revoke = row.querySelector("[data-edit-code-revoke]");
+      const session = sessionByPlayer.get(playerId);
+      const code = codeByPlayer.get(playerId);
+
+      if (session) {
+        row.dataset.accessStatus = "session";
+        if (status) status.textContent = `Sesión activa hasta ${formatDate(session.expiresAt)}`;
+        if (revoke) revoke.disabled = false;
+        active += 1;
+      } else if (code) {
+        row.dataset.accessStatus = "code";
+        if (status) status.textContent = `Código sin canjear hasta ${formatDate(code.expiresAt)}`;
+        if (revoke) revoke.disabled = false;
+        active += 1;
+      } else {
+        row.dataset.accessStatus = "locked";
+        if (status) status.textContent = "Cartón protegido";
+        if (revoke) revoke.disabled = true;
+      }
+    });
+
+    if (summary) {
+      summary.textContent = active === 0
+        ? "Sin permisos activos"
+        : `${active} ${active === 1 ? "permiso activo" : "permisos activos"}`;
+    }
+  };
+
+  const refresh = async () => {
+    try {
+      paintStatuses(await listPredictionEditAccess());
+    } catch (error) {
+      paintStatuses();
+      setFeedback(error?.message || "No fue posible leer las autorizaciones de edición.");
+    }
+  };
+
+  rows.forEach((row) => {
+    const playerId = row.dataset.playerId;
+    const playerName = row.dataset.playerName || playerId;
+    const generate = row.querySelector("[data-edit-code-generate]");
+    const revoke = row.querySelector("[data-edit-code-revoke]");
+    const result = row.querySelector("[data-edit-code-result]");
+    const value = row.querySelector("[data-edit-code-value]");
+    const expiry = row.querySelector("[data-edit-code-expiry]");
+    const copy = row.querySelector("[data-edit-code-copy]");
+
+    generate?.addEventListener("click", async () => {
+      if (generate.dataset.pending === "true") return;
+      generate.dataset.pending = "true";
+      generate.disabled = true;
+      try {
+        const created = await createPredictionEditCode(playerId);
+        if (value) value.textContent = created.code;
+        if (expiry) {
+          expiry.textContent = `Visible solo ahora. Se puede canjear hasta ${formatDate(created.expiresAt)}.`;
+        }
+        if (result) result.hidden = false;
+        setFeedback(`Código temporal generado para ${playerName}.`);
+        await refresh();
+      } catch (error) {
+        setFeedback(error?.message || `No fue posible generar el código de ${playerName}.`);
+      } finally {
+        generate.dataset.pending = "false";
+        generate.disabled = false;
+      }
+    });
+
+    copy?.addEventListener("click", async () => {
+      const code = value?.textContent?.trim();
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        setFeedback(`Código de ${playerName} copiado.`);
+      } catch {
+        setFeedback(`No fue posible copiar el código. Código: ${code}`);
+      }
+    });
+
+    revoke?.addEventListener("click", async () => {
+      if (revoke.dataset.confirming !== "true") {
+        revoke.dataset.confirming = "true";
+        revoke.textContent = "Confirmar";
+        setFeedback(`Confirma la revocación para ${playerName}.`);
+        const timer = window.setTimeout(() => {
+          revoke.dataset.confirming = "false";
+          revoke.textContent = "Revocar";
+        }, 5000);
+        revokeTimers.set(revoke, timer);
+        return;
+      }
+
+      const timer = revokeTimers.get(revoke);
+      if (timer) window.clearTimeout(timer);
+      revoke.dataset.confirming = "false";
+      revoke.textContent = "Revocar";
+      revoke.disabled = true;
+      try {
+        await revokePredictionEditAccess(playerId);
+        if (result) result.hidden = true;
+        if (value) value.textContent = "";
+        setFeedback(`Acceso de edición revocado para ${playerName}.`);
+        await refresh();
+      } catch (error) {
+        setFeedback(error?.message || `No fue posible revocar el acceso de ${playerName}.`);
+        revoke.disabled = false;
+      }
+    });
+  });
+
+  await refresh();
+}
 
 async function initLiveScoreControl(section, payload, setFeedback) {
   const control = section.querySelector("[data-live-score-control]");

@@ -92,6 +92,12 @@ function getAdminToken() {
   return token;
 }
 
+export function getAdminSessionToken() {
+  return hasValidAdminSession()
+    ? sessionStorageGet(ADMIN_SESSION_TOKEN_KEY)
+    : null;
+}
+
 function requireSupabase() {
   const client = getSupabaseClient();
   if (!client) {

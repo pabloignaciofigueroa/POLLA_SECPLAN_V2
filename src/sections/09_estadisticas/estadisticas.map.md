@@ -1,7 +1,24 @@
 # 09_estadisticas — Mapa técnico
 
 ## Estado
-wireframe-implemented
+dashboard-coral-implemented
+
+## Data Center coral - 2026-06-09
+
+- El bloqueo visual se conserva hasta completar 72/72 predicciones locales o
+  seleccionar un jugador con entrega canónica confirmada.
+- Al desbloquear, se carga `/data/community-predictions.json` y se monta un
+  dashboard con Mi perfil, Comunidad, Partidos, Clasificados y comparador.
+- `src/lib/statistics/communityStatistics.js` calcula perfiles, consensos,
+  afinidades, marcadores frecuentes, comparaciones y clasificados.
+- Deep links: `?tab=partidos&match=match-004`,
+  `?tab=clasificados&team=mexico` y `?tab=comparar&player=pancho`.
+- Un jugador importado usa su carton canonico. Un jugador nuevo con carton local
+  completo se incorpora temporalmente solo en su navegador.
+- La misma regla desbloquea Próximo Partido, Fixture y Equipos desde cualquier
+  dispositivo.
+- Marcador vivo y resultados oficiales reutilizan el pipeline Supabase y la
+  regla de puntaje 5/3/1/0.
 
 ## Fase 10 - Simplificacion arcade
 Pantalla bloqueada reducida a hero/progreso/CTA y 3 beneficios. Se retiraron previews bloqueadas y aviso anti-copia.

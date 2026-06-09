@@ -1,4 +1,4 @@
-export const POLLA_STORAGE_VERSION = "production-reset-2026-06-09-jaime";
+export const POLLA_STORAGE_VERSION = "production-reset-2026-06-09-official-access";
 
 export const POLLA_IDENTITY_STORAGE_KEYS = [
   "polla:selectedPlayerId",
@@ -15,10 +15,12 @@ export const POLLA_LOCAL_STORAGE_KEYS = [
   "polla:finalDownloadedAt",
   "polla:finalDownloadedFilename",
   "polla:finalSubmissionPayload",
+  "polla:predictionCorrectionDrafts",
 ];
 
 export const POLLA_SESSION_STORAGE_KEYS = [
   "polla:activePredictionGroupIntent",
+  "polla:predictionEditSession",
 ];
 
 const VERSION_KEY = "polla:storageVersion";

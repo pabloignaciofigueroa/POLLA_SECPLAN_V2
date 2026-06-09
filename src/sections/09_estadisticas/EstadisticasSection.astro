@@ -5,12 +5,11 @@ import UnlockBenefitsPanel from "./UnlockBenefitsPanel.astro";
 import UnlockedBanner from "./UnlockedBanner.astro";
 import LockedPreviewPanel from "./LockedPreviewPanel.astro";
 import AntiCopyNotice from "./AntiCopyNotice.astro";
+import StatsDashboard from "./StatsDashboard.astro";
 
 import { TOTAL_PREDICTIONS } from "./estadisticas.logic";
 import type { ProgressSnapshot } from "./estadisticas.logic";
-import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
-
-import estadisticasClientUrl from "./estadisticas.client.js?url";
+import predictionsData from "../../data/predictions.json";
 
 const initialSnapshot: ProgressSnapshot = {
   completed: 0,
@@ -22,7 +21,12 @@ const initialSnapshot: ProgressSnapshot = {
 const clientPayload = {
   totalPredictions: TOTAL_PREDICTIONS,
   targetRoute: "/predicciones",
-  resetStateUrl,
+  datasetUrl: "/data/community-predictions.json",
+  confirmedCards: predictionsData.confirmedCards,
+  expectedPlayers: predictionsData.expectedPlayers,
+  confirmedPlayerIds: predictionsData.submissions.map(
+    (submission) => submission.playerId
+  ),
 };
 ---
 
@@ -35,15 +39,28 @@ const clientPayload = {
   <div class={styles.contentShell}>
     <UnlockedBanner />
 
-    <StatsHeroLocked snapshot={initialSnapshot} />
+    <div data-locked-content>
+      <StatsHeroLocked
+        snapshot={initialSnapshot}
+        confirmedCards={predictionsData.confirmedCards}
+        expectedPlayers={predictionsData.expectedPlayers}
+      />
 
-    <UnlockBenefitsPanel />
+      <UnlockBenefitsPanel />
 
-    <LockedPreviewPanel />
+      <LockedPreviewPanel />
 
-    <AntiCopyNotice />
+      <AntiCopyNotice />
+    </div>
+
+    <StatsDashboard
+      confirmedCards={predictionsData.confirmedCards}
+      expectedPlayers={predictionsData.expectedPlayers}
+    />
   </div>
 
   <script type="application/json" data-estadisticas-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={estadisticasClientUrl}></script>
+  <script>
+    import "./estadisticas.client.js";
+  </script>
 </section>

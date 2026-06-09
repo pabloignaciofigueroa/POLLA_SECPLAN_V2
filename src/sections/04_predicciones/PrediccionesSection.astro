@@ -5,11 +5,13 @@ import ProgressSummaryGrid from "./ProgressSummaryGrid.astro";
 import GroupTabs from "./GroupTabs.astro";
 import PredictionWorkspace from "./PredictionWorkspace.astro";
 import PredictionBottomBar from "./PredictionBottomBar.astro";
+import OfficialPredictionAccessPanel from "./OfficialPredictionAccessPanel.astro";
 import fixtureData from "../../data/fixture.json";
 import groupsData from "../../data/groups.json";
 import playersData from "../../data/players.json";
 import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
 import teamInfoData from "../../data/equipos-info.json";
+import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import playerIdentityUrl from "../../lib/playerIdentity.js?url";
 import prediccionesClientUrl from "./predicciones.client.js?url";
@@ -69,6 +71,7 @@ const clientPayload = {
   standingsUrl: predStandingsUrl,
   h2hData,
   teamInfoData,
+  officialDataset: predictionsData,
 };
 ---
 
@@ -84,6 +87,8 @@ const clientPayload = {
       <PredictionHeroHeader player={fallbackPlayer} totalMatches={totalMatches} groupsCount={groups.length} />
       <ProgressSummaryGrid totalMatches={totalMatches} activeGroup={activeGroup} />
     </div>
+
+    <OfficialPredictionAccessPanel />
 
     <GroupTabs groups={groups} activeGroupId={activeGroup.id} />
 

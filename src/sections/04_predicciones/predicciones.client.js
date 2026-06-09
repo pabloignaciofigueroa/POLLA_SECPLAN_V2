@@ -1,3 +1,18 @@
+import {
+  PREDICTION_ACCESS_STATES,
+  buildOfficialPlayerBuckets,
+  resolvePredictionAccess,
+} from "../../lib/predictions/predictionAccess.js";
+import {
+  clearPredictionCorrectionDrafts,
+  clearPredictionEditSession,
+  getPredictionEditSession,
+  readPredictionCorrectionDrafts,
+  redeemPredictionEditCode,
+  validatePredictionEditSession,
+  writePredictionCorrectionDraft,
+} from "../../lib/predictions/predictionEditAccess.js";
+
 (async () => {
   const section = document.querySelector('[data-section="predicciones"]');
   if (!section) return;
@@ -32,6 +47,7 @@
   const players = payload.players ?? [];
   const h2hData = payload.h2hData ?? {};
   const teamInfoData = payload.teamInfoData ?? {};
+  const officialDataset = payload.officialDataset ?? { submissions: [] };
   const defaultPlayerId = payload.defaultPlayerId ?? "";
 
   const groupById = new Map(groups.map((group) => [group.id, group]));
@@ -94,12 +110,23 @@
   const saveLabel = section.querySelector("[data-save-label]");
   const downloadHelp = section.querySelector("[data-download-help]");
   const downloadFilenameNode = section.querySelector("[data-download-filename]");
+  const downloadNote = section.querySelector("[data-download-note]");
   const messageNode = section.querySelector("[data-prediction-message]");
   const completionStatus = section.querySelector("[data-completion-status]");
   const nextGroupIndicator = section.querySelector("[data-next-group-indicator]");
   const bottomGroupLabel = section.querySelector("[data-bottom-group-label]");
   const bottomGroupComplete = section.querySelector("[data-bottom-group-complete]");
   const nextGroupLabel = section.querySelector("[data-next-group-label]");
+  const officialAccessPanel = section.querySelector("[data-official-access-panel]");
+  const officialAccessEyebrow = section.querySelector("[data-official-access-eyebrow]");
+  const officialAccessTitle = section.querySelector("[data-official-access-title]");
+  const officialAccessCopy = section.querySelector("[data-official-access-copy]");
+  const editCodeForm = section.querySelector("[data-edit-code-form]");
+  const editCodeInput = section.querySelector("[data-edit-code-input]");
+  const editCodeSubmit = section.querySelector("[data-edit-code-submit]");
+  const editCodeStatus = section.querySelector("[data-edit-code-status]");
+  const editSessionNote = section.querySelector("[data-edit-session-note]");
+  const editSessionExpiry = section.querySelector("[data-edit-session-expiry]");
 
   const safeGet = (key) => {
     try {
@@ -159,6 +186,13 @@
   const persistPlayerFromUrl = () => {
     const playerId = getPlayerIdFromUrl();
     if (!playerId) return "";
+    const previousPlayerId =
+      safeGet(storageKeys.selectedPlayerId) ||
+      safeSessionGet(storageKeys.selectedPlayerId);
+    if (previousPlayerId && previousPlayerId !== playerId) {
+      clearPredictionEditSession();
+      clearPredictionCorrectionDrafts();
+    }
     const player = playersById.get(playerId);
     const snapshot = player
       ? {
@@ -209,6 +243,46 @@
 
   const allPredictions = readJson(storageKeys.predictions, {});
   const allQualified = readJson(storageKeys.qualified, {});
+  let officialBuckets = buildOfficialPlayerBuckets(officialDataset, activePlayerId);
+  let editSession = getPredictionEditSession();
+
+  if (
+    officialBuckets &&
+    editSession?.playerId === activePlayerId &&
+    !(await validatePredictionEditSession(activePlayerId))
+  ) {
+    editSession = null;
+  }
+
+  let accessState = resolvePredictionAccess({
+    playerId: activePlayerId,
+    submissions: officialDataset.submissions,
+    localPredictions: allPredictions[activePlayerId],
+    editSession,
+    totalMatches: matches.length,
+  });
+
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+
+  const loadOfficialWorkingCopy = ({ preferDraft = true } = {}) => {
+    officialBuckets = buildOfficialPlayerBuckets(officialDataset, activePlayerId);
+    if (!officialBuckets) return;
+
+    const draft = readPredictionCorrectionDrafts()?.[activePlayerId];
+    const draftMatchesSubmission =
+      draft?.replacesChecksum === officialBuckets.submission.checksum &&
+      draft?.predictions &&
+      draft?.qualified;
+    const source =
+      accessState.canEdit && preferDraft && draftMatchesSubmission
+        ? draft
+        : officialBuckets;
+
+    allPredictions[activePlayerId] = clone(source.predictions);
+    allQualified[activePlayerId] = clone(source.qualified);
+  };
+
+  if (officialBuckets) loadOfficialWorkingCopy();
 
   const ensurePlayerBucket = (store, playerId) => {
     if (!store[playerId]) store[playerId] = {};
@@ -265,8 +339,20 @@
   };
 
   const persist = ({ includeActiveGroup = true } = {}) => {
-    writeJson(storageKeys.predictions, allPredictions);
-    writeJson(storageKeys.qualified, allQualified);
+    if (accessState.isOfficial) {
+      if (accessState.canEdit) {
+        writePredictionCorrectionDraft(activePlayerId, {
+          playerId: activePlayerId,
+          replacesChecksum: accessState.submission.checksum,
+          updatedAt: new Date().toISOString(),
+          predictions: getPlayerPredictions(),
+          qualified: getPlayerQualified(),
+        });
+      }
+    } else {
+      writeJson(storageKeys.predictions, allPredictions);
+      writeJson(storageKeys.qualified, allQualified);
+    }
     if (includeActiveGroup) safeSet(storageKeys.activeGroup, activeGroupId);
   };
 
@@ -309,6 +395,7 @@
   };
 
   const storeRowPrediction = (row) => {
+    if (!accessState.canEdit) return;
     const matchId = rowMatchId(row);
     const match = matchById.get(matchId);
     if (!match) return;
@@ -439,7 +526,7 @@
   const runFullValidation = () => {
     if (!validationModule?.validateFullPrediction) return null;
     syncAllAutomaticQualified();
-    writeJson(storageKeys.qualified, allQualified);
+    persist({ includeActiveGroup: false });
     return validationModule.validateFullPrediction(
       getPlayerPredictions(),
       getPlayerQualified(),
@@ -448,16 +535,93 @@
     );
   };
 
-  const isDownloaded = () => safeGet(storageKeys.finalDownloaded) === "true";
+  const isDownloaded = () =>
+    !accessState.isOfficial && safeGet(storageKeys.finalDownloaded) === "true";
 
   const lockSection = () => {
-    section.dataset.finalDownloaded = "true";
     matchRows.forEach((row) => {
       row.querySelectorAll("[data-score-input]").forEach((input) => {
         input.disabled = true;
+        input.dataset.state = "locked";
       });
     });
     if (randomButton) randomButton.disabled = true;
+  };
+
+  const unlockSection = () => {
+    matchRows.forEach((row) => {
+      row.querySelectorAll("[data-score-input]").forEach((input) => {
+        input.disabled = false;
+        delete input.dataset.state;
+      });
+    });
+    if (randomButton) randomButton.disabled = false;
+  };
+
+  const formatExpiry = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "--:--";
+    return new Intl.DateTimeFormat("es-CL", {
+      dateStyle: "short",
+      timeStyle: "short",
+      timeZone: "America/Santiago",
+    }).format(date);
+  };
+
+  const renderAccessState = () => {
+    section.dataset.predictionAccess = accessState.state;
+    if (officialAccessPanel) {
+      officialAccessPanel.hidden = !accessState.isOfficial;
+      officialAccessPanel.dataset.accessState = accessState.state;
+    }
+
+    if (!accessState.isOfficial) {
+      if (downloadNote) {
+        downloadNote.textContent =
+          "Descarga tu JSON y envialo al administrador. Ese archivo sera tu registro oficial.";
+      }
+      unlockSection();
+      return;
+    }
+
+    const player = getActivePlayerObject();
+    if (accessState.canEdit) {
+      if (officialAccessEyebrow) officialAccessEyebrow.textContent = "Edición temporal autorizada";
+      if (officialAccessTitle) officialAccessTitle.textContent = `Corrigiendo el cartón de ${player.name}`;
+      if (officialAccessCopy) {
+        officialAccessCopy.textContent =
+          "Trabajas sobre una copia del cartón oficial. Descarga el JSON corregido antes de que expire la sesión.";
+      }
+      if (editCodeForm) editCodeForm.hidden = true;
+      if (editSessionNote) editSessionNote.hidden = false;
+      if (editSessionExpiry) editSessionExpiry.textContent = formatExpiry(accessState.editExpiresAt);
+      if (editCodeStatus) editCodeStatus.textContent = "";
+      if (downloadNote) {
+        downloadNote.textContent =
+          "Descarga la corrección y envíala a Admin. El cartón oficial cambia solo después de importar y publicar.";
+      }
+      unlockSection();
+    } else {
+      if (officialAccessEyebrow) officialAccessEyebrow.textContent = "Cartón oficial confirmado";
+      if (officialAccessTitle) officialAccessTitle.textContent = `Predicciones de ${player.name} protegidas`;
+      if (officialAccessCopy) {
+        officialAccessCopy.textContent =
+          "Puedes recorrer los 72 marcadores y clasificados. La edición requiere un código temporal generado por Admin.";
+      }
+      if (editCodeForm) editCodeForm.hidden = false;
+      if (editSessionNote) editSessionNote.hidden = true;
+      if (downloadNote) {
+        downloadNote.textContent =
+          "Cartón oficial en modo lectura. Un código temporal de Admin habilita una corrección.";
+      }
+      lockSection();
+    }
+
+    if (playerStatusNode) {
+      playerStatusNode.textContent = accessState.canEdit
+        ? "EDICIÓN AUTORIZADA"
+        : "CARTÓN OFICIAL CONFIRMADO";
+    }
   };
 
   const setSubmitState = (state) => {
@@ -467,7 +631,10 @@
     // re-descargar el JSON cuantas veces necesite (en celular es facil perder
     // de vista donde quedo el archivo). Solo se bloquea sin polla completa o
     // mientras se esta generando el archivo.
-    const blocked = state === "incomplete" || state === "downloading";
+    const blocked =
+      state === "incomplete" ||
+      state === "downloading" ||
+      state === "protected";
     saveButton.disabled = blocked;
     saveButton.setAttribute("aria-disabled", blocked ? "true" : "false");
   };
@@ -478,6 +645,14 @@
   };
 
   const refreshSubmitState = (full) => {
+    if (accessState.state === PREDICTION_ACCESS_STATES.officialLocked) {
+      setSubmitState("protected");
+      if (saveLabel) saveLabel.textContent = "CARTÓN OFICIAL PROTEGIDO";
+      setMessage(
+        "Este cartón ya fue confirmado. Puedes revisarlo completo o ingresar un código temporal para corregirlo."
+      );
+      return;
+    }
     if (isDownloaded()) {
       setSubmitState("downloaded");
       if (saveLabel) saveLabel.textContent = "DESCARGAR JSON DE NUEVO";
@@ -498,8 +673,15 @@
     const result = full ?? runFullValidation();
     if (result?.isComplete) {
       setSubmitState("complete");
-      if (saveLabel) saveLabel.textContent = "DESCARGAR POLLA JSON";
-      setMessage("Polla completa. Ya puedes descargar tu archivo JSON y enviarlo al administrador.");
+      if (accessState.state === PREDICTION_ACCESS_STATES.officialEditing) {
+        if (saveLabel) saveLabel.textContent = "DESCARGAR CORRECCIÓN JSON";
+        setMessage(
+          "Corrección completa. Descarga el JSON y envíalo a Admin para reemplazar la entrega oficial."
+        );
+      } else {
+        if (saveLabel) saveLabel.textContent = "DESCARGAR POLLA JSON";
+        setMessage("Polla completa. Ya puedes descargar tu archivo JSON y enviarlo al administrador.");
+      }
     } else {
       setSubmitState("incomplete");
       if (saveLabel) saveLabel.textContent = "COMPLETA TODO PARA DESCARGAR";
@@ -514,8 +696,30 @@
     }
   };
 
-  const downloadPollaJson = () => {
+  const downloadPollaJson = async () => {
     if (isDownloaded()) return;
+    if (accessState.isOfficial) {
+      const remotelyValid = await validatePredictionEditSession(activePlayerId);
+      if (!remotelyValid) {
+        editSession = null;
+        accessState = resolvePredictionAccess({
+          playerId: activePlayerId,
+          submissions: officialDataset.submissions,
+          localPredictions: getPlayerPredictions(),
+          editSession: null,
+          totalMatches: matches.length,
+        });
+        loadOfficialWorkingCopy({ preferDraft: false });
+        matchRows.forEach((row) => applyStoredPredictionToRow(row));
+        renderAccessState();
+        updateProgress();
+        if (editCodeStatus) {
+          editCodeStatus.textContent =
+            "La autorización expiró o fue revocada. Solicita un nuevo código a Admin.";
+        }
+        return;
+      }
+    }
     const full = runFullValidation();
     if (!full?.isComplete || !exportModule) {
       refreshSubmitState(full);
@@ -537,6 +741,13 @@
       matches,
       summary: full,
       submittedAt,
+      correction: accessState.isOfficial
+        ? {
+            replacesChecksum: accessState.submission.checksum,
+            generatedAt: submittedAt,
+            playerId: activePlayerId,
+          }
+        : null,
     });
     const filename = exportModule.buildFileName(player.name, generatedAt);
 
@@ -549,15 +760,24 @@
       return;
     }
 
-    safeSet(storageKeys.finalDownloaded, "true");
-    safeSet(storageKeys.finalDownloadedAt, submittedAt);
-    safeSet(storageKeys.finalDownloadedFilename, filename);
-    writeJson(storageKeys.finalSubmissionPayload, finalPayload);
-    lockSection();
-    setSubmitState("downloaded");
-    if (saveLabel) saveLabel.textContent = "DESCARGAR JSON DE NUEVO";
-    showDownloadHelp(filename);
-    setMessage(`Archivo JSON descargado: ${filename}. Quedo en la carpeta Descargas de tu dispositivo. Envialo al administrador para registrar oficialmente tu polla.`);
+    if (accessState.isOfficial) {
+      setSubmitState("complete");
+      if (saveLabel) saveLabel.textContent = "DESCARGAR CORRECCIÓN JSON";
+      showDownloadHelp(filename);
+      setMessage(
+        `Corrección descargada: ${filename}. El cartón oficial no cambiará hasta que Admin reemplace el archivo, ejecute la importación y publique el sitio.`
+      );
+    } else {
+      safeSet(storageKeys.finalDownloaded, "true");
+      safeSet(storageKeys.finalDownloadedAt, submittedAt);
+      safeSet(storageKeys.finalDownloadedFilename, filename);
+      writeJson(storageKeys.finalSubmissionPayload, finalPayload);
+      lockSection();
+      setSubmitState("downloaded");
+      if (saveLabel) saveLabel.textContent = "DESCARGAR JSON DE NUEVO";
+      showDownloadHelp(filename);
+      setMessage(`Archivo JSON descargado: ${filename}. Quedo en la carpeta Descargas de tu dispositivo. Envialo al administrador para registrar oficialmente tu polla.`);
+    }
   };
 
   // Re-descarga del MISMO archivo ya generado (mismo payload y mismo nombre).
@@ -659,7 +879,7 @@
         : `Completa los ${result.totalMatches || 6} marcadores para calcular 1° y 2° automaticamente.`;
     }
 
-    writeJson(storageKeys.qualified, allQualified);
+    persist({ includeActiveGroup: false });
   };
 
   const updatePlayerBadge = () => {
@@ -724,6 +944,7 @@
   // ya no avanza grupo a grupo: es la descarga global gateada.
 
   const randomizeActiveGroup = () => {
+    if (!accessState.canEdit) return;
     const rows = matchRows.filter((row) => row.dataset.groupId === activeGroupId);
     const generatedScores = standingsModule?.generateWeightedRandomScores
       ? standingsModule.generateWeightedRandomScores(getGroupMatches(activeGroupId), h2hData, teamInfoData)
@@ -786,8 +1007,89 @@
     setMessage(`Avanzaste a ${next.label}.`);
   });
 
+  editCodeInput?.addEventListener("input", () => {
+    editCodeInput.value = editCodeInput.value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "")
+      .slice(0, 8);
+  });
+
+  editCodeForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!accessState.isOfficial || !editCodeInput || !editCodeSubmit) return;
+    const code = editCodeInput.value.trim().toUpperCase();
+    if (!/^[A-Z0-9]{8}$/.test(code)) {
+      if (editCodeStatus) editCodeStatus.textContent = "Ingresa el código completo de 8 caracteres.";
+      editCodeInput.focus();
+      return;
+    }
+
+    editCodeSubmit.disabled = true;
+    editCodeSubmit.textContent = "Validando...";
+    if (editCodeStatus) editCodeStatus.textContent = "";
+    try {
+      editSession = await redeemPredictionEditCode(activePlayerId, code);
+      accessState = resolvePredictionAccess({
+        playerId: activePlayerId,
+        submissions: officialDataset.submissions,
+        localPredictions: getPlayerPredictions(),
+        editSession,
+        totalMatches: matches.length,
+      });
+      loadOfficialWorkingCopy();
+      matchRows.forEach((row) => applyStoredPredictionToRow(row));
+      renderAccessState();
+      updateProgress();
+      setMessage(
+        "Edición autorizada por dos horas. Tus cambios se guardan como borrador local hasta descargar la corrección."
+      );
+    } catch (error) {
+      if (editCodeStatus) {
+        editCodeStatus.textContent =
+          error?.message || "No fue posible validar el código.";
+      }
+      editCodeInput.select();
+    } finally {
+      editCodeSubmit.disabled = false;
+      editCodeSubmit.textContent = "Desbloquear";
+    }
+  });
+
+  let validatingOnFocus = false;
+  window.addEventListener("focus", async () => {
+    if (
+      validatingOnFocus ||
+      accessState.state !== PREDICTION_ACCESS_STATES.officialEditing
+    ) {
+      return;
+    }
+    validatingOnFocus = true;
+    try {
+      const valid = await validatePredictionEditSession(activePlayerId);
+      if (valid) return;
+      editSession = null;
+      accessState = resolvePredictionAccess({
+        playerId: activePlayerId,
+        submissions: officialDataset.submissions,
+        localPredictions: getPlayerPredictions(),
+        editSession: null,
+        totalMatches: matches.length,
+      });
+      loadOfficialWorkingCopy({ preferDraft: false });
+      matchRows.forEach((row) => applyStoredPredictionToRow(row));
+      renderAccessState();
+      updateProgress();
+      if (editCodeStatus) {
+        editCodeStatus.textContent =
+          "La autorización expiró o fue revocada. El cartón volvió a modo lectura.";
+      }
+    } finally {
+      validatingOnFocus = false;
+    }
+  });
+
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  saveButton?.addEventListener("click", () => {
+  saveButton?.addEventListener("click", async () => {
     // Punch arcade al accionar la descarga (no se dispara si el boton esta bloqueado).
     if (!reduceMotion && !saveButton.disabled) {
       saveButton.classList.remove("is-saved-punch");
@@ -797,11 +1099,12 @@
     if (isDownloaded()) {
       redownloadPollaJson();
     } else {
-      downloadPollaJson();
+      await downloadPollaJson();
     }
   });
 
   updatePlayerBadge();
   showActiveGroup(activeGroupId, { persistActiveGroup: Boolean(navigationIntentGroupId) });
+  renderAccessState();
   if (isDownloaded()) lockSection();
 })();

@@ -3,6 +3,13 @@
 ## Estado
 wireframe-implemented
 
+## Pulso coral - 2026-06-09
+
+- La ficha modal muestra cuantos cartones clasifican a la seleccion y cuantos
+  la ponen primera de grupo.
+- El detalle se desbloquea con 72/72 local o una entrega oficial y enlaza a
+  `/estadisticas?tab=clasificados&team=<id>`.
+
 ## Fase 10 - Simplificacion arcade
 Album reducido a grupo activo por defecto, filtros A-L y 4 cards. Se retiro el chip "todos", el strip de confederaciones y el texto descriptivo de cards.
 

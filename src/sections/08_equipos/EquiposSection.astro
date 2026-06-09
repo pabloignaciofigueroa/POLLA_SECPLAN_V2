@@ -9,6 +9,11 @@ import ConfederationStrip from "./ConfederationStrip.astro";
 
 import teamsData from "../../data/teams.json";
 import equiposInfoData from "../../data/equipos-info.json";
+import predictionsData from "../../data/predictions.json";
+import fixtureData from "../../data/fixture.json";
+import groupsData from "../../data/groups.json";
+import playersData from "../../data/players.json";
+import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 
 import {
   buildInfoIndex,
@@ -33,10 +38,22 @@ const summaryStats = {
   groups: grouped.length,
   confederations: confederations.length,
 };
+const communityAnalysis = buildCommunityAnalysis({
+  dataset: predictionsData,
+  matches: fixtureData.matches,
+  groups: groupsData,
+  teams: baseTeams,
+  players: playersData,
+});
 
 const clientPayload = {
   teams: enriched,
   groups: grouped.map((g) => ({ id: g.id, label: g.label })),
+  teamSupport: communityAnalysis.teamSupport,
+  confirmedCards: communityAnalysis.confirmedCards,
+  confirmedPlayerIds: predictionsData.submissions.map(
+    (submission) => submission.playerId
+  ),
 };
 ---
 

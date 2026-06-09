@@ -1,0 +1,83 @@
+---
+interface Props {
+  confirmedCards: number;
+  expectedPlayers: number;
+  predictions: number;
+}
+
+const { confirmedCards, expectedPlayers, predictions } = Astro.props;
+---
+
+<aside class="preseason-pulse" role="status">
+  <span class="dot" aria-hidden="true"></span>
+  <div>
+    <strong>Pretemporada de pronósticos</strong>
+    <p>{confirmedCards}/{expectedPlayers} cartones confirmados · {predictions} marcadores listos para puntuar desde el primer partido.</p>
+  </div>
+  <a href="/estadisticas?tab=comunidad">Ver lectura coral</a>
+</aside>
+
+<style>
+  .preseason-pulse {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.65rem;
+    align-items: center;
+    padding: 0.62rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--pm-cyan-500) 36%, transparent);
+    border-radius: 0.72rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(229, 250, 255, 0.96));
+    color: var(--pm-blue-900);
+  }
+
+  .dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--pm-cyan-500);
+    box-shadow: 0 0 10px rgba(24, 221, 242, 0.68);
+  }
+
+  strong,
+  p {
+    margin: 0;
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin-top: 0.08rem;
+    color: var(--pm-blue-700);
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  a {
+    color: var(--pm-blue-600);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 950;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  a:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  @media (max-width: 680px) {
+    .preseason-pulse {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    a {
+      grid-column: 2;
+    }
+  }
+</style>

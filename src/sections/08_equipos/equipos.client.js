@@ -1,3 +1,5 @@
+import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictionAccess.js";
+
 (() => {
   const section = document.querySelector('[data-section="equipos"]');
   if (!section) return;
@@ -6,6 +8,8 @@
   const payload = payloadNode ? JSON.parse(payloadNode.textContent || "{}") : {};
   const teams = Array.isArray(payload.teams) ? payload.teams : [];
   const teamById = new Map(teams.map((t) => [t.id, t]));
+  const teamSupport = new Map((payload.teamSupport ?? []).map((row) => [row.teamId, row]));
+  const confirmedCards = Number(payload.confirmedCards) || 0;
 
   const FAV_KEY = "polla:favoriteTeams";
   const reducedMotion = window.matchMedia
@@ -31,6 +35,14 @@
   };
 
   let favorites = new Set(readFavorites());
+
+  const statsUnlocked = () => {
+    return isStatisticsUnlockedFromStorage({
+      confirmedPlayerIds: payload.confirmedPlayerIds ?? [],
+      localStorage: window.localStorage,
+      sessionStorage: window.sessionStorage,
+    });
+  };
 
   const applyFavorites = () => {
     section.querySelectorAll("[data-favorite-toggle]").forEach((button) => {
@@ -155,6 +167,21 @@
 
     if (emptyNote) {
       emptyNote.hidden = Boolean(info);
+    }
+
+    const pulse = modal.querySelector("[data-modal-prediction-pulse]");
+    const pulseTitle = modal.querySelector("[data-modal-prediction-title]");
+    const pulseCopy = modal.querySelector("[data-modal-prediction-copy]");
+    const pulseLink = modal.querySelector("[data-modal-prediction-link]");
+    const support = teamSupport.get(team.id);
+    if (pulse) pulse.dataset.unlocked = statsUnlocked() ? "true" : "false";
+    if (pulseLink) pulseLink.href = `/estadisticas?tab=clasificados&team=${encodeURIComponent(team.id)}`;
+    if (statsUnlocked() && support) {
+      if (pulseTitle) pulseTitle.textContent = `${support.qualified}/${confirmedCards} cartones lo clasifican`;
+      if (pulseCopy) pulseCopy.textContent = `${support.firstPlace} lo ponen primero de su grupo.`;
+    } else {
+      if (pulseTitle) pulseTitle.textContent = "DATA CENTER BLOQUEADO";
+      if (pulseCopy) pulseCopy.textContent = "Completa tus 72 predicciones para revelar el apoyo de clasificación.";
     }
 
     if (typeof modal.showModal === "function") {

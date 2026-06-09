@@ -57,6 +57,15 @@
       </div>
     </section>
 
+    <section class="prediction-pulse" data-modal-prediction-pulse data-unlocked="false">
+      <div>
+        <span>Pronóstico coral</span>
+        <strong data-modal-prediction-title>DATA CENTER BLOQUEADO</strong>
+        <p data-modal-prediction-copy>Completa tus 72 predicciones para revelar el apoyo de clasificación.</p>
+      </div>
+      <a data-modal-prediction-link href="/estadisticas?tab=clasificados">Ver clasificados</a>
+    </section>
+
     <section class="players">
       <h3>Jugadores clave</h3>
       <ul data-modal-players>
@@ -259,6 +268,55 @@
     border: 1px solid var(--color-line);
     border-radius: var(--radius-md);
     background: rgba(247, 247, 242, 0.7);
+  }
+
+  .prediction-pulse {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.72rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(18, 109, 255, 0.11), rgba(24, 221, 242, 0.12));
+  }
+
+  .prediction-pulse div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.08rem;
+  }
+
+  .prediction-pulse span {
+    color: var(--pm-blue-500);
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .prediction-pulse strong {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .prediction-pulse p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .prediction-pulse a {
+    color: var(--pm-blue-600);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 950;
+    text-decoration: none;
+    text-transform: uppercase;
   }
 
   .especial > div {

@@ -10,8 +10,8 @@ const { kpis } = Astro.props;
 
 const cards = [
   { icon: "JG", title: "Jugadores registrados", value: kpis.registeredPlayers, helper: "Ver detalle" },
-  { icon: "CT", title: "Cartones confirmados", value: `${kpis.confirmedCards} / ${kpis.totalCards}`, helper: "0% completado" },
-  { icon: "PR", title: "Predicciones cargadas", value: kpis.loadedPredictions, helper: "Partidos totales" },
+  { icon: "CT", title: "Cartones confirmados", value: `${kpis.confirmedCards} / ${kpis.totalCards}`, helper: `${Math.round((kpis.confirmedCards / kpis.totalCards) * 100)}% completado` },
+  { icon: "PR", title: "Predicciones cargadas", value: kpis.loadedPredictions, helper: "Marcadores oficiales" },
   { icon: "SO", title: "Solicitudes pendientes", value: kpis.pendingRequests, helper: "Ver bandeja" },
   { icon: "RO", title: "Resultados oficiales", value: `${kpis.officialResultsLoaded} / ${kpis.totalMatches}`, helper: "0% cargados" },
   { icon: "OK", title: "Estado del sistema", value: kpis.systemStatus, helper: "Todo funcionando" },

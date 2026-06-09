@@ -3,6 +3,18 @@
 ## Estado
 supabase-admin-active
 
+## Estado de cartones oficiales - 2026-06-09
+
+- Admin consume metadata de `predictions.json`.
+- KPIs y panel de predicciones muestran cartones confirmados, marcadores,
+  ultima importacion, nombres confirmados y pendientes.
+- La carga sigue siendo versionada mediante `npm run predictions:build`.
+- `PredictionsLoadedPanel` genera códigos temporales por jugador, permite
+  copiarlos una sola vez y revocar códigos o sesiones activas.
+- Los códigos duran 30 minutos para canje y las sesiones de corrección dos
+  horas. Generar un código nuevo revoca permisos anteriores del jugador.
+- RPC y tablas: `supabase/migrations/20260609193000_prediction_edit_access.sql`.
+
 ## Fase 10 - Simplificacion arcade
 Admin organizado como sidebar, sesion protegida, KPIs, estado del sistema y control global del marcador.
 

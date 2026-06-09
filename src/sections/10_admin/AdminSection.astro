@@ -16,6 +16,7 @@ import ActivityLogPanel from "./ActivityLogPanel.astro";
 import playersData from "../../data/players.json";
 import fixtureData from "../../data/fixture.json";
 import adminDashboardData from "../../data/admin-dashboard.json";
+import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 
 import { buildAdminDashboardViewModel } from "./admin.logic";
@@ -27,7 +28,13 @@ const matches = fixtureData.matches as AdminFixtureMatch[];
 const dashboard = buildAdminDashboardViewModel(
   players,
   matches,
-  adminDashboardData as AdminDashboardMock
+  adminDashboardData as AdminDashboardMock,
+  {
+    confirmedCards: predictionsData.confirmedCards,
+    loadedPredictions: predictionsData.totals.predictions,
+    snapshotAt: predictionsData.snapshotAt,
+    confirmedPlayerIds: predictionsData.submissions.map((submission) => submission.playerId),
+  }
 );
 const hasSupabaseClient = Boolean(
   import.meta.env.PUBLIC_SUPABASE_URL &&
@@ -113,7 +120,10 @@ const clientPayload = {
       <div class={styles.managementGrid} data-animate="fade-up">
         <SystemStatusPanel system={dashboard.system} />
         <RegisteredPlayersPanel players={dashboard.players} />
-        <PredictionsLoadedPanel predictions={dashboard.predictions} />
+        <PredictionsLoadedPanel
+          predictions={dashboard.predictions}
+          submissions={predictionsData.submissions}
+        />
         <PendingRequestsPanel count={dashboard.kpis.pendingRequests} />
         <OfficialResultsPanel results={dashboard.officialResults} totalMatches={dashboard.kpis.totalMatches} />
         <BackupExportPanel backup={dashboard.backup} />

@@ -1,3 +1,5 @@
+import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictionAccess.js";
+
 (() => {
   const section = document.querySelector('[data-section="proximo-partido"]');
   if (!section) return;
@@ -8,10 +10,43 @@
   const teams = payload.teams ?? [];
   const h2hMatches = payload.h2hMatches ?? [];
   const stadiums = payload.stadiums ?? {};
+  const communityPulses = payload.communityPulses ?? [];
+  const communityPulseByMatch = new Map(communityPulses.map((pulse) => [pulse.matchId, pulse]));
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const h2hByMatchNumber = new Map(h2hMatches.map((item) => [item.matchNumber, item.h2h]));
   const predictionGroupKey = "polla:activePredictionGroup";
   const predictionIntentKey = "polla:activePredictionGroupIntent";
+
+  const statsUnlocked = () => {
+    return isStatisticsUnlockedFromStorage({
+      confirmedPlayerIds: payload.confirmedPlayerIds ?? [],
+      localStorage: window.localStorage,
+      sessionStorage: window.sessionStorage,
+    });
+  };
+
+  const consensusLabel = (level) =>
+    ({ unanimous: "Unánime", strong: "Consenso fuerte", open: "Partido abierto", divided: "Oficina dividida" })[level] ?? "Partido abierto";
+
+  const renderCommunityPulse = (matchId) => {
+    const node = section.querySelector("[data-community-pulse]");
+    const pulse = communityPulseByMatch.get(matchId);
+    if (!node || !pulse) return;
+    const link = node.querySelector("a");
+    if (link) link.href = `/estadisticas?tab=partidos&match=${encodeURIComponent(matchId)}`;
+    if (!statsUnlocked()) return;
+    node.dataset.unlocked = "true";
+    const title = node.querySelector("[data-pulse-title]");
+    const copy = node.querySelector("[data-pulse-copy]");
+    if (title) title.textContent = `${consensusLabel(pulse.consensusLevel)} · ${pulse.favoriteScore}`;
+    if (copy) {
+      copy.textContent = `${pulse.outcomes.home} local · ${pulse.outcomes.draw} empate · ${pulse.outcomes.away} visita`;
+    }
+    const bars = node.querySelectorAll("[data-pulse-bars] i");
+    [pulse.outcomes.home, pulse.outcomes.draw, pulse.outcomes.away].forEach((value, index) => {
+      if (bars[index]) bars[index].style.height = `${Math.max(8, Math.round((value / pulse.totalCards) * 100))}%`;
+    });
+  };
 
   const fallbackH2h = {
     previousMeetings: 0,
@@ -185,6 +220,7 @@
     renderReading(h2hInfo);
     renderContext(match);
     updateStadiumMedia(match);
+    renderCommunityPulse(match.id);
     startCountdown(match.dateUtc, relevant.displayMode);
   };
 
@@ -229,6 +265,7 @@
   const relevant = getRelevantMatches(matches, new Date());
   const primaryMatch = relevant.primaryMatch;
   if (primaryMatch && section.dataset.primaryMatchId === primaryMatch.id) {
+    renderCommunityPulse(primaryMatch.id);
     startCountdown(primaryMatch.dateUtc, relevant.displayMode);
   } else {
     renderMatch(relevant);

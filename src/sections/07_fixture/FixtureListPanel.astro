@@ -262,6 +262,18 @@ const firstDayKey = grouped[0]?.dateKey;
     text-transform: uppercase;
   }
 
+  :global([data-section="fixture"] .day-stack .status-pill[data-consensus="unanimous"]) {
+    border-color: var(--pm-mint-500);
+    background: color-mix(in srgb, var(--pm-mint-500) 18%, white);
+    color: var(--pm-green-700);
+  }
+
+  :global([data-section="fixture"] .day-stack .status-pill[data-consensus="divided"]) {
+    border-color: var(--pm-red-500);
+    background: color-mix(in srgb, var(--pm-red-500) 13%, white);
+    color: var(--pm-red-600);
+  }
+
   :global([data-section="fixture"] .day-stack .group-badge) {
     padding: 0.13rem 0.28rem;
     border-radius: 999px;

@@ -137,6 +137,170 @@
   padding: clamp(1rem, 3vw, 1.5rem);
 }
 
+.officialModal[hidden] {
+  display: none;
+}
+
+.officialModal {
+  position: fixed;
+  inset: 0;
+  z-index: 125;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.officialModalBackdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(6, 19, 38, 0.62);
+  cursor: pointer;
+  backdrop-filter: blur(7px);
+}
+
+.officialDialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 38rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 3px solid var(--pm-purple-500);
+  border-radius: var(--pm-radius-lg);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(124, 53, 255, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.98);
+  box-shadow: 0 28px 72px rgba(6, 19, 38, 0.34);
+  text-align: center;
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  transition:
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.officialIcon {
+  display: grid;
+  width: 4rem;
+  aspect-ratio: 1;
+  place-items: center;
+  margin: 0 auto 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--pm-purple-500), var(--pm-blue-600));
+  color: white;
+  box-shadow: 0 14px 30px rgba(124, 53, 255, 0.28);
+}
+
+.officialIcon svg {
+  width: 2rem;
+  fill: currentColor;
+}
+
+.officialEyebrow,
+.officialTitle,
+.officialCopy {
+  margin: 0;
+}
+
+.officialEyebrow {
+  color: var(--pm-purple-600);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.officialTitle {
+  margin-top: 0.25rem;
+  color: var(--pm-blue-950);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.3rem);
+  font-weight: 950;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.officialCopy {
+  margin-top: 0.8rem;
+  color: var(--pm-blue-900);
+  font-size: clamp(0.95rem, 1.8vw, 1.08rem);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.officialActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.officialPrimary,
+.officialSecondary,
+.officialCardLink,
+.officialClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.85rem;
+  border-radius: var(--pm-radius-pill);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 950;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition:
+    transform 150ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.officialPrimary {
+  border: 2px solid var(--pm-yellow-600);
+  background: var(--pm-cta-bg);
+  color: var(--pm-cta-text);
+  box-shadow: var(--pm-cta-shadow);
+}
+
+.officialSecondary {
+  border: 2px solid var(--pm-blue-500);
+  background: white;
+  color: var(--pm-blue-700);
+}
+
+.officialCardLink {
+  width: 100%;
+  margin-top: 0.65rem;
+  border: 2px solid var(--pm-purple-500);
+  background: color-mix(in srgb, var(--pm-purple-500) 10%, white);
+  color: var(--pm-purple-700);
+}
+
+.officialClose {
+  min-height: auto;
+  margin: 0.8rem auto 0;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--pm-blue-600);
+}
+
+.officialPrimary:active,
+.officialSecondary:active,
+.officialCardLink:active,
+.officialClose:active {
+  transform: scale(0.97);
+}
+
+.officialPrimary:focus-visible,
+.officialSecondary:focus-visible,
+.officialCardLink:focus-visible,
+.officialClose:focus-visible,
+.officialDialog:focus-visible {
+  outline: none;
+  box-shadow: var(--pm-focus-ring-yellow);
+}
+
 .resetModalBackdrop {
   position: absolute;
   inset: 0;
@@ -267,6 +431,10 @@
     display: grid;
     grid-template-columns: 1fr;
   }
+
+  .officialActions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -277,7 +445,10 @@
   }
 
   .resetCancelButton:hover,
-  .resetConfirmButton:hover {
+  .resetConfirmButton:hover,
+  .officialPrimary:hover,
+  .officialSecondary:hover,
+  .officialCardLink:hover {
     transform: translateY(-1px);
   }
 }

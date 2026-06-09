@@ -5,9 +5,11 @@ import type { ProgressSnapshot } from "./estadisticas.logic";
 
 interface Props {
   snapshot: ProgressSnapshot;
+  confirmedCards?: number;
+  expectedPlayers?: number;
 }
 
-const { snapshot } = Astro.props;
+const { snapshot, confirmedCards = 0, expectedPlayers = 0 } = Astro.props;
 ---
 
 <section class="stats-hero" aria-labelledby="estadisticas-title">
@@ -29,6 +31,10 @@ const { snapshot } = Astro.props;
     </h1>
     <p class="subtitle">
       Completa tus <strong>72 predicciones</strong> para desbloquear la inteligencia de la comunidad.
+    </p>
+    <p class="community-count">
+      <strong>{confirmedCards} cartones oficiales</strong> ya alimentan el Data Center
+      {expectedPlayers > confirmedCards ? ` · ${expectedPlayers - confirmedCards} pendientes` : ""}.
     </p>
   </div>
 
@@ -135,6 +141,19 @@ const { snapshot } = Astro.props;
 
   .subtitle strong {
     color: var(--pm-purple-600);
+    font-weight: 900;
+  }
+
+  .community-count {
+    margin: 0;
+    max-width: 42ch;
+    color: var(--pm-blue-700);
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .community-count strong {
+    color: var(--pm-blue-500);
     font-weight: 900;
   }
 

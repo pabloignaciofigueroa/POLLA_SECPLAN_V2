@@ -1,0 +1,267 @@
+---
+interface Props {
+  confirmedCards: number;
+  expectedPlayers: number;
+}
+
+const { confirmedCards, expectedPlayers } = Astro.props;
+---
+
+<section class="stats-dashboard" data-stats-dashboard hidden aria-labelledby="stats-dashboard-title">
+  <header class="dashboard-head">
+    <div class="identity-stage" data-profile-identity>
+      <span class="avatar-shell" data-profile-avatar aria-hidden="true"></span>
+      <div>
+        <p class="dashboard-kicker">DATA CENTER ACTIVO</p>
+        <h1 id="stats-dashboard-title">Tu ADN mundialero</h1>
+        <p data-profile-intro>
+          Tu cartón ya puede compararse con la inteligencia colectiva de la oficina.
+        </p>
+      </div>
+    </div>
+
+    <dl class="coral-summary" aria-label="Estado de la comunidad">
+      <div>
+        <dt>Cartones</dt>
+        <dd><strong>{confirmedCards}</strong> / {expectedPlayers}</dd>
+      </div>
+      <div>
+        <dt>Marcadores</dt>
+        <dd><strong>{confirmedCards * 72}</strong></dd>
+      </div>
+      <div>
+        <dt>Clasificados</dt>
+        <dd><strong>{confirmedCards * 24}</strong></dd>
+      </div>
+    </dl>
+  </header>
+
+  <nav class="stats-tabs" aria-label="Secciones de estadísticas" role="tablist">
+    <button type="button" role="tab" id="stats-tab-perfil" data-stats-tab="perfil" aria-controls="stats-panel-perfil" aria-selected="true">
+      Mi perfil
+    </button>
+    <button type="button" role="tab" id="stats-tab-comunidad" data-stats-tab="comunidad" aria-controls="stats-panel-comunidad" aria-selected="false" tabindex="-1">
+      Comunidad
+    </button>
+    <button type="button" role="tab" id="stats-tab-partidos" data-stats-tab="partidos" aria-controls="stats-panel-partidos" aria-selected="false" tabindex="-1">
+      Partidos
+    </button>
+    <button type="button" role="tab" id="stats-tab-clasificados" data-stats-tab="clasificados" aria-controls="stats-panel-clasificados" aria-selected="false" tabindex="-1">
+      Clasificados y comparador
+    </button>
+  </nav>
+
+  <div class="dashboard-status" data-dashboard-status role="status" aria-live="polite">
+    Preparando las comparaciones...
+  </div>
+
+  <section id="stats-panel-perfil" data-stats-panel="perfil" role="tabpanel" aria-labelledby="stats-tab-perfil"></section>
+  <section id="stats-panel-comunidad" data-stats-panel="comunidad" role="tabpanel" aria-labelledby="stats-tab-comunidad" hidden></section>
+  <section id="stats-panel-partidos" data-stats-panel="partidos" role="tabpanel" aria-labelledby="stats-tab-partidos" hidden></section>
+  <section id="stats-panel-clasificados" data-stats-panel="clasificados" role="tabpanel" aria-labelledby="stats-tab-clasificados" hidden></section>
+</section>
+
+<style>
+  .stats-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+  }
+
+  .stats-dashboard[hidden] {
+    display: none;
+  }
+
+  .dashboard-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: clamp(0.9rem, 1.7vw, 1.35rem);
+    border: 1px solid color-mix(in srgb, var(--pm-cyan-500) 38%, transparent);
+    border-radius: 1rem;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(24, 221, 242, 0.18), transparent 28%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(242, 250, 255, 0.94));
+    box-shadow: 0 18px 42px rgba(7, 23, 53, 0.13);
+  }
+
+  .identity-stage {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .avatar-shell {
+    display: grid;
+    place-items: center;
+    width: clamp(4.25rem, 8vw, 6.25rem);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 0.28rem solid rgba(255, 255, 255, 0.9);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-purple-500));
+    box-shadow: 0 12px 30px rgba(18, 109, 255, 0.25);
+  }
+
+  .dashboard-kicker,
+  .dashboard-head h1,
+  .dashboard-head p {
+    margin: 0;
+  }
+
+  .dashboard-kicker {
+    color: var(--pm-mint-600, #16a34a);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+  }
+
+  .dashboard-head h1 {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.3rem);
+    font-weight: 950;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .dashboard-head p:not(.dashboard-kicker) {
+    max-width: 58ch;
+    color: var(--pm-blue-700);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .coral-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(5.2rem, auto));
+    gap: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0.72rem;
+    background: var(--pm-blue-900);
+    color: var(--pm-white);
+  }
+
+  .coral-summary div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.08rem;
+    padding: 0.65rem 0.8rem;
+    text-align: center;
+  }
+
+  .coral-summary div + div {
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .coral-summary dt {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.54rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .coral-summary dd {
+    margin: 0;
+    font-family: var(--font-score);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+  }
+
+  .coral-summary strong {
+    color: var(--pm-cyan-500);
+    font-size: 1.35rem;
+  }
+
+  .stats-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+    padding: 0.35rem;
+    border: 1px solid rgba(7, 23, 53, 0.12);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .stats-tabs button {
+    min-width: 0;
+    padding: 0.62rem 0.55rem;
+    border: 0;
+    border-radius: 0.52rem;
+    background: transparent;
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.76rem;
+    font-weight: 950;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms var(--ease-out, ease-out),
+      color 160ms var(--ease-out, ease-out),
+      transform 120ms var(--ease-out, ease-out);
+  }
+
+  .stats-tabs button:hover {
+    background: var(--pm-blue-100);
+    color: var(--pm-blue-900);
+  }
+
+  .stats-tabs button:active {
+    transform: scale(0.97);
+  }
+
+  .stats-tabs button:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-focus-ring);
+  }
+
+  .stats-tabs button[aria-selected="true"] {
+    background: linear-gradient(135deg, var(--pm-blue-600), var(--pm-purple-500));
+    color: var(--pm-white);
+    box-shadow: 0 7px 18px rgba(18, 109, 255, 0.22);
+  }
+
+  .dashboard-status {
+    min-height: 1.1rem;
+    color: var(--pm-blue-700);
+    font-size: 0.7rem;
+    font-weight: 750;
+  }
+
+  @media (max-width: 840px) {
+    .dashboard-head {
+      grid-template-columns: 1fr;
+    }
+
+    .coral-summary {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .identity-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-tabs {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .coral-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .coral-summary div + div {
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      border-left: 0;
+    }
+  }
+</style>

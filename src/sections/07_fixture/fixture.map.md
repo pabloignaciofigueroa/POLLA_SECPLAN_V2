@@ -3,6 +3,14 @@
 ## Estado
 wireframe-implemented
 
+## Pulso coral - 2026-06-09
+
+- La lista agrega consenso cuando el cartón local está completo o el jugador
+  seleccionado tiene una entrega oficial.
+- El panel seleccionado muestra reparto, marcador favorito y deep link al
+  explorador de Estadisticas.
+- La informacion proviene de `lib/statistics/communityStatistics.js`.
+
 ## Fase 10 - Simplificacion arcade
 Fixture reducido a hero, 3 KPIs, filtros, lista, partido seleccionado y horario Chile. Se retiraron agenda duplicada, info tecnica y notificaciones.
 

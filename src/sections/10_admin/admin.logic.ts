@@ -71,6 +71,10 @@ export interface AdminDashboardViewModel {
     incompleteCards: number;
     withErrors: number;
     totalPredictions: number;
+    loadedPredictions: number;
+    lastImportLabel: string;
+    confirmedNames: string[];
+    pendingNames: string[];
   };
   officialResults: {
     loaded: number;
@@ -88,11 +92,20 @@ export interface AdminDashboardViewModel {
 export function buildAdminDashboardViewModel(
   players: AdminPlayer[],
   matches: AdminFixtureMatch[],
-  mock: AdminDashboardMock
+  mock: AdminDashboardMock,
+  predictionSummary?: {
+    confirmedCards?: number;
+    loadedPredictions?: number;
+    snapshotAt?: string | null;
+    confirmedPlayerIds?: string[];
+  }
 ): AdminDashboardViewModel {
   const registeredPlayers = players.length;
   const totalMatches = matches.length;
-  const confirmedCards = Math.min(mock.admin.confirmedCards, registeredPlayers);
+  const confirmedCards = Math.min(
+    predictionSummary?.confirmedCards ?? mock.admin.confirmedCards,
+    registeredPlayers
+  );
   const pendingCards = Math.max(registeredPlayers - confirmedCards, 0);
   const totalPredictions = registeredPlayers * totalMatches;
   const loadedResults = Math.min(mock.admin.officialResultsLoaded, totalMatches);
@@ -105,7 +118,7 @@ export function buildAdminDashboardViewModel(
       registeredPlayers,
       confirmedCards,
       totalCards: registeredPlayers,
-      loadedPredictions: 0,
+      loadedPredictions: predictionSummary?.loadedPredictions ?? 0,
       pendingRequests: mock.admin.pendingRequests,
       officialResultsLoaded: loadedResults,
       totalMatches,
@@ -124,6 +137,20 @@ export function buildAdminDashboardViewModel(
       incompleteCards: pendingCards,
       withErrors: mock.admin.predictionsWithErrors,
       totalPredictions,
+      loadedPredictions: predictionSummary?.loadedPredictions ?? 0,
+      lastImportLabel: predictionSummary?.snapshotAt
+        ? new Intl.DateTimeFormat("es-CL", {
+            dateStyle: "short",
+            timeStyle: "short",
+            timeZone: "America/Santiago",
+          }).format(new Date(predictionSummary.snapshotAt))
+        : "---",
+      confirmedNames: players
+        .filter((player) => predictionSummary?.confirmedPlayerIds?.includes(player.id))
+        .map((player) => player.name),
+      pendingNames: players
+        .filter((player) => !predictionSummary?.confirmedPlayerIds?.includes(player.id))
+        .map((player) => player.name),
     },
     officialResults: {
       loaded: loadedResults,

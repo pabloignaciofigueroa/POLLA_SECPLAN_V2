@@ -1,0 +1,54 @@
+---
+import styles from "./JugadorSection.module.css";
+---
+
+<div class={styles.officialModal} data-official-player-modal hidden>
+  <button
+    type="button"
+    class={styles.officialModalBackdrop}
+    data-official-player-close
+    aria-label="Cerrar aviso de cartón confirmado"
+  ></button>
+
+  <article
+    class={styles.officialDialog}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="official-player-title"
+    aria-describedby="official-player-description"
+    tabindex="-1"
+    data-official-player-dialog
+  >
+    <span class={styles.officialIcon} aria-hidden="true">
+      <svg viewBox="0 0 24 24" focusable="false">
+        <path d="M12 2 4.5 5v5.2c0 5.1 3.2 9.7 7.5 11.8 4.3-2.1 7.5-6.7 7.5-11.8V5L12 2Zm3.7 6.9-4.4 5.2a1 1 0 0 1-1.5.1l-2.2-2.1 1.4-1.5 1.4 1.4 3.8-4.5 1.5 1.4Z" />
+      </svg>
+    </span>
+    <p class={styles.officialEyebrow}>Entrega oficial protegida</p>
+    <h2 id="official-player-title" class={styles.officialTitle}>
+      Tu cartón ya está confirmado
+    </h2>
+    <p id="official-player-description" class={styles.officialCopy}>
+      Las predicciones de <strong data-official-player-name>este jugador</strong> ya están hechas y
+      protegidas. Disfruta de la Tabla Dinámica y explora todas las Estadísticas desde este
+      dispositivo.
+    </p>
+
+    <div class={styles.officialActions}>
+      <a class={styles.officialPrimary} href="/estadisticas">
+        Ir a Estadísticas
+      </a>
+      <a class={styles.officialSecondary} href="/tabla">
+        Ver Tabla
+      </a>
+    </div>
+
+    <a class={styles.officialCardLink} href="/predicciones" data-official-card-link>
+      Ver mi cartón / ingresar código
+    </a>
+
+    <button type="button" class={styles.officialClose} data-official-player-close>
+      Cerrar
+    </button>
+  </article>
+</div>

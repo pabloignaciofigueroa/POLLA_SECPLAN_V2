@@ -40,6 +40,7 @@ export function buildPredictionPayload({
   matches = [],
   summary = {},
   submittedAt = new Date().toISOString(),
+  correction = null,
 }) {
   const matchesByGroup = new Map();
   for (const match of matches) {
@@ -77,6 +78,13 @@ export function buildPredictionPayload({
     schemaVersion: SCHEMA_VERSION,
     competition: COMPETITION,
     submittedAt,
+    ...(correction?.replacesChecksum
+      ? {
+          replacesChecksum: correction.replacesChecksum,
+          correctionGeneratedAt: correction.generatedAt ?? submittedAt,
+          correctionPlayerId: correction.playerId ?? player?.id ?? "",
+        }
+      : {}),
     player: {
       id: player?.id ?? "",
       displayName: player?.name ?? player?.displayName ?? "",

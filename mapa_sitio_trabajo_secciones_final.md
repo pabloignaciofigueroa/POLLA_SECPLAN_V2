@@ -1,6 +1,6 @@
 # Mapa operativo de arquitectura del sitio - Polla Mundialera SECPLAN 2026
 
-Fecha de actualizacion: 2026-06-08
+Fecha de actualizacion: 2026-06-09
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
@@ -23,13 +23,15 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | Proximo partido destacado | `src/sections/06_proximo_partido/` |
 | Fixture completo, filtros y detalle de partido | `src/sections/07_fixture/` |
 | Album de equipos, favoritos, modal de equipo | `src/sections/08_equipos/` |
-| Estadisticas bloqueadas y progreso local | `src/sections/09_estadisticas/` |
+| Estadisticas corales, comparador y consenso | `src/sections/09_estadisticas/`, `src/lib/statistics/` |
 | Dashboard Admin, gate y marcador global | `src/sections/10_admin/` |
 | Mini marcador en vivo del Admin, contrato y guardado | `src/sections/10_admin/MiniLiveScoreControl.astro`, `src/lib/liveMatch/liveMatchState.js` |
 | Pipeline marcador vivo -> tabla, recompute provisional, banner | `src/sections/05_tabla/tabla.client.js`, `src/lib/liveMatch/liveMatchState.js` |
 | Data editable de jugadores/equipos/fixture/resultados | `src/data/` |
 | Reset/version de storage local | `src/lib/storage/resetPollaState.js` |
 | Identidad compartida de jugador | `src/lib/playerIdentity.js` |
+| Acceso oficial y borradores de correccion | `src/lib/predictions/` |
+| Codigos temporales para cartones oficiales | `src/sections/10_admin/PredictionsLoadedPanel.astro`, `supabase/migrations/20260609193000_prediction_edit_access.sql` |
 | Assets publicos: fondos, copa, banderas, escudos, jugadores | `public/assets/` |
 
 ## Arquitectura general
@@ -50,12 +52,12 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `/` | `01_inicio` | `pages/index.astro` | `InicioSection.astro` | `InicioSection.module.css` | `scripts/moments/inicio.js` | `teams.json` | No | Portada, copa, CTA de entrada |
 | `/reglas` | `02_reglas` | `pages/reglas.astro` | `ReglasSection.astro` | `ReglasSection.module.css` | No | Arrays locales | No | Explica reglas y puntajes |
 | `/jugador` | `03_jugador` | `pages/jugador.astro` | `JugadorSection.astro` | `JugadorSection.module.css` | Inline en seccion | `players.json` | Identidad, reset | Seleccion y confirmacion de jugador |
-| `/predicciones` | `04_predicciones` | `pages/predicciones.astro` | `PrediccionesSection.astro` | `PrediccionesSection.module.css` | `predicciones.client.js` | `fixture.json`, `groups.json`, `players.json` | Predicciones, clasificados, descarga final | Carton editable y JSON oficial |
+| `/predicciones` | `04_predicciones` | `pages/predicciones.astro` | `PrediccionesSection.astro` | `PrediccionesSection.module.css` | `predicciones.client.js` | `fixture.json`, `groups.json`, `players.json`, `predictions.json` | Predicciones, clasificados, descarga final, correccion temporal | Carton nuevo editable u oficial protegido |
 | `/tabla` | `05_tabla` | `pages/tabla.astro` | `TablaSection.astro` | `TablaSection.module.css` | `tabla.client.js` | `players.json`, `fixture.json`, `results.mock.json`, `scoring-rules.json`, `table-predictions.mock.json` | Lee predicciones locales solo para UI | Ranking competitivo |
 | `/proximo-partido` | `06_proximo_partido` | `pages/proximo-partido.astro` | `ProximoPartidoSection.astro` | `ProximoPartidoSection.module.css` | `proximo-partido.client.js` | `fixture.json`, `teams.json`, `match-preview.mock.json` | Intencion de grupo | Partido relevante |
 | `/fixture` | `07_fixture` | `pages/fixture.astro` | `FixtureSection.astro` | `FixtureSection.module.css` | `fixture.client.js` | `fixture.json`, `groups.json`, `match-info.mock.json`, `stadiums-assets.json` | No | Calendario y detalle tecnico |
 | `/equipos` | `08_equipos` | `pages/equipos.astro` | `EquiposSection.astro` | `EquiposSection.module.css` | `equipos.client.js` | `teams.json`, `equipos-info.json` | Favoritos | Album de selecciones |
-| `/estadisticas` | `09_estadisticas` | `pages/estadisticas.astro` | `EstadisticasSection.astro` | `EstadisticasSection.module.css` | `estadisticas.client.js` | Progreso local, constante `TOTAL_PREDICTIONS=72` | Lee identidad/predicciones, escribe intencion | Data center bloqueado |
+| `/estadisticas` | `09_estadisticas` | `pages/estadisticas.astro` | `EstadisticasSection.astro` | `EstadisticasSection.module.css` | `estadisticas.client.js` | `predictions.json`, detalle publico, fixture, grupos, equipos, jugadores | Lee identidad/predicciones, escribe intencion | Data center coral bloqueado hasta 72/72 |
 | `/admin` | `10_admin` | `pages/admin.astro` | `AdminSection.astro` | `AdminSection.module.css` | `admin.client.js` | `players.json`, `fixture.json`, `admin-dashboard.json/mock` | Sesion Admin temporal | Dashboard administrativo con gate |
 | `/wireframe` | Tecnica | `pages/wireframe.astro` | Pagina directa | Inline/local | No | Metadata local | No | Vista tecnica heredada |
 
@@ -85,6 +87,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Data: `players.json`.
 - Storage: confirma identidad en localStorage y sessionStorage con `polla:selectedPlayerId`, `polla:playerConfirmed`, `polla:selectedPlayerSnapshot`.
 - Reset: usa `resetPollaLocalState({ preserveIdentity: false })` y limpia llaves espejo de sessionStorage.
+- Entrega oficial: abre `OfficialPlayerModal` y ofrece Estadisticas, Tabla y
+  carton protegido sin depender del dispositivo original.
 - Cuando cambiar: altas/bajas de jugadores en `players.json` y assets en `public/assets/players/`; UI de seleccion en componentes de la carpeta.
 
 ### `04_predicciones`
@@ -96,6 +100,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Modulos: `predicciones.validation.js` valida completitud; `predicciones.export.js` arma payload, filename y descarga via `Blob`; `predicciones.standings.js` calcula posiciones y random ponderado.
 - Salida oficial: archivo `predicciones_<jugador>_<YYYY-MM-DD_HH-mm>.json`.
 - Post descarga: guarda `polla:finalDownloaded*`, guarda `polla:finalSubmissionPayload` y bloquea inputs/selects/random.
+- Carton importado: reconstruye 72/24 desde `predictions.json`; queda en lectura
+  hasta canjear una sesion valida. La correccion vive en storage separado.
 - Cuando cambiar: validaciones en `predicciones.validation.js`, tabla/random en `predicciones.standings.js`, formato JSON en `predicciones.export.js`, experiencia de captura en `predicciones.client.js` y componentes.
 
 ### `05_tabla`
@@ -139,11 +145,15 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### `09_estadisticas`
 
 - Orquestador: `EstadisticasSection.astro`.
-- Piezas principales: `StatsHeroLocked`, `LockOrbVisual`, `StatsProgressCard`, `UnlockBenefitsPanel`, `UnlockBenefitCard`, `LockedPreviewPanel`, `UnlockedBanner`.
-- Funcion: promesa visual de data center bloqueado, con progreso local del jugador.
-- Client: `estadisticas.client.js` lee identidad y predicciones para mostrar progreso y puede mandar intencion hacia predicciones.
+- Piezas principales: `StatsHeroLocked`, `StatsProgressCard`, `StatsDashboard`, `LockedPreviewPanel`, `UnlockedBanner`.
+- Funcion: antes de 72/72 muestra la promesa anti-copia; despues monta perfil, comunidad, explorador de partidos, clasificados y comparador.
+- Client: carga `/data/community-predictions.json` solo al desbloquear, admite deep links y se suscribe al marcador/resultados Supabase.
+- Logica coral compartida: `lib/statistics/communityStatistics.js`; contratos en `lib/statistics/types.ts`.
+- Importacion: `npm run predictions:build` valida los JSON de la raiz y regenera la fuente canonica.
 - Storage: lee `polla:selectedPlayerId`, `polla:predictions`; escribe `polla:activePredictionGroup` y `polla:activePredictionGroupIntent`.
-- Cuando cambiar: copy/beneficios en componentes; desbloqueo real futuro en client y data agregada.
+- Pulsos compartidos: Proximo Partido, Fixture y Equipos revelan agregados si
+  el carton local esta completo o el jugador tiene una entrega oficial.
+- Cuando cambiar: metricas en `lib/statistics`; experiencia y filtros en `09_estadisticas`; ingesta en `scripts/predictions-importer.mjs`.
 
 ### `10_admin`
 
@@ -156,6 +166,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Sesion: RPC `polla_admin_login` entrega token temporal; `sessionStorage` usa `polla:adminSessionToken` y `polla:adminSessionExpiresAt`. Duracion 2 horas.
 - Logout: eliminado del hero. La sesion admin solo expira por tiempo (2h) o limpiando `sessionStorage`.
 - Client: `admin.client.js` valida sesion antes de inicializar acciones, monta el mini marcador (`initLiveScoreControl`) y usa confirmacion inline de doble paso.
+- Correcciones: Admin crea/revoca codigos de un solo uso; la sesion canjeada se
+  vincula al jugador y vence a las dos horas.
 - Cuando cambiar: barrera/modal en `components/layout`; dashboard, mini marcador y acciones en `10_admin`; contrato de marcador vivo en `lib/liveMatch/liveMatchState.js`.
 
 ## Flujos compartidos
@@ -170,7 +182,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### Reset y version de storage
 
 - Archivo central: `src/lib/storage/resetPollaState.js`.
-- Version actual: `production-reset-2026-06-09-jaime`.
+- Version actual: `production-reset-2026-06-09-official-access`.
 - `ensurePollaStorageVersion()` limpia drafts al detectar version distinta, preservando identidad cuando corresponde.
 - El hard reset desde jugador limpia identidad, predicciones, clasificados, favoritos y descarga final local.
 
@@ -182,8 +194,23 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Intencion transitoria: `polla:activePredictionGroupIntent`.
 - Bloqueo final: `polla:finalDownloaded`, `polla:finalDownloadedAt`, `polla:finalDownloadedFilename`.
 - Payload final guardado: `polla:finalSubmissionPayload`.
+- Borradores de correccion: `polla:predictionCorrectionDrafts`.
+- Sesion temporal: `sessionStorage[polla:predictionEditSession]`.
 - El panel de clasificados muestra una mini tabla POS/EQUIPO/PTS/DG/GF y guarda 1°/2° solo cuando los 6 partidos del grupo estan completos.
 - El JSON oficial se descarga localmente desde browser. No hay endpoint de escritura en el flujo actual.
+- Una correccion no reemplaza el dataset por si sola: Admin sustituye el archivo
+  fuente, ejecuta `npm run predictions:build` y redespliega.
+
+### Carton oficial entre dispositivos
+
+- Fuente de verdad: `src/data/predictions.json`.
+- Selector compartido: `lib/predictions/predictionAccess.js`.
+- Estado oficial sin permiso: lectura y Estadisticas habilitadas, edicion
+  bloqueada.
+- Permiso: codigo de ocho caracteres, canje unico en 30 minutos y sesion de dos
+  horas validada contra Supabase.
+- Falla segura: codigo invalido, sesion vencida/revocada o caida remota vuelven
+  a `official-locked`.
 
 ### Acceso Admin
 
@@ -248,7 +275,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `teams.json` | 48 selecciones, banderas, escudos, portadas |
 | `groups.json` | Grupos A-L |
 | `fixture.json` | 72 partidos de fase de grupos |
-| `predictions.json` | Base real/futura de predicciones |
+| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados |
 | `predictions.mock.json` | Mock inicial o contrato de predicciones |
 | `results.json` | Resultados reales/futuros |
 | `results.mock.json` | Resultados demo para tabla |
@@ -280,6 +307,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `lib/tabla/getLiveOrRelevantMatch.ts` | Partido vivo o relevante |
 | `lib/tabla/formatRankingRows.ts` | View model de filas de ranking |
 | `lib/tabla/types.ts` | Tipos compartidos de tabla |
+| `lib/statistics/communityStatistics.js` | Perfiles, consensos, comparaciones, clasificados y pulsos compartidos |
+| `lib/statistics/types.ts` | Contratos del dataset y view models estadisticos |
 
 ## Inventario de assets publicos
 
@@ -313,6 +342,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 
 ```powershell
 npm run dev
+npm run predictions:build
+npm test
 npm run build
 npm run preview
 ```
@@ -326,6 +357,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-09: Estadisticas se convierte en Data Center coral. Siete JSON oficiales producen 504 marcadores y 168 posiciones clasificatorias. Se agrega importador versionado, validacion de tablas, dashboard de cuatro pestañas, deep links y pulsos bloqueados en Proximo partido, Fixture y Equipos. Tabla consume las predicciones reales y Admin muestra 7/15.
 - 2026-06-09: Jugador Marcos reemplazado por Jaime en la misma posicion del array (`players.json`), assets `jaime.webp` + `thumbs/jaime.webp`, mock `table-predictions.mock.json` migrado de `marcos` a `jaime`. Storage local sube a `production-reset-2026-06-09-jaime` para purgar drafts viejos. Cero apariciones productivas de Marcos.
 - 2026-06-08: Supabase pasa a ser fuente compartida del marcador y resultados. Lectura publica con RLS + Realtime; escritura solo por RPC con sesion admin temporal. `localStorage` queda como cache. Migracion versionada bajo `supabase/migrations/`.
 - 2026-06-08: Puntaje correcto + precision separada. Fuente unica `lib/liveMatch/liveScoring.js` (SSR + vivo). Modelo NO aditivo: Lone Wolf 5, exacto compartido 3, tendencia 1, nada 0 (antes daba 8 a un exacto unico). Coercion `Number()` corrige exacto que quedaba en 0. Precision visual = lectura aparte (alcanzable/imposible), no entrega puntos. Panel separa Puntos de Precision.

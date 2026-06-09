@@ -3,6 +3,14 @@
 ## Estado
 wireframe-implemented
 
+## Cartones oficiales entre dispositivos - 2026-06-09
+
+- La selección se cruza con las entregas confirmadas de `predictions.json`.
+- Al confirmar un jugador oficial se guarda la identidad y se abre
+  `OfficialPlayerModal.astro` con accesos a Estadísticas, Tabla y el cartón.
+- El diálogo atrapa foco, cierra con Escape y restaura el foco al CTA.
+- Cambiar o resetear identidad elimina sesiones y borradores de corrección.
+
 ## Iteracion arcade - referencia visual (2026-05-30)
 Movimiento de piezas hacia referencia arcade compacta para first view. Sin cambios en storage, rutas, navbar ni JS.
 - PlayerHeroPanel: quitado badge debug `03_jugador / seleccion`; agregado subtítulo de identidad; h1 reducido (tope 4.2rem).
@@ -61,6 +69,7 @@ Pantalla funcional de selección de personaje antes de pasar a Predicciones.
 - `IR A PREDICCIONES` guarda `polla:selectedPlayerId` y `polla:playerConfirmed` en localStorage.
 - Al volver con selección confirmada, la grilla queda bloqueada visualmente.
 - CTA principal apunta a `/predicciones`.
+- Para un jugador oficial, el CTA abre primero el aviso de cartón confirmado.
 
 ## Notas
 - 15 jugadores iniciales con slugs ya definidos.
@@ -108,4 +117,6 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
   - `polla:activePredictionGroup`
   - `polla:favoriteTeams`
   - `polla:activePredictionGroupIntent`
+  - `polla:predictionEditSession`
+  - `polla:predictionCorrectionDrafts`
 - Al confirmar redirige a `/jugador` para dejar la experiencia como primera entrada.

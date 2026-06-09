@@ -5,9 +5,12 @@ import PlayersGrid from "./PlayersGrid.astro";
 import PlayerSelectionCTA from "./PlayerSelectionCTA.astro";
 import PlayerWarningNote from "./PlayerWarningNote.astro";
 import PlayerResetAction from "./PlayerResetAction.astro";
+import OfficialPlayerModal from "./OfficialPlayerModal.astro";
 import playersData from "../../data/players.json";
+import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import playerIdentityUrl from "../../lib/playerIdentity.js?url";
+import predictionEditAccessUrl from "../../lib/predictions/predictionEditAccess.js?url";
 
 interface Player {
   id: string;
@@ -20,6 +23,9 @@ const players = playersData as Player[];
 const selectedPlayerId = "luis";
 const selectedPlayer =
   players.find((player) => player.id === selectedPlayerId) ?? players[0];
+const officialPlayerIds = predictionsData.submissions.map(
+  (submission) => submission.playerId
+);
 ---
 
 <section
@@ -31,6 +37,7 @@ const selectedPlayer =
   data-confirmed="false"
   data-reset-state-url={resetStateUrl}
   data-player-identity-url={playerIdentityUrl}
+  data-prediction-edit-access-url={predictionEditAccessUrl}
 >
   <div class={styles.contentShell}>
     <PlayerHeroPanel player={selectedPlayer} />
@@ -47,6 +54,13 @@ const selectedPlayer =
       </div>
     </div>
   </div>
+
+  <OfficialPlayerModal />
+  <script
+    type="application/json"
+    data-official-player-ids
+    set:html={JSON.stringify(officialPlayerIds)}
+  />
 
   <script is:inline>
     (async () => {
@@ -70,6 +84,13 @@ const selectedPlayer =
         // La seleccion mantiene el fallback local aunque no cargue el modulo compartido.
       }
 
+      let predictionEditAccessModule = null;
+      try {
+        predictionEditAccessModule = await import(section.dataset.predictionEditAccessUrl);
+      } catch {
+        // El flujo oficial sigue protegido aunque no se pueda limpiar una sesion anterior.
+      }
+
       const selectedKey = "polla:selectedPlayerId";
       const confirmedKey = "polla:playerConfirmed";
       const snapshotKey = "polla:selectedPlayerSnapshot";
@@ -84,8 +105,22 @@ const selectedPlayer =
       const resetCancelButtons = Array.from(section.querySelectorAll("[data-player-reset-cancel]"));
       const resetConfirm = section.querySelector("[data-player-reset-confirm]");
       const resetFeedback = section.querySelector("[data-player-reset-feedback]");
+      const officialIdsNode = section.querySelector("[data-official-player-ids]");
+      const officialPlayerIds = new Set((() => {
+        try {
+          return JSON.parse(officialIdsNode?.textContent || "[]");
+        } catch {
+          return [];
+        }
+      })());
+      const officialModal = section.querySelector("[data-official-player-modal]");
+      const officialDialog = section.querySelector("[data-official-player-dialog]");
+      const officialPlayerName = section.querySelector("[data-official-player-name]");
+      const officialCardLink = section.querySelector("[data-official-card-link]");
+      const officialCloseButtons = Array.from(section.querySelectorAll("[data-official-player-close]"));
       const predictionLinks = Array.from(document.querySelectorAll('a[href="/predicciones"], a[href^="/predicciones?"]'));
       let lastResetTrigger = null;
+      let lastOfficialTrigger = null;
 
       const showResetFeedback = () => {
         if (!resetFeedback) return;
@@ -123,6 +158,39 @@ const selectedPlayer =
         }
       };
 
+      const getFocusable = (root) =>
+        Array.from(root?.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) || []).filter((node) => !node.hidden);
+
+      const openOfficialModal = (playerId) => {
+        if (!officialModal) return;
+        const card = cards.find((item) => item.dataset.playerId === playerId);
+        lastOfficialTrigger = document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : cta;
+        if (officialPlayerName) officialPlayerName.textContent = card?.dataset.playerName || playerId;
+        if (officialCardLink) {
+          officialCardLink.setAttribute(
+            "href",
+            `/predicciones?player=${encodeURIComponent(playerId)}`
+          );
+        }
+        officialModal.hidden = false;
+        section.dataset.officialModalOpen = "true";
+        window.requestAnimationFrame(() => {
+          const first = getFocusable(officialDialog)[0];
+          (first || officialDialog)?.focus?.();
+        });
+      };
+
+      const closeOfficialModal = () => {
+        if (!officialModal) return;
+        officialModal.hidden = true;
+        section.dataset.officialModalOpen = "false";
+        lastOfficialTrigger?.focus?.();
+      };
+
       const fallbackHardReset = () => {
         const localKeys = [
           "polla:selectedPlayerId",
@@ -136,12 +204,14 @@ const selectedPlayer =
           "polla:finalDownloadedAt",
           "polla:finalDownloadedFilename",
           "polla:finalSubmissionPayload",
+          "polla:predictionCorrectionDrafts",
         ];
         const sessionKeys = [
           "polla:selectedPlayerId",
           "polla:playerConfirmed",
           "polla:selectedPlayerSnapshot",
           "polla:activePredictionGroupIntent",
+          "polla:predictionEditSession",
         ];
 
         localKeys.forEach((key) => {
@@ -207,6 +277,11 @@ const selectedPlayer =
       };
 
       const setStoredSelection = (playerId) => {
+        const previousPlayerId = getStoredSelectedId();
+        if (previousPlayerId && previousPlayerId !== playerId) {
+          predictionEditAccessModule?.clearPredictionEditSession?.();
+          predictionEditAccessModule?.clearPredictionCorrectionDrafts?.();
+        }
         const card = cards.find((item) => item.dataset.playerId === playerId);
         const snapshot = {
           id: card?.dataset.playerId ?? playerId,
@@ -369,11 +444,15 @@ const selectedPlayer =
           burstSelected();
         });
 
-        cta.addEventListener("click", () => {
+        cta.addEventListener("click", (event) => {
           const playerId = section.dataset.selectedPlayerId;
           if (!playerId) return;
           setStoredSelection(playerId);
           paintSelected(findCard(playerId), true);
+          if (officialPlayerIds.has(playerId)) {
+            event.preventDefault();
+            openOfficialModal(playerId);
+          }
         });
       }
 
@@ -392,7 +471,32 @@ const selectedPlayer =
 
       resetConfirm?.addEventListener("click", hardResetPlayer);
 
+      officialCloseButtons.forEach((button) => {
+        button.addEventListener("click", closeOfficialModal);
+      });
+
       document.addEventListener("keydown", (event) => {
+        if (officialModal && !officialModal.hidden) {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeOfficialModal();
+            return;
+          }
+          if (event.key === "Tab") {
+            const focusable = getFocusable(officialDialog);
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          }
+          return;
+        }
         if (event.key === "Escape" && resetModal && !resetModal.hidden) {
           closeResetModal();
         }

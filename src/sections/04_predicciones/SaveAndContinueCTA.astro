@@ -84,6 +84,13 @@
     cursor: pointer;
   }
 
+  .save-cta[data-submit-state="protected"] {
+    border-color: var(--pm-purple-500);
+    background: linear-gradient(135deg, var(--pm-purple-200), var(--pm-cyan-200));
+    color: var(--pm-purple-700);
+    cursor: not-allowed;
+  }
+
   .save-cta:focus-visible {
     outline: none;
     box-shadow: var(--pm-focus-ring-yellow);

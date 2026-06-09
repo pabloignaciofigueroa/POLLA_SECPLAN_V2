@@ -3,6 +3,13 @@
 ## Estado
 supabase-realtime-active
 
+## Predicciones oficiales corales - 2026-06-09
+
+- `src/data/predictions.json` contiene los cartones oficiales importados.
+- Antes del primer resultado aparece un pulso de pretemporada con cartones y
+  marcadores cargados; el ranking permanece en cero.
+- Desde el primer resultado, SSR y Realtime puntuan las predicciones con 5/3/1/0.
+
 ## COMANDA_10 - Iteracion visual hacia referencia arcade (2026-05-30)
 - Se recuperaron `PlayerPredictionsPanel` y `NextMatchCard` en la columna derecha (fueron retirados en Fase 10).
 - Se calculan `accuracyRows` via `calculateCurrentMatchAccuracy` y `nextMatch` via `resultsData.nextMatchId`.

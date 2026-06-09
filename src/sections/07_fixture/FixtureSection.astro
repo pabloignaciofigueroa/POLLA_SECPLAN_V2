@@ -8,10 +8,15 @@ import SelectedMatchPanel from "./SelectedMatchPanel.astro";
 import TimezoneNotice from "./TimezoneNotice.astro";
 import DayAgendaPanel from "./DayAgendaPanel.astro";
 import MatchInfoPanel from "./MatchInfoPanel.astro";
+import CommunityMatchPulse from "../../components/statistics/CommunityMatchPulse.astro";
 
 import fixtureData from "../../data/fixture.json";
 import groupsData from "../../data/groups.json";
+import teamsData from "../../data/teams.json";
+import playersData from "../../data/players.json";
+import predictionsData from "../../data/predictions.json";
 import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
+import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 
 import {
   getRelevantMatches,
@@ -89,6 +94,13 @@ const stadiumsByLocation = Object.fromEntries(
     ];
   })
 );
+const communityAnalysis = buildCommunityAnalysis({
+  dataset: predictionsData,
+  matches,
+  groups: groupsData,
+  teams: teamsData,
+  players: playersData,
+});
 
 const clientPayload = {
   matches,
@@ -98,6 +110,10 @@ const clientPayload = {
   initialStage,
   initialGroup,
   initialSelectedId: primaryMatch.id,
+  communityPulses: communityAnalysis.matchPulses,
+  confirmedPlayerIds: predictionsData.submissions.map(
+    (submission) => submission.playerId
+  ),
 };
 ---
 
@@ -135,6 +151,7 @@ const clientPayload = {
       >
         <MatchInfoPanel match={primaryMatch} info={selectedInfo} />
         <DayAgendaPanel agendaMatches={agendaMatches} selectedDateChile={primaryMatch.dateChile} />
+        <CommunityMatchPulse matchId={primaryMatch.id} />
       </SelectedMatchPanel>
     </div>
 

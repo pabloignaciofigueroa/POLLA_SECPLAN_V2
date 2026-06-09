@@ -1,3 +1,5 @@
+import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictionAccess.js";
+
 (() => {
   const section = document.querySelector('[data-section="fixture"]');
   if (!section) return;
@@ -9,6 +11,41 @@
   const stadiumsByLocation = payload.stadiumsByLocation && typeof payload.stadiumsByLocation === "object"
     ? payload.stadiumsByLocation
     : {};
+  const communityPulses = Array.isArray(payload.communityPulses) ? payload.communityPulses : [];
+  const communityPulseByMatch = new Map(communityPulses.map((pulse) => [pulse.matchId, pulse]));
+
+  const statsUnlocked = () => {
+    return isStatisticsUnlockedFromStorage({
+      confirmedPlayerIds: payload.confirmedPlayerIds ?? [],
+      localStorage: window.localStorage,
+      sessionStorage: window.sessionStorage,
+    });
+  };
+
+  const consensusLabel = (level) =>
+    ({ unanimous: "Unánime", strong: "Consenso fuerte", open: "Abierto", divided: "Dividido" })[level] ?? "Abierto";
+
+  const renderCommunityPulse = (matchId) => {
+    const node = section.querySelector("[data-community-pulse]");
+    const pulse = communityPulseByMatch.get(matchId);
+    if (!node || !pulse) return;
+    const link = node.querySelector("a");
+    if (link) link.href = `/estadisticas?tab=partidos&match=${encodeURIComponent(matchId)}`;
+    node.dataset.unlocked = statsUnlocked() ? "true" : "false";
+    const title = node.querySelector("[data-pulse-title]");
+    const copy = node.querySelector("[data-pulse-copy]");
+    if (!statsUnlocked()) {
+      if (title) title.textContent = "DATA CENTER BLOQUEADO";
+      if (copy) copy.textContent = "Completa tus 72 predicciones para revelar cómo votó la oficina.";
+      return;
+    }
+    if (title) title.textContent = `${consensusLabel(pulse.consensusLevel)} · favorito ${pulse.favoriteScore}`;
+    if (copy) copy.textContent = `${pulse.outcomes.home} local · ${pulse.outcomes.draw} empate · ${pulse.outcomes.away} visita`;
+    const bars = node.querySelectorAll("[data-pulse-bars] i");
+    [pulse.outcomes.home, pulse.outcomes.draw, pulse.outcomes.away].forEach((value, index) => {
+      if (bars[index]) bars[index].style.height = `${Math.max(8, Math.round((value / pulse.totalCards) * 100))}%`;
+    });
+  };
 
   const state = {
     stage: payload.initialStage || "group",
@@ -136,6 +173,10 @@
   const renderRow = (match, selected, status) => {
     const groupBadge = (match.groupLabel || "").replace("Grupo ", "G ");
     const matchNumber = String(match.matchNumber).padStart(2, "0");
+    const pulse = communityPulseByMatch.get(match.id);
+    const showPulse = statsUnlocked() && pulse;
+    const rowStatusLabel = showPulse ? consensusLabel(pulse.consensusLevel) : statusLabel(status);
+    const consensusAttr = showPulse ? ` data-consensus="${escapeHtml(pulse.consensusLevel)}"` : "";
     return `<li><button type="button" class="match-row" data-match-row="${escapeHtml(match.id)}" data-status="${status}" data-selected="${selected ? "true" : "false"}" data-group-key="${escapeHtml((match.groupId || "").toLowerCase())}" aria-pressed="${selected ? "true" : "false"}">`
       + `<span class="match-number">${escapeHtml(matchNumber)}</span>`
       + `<span class="time">${escapeHtml(formatTime(match.dateUtc))}</span>`
@@ -143,7 +184,7 @@
       + `<span class="separator">VS</span>`
       + `<span class="team away"><span class="team-name">${escapeHtml(match.awayTeam.name)}</span><span class="flag" aria-hidden="true"><img src="/assets/flags/${escapeHtml(match.awayTeam.id)}.svg" alt="" loading="lazy" decoding="async" width="48" height="36"></span></span>`
       + `<span class="group-badge">${escapeHtml(groupBadge)}</span>`
-      + `<span class="status-pill">${escapeHtml(statusLabel(status))}</span>`
+      + `<span class="status-pill"${consensusAttr}>${escapeHtml(rowStatusLabel)}</span>`
       + `</button></li>`;
   };
 
@@ -308,6 +349,7 @@
     }
 
     renderAgenda(match);
+    renderCommunityPulse(match.id);
   };
 
   const updateStageTabs = () => {
@@ -376,5 +418,7 @@
   };
 
   updateStageTabs();
+  renderList();
+  renderSelected();
   bindEvents();
 })();

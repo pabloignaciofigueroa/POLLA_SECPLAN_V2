@@ -38,6 +38,10 @@
   align-items: stretch;
 }
 
+.detailsGrid > :global([data-community-pulse]) {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 1200px) {
   .detailsGrid {
     grid-template-columns: 1fr 1fr;

@@ -3,6 +3,20 @@
 ## Estado
 wireframe-implemented
 
+## Cartón oficial protegido - 2026-06-09
+
+- Los jugadores importados ven sus 72 marcadores y 24 clasificados desde
+  cualquier dispositivo.
+- `lib/predictions/predictionAccess.js` resuelve `pending`,
+  `official-locked` y `official-editing`.
+- Un código Supabase de un solo uso habilita una sesión de corrección de dos
+  horas; dispone de 30 minutos para ser canjeado.
+- La corrección vive en `polla:predictionCorrectionDrafts`, separada del cartón
+  canónico y de los borradores ordinarios.
+- La exportación agrega `replacesChecksum`, `correctionGeneratedAt` y
+  `correctionPlayerId`.
+- Si Supabase falla, expira o revoca la sesión, vuelve el cartón protegido.
+
 ## Funcion
 Permitir que cada jugador complete las predicciones de los 72 partidos de fase de grupos. El 1er/2do lugar de cada grupo se calcula automaticamente desde los marcadores.
 
@@ -63,6 +77,8 @@ Regla madre: no existe polla incompleta. El JSON final solo se descarga cuando e
 - `polla:finalDownloadedAt`
 - `polla:finalDownloadedFilename`
 - `polla:finalSubmissionPayload`
+- `polla:predictionCorrectionDrafts`
+- `sessionStorage[polla:predictionEditSession]`
 
 ## JSON oficial
 El payload incluye:
@@ -77,7 +93,9 @@ El payload incluye:
 
 Los grupos siguen el orden A-L y los partidos se ordenan por `matchNumber`.
 
-## Admin / futuro
-La prediccion oficial se genera como archivo JSON descargable. El administrador recibira manualmente estos archivos y los cargara despues en la base real o archivo maestro. Pendiente futuro: panel admin para importar JSON y recalcular tabla.
+## Correcciones oficiales
 
-No hay servidor, claves externas, token, base de datos ni integraciones automaticas en esta etapa.
+Admin genera y revoca códigos desde `/admin`. El jugador descarga un JSON
+corregido, pero el dataset no cambia automáticamente: Admin debe reemplazar el
+archivo anterior, ejecutar `npm run predictions:build` y publicar. Mantener
+ambos archivos hace fallar la importación por jugador duplicado.
