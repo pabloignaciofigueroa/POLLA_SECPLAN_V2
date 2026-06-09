@@ -21,9 +21,6 @@ import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import { buildAdminDashboardViewModel } from "./admin.logic";
 import type { AdminDashboardMock, AdminFixtureMatch, AdminPlayer } from "./admin.logic";
 import { resolveCurrentMatch } from "../../lib/liveMatch/liveMatchState.js";
-import liveMatchStateUrl from "../../lib/liveMatch/liveMatchState.js?url";
-
-import adminClientUrl from "./admin.client.js?url";
 
 const players = playersData as AdminPlayer[];
 const matches = fixtureData.matches as AdminFixtureMatch[];
@@ -32,6 +29,15 @@ const dashboard = buildAdminDashboardViewModel(
   matches,
   adminDashboardData as AdminDashboardMock
 );
+const hasSupabaseClient = Boolean(
+  import.meta.env.PUBLIC_SUPABASE_URL &&
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+);
+dashboard.system = {
+  ...dashboard.system,
+  supabase: hasSupabaseClient ? "CLIENTE CONFIGURADO" : "NO CONFIGURADO",
+  apiConnection: hasSupabaseClient ? "SUPABASE REST + REALTIME" : "SIN CONEXION",
+};
 
 // Lista slim del fixture para el control de marcador (id/numero/fecha/equipos).
 // El fixture es calendario fijo: aqui solo se lee, nunca se modifica.
@@ -59,7 +65,6 @@ const clientPayload = {
   resetStateUrl,
   dangerousActions: ["danger-clear-cache", "danger-recalculate"],
   liveMatches,
-  liveMatchStateUrl,
 };
 ---
 
@@ -121,5 +126,7 @@ const clientPayload = {
   </div>
 
   <script type="application/json" data-admin-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={adminClientUrl}></script>
+  <script>
+    import "./admin.client.js";
+  </script>
 </section>

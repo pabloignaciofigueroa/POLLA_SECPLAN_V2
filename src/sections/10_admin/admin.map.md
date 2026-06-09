@@ -1,18 +1,18 @@
 # 10_admin — Mapa técnico
 
 ## Estado
-wireframe-implemented
+supabase-admin-active
 
 ## Fase 10 - Simplificacion arcade
-Admin reducido a sidebar, sesion, 4 KPIs, estado del sistema y feedback. Se retiraron paneles operativos secundarios y bitacora.
+Admin organizado como sidebar, sesion protegida, KPIs, estado del sistema y control global del marcador.
 
 ## Ruta
 /admin
 
 ## Función
 Centro técnico de control de la Polla Mundialera SECPLAN 2026.
-Renderiza un dashboard administrativo en Fase 2: datos mock/derivados,
-sin login real, sin backend, sin escritura destructiva y sin import/export real.
+El gate valida una sesion remota y el mini marcador escribe el estado global
+mediante RPC protegidas de Supabase.
 
 ## Componente principal
 AdminSection.astro
@@ -41,7 +41,7 @@ AdminSection.module.css
 ## Data
 - src/data/players.json — 15 jugadores registrados.
 - src/data/fixture.json — 72 partidos.
-- src/data/admin-dashboard.mock.json — sesión, sistema, solicitudes, backup y bitácora.
+- src/data/admin-dashboard.json — estado base, solicitudes, backup y bitácora.
 
 ## Lógica
 - admin.logic.ts:
@@ -49,9 +49,11 @@ AdminSection.module.css
   - calcula jugadores registrados, cartones, partidos, resultados y total posible de predicciones.
 - admin.client.js:
   - scoped a `[data-section="admin"]`
+  - valida token remoto antes de habilitar el dashboard
+  - actualiza/finaliza partidos mediante RPC Supabase
   - cambia estado visual del sidebar
   - muestra feedback local
-  - pide confirmación para acciones críticas y no muta datos reales
+  - pide confirmación para acciones críticas locales
 
 ## Comportamiento
 - Navbar global marca `Admin` activo vía `aria-current="page"`.
@@ -67,7 +69,8 @@ AdminSection.module.css
 - Total posible de predicciones: 0 / 1008.
 
 ## Restricciones
-- Fase 2 wireframe: sin auth real, Supabase, backend, roles reales ni escrituras.
+- No exponer password, hash, `service_role` ni tokens Admin en el bundle.
+- Las escrituras globales solo pueden pasar por RPC con sesion valida.
 - No usar CSS global.
 - No agregar React ni librerías UI.
 - Acciones críticas son simuladas y requieren confirmación.
@@ -93,7 +96,7 @@ AdminSection.module.css
 
 ## Fase 11 - Assets WebP master integrados (2026-05-30)
 
-Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<img>` con `object-fit:contain` + `width/height` (anti-CLS); sin tocar CSS global, tokens, rutas, storage ni datos.
+Ruta publica: `public/assets/polla-mundialera/`. Regla: el holder manda; `<img>` con `object-fit:contain` + `width/height` (anti-CLS); sin tocar CSS global, tokens, rutas, storage ni datos.
 
 - AdminSidebar: brand-mark `PM` -> `19-shield-secplan-blue-gold-star` (identidad).
 - DangerousZone: glifo warning -> `11-badge-alert-orange-circle`.
@@ -111,8 +114,9 @@ Se reemplaza la card de sesión + botón "Cerrar sesión admin" del hero por
 - Lógica de marcador: `admin.client.js` -> `initLiveScoreControl()`.
   - Hidrata desde `polla:liveMatchState` si existe; si no, `resolveCurrentMatch()` (en vivo/próximo) en 0-0.
   - `ACTUALIZAR MARCADOR` llama `saveLiveMatchState(state)` y dispara `polla:live-score-updated`.
-- Contrato y helpers: `src/lib/liveMatch/liveMatchState.js` (seam único para futuro Supabase).
-  - Storage key: `polla:liveMatchState` (localStorage).
+- Contrato y helpers: `src/lib/liveMatch/liveMatchState.js`.
+  - En esta fase historica se uso `polla:liveMatchState`; la Fase 14 lo deja
+    como cache y mueve la autoridad a Supabase.
   - El fixture es calendario fijo: el control solo lee la lista slim, nunca modifica `fixture.json`.
 - Logout eliminado: la sesión admin solo expira por tiempo (2h) o limpiando `sessionStorage`.
 - `SessionStatusCard.astro` queda legacy (no se monta).
@@ -125,3 +129,16 @@ Se reemplaza la card de sesión + botón "Cerrar sesión admin" del hero por
 - `FINALIZAR PARTIDO` (`data-live-finalize`) -> `saveOfficialResult()` en `polla:officialResults` y avanza al próximo partido no finalizado en 0-0.
 - El contrato de `liveMatchState` ahora incluye `matchId` (la tabla keyea por matchId).
 - La tabla (`/tabla`) consume todo esto via `subscribeLiveData`. Ver flujo "Marcador en vivo (admin) -> Tabla dinamica" en el mapa principal.
+
+## Fase 14 - Sesion admin y escritura Supabase (2026-06-08)
+
+Esta fase reemplaza como estado vigente el storage local descrito en Fases 12-13.
+
+- El password ya no esta hardcodeado en el bundle.
+- `polla_admin_login` valida hash bcrypt y emite un token de dos horas.
+- El navegador guarda solo token/expiracion en `sessionStorage`.
+- `ACTUALIZAR MARCADOR` usa RPC sobre `polla_live_match`.
+- `FINALIZAR PARTIDO` guarda resultado + siguiente partido atomicamente.
+- Las tablas son publicas solo para SELECT; las escrituras pasan por RPC.
+- Migracion y runbook: `supabase/migrations/20260608170000_polla_live_realtime.sql`
+  y `supabase/README.md`.

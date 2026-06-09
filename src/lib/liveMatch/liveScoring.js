@@ -11,7 +11,7 @@
 //   nada                     = 0
 //
 // Modulo puro y dependency-free: lo importan el SSR (lib/tabla/*.ts) y el
-// recompute en vivo (tabla.client.js, via ?url). Coercion Number() en todos los
+// recompute en vivo (tabla.client.js, dentro del bundle cliente). Coercion Number() en todos los
 // cruces para evitar el bug "2" !== 2.
 
 // ── Puntaje ────────────────────────────────────────────────────────────────

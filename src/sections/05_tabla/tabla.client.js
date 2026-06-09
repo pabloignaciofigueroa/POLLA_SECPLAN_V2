@@ -1,3 +1,5 @@
+import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
+
 (async () => {
   const section = document.querySelector('[data-section="tabla"]');
   if (!section) return;
@@ -276,7 +278,8 @@
   // La tabla SSR ya sale calculada con predictions.json. Solo recalculamos
   // cuando hay marcador en vivo u oficiales que sobreponer (asi no se reordena
   // tras el primer paint sin motivo = sin flash). El marcador del admin llega
-  // por subscribeLiveData: hoy localStorage/eventos, manana Supabase realtime.
+  // por subscribeLiveData: Supabase Realtime como fuente compartida y
+  // localStorage/eventos como cache local.
 
   const officialToResults = (officialResults) =>
     (officialResults ?? [])
@@ -389,12 +392,5 @@
     toggleProvisional(liveActive);
   };
 
-  if (payload.liveMatchStateUrl) {
-    try {
-      const { subscribeLiveData } = await import(payload.liveMatchStateUrl);
-      subscribeLiveData(recompute);
-    } catch {
-      // Sin pipeline disponible: la tabla queda en su estado SSR.
-    }
-  }
+  subscribeLiveData(recompute);
 })();

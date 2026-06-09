@@ -1,7 +1,7 @@
 # 05_tabla — Mapa técnico
 
 ## Estado
-wireframe-implemented
+supabase-realtime-active
 
 ## COMANDA_10 - Iteracion visual hacia referencia arcade (2026-05-30)
 - Se recuperaron `PlayerPredictionsPanel` y `NextMatchCard` en la columna derecha (fueron retirados en Fase 10).
@@ -61,9 +61,9 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 ## Data
 - src/data/players.json — 15 jugadores oficiales.
 - src/data/fixture.json — fixture base de 72 partidos.
-- src/data/results.mock.json — resultados demo y partido en curso para wireframe.
+- src/data/results.json — resultados oficiales base del build.
 - src/data/scoring-rules.json — reglas de puntaje exacto/tendencia/Lone Wolf.
-- src/data/table-predictions.mock.json — predicciones demo para ranking calculado.
+- src/data/predictions.json — predicciones oficiales usadas por el ranking.
 
 ## Lógica
 - src/lib/tabla/calculatePlayerStandings.ts — calcula puntos, posiciones, rendimiento y racha.
@@ -73,9 +73,10 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 - src/lib/tabla/formatRankingRows.ts — normaliza filas de ranking.
 
 ## Comportamiento
-- Render SSR con mock calculado.
+- Render SSR con la base versionada y recompute cliente sobre el snapshot remoto.
 - JS local encapsulado en `[data-section="tabla"]`.
-- Si existe `polla:predictions`, mezcla predicciones guardadas desde `/predicciones` y recalcula ranking/panel.
+- Supabase REST carga el snapshot inicial y Realtime aplica cambios globales.
+- Si existe `polla:predictions`, se mezcla solo como estado local del jugador.
 - Categorías compartidas: `EXCELENTE`, `CERCA`, `REGULAR`, `LEJOS`, `MUY LEJOS`.
 
 ## Assets pendientes
@@ -84,7 +85,8 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 - public/assets/backgrounds/bg-05-tabla-clean.webp — background final.
 
 ## Notas
-- Fase 2 wireframe: sin backend, sin resultados oficiales y sin arte final.
+- Supabase es la fuente compartida del marcador y resultados oficiales.
+- `localStorage` es cache/fallback, no autoridad global.
 - No confundir con Estadísticas: Tabla = ranking competitivo directo.
 
 ## Fase 3A — visual base
@@ -96,7 +98,7 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 
 ## Fase 11 - Assets WebP master integrados (2026-05-30)
 
-Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<img>` con `object-fit:contain` + `width/height` (anti-CLS); sin tocar CSS global, tokens, rutas, storage ni datos.
+Ruta publica: `public/assets/polla-mundialera/`. Regla: el holder manda; `<img>` con `object-fit:contain` + `width/height` (anti-CLS); sin tocar CSS global, tokens, rutas, storage ni datos.
 
 - MovementIndicator (up/down/same/new): `icon-trend-up-green` / `icon-trend-down-red` / `icon-trend-neutral-gray` / `icon-star-blue`; tabla.client.js actualiza `img.src` (no textContent) + `:global([data-section=tabla] [data-movement] img)`.
 - Ranking sigue saliendo de data/logica; los assets solo decoran el movimiento.
@@ -105,7 +107,9 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 
 La tabla ahora reacciona al marcador que el admin edita en `/admin`.
 
-- Fuente viva: `tabla.client.js` se suscribe con `subscribeLiveData(callback)` del seam `src/lib/liveMatch/liveMatchState.js` (hoy localStorage + eventos `polla:live-score-updated` / `polla:official-results-updated` + `storage` para otra pestaña; manana Supabase realtime reimplementando solo esa funcion).
+- Implementacion inicial historica: `tabla.client.js` se suscribia con
+  `subscribeLiveData(callback)` usando localStorage y eventos entre pestañas.
+  La Fase 14 reemplaza ese transporte por Supabase REST + Realtime.
 - Recompute por snapshot `{ liveMatch, officialResults }`:
   - `officialResults` (key `polla:officialResults`) se folden como resultados `finished`.
   - el `liveMatch` (key `polla:liveMatchState`) se sobrepone como provisional contado.
@@ -135,3 +139,15 @@ recompute en vivo `tabla.client.js`). Sin logica duplicada.
   + `data-prediction-type`, coloreado por `data-hit-type`); precision aparte
   (`data-prediction-percent` + barra + `data-prediction-acc-label`).
 - Tests: `node` sobre `liveScoring.js` cubre los 8 casos del spec + coercion (15 asserts).
+
+## Fase 14 - Supabase Realtime compartido (2026-06-08)
+
+Esta fase reemplaza como estado vigente el transporte local descrito en Fase 12.
+
+- `subscribeLiveData()` carga REST y escucha `postgres_changes` sobre
+  `polla_live_match` y `polla_official_results`.
+- Todos los navegadores consumen el mismo marcador y resultados.
+- RLS permite lectura publica; no existen policies publicas de escritura.
+- `polla:liveMatchState` y `polla:officialResults` son solo cache/fallback.
+- Configuracion: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`.
+- DDL/RPC/publicacion: `supabase/migrations/20260608170000_polla_live_realtime.sql`.

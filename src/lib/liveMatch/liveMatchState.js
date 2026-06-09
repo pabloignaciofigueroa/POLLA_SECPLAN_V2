@@ -1,120 +1,315 @@
-// Contrato y helpers del marcador en vivo de la Polla.
-//
-// Fixture JSON = calendario fijo (NO se modifica nunca).
-// liveMatchState = marcador vivo editable desde Admin.
-// La tabla recalcula leyendo este estado en el futuro.
-//
-// Este modulo es el unico punto de guardado del marcador. Hoy persiste en
-// localStorage; mas adelante saveLiveMatchState pasara a fetch("/api/admin/live-match")
-// sin tocar la UI ni el contrato.
+import {
+  getSupabaseClient,
+  isSupabaseConfigured,
+} from "../supabase/supabaseClient.js";
 
 export const LIVE_MATCH_STATE_KEY = "polla:liveMatchState";
 export const LIVE_SCORE_EVENT = "polla:live-score-updated";
-
-// Resultados oficiales acumulados localmente (historial de la temporada).
-// Lista de partidos finalizados por el admin. Supabase reemplaza este store.
 export const OFFICIAL_RESULTS_KEY = "polla:officialResults";
 export const OFFICIAL_RESULTS_EVENT = "polla:official-results-updated";
 
-// Ventana en la que un partido se considera "en vivo" desde su dateUtc.
-const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
+export const ADMIN_SESSION_TOKEN_KEY = "polla:adminSessionToken";
+export const ADMIN_SESSION_EXPIRES_KEY = "polla:adminSessionExpiresAt";
 
-/**
- * Lee y parsea el estado de marcador vivo desde localStorage.
- * @returns {object|null} liveMatchState guardado o null si no hay / es invalido.
- */
-export function readLiveMatchState() {
+const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
+const LIVE_TABLE = "polla_live_match";
+const RESULTS_TABLE = "polla_official_results";
+
+function localStorageGet(key) {
   try {
-    const raw = window.localStorage.getItem(LIVE_MATCH_STATE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : null;
+    return window.localStorage.getItem(key);
   } catch {
     return null;
   }
 }
 
-/**
- * Unico punto de guardado del marcador vivo.
- * Hoy: localStorage. Futuro: reemplazar por
- *   await fetch("/api/admin/live-match", { method: "POST", body: JSON.stringify(state) })
- * manteniendo el mismo contrato.
- * @param {object} state liveMatchState a persistir.
- * @returns {object} el mismo state guardado.
- */
-export function saveLiveMatchState(state) {
+function localStorageSet(key, value) {
   try {
-    window.localStorage.setItem(LIVE_MATCH_STATE_KEY, JSON.stringify(state));
+    window.localStorage.setItem(key, value);
   } catch {}
-  // Notifica a los suscriptores de la misma pestaña (otras pestañas usan storage).
-  try {
-    window.dispatchEvent(new CustomEvent(LIVE_SCORE_EVENT, { detail: state }));
-  } catch {}
-  return state;
 }
 
-/**
- * Lee la lista de resultados oficiales acumulados localmente.
- * @returns {Array<object>} resultados finalizados (vacio si no hay).
- */
-export function readOfficialResults() {
+function sessionStorageGet(key) {
   try {
-    const raw = window.localStorage.getItem(OFFICIAL_RESULTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return window.sessionStorage.getItem(key);
   } catch {
-    return [];
+    return null;
   }
 }
 
-/**
- * Guarda (upsert por matchId) un resultado oficial finalizado.
- * Hoy: localStorage. Futuro: POST a Supabase manteniendo el mismo contrato.
- * @param {object} result { matchId, matchNumber, homeTeamScore, awayTeamScore, ... }.
- * @returns {Array<object>} lista actualizada.
- */
-export function saveOfficialResult(result) {
-  const list = readOfficialResults().filter((item) => item && item.matchId !== result.matchId);
-  list.push(result);
+function sessionStorageSet(key, value) {
   try {
-    window.localStorage.setItem(OFFICIAL_RESULTS_KEY, JSON.stringify(list));
+    window.sessionStorage.setItem(key, value);
   } catch {}
+}
+
+function sessionStorageRemove(key) {
   try {
-    window.dispatchEvent(new CustomEvent(OFFICIAL_RESULTS_EVENT, { detail: list }));
+    window.sessionStorage.removeItem(key);
   } catch {}
+}
+
+function parseJson(raw, fallback) {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function readCachedLiveMatch() {
+  const parsed = parseJson(localStorageGet(LIVE_MATCH_STATE_KEY), null);
+  return parsed && typeof parsed === "object" ? parsed : null;
+}
+
+function readCachedOfficialResults() {
+  const parsed = parseJson(localStorageGet(OFFICIAL_RESULTS_KEY), []);
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+function cacheLiveMatch(state) {
+  if (!state) return;
+  localStorageSet(LIVE_MATCH_STATE_KEY, JSON.stringify(state));
+}
+
+function cacheOfficialResults(results) {
+  localStorageSet(OFFICIAL_RESULTS_KEY, JSON.stringify(results));
+}
+
+function dispatch(name, detail) {
+  try {
+    window.dispatchEvent(new CustomEvent(name, { detail }));
+  } catch {}
+}
+
+function getAdminToken() {
+  const token = sessionStorageGet(ADMIN_SESSION_TOKEN_KEY);
+  if (!token || !hasValidAdminSession()) {
+    clearAdminSession();
+    throw new Error("La sesion de administrador expiro. Ingresa nuevamente.");
+  }
+  return token;
+}
+
+function requireSupabase() {
+  const client = getSupabaseClient();
+  if (!client) {
+    throw new Error("Supabase no esta configurado en este despliegue.");
+  }
+  return client;
+}
+
+function normalizeRemoteError(error, fallback) {
+  const message = String(error?.message ?? "");
+  if (
+    message.includes("invalid_or_expired_admin_session") ||
+    message.includes("invalid_admin_password")
+  ) {
+    clearAdminSession();
+  }
+  return new Error(message || fallback);
+}
+
+export function isRemoteLiveDataEnabled() {
+  return isSupabaseConfigured();
+}
+
+export function clearAdminSession() {
+  sessionStorageRemove(ADMIN_SESSION_TOKEN_KEY);
+  sessionStorageRemove(ADMIN_SESSION_EXPIRES_KEY);
+}
+
+export function hasValidAdminSession() {
+  const token = sessionStorageGet(ADMIN_SESSION_TOKEN_KEY);
+  const expiresAt = Date.parse(sessionStorageGet(ADMIN_SESSION_EXPIRES_KEY) ?? "");
+  if (!token || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+    clearAdminSession();
+    return false;
+  }
+  return true;
+}
+
+export async function loginAdmin(password) {
+  const client = requireSupabase();
+  const { data, error } = await client.rpc("polla_admin_login", {
+    p_password: String(password ?? ""),
+  });
+
+  if (error || !data?.token || !data?.expiresAt) {
+    throw normalizeRemoteError(error, "No fue posible validar la clave de administrador.");
+  }
+
+  sessionStorageSet(ADMIN_SESSION_TOKEN_KEY, String(data.token));
+  sessionStorageSet(ADMIN_SESSION_EXPIRES_KEY, String(data.expiresAt));
+  return data;
+}
+
+export async function validateAdminSession() {
+  if (!hasValidAdminSession()) return false;
+
+  const client = requireSupabase();
+  const token = sessionStorageGet(ADMIN_SESSION_TOKEN_KEY);
+  const { data, error } = await client.rpc("polla_admin_session_is_valid", {
+    p_token: token,
+  });
+
+  if (error || data !== true) {
+    clearAdminSession();
+    return false;
+  }
+  return true;
+}
+
+async function fetchRemoteLiveMatch() {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from(LIVE_TABLE)
+    .select("payload")
+    .eq("id", "current")
+    .maybeSingle();
+
+  if (error) throw normalizeRemoteError(error, "No fue posible leer el marcador remoto.");
+  return data?.payload ?? null;
+}
+
+async function fetchRemoteOfficialResults() {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from(RESULTS_TABLE)
+    .select("payload, match_number")
+    .order("match_number", { ascending: true });
+
+  if (error) throw normalizeRemoteError(error, "No fue posible leer los resultados remotos.");
+  return (data ?? []).map((row) => row.payload).filter(Boolean);
+}
+
+export async function readLiveMatchState() {
+  if (!isRemoteLiveDataEnabled()) return readCachedLiveMatch();
+
+  try {
+    const state = await fetchRemoteLiveMatch();
+    if (state) cacheLiveMatch(state);
+    return state ?? readCachedLiveMatch();
+  } catch {
+    return readCachedLiveMatch();
+  }
+}
+
+export async function saveLiveMatchState(state) {
+  if (!isRemoteLiveDataEnabled()) {
+    cacheLiveMatch(state);
+    dispatch(LIVE_SCORE_EVENT, state);
+    return state;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client.rpc("polla_save_live_match", {
+    p_token: getAdminToken(),
+    p_payload: state,
+  });
+
+  if (error) throw normalizeRemoteError(error, "No fue posible guardar el marcador.");
+  const saved = data ?? state;
+  cacheLiveMatch(saved);
+  dispatch(LIVE_SCORE_EVENT, saved);
+  return saved;
+}
+
+export async function readOfficialResults() {
+  if (!isRemoteLiveDataEnabled()) return readCachedOfficialResults();
+
+  try {
+    const results = await fetchRemoteOfficialResults();
+    cacheOfficialResults(results);
+    return results;
+  } catch {
+    return readCachedOfficialResults();
+  }
+}
+
+export async function saveOfficialResult(result) {
+  if (!isRemoteLiveDataEnabled()) {
+    const list = readCachedOfficialResults().filter(
+      (item) => item && item.matchId !== result.matchId
+    );
+    list.push(result);
+    cacheOfficialResults(list);
+    dispatch(OFFICIAL_RESULTS_EVENT, list);
+    return list;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client.rpc("polla_save_official_result", {
+    p_token: getAdminToken(),
+    p_payload: result,
+  });
+
+  if (error) throw normalizeRemoteError(error, "No fue posible oficializar el resultado.");
+  const list = (await readOfficialResults()).filter(
+    (item) => item && item.matchId !== result.matchId
+  );
+  list.push(data ?? result);
+  list.sort((a, b) => Number(a.matchNumber) - Number(b.matchNumber));
+  cacheOfficialResults(list);
+  dispatch(OFFICIAL_RESULTS_EVENT, list);
   return list;
 }
 
-/**
- * Snapshot completo de datos vivos: marcador en vivo + oficiales acumulados.
- * Es la forma que el consumidor (tabla) recibe en cada actualizacion.
- * @returns {{ liveMatch: object|null, officialResults: Array<object> }}
- */
-export function readLiveSnapshot() {
-  return {
-    liveMatch: readLiveMatchState(),
-    officialResults: readOfficialResults(),
-  };
+export async function finalizeOfficialResult(result, nextLiveMatch) {
+  if (!isRemoteLiveDataEnabled()) {
+    await saveOfficialResult(result);
+    await saveLiveMatchState(nextLiveMatch);
+    return { result, liveMatch: nextLiveMatch };
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client.rpc("polla_finalize_match", {
+    p_token: getAdminToken(),
+    p_result: result,
+    p_next_live: nextLiveMatch,
+  });
+
+  if (error) throw normalizeRemoteError(error, "No fue posible finalizar el partido.");
+
+  const savedResult = data?.result ?? result;
+  const savedLiveMatch = data?.liveMatch ?? nextLiveMatch;
+  const results = readCachedOfficialResults().filter(
+    (item) => item && item.matchId !== savedResult.matchId
+  );
+  results.push(savedResult);
+  results.sort((a, b) => Number(a.matchNumber) - Number(b.matchNumber));
+  cacheOfficialResults(results);
+  cacheLiveMatch(savedLiveMatch);
+  dispatch(OFFICIAL_RESULTS_EVENT, results);
+  dispatch(LIVE_SCORE_EVENT, savedLiveMatch);
+  return { result: savedResult, liveMatch: savedLiveMatch };
 }
 
-/**
- * Pipeline transport-agnostico. El consumidor llama esto y recibe el snapshot
- * actual de inmediato y en cada cambio (marcador en vivo u oficiales), venga de
- * la misma pestaña (CustomEvent) o de otra pestaña del mismo navegador (storage).
- *
- * SEAM FUTURO: cuando entre Supabase realtime, reimplementar SOLO esta funcion
- * para que tambien llame `callback(snapshot)` ante cambios remotos. El consumidor
- * (tabla) no cambia.
- *
- * @param {(snapshot: { liveMatch: object|null, officialResults: Array<object> }) => void} callback
- * @returns {() => void} unsubscribe
- */
+export async function readLiveSnapshot() {
+  const [liveMatch, officialResults] = await Promise.all([
+    readLiveMatchState(),
+    readOfficialResults(),
+  ]);
+  return { liveMatch, officialResults };
+}
+
 export function subscribeLiveData(callback) {
   if (typeof window === "undefined") return () => {};
 
-  const emit = () => callback(readLiveSnapshot());
-  emit(); // snapshot inicial
+  let disposed = false;
+  let pending = false;
+
+  const emit = async () => {
+    if (disposed || pending) return;
+    pending = true;
+    try {
+      const snapshot = await readLiveSnapshot();
+      if (!disposed) callback(snapshot);
+    } finally {
+      pending = false;
+    }
+  };
 
   const onSameTab = () => emit();
   const onStorage = (event) => {
@@ -130,24 +325,35 @@ export function subscribeLiveData(callback) {
   window.addEventListener(LIVE_SCORE_EVENT, onSameTab);
   window.addEventListener(OFFICIAL_RESULTS_EVENT, onSameTab);
   window.addEventListener("storage", onStorage);
+  emit();
+
+  let channel = null;
+  const client = getSupabaseClient();
+  if (client) {
+    channel = client
+      .channel("polla:live-data")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: LIVE_TABLE },
+        emit
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: RESULTS_TABLE },
+        emit
+      )
+      .subscribe();
+  }
 
   return () => {
+    disposed = true;
     window.removeEventListener(LIVE_SCORE_EVENT, onSameTab);
     window.removeEventListener(OFFICIAL_RESULTS_EVENT, onSameTab);
     window.removeEventListener("storage", onStorage);
+    if (client && channel) client.removeChannel(channel);
   };
 }
 
-/**
- * Funcion pura: elige el partido en vivo o el proximo segun la hora real.
- * - "en vivo": now dentro de [dateUtc, dateUtc + LIVE_WINDOW_MS].
- * - si no hay en vivo: el proximo partido programado (dateUtc > now).
- * - si todos pasaron: el ultimo del calendario.
- * Reutilizable por server (build) y client (runtime).
- * @param {Array<object>} matches lista slim de partidos (id, matchNumber, dateUtc, homeTeam, awayTeam).
- * @param {number} now epoch ms.
- * @returns {object|null} partido elegido o null si la lista esta vacia.
- */
 export function resolveCurrentMatch(matches, now = Date.now()) {
   if (!Array.isArray(matches) || matches.length === 0) return null;
 

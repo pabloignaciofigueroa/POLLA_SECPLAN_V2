@@ -1,7 +1,6 @@
 ---
 import MobileMenu from "./MobileMenu.astro";
 import AdminAccessModal from "./AdminAccessModal.astro";
-import adminAccessClientUrl from "./admin-access.client.js?url";
 
 const normalizePath = (path: string) => {
   if (path === "/") return "/";
@@ -65,7 +64,9 @@ const links = [
 </header>
 
 <AdminAccessModal />
-<script type="module" src={adminAccessClientUrl}></script>
+<script>
+  import "./admin-access.client.js";
+</script>
 
 <style>
   .header {

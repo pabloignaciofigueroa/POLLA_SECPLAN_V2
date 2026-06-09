@@ -1,51 +1,8 @@
-const ADMIN_PASSWORD = "Oli_oli_2026";
-const ADMIN_SESSION_KEY = "polla:adminAccessGranted";
-const ADMIN_SESSION_AT_KEY = "polla:adminAccessGrantedAt";
-const ADMIN_SESSION_DURATION_MS = 2 * 60 * 60 * 1000;
-
-function safeSessionGet(key) {
-  try {
-    return window.sessionStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function safeSessionSet(key, value) {
-  try {
-    window.sessionStorage.setItem(key, value);
-  } catch {}
-}
-
-function safeSessionRemove(key) {
-  try {
-    window.sessionStorage.removeItem(key);
-  } catch {}
-}
-
-function clearAdminSession() {
-  safeSessionRemove(ADMIN_SESSION_KEY);
-  safeSessionRemove(ADMIN_SESSION_AT_KEY);
-}
-
-function hasValidAdminSession() {
-  const granted = safeSessionGet(ADMIN_SESSION_KEY);
-  const grantedAt = Number(safeSessionGet(ADMIN_SESSION_AT_KEY));
-
-  if (granted !== "true" || !grantedAt) return false;
-
-  if (Date.now() - grantedAt > ADMIN_SESSION_DURATION_MS) {
-    clearAdminSession();
-    return false;
-  }
-
-  return true;
-}
-
-function grantAdminSession() {
-  safeSessionSet(ADMIN_SESSION_KEY, "true");
-  safeSessionSet(ADMIN_SESSION_AT_KEY, String(Date.now()));
-}
+import {
+  clearAdminSession,
+  hasValidAdminSession,
+  loginAdmin,
+} from "../../lib/liveMatch/liveMatchState.js";
 
 window.PollaAdminAccess = {
   hasValidAdminSession,
@@ -56,6 +13,7 @@ const modal = document.querySelector("[data-admin-access-modal]");
 const form = modal?.querySelector("[data-admin-access-form]");
 const input = modal?.querySelector("[data-admin-access-input]");
 const error = modal?.querySelector("[data-admin-access-error]");
+const submit = form?.querySelector('button[type="submit"]');
 const closeButtons = document.querySelectorAll("[data-admin-access-close]");
 const triggers = document.querySelectorAll("[data-admin-access-trigger]");
 let lastFocusedElement = null;
@@ -68,7 +26,10 @@ function setErrorVisible(isVisible) {
 function openAdminModal() {
   if (!modal) return;
 
-  lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  lastFocusedElement =
+    document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
   modal.hidden = false;
   setErrorVisible(false);
   if (input) input.value = "";
@@ -109,21 +70,34 @@ triggers.forEach((trigger) => {
   });
 });
 
-form?.addEventListener("submit", (event) => {
+form?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const value = input?.value ?? "";
+  if (!value || submit?.disabled) return;
 
-  if (value === ADMIN_PASSWORD) {
-    grantAdminSession();
-    window.location.href = "/admin";
-    return;
+  if (submit) {
+    submit.disabled = true;
+    submit.dataset.originalLabel ||= submit.textContent || "Entrar al Admin";
+    submit.textContent = "Validando...";
   }
+  setErrorVisible(false);
 
-  setErrorVisible(true);
-  if (input) {
-    input.value = "";
-    input.focus();
+  try {
+    await loginAdmin(value);
+    window.location.href = "/admin";
+  } catch {
+    setErrorVisible(true);
+    if (input) {
+      input.value = "";
+      input.focus();
+    }
+  } finally {
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent =
+        submit.dataset.originalLabel || "Entrar al Admin";
+    }
   }
 });
 

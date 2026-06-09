@@ -10,13 +10,11 @@ import resultsData from "../../data/results.json";
 import scoringRulesData from "../../data/scoring-rules.json";
 import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
-import liveMatchStateUrl from "../../lib/liveMatch/liveMatchState.js?url";
 import liveScoringUrl from "../../lib/liveMatch/liveScoring.js?url";
 import { calculatePlayerStandings } from "../../lib/tabla/calculatePlayerStandings";
 import { calculateCurrentMatchAccuracy } from "../../lib/tabla/calculateCurrentMatchAccuracy";
 import { getLiveOrRelevantMatch } from "../../lib/tabla/getLiveOrRelevantMatch";
 import type { Match, MatchResult, Player, Prediction, ScoringRules } from "../../lib/tabla/types";
-import tablaClientUrl from "./tabla.client.js?url";
 
 const players = playersData as Player[];
 const matches = fixtureData.matches as Match[];
@@ -47,7 +45,6 @@ const clientPayload = {
   currentMatchId: displayMatch?.id ?? resultsData.currentMatchId,
   displayMatchId: displayMatch?.id,
   resetStateUrl,
-  liveMatchStateUrl,
   liveScoringUrl,
 };
 ---
@@ -73,5 +70,7 @@ const clientPayload = {
   </div>
 
   <script type="application/json" data-tabla-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={tablaClientUrl}></script>
+  <script>
+    import "./tabla.client.js";
+  </script>
 </section>
