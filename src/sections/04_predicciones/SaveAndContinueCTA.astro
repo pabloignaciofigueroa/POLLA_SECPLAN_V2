@@ -69,12 +69,12 @@
     cursor: progress;
   }
 
-  /* DESCARGADO: confirmado verde */
+  /* DESCARGADO: confirmado verde, pero sigue accionable para re-descargar */
   .save-cta[data-submit-state="downloaded"] {
     border-color: var(--pm-state-confirmed-border);
     background: var(--pm-state-confirmed-bg);
     color: var(--pm-state-confirmed-text);
-    cursor: default;
+    cursor: pointer;
   }
 
   .save-cta[data-submit-state="error"] {
@@ -98,6 +98,10 @@
 
     .save-cta[data-submit-state="complete"]:hover .star-icon {
       opacity: 1;
+    }
+
+    .save-cta[data-submit-state="downloaded"]:hover {
+      transform: translateY(-1px);
     }
   }
 

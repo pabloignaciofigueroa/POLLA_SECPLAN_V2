@@ -92,6 +92,8 @@
   const backButton = section.querySelector("[data-back-group]");
   const saveButton = section.querySelector("[data-save-continue]");
   const saveLabel = section.querySelector("[data-save-label]");
+  const downloadHelp = section.querySelector("[data-download-help]");
+  const downloadFilenameNode = section.querySelector("[data-download-filename]");
   const messageNode = section.querySelector("[data-prediction-message]");
   const completionStatus = section.querySelector("[data-completion-status]");
   const nextGroupIndicator = section.querySelector("[data-next-group-indicator]");
@@ -461,20 +463,30 @@
   const setSubmitState = (state) => {
     if (!saveButton) return;
     saveButton.dataset.submitState = state;
-    const blocked = state === "incomplete" || state === "downloading" || state === "downloaded";
+    // El estado "downloaded" ya NO bloquea el boton: el jugador debe poder
+    // re-descargar el JSON cuantas veces necesite (en celular es facil perder
+    // de vista donde quedo el archivo). Solo se bloquea sin polla completa o
+    // mientras se esta generando el archivo.
+    const blocked = state === "incomplete" || state === "downloading";
     saveButton.disabled = blocked;
     saveButton.setAttribute("aria-disabled", blocked ? "true" : "false");
+  };
+
+  const showDownloadHelp = (filename) => {
+    if (downloadFilenameNode && filename) downloadFilenameNode.textContent = filename;
+    if (downloadHelp) downloadHelp.hidden = false;
   };
 
   const refreshSubmitState = (full) => {
     if (isDownloaded()) {
       setSubmitState("downloaded");
-      if (saveLabel) saveLabel.textContent = "JSON DESCARGADO";
+      if (saveLabel) saveLabel.textContent = "DESCARGAR JSON DE NUEVO";
       const filename = safeGet(storageKeys.finalDownloadedFilename);
+      showDownloadHelp(filename);
       setMessage(
         filename
-          ? `Tu archivo JSON ya fue generado: ${filename}. Si necesitas corregir algo, contacta al administrador antes de reenviarlo.`
-          : "Tu archivo JSON ya fue generado. Si necesitas corregir algo, contacta al administrador antes de reenviarlo."
+          ? `Tu archivo JSON ya fue generado (${filename}). Puedes volver a descargarlo las veces que necesites; quedo en la carpeta Descargas de tu dispositivo.`
+          : "Tu archivo JSON ya fue generado. Puedes volver a descargarlo las veces que necesites; quedo en la carpeta Descargas de tu dispositivo."
       );
       return;
     }
@@ -543,8 +555,32 @@
     writeJson(storageKeys.finalSubmissionPayload, finalPayload);
     lockSection();
     setSubmitState("downloaded");
-    if (saveLabel) saveLabel.textContent = "JSON DESCARGADO";
-    setMessage(`Archivo JSON descargado correctamente. Envialo al administrador para registrar oficialmente tu polla. Archivo generado: ${filename}`);
+    if (saveLabel) saveLabel.textContent = "DESCARGAR JSON DE NUEVO";
+    showDownloadHelp(filename);
+    setMessage(`Archivo JSON descargado: ${filename}. Quedo en la carpeta Descargas de tu dispositivo. Envialo al administrador para registrar oficialmente tu polla.`);
+  };
+
+  // Re-descarga del MISMO archivo ya generado (mismo payload y mismo nombre).
+  // Pensado para celular: el jugador toca de nuevo y vuelve a bajar su JSON sin
+  // alterar la polla ya enviada.
+  const redownloadPollaJson = () => {
+    if (!exportModule) return;
+    const filename = safeGet(storageKeys.finalDownloadedFilename);
+    const payload = readJson(storageKeys.finalSubmissionPayload, null);
+    if (!payload || !filename) {
+      // Sin payload guardado (caso raro): regenerar desde el estado actual.
+      safeSet(storageKeys.finalDownloaded, "");
+      downloadPollaJson();
+      return;
+    }
+    try {
+      exportModule.downloadJson(payload, filename);
+    } catch {
+      setMessage("No se pudo volver a generar el archivo. Tus datos siguen guardados. Intenta nuevamente.");
+      return;
+    }
+    showDownloadHelp(filename);
+    setMessage(`Volvimos a descargar tu archivo (${filename}). Buscalo en la carpeta Descargas de tu dispositivo.`);
   };
 
   const updateProgress = () => {
@@ -758,7 +794,11 @@
       void saveButton.offsetWidth; // reflow para re-disparar
       saveButton.classList.add("is-saved-punch");
     }
-    downloadPollaJson();
+    if (isDownloaded()) {
+      redownloadPollaJson();
+    } else {
+      downloadPollaJson();
+    }
   });
 
   updatePlayerBadge();

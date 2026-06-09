@@ -36,6 +36,27 @@ const activeGroupKey = activeGroup.id.toLowerCase();
   <p class="download-note">
     Descarga tu JSON y envialo al administrador. Ese archivo sera tu registro oficial.
   </p>
+
+  <div class="download-help" data-download-help role="status" aria-live="polite" hidden>
+    <strong class="download-help-title">JSON descargado correctamente.</strong>
+    <p class="download-help-line">
+      En el celular queda guardado en la carpeta <strong>Descargas</strong>:
+    </p>
+    <p class="download-help-line">
+      <strong>Android / Samsung:</strong> Mis archivos → Almacenamiento interno → Descargas
+    </p>
+    <p class="download-help-line">
+      <strong>iPhone:</strong> Archivos → En mi iPhone / Descargas
+    </p>
+    <p class="download-help-line">
+      Nombre del archivo:
+      <br />
+      <strong class="download-help-filename" data-download-filename>—</strong>
+    </p>
+    <p class="download-help-line">
+      Si no lo encuentras, vuelve a tocar el botón <strong>Descargar JSON de nuevo</strong>.
+    </p>
+  </div>
 </footer>
 
 <style>
@@ -125,6 +146,44 @@ const activeGroupKey = activeGroup.id.toLowerCase();
     font-weight: 800;
     line-height: 1.25;
     text-align: center;
+  }
+
+  .download-help {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(34, 197, 94, 0.45);
+    background: rgba(230, 255, 239, 0.95);
+    color: var(--pm-blue-900);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .download-help[hidden] {
+    display: none;
+  }
+
+  .download-help-title {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .download-help-line {
+    margin: 0.45rem 0 0;
+    font-size: 0.8rem;
+  }
+
+  .download-help-filename {
+    display: inline-block;
+    margin-top: 0.15rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 800;
+    word-break: break-all;
   }
 
   @media (max-width: 980px) {
