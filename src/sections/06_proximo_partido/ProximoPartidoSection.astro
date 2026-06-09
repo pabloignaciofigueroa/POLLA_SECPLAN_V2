@@ -15,7 +15,6 @@ import playersData from "../../data/players.json";
 import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 import { getRelevantMatches } from "./proximo-partido.logic";
 import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
-import proximoPartidoClientUrl from "./proximo-partido.client.js?url";
 
 interface Team {
   id: string;
@@ -137,5 +136,7 @@ const clientPayload = {
   </div>
 
   <script type="application/json" data-proximo-partido-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={proximoPartidoClientUrl}></script>
+  <script>
+    import "./proximo-partido.client.js";
+  </script>
 </section>

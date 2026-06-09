@@ -23,7 +23,6 @@ import {
 } from "./equipos.logic";
 import type { BaseTeam, EquipoBundle } from "./equipos.logic";
 
-import equiposClientUrl from "./equipos.client.js?url";
 
 const baseTeams = teamsData as BaseTeam[];
 const bundle = equiposInfoData as EquipoBundle;
@@ -79,5 +78,7 @@ const clientPayload = {
   <TeamDetailModal />
 
   <script type="application/json" data-equipos-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={equiposClientUrl}></script>
+  <script>
+    import "./equipos.client.js";
+  </script>
 </section>

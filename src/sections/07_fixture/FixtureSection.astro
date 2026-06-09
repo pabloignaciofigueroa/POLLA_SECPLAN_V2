@@ -31,8 +31,6 @@ import {
 } from "./fixture.logic";
 import type { FixtureMatch, MatchInfoBundle, StageFilter } from "./fixture.logic";
 
-import fixtureClientUrl from "./fixture.client.js?url";
-
 const matches = fixtureData.matches as FixtureMatch[];
 const groups = (groupsData as { id: string; label: string }[]).map((g) => ({ id: g.id, label: g.label }));
 const infoBundle: MatchInfoBundle = {
@@ -159,5 +157,7 @@ const clientPayload = {
   </div>
 
   <script type="application/json" data-fixture-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={fixtureClientUrl}></script>
+  <script>
+    import "./fixture.client.js";
+  </script>
 </section>

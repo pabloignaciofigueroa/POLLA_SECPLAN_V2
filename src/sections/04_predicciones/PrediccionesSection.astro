@@ -14,7 +14,6 @@ import teamInfoData from "../../data/equipos-info.json";
 import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import playerIdentityUrl from "../../lib/playerIdentity.js?url";
-import prediccionesClientUrl from "./predicciones.client.js?url";
 import predValidationUrl from "./predicciones.validation.js?url";
 import predExportUrl from "./predicciones.export.js?url";
 import predStandingsUrl from "./predicciones.standings.js?url";
@@ -98,5 +97,7 @@ const clientPayload = {
   </div>
 
   <script type="application/json" data-predictions-payload set:html={JSON.stringify(clientPayload)} />
-  <script type="module" src={prediccionesClientUrl}></script>
+  <script>
+    import "./predicciones.client.js";
+  </script>
 </section>
