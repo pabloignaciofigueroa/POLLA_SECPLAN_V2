@@ -1,0 +1,653 @@
+{
+  "schemaVersion": "1.0",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "assetPurpose": "card_jugable_jugador",
+  "cardPlayableId": "card_jugable_jugador_01",
+  "fileSlug": "card_jugable_jugador_01_carlos",
+  "generatedAt": "2026-06-10T00:00:00-04:00",
+  "source": {
+    "predictionFile": "predicciones_carlos_2026-06-09_19-48.json",
+    "comparisonUniverse": [
+      "predicciones_carlos_2026-06-09_19-48.json",
+      "predicciones_chelo_2026-06-09_10-34.json",
+      "predicciones_eric_2026-06-09_11-58.json",
+      "predicciones_humberto_2026-06-02_15-09.json",
+      "predicciones_luis_2026-06-09_10-56.json",
+      "predicciones_luis_renato_2026-06-10_00-55.json",
+      "predicciones_narigon_2026-06-09_14-25.json",
+      "predicciones_pancho_2026-06-09_10-04.json",
+      "predicciones_tanke_2026-06-09_09-55.json"
+    ],
+    "playersCompared": 9,
+    "matchesCompared": 72,
+    "note": "Estadísticas calculadas cruzando los JSON de predicciones cargados en esta conversación. No contiene resultados reales del Mundial."
+  },
+  "player": {
+    "id": "carlos",
+    "displayName": "Carlos",
+    "officialPlayerNumber": 1,
+    "avatarSuggestedPath": "/assets/jugadores/carlos.png",
+    "status": "active"
+  },
+  "playableCard": {
+    "title": "CARD JUGABLE JUGADOR 01",
+    "subtitle": "Ficha estadística de Carlos",
+    "primaryArchetype": "HOMBRE REBAÑO",
+    "tone": "consenso_controlado",
+    "riskScore100": 43,
+    "stabilityScore100": 91,
+    "recommendedUse": [
+      "09_estadisticas",
+      "03_jugador",
+      "cards_reveal",
+      "whatsapp_share"
+    ],
+    "uiBehavior": {
+      "initialState": "faceDown",
+      "interaction": "click_or_tap_to_flip",
+      "frontState": "revealed_stats",
+      "supportsDeckFilter": true,
+      "deckFilterLabel": "Jugadores"
+    }
+  },
+  "summaryStats": {
+    "totalMatches": 72,
+    "totalGoalsPredicted": 210,
+    "averageGoalsPerMatch": 2.92,
+    "averageGoalDifference": 1.92,
+    "homeWins": 41,
+    "awayWins": 25,
+    "draws": 6,
+    "bothTeamsScore": 34,
+    "atLeastOneCleanSheet": 38,
+    "zeroZero": 1,
+    "oneNilFamily": 10,
+    "twoNilFamily": 10,
+    "twoOneFamily": 18,
+    "conservativeResults": 24,
+    "highScoring4PlusGoals": 22,
+    "diff3Plus": 19,
+    "diff4Plus": 10,
+    "loneWolfExactScores": 19,
+    "popularExactScores": 53,
+    "againstMajorityOutcome": 7,
+    "withMajorityOutcome": 62,
+    "noMajorityOutcomeMatches": 3,
+    "distinctExactScoresUsed": 21,
+    "mostRepeatedScores": [
+      {
+        "score": "1-2",
+        "count": 9
+      },
+      {
+        "score": "2-1",
+        "count": 9
+      },
+      {
+        "score": "1-0",
+        "count": 9
+      },
+      {
+        "score": "2-0",
+        "count": 6
+      },
+      {
+        "score": "3-0",
+        "count": 5
+      }
+    ],
+    "classificationRebelSlots": 4,
+    "classificationConsensusSlots": 20,
+    "uniqueQualifiedTeams": 0
+  },
+  "rankings": {
+    "totalGoalsPredicted": {
+      "rank": 4,
+      "of": 9,
+      "value": 210,
+      "direction": "desc"
+    },
+    "averageGoalsPerMatch": {
+      "rank": 4,
+      "of": 9,
+      "value": 2.92,
+      "direction": "desc"
+    },
+    "averageGoalDifference": {
+      "rank": 1,
+      "of": 9,
+      "value": 1.92,
+      "direction": "desc"
+    },
+    "homeWins": {
+      "rank": 1,
+      "of": 9,
+      "value": 41,
+      "direction": "desc"
+    },
+    "awayWins": {
+      "rank": 3,
+      "of": 9,
+      "value": 25,
+      "direction": "desc"
+    },
+    "draws": {
+      "rank": 7,
+      "of": 9,
+      "value": 6,
+      "direction": "desc"
+    },
+    "bothTeamsScore": {
+      "rank": 7,
+      "of": 9,
+      "value": 34,
+      "direction": "desc"
+    },
+    "atLeastOneCleanSheet": {
+      "rank": 2,
+      "of": 9,
+      "value": 38,
+      "direction": "desc"
+    },
+    "zeroZero": {
+      "rank": 3,
+      "of": 9,
+      "value": 1,
+      "direction": "desc"
+    },
+    "oneNilFamily": {
+      "rank": 1,
+      "of": 9,
+      "value": 10,
+      "direction": "desc"
+    },
+    "twoNilFamily": {
+      "rank": 7,
+      "of": 9,
+      "value": 10,
+      "direction": "desc"
+    },
+    "twoOneFamily": {
+      "rank": 3,
+      "of": 9,
+      "value": 18,
+      "direction": "desc"
+    },
+    "conservativeResults": {
+      "rank": 5,
+      "of": 9,
+      "value": 24,
+      "direction": "desc"
+    },
+    "highScoring4PlusGoals": {
+      "rank": 3,
+      "of": 9,
+      "value": 22,
+      "direction": "desc"
+    },
+    "diff3Plus": {
+      "rank": 2,
+      "of": 9,
+      "value": 19,
+      "direction": "desc"
+    },
+    "diff4Plus": {
+      "rank": 2,
+      "of": 9,
+      "value": 10,
+      "direction": "desc"
+    },
+    "loneWolfExactScores": {
+      "rank": 4,
+      "of": 9,
+      "value": 19,
+      "direction": "desc"
+    },
+    "popularExactScores": {
+      "rank": 5,
+      "of": 9,
+      "value": 53,
+      "direction": "desc"
+    },
+    "againstMajorityOutcome": {
+      "rank": 9,
+      "of": 9,
+      "value": 7,
+      "direction": "desc"
+    },
+    "withMajorityOutcome": {
+      "rank": 1,
+      "of": 9,
+      "value": 62,
+      "direction": "desc"
+    },
+    "distinctExactScoresUsed": {
+      "rank": 1,
+      "of": 9,
+      "value": 21,
+      "direction": "desc"
+    },
+    "classificationRebelSlots": {
+      "rank": 5,
+      "of": 9,
+      "value": 4,
+      "direction": "desc"
+    },
+    "uniqueQualifiedTeams": {
+      "rank": 5,
+      "of": 9,
+      "value": 0,
+      "direction": "desc"
+    }
+  },
+  "specialRanksAscending": {
+    "draws_asc": {
+      "rank": 2,
+      "of": 9,
+      "value": 6,
+      "direction": "asc"
+    },
+    "averageGoalsPerMatch_asc": {
+      "rank": 6,
+      "of": 9,
+      "value": 2.92,
+      "direction": "asc"
+    },
+    "totalGoalsPredicted_asc": {
+      "rank": 6,
+      "of": 9,
+      "value": 210,
+      "direction": "asc"
+    },
+    "highScoring4PlusGoals_asc": {
+      "rank": 7,
+      "of": 9,
+      "value": 22,
+      "direction": "asc"
+    }
+  },
+  "cards": [
+    {
+      "cardId": "carlos_hombre_rebano",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "legendaria",
+      "emoji": "🧍",
+      "title": "HOMBRE REBAÑO",
+      "headline": "Carlos — HOMBRE REBAÑO",
+      "metric": {
+        "key": "withMajorityOutcome",
+        "value": 62,
+        "rank": "#1 de 9"
+      },
+      "reading": "Va pegado al pulso de la oficina. Su fuerza no es el show: es no regalarse contra la mayoría.",
+      "shareText": "Carlos desbloqueó carta: HOMBRE REBAÑO. Dato clave: 62 (#1 de 9).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "carlos_diferencia_gol_brutal",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "💥",
+      "title": "DIFERENCIA DE GOL BRUTAL",
+      "headline": "Carlos — DIFERENCIA DE GOL BRUTAL",
+      "metric": {
+        "key": "averageGoalDifference",
+        "value": 1.92,
+        "rank": "#1 de 9"
+      },
+      "reading": "No necesariamente el más goleador, pero sí uno de los que más castiga cuando ve superioridad.",
+      "shareText": "Carlos desbloqueó carta: DIFERENCIA DE GOL BRUTAL. Dato clave: 1.92 (#1 de 9).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "carlos_localista_controlado",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🏠",
+      "title": "LOCALISTA CONTROLADO",
+      "headline": "Carlos — LOCALISTA CONTROLADO",
+      "metric": {
+        "key": "homeWins",
+        "value": 41,
+        "rank": "#1 de 9"
+      },
+      "reading": "Tiende a confiar más en el equipo local que en la visita. Eso le da una lectura conservadora, pero estable.",
+      "shareText": "Carlos desbloqueó carta: LOCALISTA CONTROLADO. Dato clave: 41 (#1 de 9).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "carlos_marcador_popular",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "rara",
+      "emoji": "🎯",
+      "title": "MARCADOR POPULAR",
+      "headline": "Carlos — MARCADOR POPULAR",
+      "metric": {
+        "key": "popularExactScores",
+        "value": 53,
+        "rank": "#5 de 9"
+      },
+      "reading": "Usa muchos marcadores que otros también eligieron. Menos rareza, más juego de consenso.",
+      "shareText": "Carlos desbloqueó carta: MARCADOR POPULAR. Dato clave: 53 (#5 de 9).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "carlos_lone_wolf_latente",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "rara",
+      "emoji": "🐺",
+      "title": "LONE WOLF LATENTE",
+      "headline": "Carlos — LONE WOLF LATENTE",
+      "metric": {
+        "key": "loneWolfExactScores",
+        "value": 19,
+        "rank": "#4 de 9"
+      },
+      "reading": "Tiene predicciones únicas, pero no juega todo el cartón como kamikaze. Riesgo medido.",
+      "shareText": "Carlos desbloqueó carta: LONE WOLF LATENTE. Dato clave: 19 (#4 de 9).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    }
+  ],
+  "statDetails": {
+    "loneWolfExactExamples": [
+      {
+        "matchId": "match-004",
+        "matchNumber": 4,
+        "group": "D",
+        "homeTeam": "Estados Unidos",
+        "awayTeam": "Paraguay",
+        "score": "0-0",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-005",
+        "matchNumber": 5,
+        "group": "C",
+        "homeTeam": "Haití",
+        "awayTeam": "Escocia",
+        "score": "0-4",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-010",
+        "matchNumber": 10,
+        "group": "E",
+        "homeTeam": "Alemania",
+        "awayTeam": "Curazao",
+        "score": "7-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-013",
+        "matchNumber": 13,
+        "group": "H",
+        "homeTeam": "Arabia Saudita",
+        "awayTeam": "Uruguay",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-015",
+        "matchNumber": 15,
+        "group": "G",
+        "homeTeam": "Irán",
+        "awayTeam": "Nueva Zelanda",
+        "score": "3-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-017",
+        "matchNumber": 17,
+        "group": "I",
+        "homeTeam": "Francia",
+        "awayTeam": "Senegal",
+        "score": "2-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-019",
+        "matchNumber": 19,
+        "group": "J",
+        "homeTeam": "Argentina",
+        "awayTeam": "Argelia",
+        "score": "2-1",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-022",
+        "matchNumber": 22,
+        "group": "L",
+        "homeTeam": "Inglaterra",
+        "awayTeam": "Croacia",
+        "score": "1-0",
+        "outcome": "local"
+      }
+    ],
+    "againstMajorityExamples": [
+      {
+        "matchId": "match-002",
+        "matchNumber": 2,
+        "group": "A",
+        "homeTeam": "Corea del Sur",
+        "awayTeam": "República Checa",
+        "score": "1-2",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-004",
+        "matchNumber": 4,
+        "group": "D",
+        "homeTeam": "Estados Unidos",
+        "awayTeam": "Paraguay",
+        "score": "0-0",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-041",
+        "matchNumber": 41,
+        "group": "I",
+        "homeTeam": "Noruega",
+        "awayTeam": "Senegal",
+        "score": "2-2",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-053",
+        "matchNumber": 53,
+        "group": "A",
+        "homeTeam": "República Checa",
+        "awayTeam": "México",
+        "score": "2-1",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-063",
+        "matchNumber": 63,
+        "group": "G",
+        "homeTeam": "Egipto",
+        "awayTeam": "Irán",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-069",
+        "matchNumber": 69,
+        "group": "J",
+        "homeTeam": "Argelia",
+        "awayTeam": "Austria",
+        "score": "1-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-072",
+        "matchNumber": 72,
+        "group": "K",
+        "homeTeam": "RD del Congo",
+        "awayTeam": "Uzbekistán",
+        "score": "2-1",
+        "outcome": "local"
+      }
+    ],
+    "classificationRebelSlots": [
+      {
+        "groupId": "A",
+        "slot": "firstPlace",
+        "teamId": "czechia",
+        "consensus": [
+          "mexico"
+        ],
+        "countForTeam": 1
+      },
+      {
+        "groupId": "D",
+        "slot": "secondPlace",
+        "teamId": "usa",
+        "consensus": [
+          "paraguay"
+        ],
+        "countForTeam": 3
+      },
+      {
+        "groupId": "G",
+        "slot": "secondPlace",
+        "teamId": "ir-iran",
+        "consensus": [
+          "egypt"
+        ],
+        "countForTeam": 2
+      },
+      {
+        "groupId": "J",
+        "slot": "secondPlace",
+        "teamId": "algeria",
+        "consensus": [
+          "austria"
+        ],
+        "countForTeam": 2
+      }
+    ],
+    "uniqueQualifiedTeams": [],
+    "mostRepeatedScores": [
+      {
+        "score": "1-2",
+        "count": 9
+      },
+      {
+        "score": "2-1",
+        "count": 9
+      },
+      {
+        "score": "1-0",
+        "count": 9
+      },
+      {
+        "score": "2-0",
+        "count": 6
+      },
+      {
+        "score": "3-0",
+        "count": 5
+      }
+    ],
+    "qualifiedPredictionsByGroup": [
+      {
+        "groupId": "A",
+        "firstPlace": "czechia",
+        "secondPlace": "mexico"
+      },
+      {
+        "groupId": "B",
+        "firstPlace": "switzerland",
+        "secondPlace": "canada"
+      },
+      {
+        "groupId": "C",
+        "firstPlace": "brazil",
+        "secondPlace": "morocco"
+      },
+      {
+        "groupId": "D",
+        "firstPlace": "turkiye",
+        "secondPlace": "usa"
+      },
+      {
+        "groupId": "E",
+        "firstPlace": "germany",
+        "secondPlace": "ecuador"
+      },
+      {
+        "groupId": "F",
+        "firstPlace": "netherlands",
+        "secondPlace": "japan"
+      },
+      {
+        "groupId": "G",
+        "firstPlace": "belgium",
+        "secondPlace": "ir-iran"
+      },
+      {
+        "groupId": "H",
+        "firstPlace": "spain",
+        "secondPlace": "uruguay"
+      },
+      {
+        "groupId": "I",
+        "firstPlace": "france",
+        "secondPlace": "norway"
+      },
+      {
+        "groupId": "J",
+        "firstPlace": "argentina",
+        "secondPlace": "algeria"
+      },
+      {
+        "groupId": "K",
+        "firstPlace": "portugal",
+        "secondPlace": "colombia"
+      },
+      {
+        "groupId": "L",
+        "firstPlace": "england",
+        "secondPlace": "croatia"
+      }
+    ]
+  },
+  "implementationNotes": {
+    "doNotRecalculateInComponent": true,
+    "codexInstruction": "Consumir este JSON como ficha editorial/estadística ya resuelta. No leer todos los JSON de predicciones desde el componente de card.",
+    "suggestedAstroComponent": "src/sections/09_estadisticas/PlayerPlayableStatCard.astro",
+    "suggestedClientScope": "[data-section=\"estadisticas\"]",
+    "dataContract": {
+      "cardPlayableId": "id único para render y tracking",
+      "playableCard": "datos de comportamiento y tono",
+      "summaryStats": "números principales",
+      "cards": "subcartas desbloqueables del jugador",
+      "statDetails": "ejemplos verificables y drill-down opcional"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 ---
 import styles from "./TablaSection.module.css";
 import TablaHero from "./TablaHero.astro";
+import PodiumStrip from "./PodiumStrip.astro";
 import RankingTable from "./RankingTable.astro";
 import PlayerPredictionsPanel from "./PlayerPredictionsPanel.astro";
 import NextMatchCard from "./NextMatchCard.astro";
@@ -56,6 +57,7 @@ const clientPayload = {
 
     <div class={styles.dashboardGrid}>
       <div class={styles.rankingArea}>
+        <PodiumStrip rows={rankingRows} />
         {results.length === 0 && (
           <PreseasonPulse
             confirmedCards={predictionsData.confirmedCards}

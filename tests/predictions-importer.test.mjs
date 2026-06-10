@@ -7,7 +7,6 @@ import { buildDataset, validateSubmission } from "../scripts/predictions-importe
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
-const workspaceRoot = path.resolve(siteRoot, "..");
 const readJson = async (filePath) => JSON.parse(await fs.readFile(filePath, "utf8"));
 
 const [players, fixture, groups, teams] = await Promise.all([
@@ -16,23 +15,24 @@ const [players, fixture, groups, teams] = await Promise.all([
   readJson(path.join(siteRoot, "src/data/groups.json")),
   readJson(path.join(siteRoot, "src/data/teams.json")),
 ]);
-const inputNames = (await fs.readdir(workspaceRoot))
-  .filter((name) => /^predicciones_.+\.json$/i.test(name))
+const inputNames = (await fs.readdir(siteRoot))
+  .filter((name) => /^predicciones_.+_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/i.test(name))
   .sort();
 const entries = await Promise.all(
   inputNames.map(async (fileName) => {
-    const raw = await fs.readFile(path.join(workspaceRoot, fileName), "utf8");
+    const raw = await fs.readFile(path.join(siteRoot, fileName), "utf8");
     return { fileName, raw, document: JSON.parse(raw) };
   })
 );
 const context = { players, matches: fixture.matches, groups, teams };
 
-test("construye el snapshot oficial de siete cartones", () => {
+test("construye el snapshot oficial de todos los cartones cargados", () => {
   const dataset = buildDataset({ entries, ...context });
-  assert.equal(dataset.confirmedCards, 7);
-  assert.equal(dataset.totals.predictions, 504);
-  assert.equal(dataset.totals.qualifiedPositions, 168);
-  assert.equal(new Set(dataset.submissions.map((item) => item.playerId)).size, 7);
+  const cardCount = entries.length;
+  assert.equal(dataset.confirmedCards, cardCount);
+  assert.equal(dataset.totals.predictions, cardCount * 72);
+  assert.equal(dataset.totals.qualifiedPositions, cardCount * 24);
+  assert.equal(new Set(dataset.submissions.map((item) => item.playerId)).size, cardCount);
 });
 
 test("rechaza un carton incompleto", () => {

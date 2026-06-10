@@ -3,6 +3,14 @@
 ## Estado
 wireframe-implemented
 
+## Isaias y Jaime oficiales - 2026-06-10
+
+- El rebuild canonico carga 11/15 cartones, 792 marcadores y 264 posiciones
+  clasificatorias, con cero errores de validacion.
+- `isaias` y `jaime` usan el mismo flujo `official-locked` / `official-editing`
+  que los demas cartonistas; no hay un sistema paralelo.
+- Los cuatro pendientes vigentes son Daniel, Gonzalo, Martin y Ratinha.
+
 ## Cartón oficial protegido - 2026-06-09
 
 - Los jugadores importados ven sus 72 marcadores y 24 clasificados desde

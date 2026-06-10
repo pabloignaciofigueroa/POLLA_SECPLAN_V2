@@ -6,10 +6,19 @@ import UnlockedBanner from "./UnlockedBanner.astro";
 import LockedPreviewPanel from "./LockedPreviewPanel.astro";
 import AntiCopyNotice from "./AntiCopyNotice.astro";
 import StatsDashboard from "./StatsDashboard.astro";
+import DataArenaHero from "./DataArenaHero.astro";
+import FeaturedCard from "./FeaturedCard.astro";
+import CardDeck from "./CardDeck.astro";
 
 import { TOTAL_PREDICTIONS } from "./estadisticas.logic";
 import type { ProgressSnapshot } from "./estadisticas.logic";
 import predictionsData from "../../data/predictions.json";
+import fixtureData from "../../data/fixture.json";
+import groupsData from "../../data/groups.json";
+import teamsData from "../../data/teams.json";
+import playersData from "../../data/players.json";
+import { getPlayerStatCards } from "../../lib/statistics/statCards";
+import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 
 const initialSnapshot: ProgressSnapshot = {
   completed: 0,
@@ -17,6 +26,71 @@ const initialSnapshot: ProgressSnapshot = {
   percent: 0,
   state: "locked",
 };
+
+// ── Data Arena: fichas jugables ya resueltas (contrato editorial). ──
+const statCards = getPlayerStatCards();
+
+// Carta del dia (legendaria); rotacion determinista por dia de build.
+const legendaryPairs = statCards.flatMap((card) =>
+  card.cards.filter((sub) => sub.rarity === "legendaria").map((sub) => ({ card, sub }))
+);
+const dayIndex = Math.floor(Date.now() / 86_400_000);
+const featured =
+  legendaryPairs.length > 0
+    ? legendaryPairs[dayIndex % legendaryPairs.length]
+    : statCards[0]?.primaryCard
+      ? { card: statCards[0], sub: statCards[0].primaryCard }
+      : null;
+
+// ── Pulso de oficina: derivado del analisis coral, no inventado. ──
+const analysis: any = buildCommunityAnalysis({
+  dataset: predictionsData,
+  matches: fixtureData.matches,
+  groups: groupsData,
+  teams: teamsData,
+  players: playersData,
+});
+const totalCards = analysis.confirmedCards || 1;
+const pct = (n: number) => Math.round((n / totalCards) * 100);
+const pulses: any[] = analysis.matchPulses ?? [];
+
+const dividedPulses = pulses.filter((p) => p.consensusLevel === "divided");
+const hotPulse =
+  [...(dividedPulses.length ? dividedPulses : pulses)].sort(
+    (a, b) => a.topAgreement - b.topAgreement
+  )[0] ?? null;
+const consensusCopy: Record<string, string> = {
+  unanimous: "Unánime",
+  strong: "Consenso fuerte",
+  open: "Abierto",
+  divided: "Oficina dividida",
+};
+const hotMatch = hotPulse
+  ? {
+      homeName: hotPulse.homeTeam.name,
+      awayName: hotPulse.awayTeam.name,
+      groupId: hotPulse.groupId,
+      consensusLabel: consensusCopy[hotPulse.consensusLevel] ?? "Abierto",
+      homePct: pct(hotPulse.outcomes.home),
+      drawPct: pct(hotPulse.outcomes.draw),
+      awayPct: pct(hotPulse.outcomes.away),
+    }
+  : null;
+
+const officePulse =
+  [...pulses].sort(
+    (a, b) => (b.exactScores?.[0]?.count ?? 0) - (a.exactScores?.[0]?.count ?? 0)
+  )[0] ?? null;
+const officeScore =
+  officePulse && officePulse.exactScores?.[0]
+    ? {
+        homeName: officePulse.homeTeam.name,
+        awayName: officePulse.awayTeam.name,
+        groupId: officePulse.groupId,
+        score: officePulse.exactScores[0].score,
+        count: officePulse.exactScores[0].count,
+      }
+    : null;
 
 const clientPayload = {
   totalPredictions: TOTAL_PREDICTIONS,
@@ -53,6 +127,24 @@ const clientPayload = {
       <AntiCopyNotice />
     </div>
 
+    <div class="data-arena" data-data-arena data-unlock-reveal hidden>
+      <DataArenaHero confirmedCards={predictionsData.confirmedCards} />
+      {featured && (
+        <FeaturedCard
+          card={featured.card}
+          subCard={featured.sub}
+          hotMatch={hotMatch}
+          officeScore={officeScore}
+        />
+      )}
+      <CardDeck title="Mazo Jugadores" label="Jugadores" cards={statCards} />
+    </div>
+
+    <div class="detail-intro" data-unlock-reveal hidden>
+      <h3>Explorador detallado</h3>
+      <p>Perfil, comunidad, partidos y clasificados: la data completa, cuando quieras bucear.</p>
+    </div>
+
     <StatsDashboard
       confirmedCards={predictionsData.confirmedCards}
       expectedPlayers={predictionsData.expectedPlayers}
@@ -62,5 +154,44 @@ const clientPayload = {
   <script type="application/json" data-estadisticas-payload set:html={JSON.stringify(clientPayload)} />
   <script>
     import "./estadisticas.client.js";
+    import "./data-arena.client.js";
   </script>
 </section>
+
+<style>
+  .data-arena {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.85rem, 2vw, 1.4rem);
+  }
+
+  .data-arena[hidden] {
+    display: none;
+  }
+
+  .detail-intro {
+    margin-top: clamp(0.85rem, 2vw, 1.4rem);
+    padding-top: 0.9rem;
+    border-top: 1px dashed color-mix(in srgb, var(--pm-blue-700) 28%, transparent);
+  }
+
+  .detail-intro[hidden] {
+    display: none;
+  }
+
+  .detail-intro h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .detail-intro p {
+    margin: 0.15rem 0 0;
+    color: var(--pm-blue-700);
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+</style>

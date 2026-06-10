@@ -1,0 +1,657 @@
+{
+  "schemaVersion": "1.0",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "assetPurpose": "card_jugable_jugador",
+  "cardPlayableId": "card_jugable_jugador_07",
+  "fileSlug": "card_jugable_jugador_07_isaias",
+  "generatedAt": "2026-06-10T00:00:00-04:00",
+  "source": {
+    "predictionFile": "predicciones_isaias_2026-06-10_12-43.json",
+    "comparisonUniverse": [
+      "predicciones_carlos_2026-06-09_19-48.json",
+      "predicciones_chelo_2026-06-09_10-34.json",
+      "predicciones_eric_2026-06-09_11-58.json",
+      "predicciones_humberto_2026-06-02_15-09.json",
+      "predicciones_isaias_2026-06-10_12-43.json",
+      "predicciones_jaime_2026-06-10_01-25.json",
+      "predicciones_luis_2026-06-09_10-56.json",
+      "predicciones_luis_renato_2026-06-10_00-55.json",
+      "predicciones_narigon_2026-06-09_14-25.json",
+      "predicciones_pancho_2026-06-09_10-04.json",
+      "predicciones_tanke_2026-06-09_09-55.json"
+    ],
+    "playersCompared": 11,
+    "matchesCompared": 72,
+    "note": "Estadísticas calculadas cruzando los JSON de predicciones cargados en esta conversación. No contiene resultados reales del Mundial.",
+    "normalizationWarning": "El archivo fuente de Isaías viene con player.id=\"Isaías\" y raw.predictions.playerId vacío; esta ficha normaliza el slug técnico a \"isaias\" para integrarlo con players.json."
+  },
+  "player": {
+    "id": "isaias",
+    "displayName": "Isaías",
+    "officialPlayerNumber": 7,
+    "avatarSuggestedPath": "/assets/jugadores/isaias.png",
+    "status": "active"
+  },
+  "playableCard": {
+    "title": "CARD JUGABLE JUGADOR 07",
+    "subtitle": "Ficha estadística de Isaías",
+    "primaryArchetype": "HOMBRE REBAÑO",
+    "tone": "consenso_controlado",
+    "riskScore100": 63,
+    "stabilityScore100": 100,
+    "recommendedUse": [
+      "09_estadisticas",
+      "03_jugador",
+      "cards_reveal",
+      "whatsapp_share"
+    ],
+    "uiBehavior": {
+      "initialState": "faceDown",
+      "interaction": "click_or_tap_to_flip",
+      "frontState": "revealed_stats",
+      "supportsDeckFilter": true,
+      "deckFilterLabel": "Jugadores"
+    }
+  },
+  "summaryStats": {
+    "totalMatches": 72,
+    "totalGoalsPredicted": 190,
+    "averageGoalsPerMatch": 2.64,
+    "averageGoalDifference": 1.44,
+    "homeWins": 37,
+    "awayWins": 26,
+    "draws": 9,
+    "bothTeamsScore": 41,
+    "atLeastOneCleanSheet": 31,
+    "zeroZero": 1,
+    "oneNilFamily": 6,
+    "twoNilFamily": 17,
+    "twoOneFamily": 25,
+    "conservativeResults": 30,
+    "highScoring4PlusGoals": 12,
+    "diff3Plus": 7,
+    "diff4Plus": 2,
+    "loneWolfExactScores": 10,
+    "popularExactScores": 62,
+    "againstMajorityOutcome": 9,
+    "withMajorityOutcome": 61,
+    "noMajorityOutcomeMatches": 2,
+    "distinctExactScoresUsed": 14,
+    "mostRepeatedScores": [
+      {
+        "score": "2-1",
+        "count": 13
+      },
+      {
+        "score": "1-2",
+        "count": 12
+      },
+      {
+        "score": "2-0",
+        "count": 10
+      },
+      {
+        "score": "0-2",
+        "count": 7
+      },
+      {
+        "score": "1-1",
+        "count": 6
+      }
+    ],
+    "classificationRebelSlots": 7,
+    "classificationConsensusSlots": 17,
+    "uniqueQualifiedTeams": 0
+  },
+  "rankings": {
+    "totalGoalsPredicted": {
+      "rank": 8,
+      "of": 11,
+      "value": 190,
+      "direction": "desc"
+    },
+    "averageGoalsPerMatch": {
+      "rank": 8,
+      "of": 11,
+      "value": 2.64,
+      "direction": "desc"
+    },
+    "averageGoalDifference": {
+      "rank": 9,
+      "of": 11,
+      "value": 1.44,
+      "direction": "desc"
+    },
+    "homeWins": {
+      "rank": 5,
+      "of": 11,
+      "value": 37,
+      "direction": "desc"
+    },
+    "awayWins": {
+      "rank": 3,
+      "of": 11,
+      "value": 26,
+      "direction": "desc"
+    },
+    "draws": {
+      "rank": 6,
+      "of": 11,
+      "value": 9,
+      "direction": "desc"
+    },
+    "bothTeamsScore": {
+      "rank": 2,
+      "of": 11,
+      "value": 41,
+      "direction": "desc"
+    },
+    "atLeastOneCleanSheet": {
+      "rank": 8,
+      "of": 11,
+      "value": 31,
+      "direction": "desc"
+    },
+    "zeroZero": {
+      "rank": 3,
+      "of": 11,
+      "value": 1,
+      "direction": "desc"
+    },
+    "oneNilFamily": {
+      "rank": 4,
+      "of": 11,
+      "value": 6,
+      "direction": "desc"
+    },
+    "twoNilFamily": {
+      "rank": 4,
+      "of": 11,
+      "value": 17,
+      "direction": "desc"
+    },
+    "twoOneFamily": {
+      "rank": 2,
+      "of": 11,
+      "value": 25,
+      "direction": "desc"
+    },
+    "conservativeResults": {
+      "rank": 4,
+      "of": 11,
+      "value": 30,
+      "direction": "desc"
+    },
+    "highScoring4PlusGoals": {
+      "rank": 8,
+      "of": 11,
+      "value": 12,
+      "direction": "desc"
+    },
+    "diff3Plus": {
+      "rank": 10,
+      "of": 11,
+      "value": 7,
+      "direction": "desc"
+    },
+    "diff4Plus": {
+      "rank": 8,
+      "of": 11,
+      "value": 2,
+      "direction": "desc"
+    },
+    "loneWolfExactScores": {
+      "rank": 10,
+      "of": 11,
+      "value": 10,
+      "direction": "desc"
+    },
+    "popularExactScores": {
+      "rank": 2,
+      "of": 11,
+      "value": 62,
+      "direction": "desc"
+    },
+    "againstMajorityOutcome": {
+      "rank": 9,
+      "of": 11,
+      "value": 9,
+      "direction": "desc"
+    },
+    "withMajorityOutcome": {
+      "rank": 2,
+      "of": 11,
+      "value": 61,
+      "direction": "desc"
+    },
+    "distinctExactScoresUsed": {
+      "rank": 8,
+      "of": 11,
+      "value": 14,
+      "direction": "desc"
+    },
+    "classificationRebelSlots": {
+      "rank": 2,
+      "of": 11,
+      "value": 7,
+      "direction": "desc"
+    },
+    "classificationConsensusSlots": {
+      "rank": 8,
+      "of": 11,
+      "value": 17,
+      "direction": "desc"
+    },
+    "uniqueQualifiedTeams": {
+      "rank": 7,
+      "of": 11,
+      "value": 0,
+      "direction": "desc"
+    }
+  },
+  "specialRanksAscending": {
+    "averageGoalsPerMatch": {
+      "rank": 4,
+      "of": 11,
+      "value": 2.64,
+      "direction": "asc"
+    },
+    "draws": {
+      "rank": 6,
+      "of": 11,
+      "value": 9,
+      "direction": "asc"
+    },
+    "totalGoalsPredicted": {
+      "rank": 4,
+      "of": 11,
+      "value": 190,
+      "direction": "asc"
+    },
+    "highScoring4PlusGoals": {
+      "rank": 4,
+      "of": 11,
+      "value": 12,
+      "direction": "asc"
+    }
+  },
+  "cards": [
+    {
+      "cardId": "isaias_hombre_rebano",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🧍",
+      "title": "HOMBRE REBAÑO",
+      "headline": "Isaías — HOMBRE REBAÑO",
+      "metric": {
+        "key": "withMajorityOutcome",
+        "value": 61,
+        "rank": "#2 de 11"
+      },
+      "reading": "Va pegado al pulso de la oficina. Su fuerza no es el show: es no regalarse contra la mayoría.",
+      "shareText": "Isaías desbloqueó carta: HOMBRE REBAÑO. Dato clave: 61 (#2 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "isaias_clasificador_rebelde",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🃏",
+      "title": "CLASIFICADOR REBELDE",
+      "headline": "Isaías — CLASIFICADOR REBELDE",
+      "metric": {
+        "key": "classificationRebelSlots",
+        "value": 7,
+        "rank": "#2 de 11"
+      },
+      "reading": "Mueve clasificados fuera del consenso. Si pega, no suma: castiga.",
+      "shareText": "Isaías desbloqueó carta: CLASIFICADOR REBELDE. Dato clave: 7 (#2 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "isaias_marcador_popular",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🎯",
+      "title": "MARCADOR POPULAR",
+      "headline": "Isaías — MARCADOR POPULAR",
+      "metric": {
+        "key": "popularExactScores",
+        "value": 62,
+        "rank": "#2 de 11"
+      },
+      "reading": "Su cartón conversa mucho con la oficina. Menos rareza, más consenso.",
+      "shareText": "Isaías desbloqueó carta: MARCADOR POPULAR. Dato clave: 62 (#2 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "isaias_guionista_de_anime",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🎬",
+      "title": "GUIONISTA DE ANIME",
+      "headline": "Isaías — GUIONISTA DE ANIME",
+      "metric": {
+        "key": "bothTeamsScore",
+        "value": 41,
+        "rank": "#2 de 11"
+      },
+      "reading": "Le gustan los partidos con ida y vuelta: los dos pegan, los dos sufren.",
+      "shareText": "Isaías desbloqueó carta: GUIONISTA DE ANIME. Dato clave: 41 (#2 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "isaias_2_1_dependiente",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🎯",
+      "title": "2-1 DEPENDIENTE",
+      "headline": "Isaías — 2-1 DEPENDIENTE",
+      "metric": {
+        "key": "twoOneFamily",
+        "value": 25,
+        "rank": "#2 de 11"
+      },
+      "reading": "Repite el marcador mundialero clásico: ajustado, cómodo y peligroso.",
+      "shareText": "Isaías desbloqueó carta: 2-1 DEPENDIENTE. Dato clave: 25 (#2 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "isaias_visitante_valiente",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🛫",
+      "title": "VISITANTE VALIENTE",
+      "headline": "Isaías — VISITANTE VALIENTE",
+      "metric": {
+        "key": "awayWins",
+        "value": 26,
+        "rank": "#3 de 11"
+      },
+      "reading": "No se achica con las visitas. Ve golpes fuera de casa donde otros ven seguridad.",
+      "shareText": "Isaías desbloqueó carta: VISITANTE VALIENTE. Dato clave: 26 (#3 de 11).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    }
+  ],
+  "statDetails": {
+    "loneWolfExactExamples": [
+      {
+        "matchId": "match-005",
+        "matchNumber": 5,
+        "group": "C",
+        "homeTeam": "Haití",
+        "awayTeam": "Escocia",
+        "score": "1-3",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-012",
+        "matchNumber": 12,
+        "group": "F",
+        "homeTeam": "Suecia",
+        "awayTeam": "Túnez",
+        "score": "3-1",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-025",
+        "matchNumber": 25,
+        "group": "A",
+        "homeTeam": "República Checa",
+        "awayTeam": "Sudáfrica",
+        "score": "2-1",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-029",
+        "matchNumber": 29,
+        "group": "C",
+        "homeTeam": "Brasil",
+        "awayTeam": "Haití",
+        "score": "3-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-030",
+        "matchNumber": 30,
+        "group": "C",
+        "homeTeam": "Escocia",
+        "awayTeam": "Marruecos",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-031",
+        "matchNumber": 31,
+        "group": "D",
+        "homeTeam": "Türkiye",
+        "awayTeam": "Paraguay",
+        "score": "2-2",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-036",
+        "matchNumber": 36,
+        "group": "F",
+        "homeTeam": "Túnez",
+        "awayTeam": "Japón",
+        "score": "1-2",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-051",
+        "matchNumber": 51,
+        "group": "B",
+        "homeTeam": "Suiza",
+        "awayTeam": "Canadá",
+        "score": "2-2",
+        "outcome": "empate"
+      }
+    ],
+    "againstMajorityExamples": [
+      {
+        "matchId": "match-015",
+        "matchNumber": 15,
+        "group": "G",
+        "homeTeam": "Irán",
+        "awayTeam": "Nueva Zelanda",
+        "score": "0-0",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-026",
+        "matchNumber": 26,
+        "group": "B",
+        "homeTeam": "Suiza",
+        "awayTeam": "Bosnia y Herzegovina",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-028",
+        "matchNumber": 28,
+        "group": "A",
+        "homeTeam": "México",
+        "awayTeam": "Corea del Sur",
+        "score": "2-1",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-030",
+        "matchNumber": 30,
+        "group": "C",
+        "homeTeam": "Escocia",
+        "awayTeam": "Marruecos",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-041",
+        "matchNumber": 41,
+        "group": "I",
+        "homeTeam": "Noruega",
+        "awayTeam": "Senegal",
+        "score": "1-2",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-044",
+        "matchNumber": 44,
+        "group": "J",
+        "homeTeam": "Jordania",
+        "awayTeam": "Argelia",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-051",
+        "matchNumber": 51,
+        "group": "B",
+        "homeTeam": "Suiza",
+        "awayTeam": "Canadá",
+        "score": "2-2",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-057",
+        "matchNumber": 57,
+        "group": "F",
+        "homeTeam": "Japón",
+        "awayTeam": "Suecia",
+        "score": "1-1",
+        "outcome": "empate"
+      }
+    ],
+    "classificationRebelSlots": [
+      {
+        "groupId": "B",
+        "slot": "firstPlace",
+        "teamId": "canada",
+        "consensus": [
+          "switzerland"
+        ],
+        "countForTeam": 3
+      },
+      {
+        "groupId": "B",
+        "slot": "secondPlace",
+        "teamId": "switzerland",
+        "consensus": [
+          "canada"
+        ],
+        "countForTeam": 4
+      },
+      {
+        "groupId": "C",
+        "slot": "secondPlace",
+        "teamId": "scotland",
+        "consensus": [
+          "morocco"
+        ],
+        "countForTeam": 2
+      },
+      {
+        "groupId": "D",
+        "slot": "firstPlace",
+        "teamId": "paraguay",
+        "consensus": [
+          "usa"
+        ],
+        "countForTeam": 3
+      },
+      {
+        "groupId": "D",
+        "slot": "secondPlace",
+        "teamId": "turkiye",
+        "consensus": [
+          "paraguay"
+        ],
+        "countForTeam": 3
+      },
+      {
+        "groupId": "F",
+        "slot": "secondPlace",
+        "teamId": "sweden",
+        "consensus": [
+          "japan"
+        ],
+        "countForTeam": 2
+      },
+      {
+        "groupId": "I",
+        "slot": "secondPlace",
+        "teamId": "senegal",
+        "consensus": [
+          "norway"
+        ],
+        "countForTeam": 3
+      }
+    ],
+    "uniqueQualifiedTeams": [],
+    "mostRepeatedScores": [
+      {
+        "score": "2-1",
+        "count": 13
+      },
+      {
+        "score": "1-2",
+        "count": 12
+      },
+      {
+        "score": "2-0",
+        "count": 10
+      },
+      {
+        "score": "0-2",
+        "count": 7
+      },
+      {
+        "score": "1-1",
+        "count": 6
+      }
+    ]
+  },
+  "implementationNotes": {
+    "doNotRecalculateInComponent": true,
+    "codexInstruction": "Consumir este JSON como ficha editorial/estadística ya resuelta. No leer todos los JSON de predicciones desde el componente de card.",
+    "suggestedAstroComponent": "src/sections/09_estadisticas/PlayerPlayableStatCard.astro",
+    "suggestedClientScope": "[data-section=\"estadisticas\"]",
+    "dataContract": {
+      "cardPlayableId": "id único para render y tracking",
+      "playableCard": "datos de comportamiento y tono",
+      "summaryStats": "números principales",
+      "cards": "subcartas desbloqueables del jugador",
+      "statDetails": "ejemplos verificables y drill-down opcional"
+    }
+  }
+}

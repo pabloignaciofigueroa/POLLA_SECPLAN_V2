@@ -3,6 +3,14 @@
 ## Estado
 supabase-admin-active
 
+## Estado vigente de cartones - 2026-06-10
+
+- Admin deriva de `predictions.json` 11/15 cartones confirmados, 792 marcadores
+  y cuatro jugadores pendientes.
+- Isaias y Jaime aparecen por el mismo pipeline compartido; no se agregaron
+  KPIs, filas ni reglas manuales.
+- La carga oficial sigue siendo `npm run predictions:build`.
+
 ## Estado de cartones oficiales - 2026-06-09
 
 - Admin consume metadata de `predictions.json`.

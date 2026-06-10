@@ -1,0 +1,124 @@
+---
+interface Props {
+  confirmedCards: number;
+  matchesPerCard?: number;
+}
+
+const { confirmedCards, matchesPerCard = 72 } = Astro.props;
+const predictions = confirmedCards * matchesPerCard;
+---
+
+<header class="arena-hero">
+  <p class="kicker">DATA ARENA · SECPLAN 2026</p>
+  <h2>El álbum secreto de la Polla</h2>
+  <p class="lead">
+    No todo es ganar. Acá están los datos más raros, peligrosos y sabrosos de la oficina,
+    convertidos en cartas. Tócalas para revelar quién está jugando con fuego.
+  </p>
+  <dl class="counters" aria-label="Universo analizado">
+    <div>
+      <dt>Jugadores</dt>
+      <dd data-arena-players>{confirmedCards}</dd>
+    </div>
+    <div>
+      <dt>Partidos</dt>
+      <dd>{matchesPerCard}</dd>
+    </div>
+    <div>
+      <dt>Predicciones cruzadas</dt>
+      <dd data-arena-predictions>{predictions}</dd>
+    </div>
+  </dl>
+</header>
+
+<style>
+  .arena-hero {
+    display: grid;
+    gap: 0.35rem;
+    padding: clamp(0.9rem, 2vw, 1.4rem);
+    border: 1px solid color-mix(in srgb, var(--pm-purple-500) 34%, transparent);
+    border-radius: 1rem;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(24, 221, 242, 0.16), transparent 40%),
+      radial-gradient(circle at 6% 92%, color-mix(in srgb, var(--pm-purple-500) 18%, transparent), transparent 42%),
+      linear-gradient(160deg, var(--pm-white), var(--pm-panel-soft, #eef4fb));
+    box-shadow: 0 18px 44px rgba(7, 23, 53, 0.12);
+  }
+
+  .kicker {
+    margin: 0;
+    color: var(--pm-purple-700);
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 950;
+    letter-spacing: 0.1em;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 4vw, 2.9rem);
+    font-weight: 950;
+    line-height: 0.96;
+    text-transform: uppercase;
+  }
+
+  .lead {
+    margin: 0.1rem 0 0;
+    max-width: 60ch;
+    color: var(--pm-blue-700);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .counters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, auto));
+    justify-content: start;
+    gap: 0;
+    margin: 0.6rem 0 0;
+    overflow: hidden;
+    width: max-content;
+    max-width: 100%;
+    border-radius: 0.7rem;
+    background: var(--pm-blue-900);
+    color: var(--pm-white);
+  }
+
+  .counters div {
+    display: grid;
+    gap: 0.06rem;
+    padding: 0.55rem 0.95rem;
+    text-align: center;
+  }
+
+  .counters div + div {
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .counters dt {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.5rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .counters dd {
+    margin: 0;
+    color: var(--pm-cyan-500);
+    font-family: var(--font-score, var(--font-display));
+    font-size: 1.4rem;
+    font-weight: 950;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 520px) {
+    .counters {
+      width: 100%;
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

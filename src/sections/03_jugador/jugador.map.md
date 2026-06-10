@@ -3,6 +3,13 @@
 ## Estado
 wireframe-implemented
 
+## Isaias y Jaime oficiales - 2026-06-10
+
+- `players.json` mantiene a ambos como jugadores seleccionables con sus avatares reales.
+- `predictions.json` confirma sus cartones dentro del total dinamico de 11/15.
+- El selector y `OfficialPlayerModal` derivan ese estado de las fuentes compartidas;
+  no existen ramas, filas ni contadores manuales para estos jugadores.
+
 ## Cartones oficiales entre dispositivos - 2026-06-09
 
 - La selección se cruza con las entregas confirmadas de `predictions.json`.

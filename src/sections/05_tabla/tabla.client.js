@@ -16,6 +16,7 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
     }
   }
   const players = payload.players ?? [];
+  const avatarById = new Map(players.map((player) => [player.id, player.avatarThumb ?? player.avatar]));
   const results = payload.results ?? [];
   const basePredictions = payload.predictions ?? [];
   const scoringRules = payload.scoringRules ?? { exact: 3, tendency: 1, loneWolf: 5 };
@@ -243,6 +244,29 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
     });
   };
 
+  // Podio (top 3) — se mantiene sincronizado con el recompute en vivo para que
+  // nunca contradiga la tabla. Solo actualiza nodos existentes, sin reconstruir.
+  const renderPodium = (rows) => {
+    const strip = section.querySelector("[data-podium-strip]");
+    if (!strip) return;
+    const leaderPoints = rows[0]?.points ?? 0;
+    for (let i = 0; i < 3; i += 1) {
+      const card = strip.querySelector(`[data-podium-slot="${i + 1}"]`);
+      const row = rows[i];
+      if (!card || !row) continue;
+      card.dataset.playerId = row.playerId;
+      const nameEl = card.querySelector("[data-podium-name]");
+      if (nameEl) nameEl.textContent = row.name;
+      const ptsEl = card.querySelector("[data-podium-points]");
+      if (ptsEl) ptsEl.textContent = row.points;
+      const gapEl = card.querySelector("[data-podium-gap]");
+      if (gapEl) gapEl.textContent = i === 0 ? "LÍDER" : `a ${Math.max(0, leaderPoints - row.points)} pts`;
+      const img = card.querySelector("[data-podium-avatar]");
+      const src = avatarById.get(row.playerId);
+      if (img && src) img.src = src;
+    }
+  };
+
   const renderAccuracy = (rows) => {
     const list = section.querySelector("[data-player-predictions-list]");
     if (!list) return;
@@ -381,6 +405,7 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
       });
     }
     renderRanking(rows);
+    renderPodium(rows);
 
     const accuracyMatchId = liveActive ? live.matchId : currentMatchId;
     renderAccuracy(calculateAccuracy(predictions, accuracyMatchId, effectiveResults));
@@ -391,6 +416,29 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
     }
     toggleProvisional(liveActive);
   };
+
+  // Cruce de resaltado: al pasar/enfocar una fila o una prediccion, se resalta
+  // el mismo jugador en la tabla, el panel y el podio. Solo togglea una clase.
+  const wireCrossHighlight = () => {
+    const setHighlight = (playerId, on) => {
+      if (!playerId) return;
+      section
+        .querySelectorAll(`[data-player-id="${playerId}"]`)
+        .forEach((node) => node.classList.toggle("is-cross-highlight", on));
+    };
+    const triggers = section.querySelectorAll(
+      "[data-ranking-row], [data-player-prediction-row], [data-podium-slot]"
+    );
+    triggers.forEach((node) => {
+      const pid = node.dataset.playerId;
+      if (!pid) return;
+      node.addEventListener("mouseenter", () => setHighlight(node.dataset.playerId, true));
+      node.addEventListener("mouseleave", () => setHighlight(node.dataset.playerId, false));
+      node.addEventListener("focusin", () => setHighlight(node.dataset.playerId, true));
+      node.addEventListener("focusout", () => setHighlight(node.dataset.playerId, false));
+    });
+  };
+  wireCrossHighlight();
 
   subscribeLiveData(recompute);
 })();

@@ -1,0 +1,68 @@
+---
+import PlayableStatCard from "./PlayableStatCard.astro";
+import type { PlayerStatCard } from "../../lib/statistics/statCards";
+
+interface Props {
+  title: string;
+  label: string;
+  cards: PlayerStatCard[];
+}
+
+const { title, label, cards } = Astro.props;
+---
+
+<section class="deck" data-card-deck aria-label={title}>
+  <header class="deck-head">
+    <h3>{title}</h3>
+    <span class="deck-meta">{label} · {cards.length} cartas · toca para revelar</span>
+  </header>
+  <div class="deck-grid">
+    {cards.map((card) => <PlayableStatCard card={card} />)}
+  </div>
+</section>
+
+<style>
+  .deck {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .deck-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 950;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .deck-meta {
+    color: var(--pm-blue-700);
+    font-size: 0.62rem;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: clamp(0.5rem, 1.4vw, 0.85rem);
+  }
+
+  @media (max-width: 420px) {
+    .deck-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

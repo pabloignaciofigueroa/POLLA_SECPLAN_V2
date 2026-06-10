@@ -66,6 +66,12 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     box-shadow: inset 4px 0 0 var(--pm-pink-500);
   }
 
+  /* Cruce de resaltado con el panel de predicciones (mismo jugador). */
+  tr.is-cross-highlight {
+    background: color-mix(in srgb, var(--pm-cyan-200) 30%, transparent);
+    box-shadow: inset 4px 0 0 var(--pm-pink-500);
+  }
+
   /* PODIUM: top 1/2/3 con oro/plata/bronce */
   tr[data-rank="top-1"] {
     background: linear-gradient(90deg, rgba(255, 210, 31, 0.18), transparent 60%);
@@ -177,6 +183,18 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
   .streak-list {
     display: inline-flex;
     gap: 0.25rem;
+  }
+
+  /* Shimmer suave del lider (acento dorado), respetando reduced-motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    tr[data-rank="top-1"] .position-badge {
+      animation: leaderGlow 2.6s ease-in-out infinite;
+    }
+
+    @keyframes leaderGlow {
+      0%, 100% { box-shadow: 0 0 12px var(--pm-gold-glow); }
+      50%      { box-shadow: 0 0 22px var(--pm-gold-glow); }
+    }
   }
 
   @media (max-width: 720px) {

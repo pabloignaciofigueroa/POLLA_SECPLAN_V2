@@ -5,7 +5,6 @@ import { buildDataset } from "./predictions-importer.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
-const workspaceRoot = path.resolve(siteRoot, "..");
 const dataRoot = path.join(siteRoot, "src", "data");
 const publicDataRoot = path.join(siteRoot, "public", "data");
 
@@ -17,17 +16,17 @@ const [players, fixture, groups, teams] = await Promise.all([
   readJson(path.join(dataRoot, "teams.json")),
 ]);
 
-const inputNames = (await fs.readdir(workspaceRoot))
+const inputNames = (await fs.readdir(siteRoot))
   .filter((name) => /^predicciones_.+_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/i.test(name))
   .sort();
 
 if (inputNames.length === 0) {
-  throw new Error(`No se encontraron cartones en ${workspaceRoot}.`);
+  throw new Error(`No se encontraron cartones en ${siteRoot}.`);
 }
 
 const entries = await Promise.all(
   inputNames.map(async (fileName) => {
-    const raw = await fs.readFile(path.join(workspaceRoot, fileName), "utf8");
+    const raw = await fs.readFile(path.join(siteRoot, fileName), "utf8");
     return { fileName, raw, document: JSON.parse(raw) };
   })
 );

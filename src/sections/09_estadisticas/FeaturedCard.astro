@@ -1,0 +1,200 @@
+---
+import PlayableStatCard from "./PlayableStatCard.astro";
+import type { PlayerStatCard, StatSubCard } from "../../lib/statistics/statCards";
+
+interface HotMatch {
+  homeName: string;
+  awayName: string;
+  groupId: string;
+  consensusLabel: string;
+  homePct: number;
+  drawPct: number;
+  awayPct: number;
+}
+
+interface OfficeScore {
+  homeName: string;
+  awayName: string;
+  groupId: string;
+  score: string;
+  count: number;
+}
+
+interface Props {
+  card: PlayerStatCard;
+  subCard: StatSubCard;
+  hotMatch?: HotMatch | null;
+  officeScore?: OfficeScore | null;
+}
+
+const { card, subCard, hotMatch = null, officeScore = null } = Astro.props;
+---
+
+<section class="featured" aria-label="Carta del día y pulso de oficina">
+  <div class="featured-card">
+    <p class="featured-kicker">🔥 CARTA DEL DÍA</p>
+    <PlayableStatCard card={card} subCard={subCard} featured={true} />
+  </div>
+
+  <div class="pulse" aria-label="Pulso de la oficina">
+    {hotMatch && (
+      <article class="pulse-card hot">
+        <span class="pulse-tag">🌋 PARTIDO CALIENTE</span>
+        <strong class="pulse-match">{hotMatch.homeName} vs {hotMatch.awayName}</strong>
+        <span class="pulse-sub">Grupo {hotMatch.groupId} · {hotMatch.consensusLabel}</span>
+        <div class="bars" aria-hidden="true">
+          <span class="bar home" style={`--w:${hotMatch.homePct}%`}><i>L {hotMatch.homePct}%</i></span>
+          <span class="bar draw" style={`--w:${hotMatch.drawPct}%`}><i>E {hotMatch.drawPct}%</i></span>
+          <span class="bar away" style={`--w:${hotMatch.awayPct}%`}><i>V {hotMatch.awayPct}%</i></span>
+        </div>
+      </article>
+    )}
+
+    {officeScore && (
+      <article class="pulse-card office">
+        <span class="pulse-tag">🎯 MARCADOR DE OFICINA</span>
+        <strong class="pulse-match">{officeScore.homeName} vs {officeScore.awayName}</strong>
+        <span class="pulse-sub">Grupo {officeScore.groupId}</span>
+        <div class="office-score">
+          <b>{officeScore.score}</b>
+          <span>lo pusieron {officeScore.count} jugadores</span>
+        </div>
+      </article>
+    )}
+  </div>
+</section>
+
+<style>
+  .featured {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(0.6rem, 1.5vw, 1rem);
+    align-items: stretch;
+  }
+
+  .featured-card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0.4rem;
+  }
+
+  .featured-kicker {
+    margin: 0;
+    color: var(--pm-gold-700, #b8860b);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .pulse {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: clamp(0.5rem, 1.2vw, 0.8rem);
+    min-width: 0;
+  }
+
+  .pulse-card {
+    display: grid;
+    align-content: start;
+    gap: 0.32rem;
+    padding: 0.85rem;
+    border: 1px solid var(--color-line, rgba(7, 23, 53, 0.12));
+    border-radius: 0.9rem;
+    background: linear-gradient(160deg, var(--pm-white), var(--pm-panel-soft, #eef4fb));
+  }
+
+  .pulse-card.hot { border-color: color-mix(in srgb, var(--pm-pink-600) 36%, transparent); }
+  .pulse-card.office { border-color: color-mix(in srgb, var(--pm-cyan-500) 40%, transparent); }
+
+  .pulse-tag {
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+    color: var(--pm-blue-700);
+  }
+
+  .pulse-match {
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.96rem;
+    font-weight: 950;
+    line-height: 1.05;
+  }
+
+  .pulse-sub {
+    color: var(--pm-blue-700);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .bars {
+    display: grid;
+    gap: 0.22rem;
+    margin-top: 0.2rem;
+  }
+
+  .bar {
+    position: relative;
+    display: block;
+    height: 0.95rem;
+    border-radius: 999px;
+    background: var(--pm-blue-100, #e5eefc);
+    overflow: hidden;
+  }
+
+  .bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: var(--w, 0%);
+    border-radius: 999px;
+  }
+
+  .bar.home::before { background: var(--pm-blue-500); }
+  .bar.draw::before { background: var(--pm-gold-700, #b8860b); }
+  .bar.away::before { background: var(--pm-pink-600); }
+
+  .bar i {
+    position: relative;
+    z-index: 1;
+    display: block;
+    padding: 0 0.45rem;
+    font-size: 0.56rem;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 0.95rem;
+    color: var(--pm-blue-900);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .office-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+  }
+
+  .office-score b {
+    font-family: var(--font-score, var(--font-display));
+    font-size: clamp(1.8rem, 6vw, 2.6rem);
+    font-weight: 950;
+    color: var(--pm-cyan-700, #0e7490);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .office-score span {
+    color: var(--pm-blue-700);
+    font-size: 0.66rem;
+    font-weight: 800;
+  }
+
+  @media (max-width: 760px) {
+    .featured {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

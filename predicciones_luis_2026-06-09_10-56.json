@@ -1,0 +1,1405 @@
+{
+  "schemaVersion": "1.0",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "submittedAt": "2026-06-09T14:56:59.598Z",
+  "player": {
+    "id": "luis",
+    "displayName": "Luis"
+  },
+  "summary": {
+    "totalMatches": 72,
+    "completedMatches": 72,
+    "totalGroups": 12,
+    "completedGroups": 12,
+    "totalQualifiedSlots": 24,
+    "completedQualifiedSlots": 24
+  },
+  "groupPredictions": [
+    {
+      "groupId": "A",
+      "firstPlace": "korea-republic",
+      "secondPlace": "mexico",
+      "matches": [
+        {
+          "matchId": "match-001",
+          "matchNumber": 1,
+          "group": "A",
+          "homeTeam": "México",
+          "awayTeam": "Sudáfrica",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-002",
+          "matchNumber": 2,
+          "group": "A",
+          "homeTeam": "Corea del Sur",
+          "awayTeam": "República Checa",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-025",
+          "matchNumber": 25,
+          "group": "A",
+          "homeTeam": "República Checa",
+          "awayTeam": "Sudáfrica",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-028",
+          "matchNumber": 28,
+          "group": "A",
+          "homeTeam": "México",
+          "awayTeam": "Corea del Sur",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-053",
+          "matchNumber": 53,
+          "group": "A",
+          "homeTeam": "República Checa",
+          "awayTeam": "México",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-054",
+          "matchNumber": 54,
+          "group": "A",
+          "homeTeam": "Sudáfrica",
+          "awayTeam": "Corea del Sur",
+          "homeScore": 1,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "groupId": "B",
+      "firstPlace": "canada",
+      "secondPlace": "switzerland",
+      "matches": [
+        {
+          "matchId": "match-003",
+          "matchNumber": 3,
+          "group": "B",
+          "homeTeam": "Canadá",
+          "awayTeam": "Bosnia y Herzegovina",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-008",
+          "matchNumber": 8,
+          "group": "B",
+          "homeTeam": "Qatar",
+          "awayTeam": "Suiza",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-026",
+          "matchNumber": 26,
+          "group": "B",
+          "homeTeam": "Suiza",
+          "awayTeam": "Bosnia y Herzegovina",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-027",
+          "matchNumber": 27,
+          "group": "B",
+          "homeTeam": "Canadá",
+          "awayTeam": "Qatar",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-051",
+          "matchNumber": 51,
+          "group": "B",
+          "homeTeam": "Suiza",
+          "awayTeam": "Canadá",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-052",
+          "matchNumber": 52,
+          "group": "B",
+          "homeTeam": "Bosnia y Herzegovina",
+          "awayTeam": "Qatar",
+          "homeScore": 0,
+          "awayScore": 2
+        }
+      ]
+    },
+    {
+      "groupId": "C",
+      "firstPlace": "brazil",
+      "secondPlace": "morocco",
+      "matches": [
+        {
+          "matchId": "match-005",
+          "matchNumber": 5,
+          "group": "C",
+          "homeTeam": "Haití",
+          "awayTeam": "Escocia",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-007",
+          "matchNumber": 7,
+          "group": "C",
+          "homeTeam": "Brasil",
+          "awayTeam": "Marruecos",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-029",
+          "matchNumber": 29,
+          "group": "C",
+          "homeTeam": "Brasil",
+          "awayTeam": "Haití",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-030",
+          "matchNumber": 30,
+          "group": "C",
+          "homeTeam": "Escocia",
+          "awayTeam": "Marruecos",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-049",
+          "matchNumber": 49,
+          "group": "C",
+          "homeTeam": "Escocia",
+          "awayTeam": "Brasil",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-050",
+          "matchNumber": 50,
+          "group": "C",
+          "homeTeam": "Marruecos",
+          "awayTeam": "Haití",
+          "homeScore": 3,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "groupId": "D",
+      "firstPlace": "turkiye",
+      "secondPlace": "usa",
+      "matches": [
+        {
+          "matchId": "match-004",
+          "matchNumber": 4,
+          "group": "D",
+          "homeTeam": "Estados Unidos",
+          "awayTeam": "Paraguay",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-006",
+          "matchNumber": 6,
+          "group": "D",
+          "homeTeam": "Australia",
+          "awayTeam": "Türkiye",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-031",
+          "matchNumber": 31,
+          "group": "D",
+          "homeTeam": "Türkiye",
+          "awayTeam": "Paraguay",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-032",
+          "matchNumber": 32,
+          "group": "D",
+          "homeTeam": "Estados Unidos",
+          "awayTeam": "Australia",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-059",
+          "matchNumber": 59,
+          "group": "D",
+          "homeTeam": "Türkiye",
+          "awayTeam": "Estados Unidos",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-060",
+          "matchNumber": 60,
+          "group": "D",
+          "homeTeam": "Paraguay",
+          "awayTeam": "Australia",
+          "homeScore": 0,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "groupId": "E",
+      "firstPlace": "germany",
+      "secondPlace": "cote-divoire",
+      "matches": [
+        {
+          "matchId": "match-009",
+          "matchNumber": 9,
+          "group": "E",
+          "homeTeam": "Costa de Marfil",
+          "awayTeam": "Ecuador",
+          "homeScore": 2,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-010",
+          "matchNumber": 10,
+          "group": "E",
+          "homeTeam": "Alemania",
+          "awayTeam": "Curazao",
+          "homeScore": 5,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-033",
+          "matchNumber": 33,
+          "group": "E",
+          "homeTeam": "Alemania",
+          "awayTeam": "Costa de Marfil",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-034",
+          "matchNumber": 34,
+          "group": "E",
+          "homeTeam": "Ecuador",
+          "awayTeam": "Curazao",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-055",
+          "matchNumber": 55,
+          "group": "E",
+          "homeTeam": "Curazao",
+          "awayTeam": "Costa de Marfil",
+          "homeScore": 0,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-056",
+          "matchNumber": 56,
+          "group": "E",
+          "homeTeam": "Ecuador",
+          "awayTeam": "Alemania",
+          "homeScore": 1,
+          "awayScore": 2
+        }
+      ]
+    },
+    {
+      "groupId": "F",
+      "firstPlace": "netherlands",
+      "secondPlace": "japan",
+      "matches": [
+        {
+          "matchId": "match-011",
+          "matchNumber": 11,
+          "group": "F",
+          "homeTeam": "Países Bajos",
+          "awayTeam": "Japón",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-012",
+          "matchNumber": 12,
+          "group": "F",
+          "homeTeam": "Suecia",
+          "awayTeam": "Túnez",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-035",
+          "matchNumber": 35,
+          "group": "F",
+          "homeTeam": "Países Bajos",
+          "awayTeam": "Suecia",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-036",
+          "matchNumber": 36,
+          "group": "F",
+          "homeTeam": "Túnez",
+          "awayTeam": "Japón",
+          "homeScore": 0,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-057",
+          "matchNumber": 57,
+          "group": "F",
+          "homeTeam": "Japón",
+          "awayTeam": "Suecia",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-058",
+          "matchNumber": 58,
+          "group": "F",
+          "homeTeam": "Túnez",
+          "awayTeam": "Países Bajos",
+          "homeScore": 0,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "groupId": "G",
+      "firstPlace": "belgium",
+      "secondPlace": "egypt",
+      "matches": [
+        {
+          "matchId": "match-015",
+          "matchNumber": 15,
+          "group": "G",
+          "homeTeam": "Irán",
+          "awayTeam": "Nueva Zelanda",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-016",
+          "matchNumber": 16,
+          "group": "G",
+          "homeTeam": "Bélgica",
+          "awayTeam": "Egipto",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-039",
+          "matchNumber": 39,
+          "group": "G",
+          "homeTeam": "Bélgica",
+          "awayTeam": "Irán",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-040",
+          "matchNumber": 40,
+          "group": "G",
+          "homeTeam": "Nueva Zelanda",
+          "awayTeam": "Egipto",
+          "homeScore": 0,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-063",
+          "matchNumber": 63,
+          "group": "G",
+          "homeTeam": "Egipto",
+          "awayTeam": "Irán",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-064",
+          "matchNumber": 64,
+          "group": "G",
+          "homeTeam": "Nueva Zelanda",
+          "awayTeam": "Bélgica",
+          "homeScore": 1,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "groupId": "H",
+      "firstPlace": "spain",
+      "secondPlace": "uruguay",
+      "matches": [
+        {
+          "matchId": "match-013",
+          "matchNumber": 13,
+          "group": "H",
+          "homeTeam": "Arabia Saudita",
+          "awayTeam": "Uruguay",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-014",
+          "matchNumber": 14,
+          "group": "H",
+          "homeTeam": "España",
+          "awayTeam": "Cabo Verde",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-037",
+          "matchNumber": 37,
+          "group": "H",
+          "homeTeam": "Uruguay",
+          "awayTeam": "Cabo Verde",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-038",
+          "matchNumber": 38,
+          "group": "H",
+          "homeTeam": "España",
+          "awayTeam": "Arabia Saudita",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-065",
+          "matchNumber": 65,
+          "group": "H",
+          "homeTeam": "Cabo Verde",
+          "awayTeam": "Arabia Saudita",
+          "homeScore": 0,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-066",
+          "matchNumber": 66,
+          "group": "H",
+          "homeTeam": "Uruguay",
+          "awayTeam": "España",
+          "homeScore": 1,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "groupId": "I",
+      "firstPlace": "france",
+      "secondPlace": "norway",
+      "matches": [
+        {
+          "matchId": "match-017",
+          "matchNumber": 17,
+          "group": "I",
+          "homeTeam": "Francia",
+          "awayTeam": "Senegal",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-018",
+          "matchNumber": 18,
+          "group": "I",
+          "homeTeam": "Irak",
+          "awayTeam": "Noruega",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-041",
+          "matchNumber": 41,
+          "group": "I",
+          "homeTeam": "Noruega",
+          "awayTeam": "Senegal",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-042",
+          "matchNumber": 42,
+          "group": "I",
+          "homeTeam": "Francia",
+          "awayTeam": "Irak",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-061",
+          "matchNumber": 61,
+          "group": "I",
+          "homeTeam": "Noruega",
+          "awayTeam": "Francia",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-062",
+          "matchNumber": 62,
+          "group": "I",
+          "homeTeam": "Senegal",
+          "awayTeam": "Irak",
+          "homeScore": 3,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "groupId": "J",
+      "firstPlace": "argentina",
+      "secondPlace": "austria",
+      "matches": [
+        {
+          "matchId": "match-019",
+          "matchNumber": 19,
+          "group": "J",
+          "homeTeam": "Argentina",
+          "awayTeam": "Argelia",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-020",
+          "matchNumber": 20,
+          "group": "J",
+          "homeTeam": "Austria",
+          "awayTeam": "Jordania",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-043",
+          "matchNumber": 43,
+          "group": "J",
+          "homeTeam": "Argentina",
+          "awayTeam": "Austria",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-044",
+          "matchNumber": 44,
+          "group": "J",
+          "homeTeam": "Jordania",
+          "awayTeam": "Argelia",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-069",
+          "matchNumber": 69,
+          "group": "J",
+          "homeTeam": "Argelia",
+          "awayTeam": "Austria",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-070",
+          "matchNumber": 70,
+          "group": "J",
+          "homeTeam": "Jordania",
+          "awayTeam": "Argentina",
+          "homeScore": 0,
+          "awayScore": 4
+        }
+      ]
+    },
+    {
+      "groupId": "K",
+      "firstPlace": "portugal",
+      "secondPlace": "colombia",
+      "matches": [
+        {
+          "matchId": "match-023",
+          "matchNumber": 23,
+          "group": "K",
+          "homeTeam": "Portugal",
+          "awayTeam": "RD del Congo",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-024",
+          "matchNumber": 24,
+          "group": "K",
+          "homeTeam": "Uzbekistán",
+          "awayTeam": "Colombia",
+          "homeScore": 0,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-047",
+          "matchNumber": 47,
+          "group": "K",
+          "homeTeam": "Portugal",
+          "awayTeam": "Uzbekistán",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-048",
+          "matchNumber": 48,
+          "group": "K",
+          "homeTeam": "Colombia",
+          "awayTeam": "RD del Congo",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-071",
+          "matchNumber": 71,
+          "group": "K",
+          "homeTeam": "Colombia",
+          "awayTeam": "Portugal",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "matchId": "match-072",
+          "matchNumber": 72,
+          "group": "K",
+          "homeTeam": "RD del Congo",
+          "awayTeam": "Uzbekistán",
+          "homeScore": 1,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "groupId": "L",
+      "firstPlace": "england",
+      "secondPlace": "croatia",
+      "matches": [
+        {
+          "matchId": "match-021",
+          "matchNumber": 21,
+          "group": "L",
+          "homeTeam": "Ghana",
+          "awayTeam": "Panamá",
+          "homeScore": 3,
+          "awayScore": 0
+        },
+        {
+          "matchId": "match-022",
+          "matchNumber": 22,
+          "group": "L",
+          "homeTeam": "Inglaterra",
+          "awayTeam": "Croacia",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-045",
+          "matchNumber": 45,
+          "group": "L",
+          "homeTeam": "Inglaterra",
+          "awayTeam": "Ghana",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "matchId": "match-046",
+          "matchNumber": 46,
+          "group": "L",
+          "homeTeam": "Panamá",
+          "awayTeam": "Croacia",
+          "homeScore": 0,
+          "awayScore": 3
+        },
+        {
+          "matchId": "match-067",
+          "matchNumber": 67,
+          "group": "L",
+          "homeTeam": "Panamá",
+          "awayTeam": "Inglaterra",
+          "homeScore": 0,
+          "awayScore": 4
+        },
+        {
+          "matchId": "match-068",
+          "matchNumber": 68,
+          "group": "L",
+          "homeTeam": "Croacia",
+          "awayTeam": "Ghana",
+          "homeScore": 2,
+          "awayScore": 1
+        }
+      ]
+    }
+  ],
+  "raw": {
+    "predictions": {
+      "match-001": {
+        "playerId": "luis",
+        "matchId": "match-001",
+        "groupId": "A",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-002": {
+        "playerId": "luis",
+        "matchId": "match-002",
+        "groupId": "A",
+        "homeScore": 2,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-025": {
+        "playerId": "luis",
+        "matchId": "match-025",
+        "groupId": "A",
+        "homeScore": 1,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-028": {
+        "playerId": "luis",
+        "matchId": "match-028",
+        "groupId": "A",
+        "homeScore": 1,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-053": {
+        "playerId": "luis",
+        "matchId": "match-053",
+        "groupId": "A",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-054": {
+        "playerId": "luis",
+        "matchId": "match-054",
+        "groupId": "A",
+        "homeScore": 1,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-003": {
+        "playerId": "luis",
+        "matchId": "match-003",
+        "groupId": "B",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-008": {
+        "playerId": "luis",
+        "matchId": "match-008",
+        "groupId": "B",
+        "homeScore": 1,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-026": {
+        "playerId": "luis",
+        "matchId": "match-026",
+        "groupId": "B",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-027": {
+        "playerId": "luis",
+        "matchId": "match-027",
+        "groupId": "B",
+        "homeScore": 3,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-051": {
+        "playerId": "luis",
+        "matchId": "match-051",
+        "groupId": "B",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-052": {
+        "playerId": "luis",
+        "matchId": "match-052",
+        "groupId": "B",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-005": {
+        "playerId": "luis",
+        "matchId": "match-005",
+        "groupId": "C",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-007": {
+        "playerId": "luis",
+        "matchId": "match-007",
+        "groupId": "C",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-029": {
+        "playerId": "luis",
+        "matchId": "match-029",
+        "groupId": "C",
+        "homeScore": 4,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-030": {
+        "playerId": "luis",
+        "matchId": "match-030",
+        "groupId": "C",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-049": {
+        "playerId": "luis",
+        "matchId": "match-049",
+        "groupId": "C",
+        "homeScore": 1,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-050": {
+        "playerId": "luis",
+        "matchId": "match-050",
+        "groupId": "C",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-004": {
+        "playerId": "luis",
+        "matchId": "match-004",
+        "groupId": "D",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-006": {
+        "playerId": "luis",
+        "matchId": "match-006",
+        "groupId": "D",
+        "homeScore": 1,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-031": {
+        "playerId": "luis",
+        "matchId": "match-031",
+        "groupId": "D",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-032": {
+        "playerId": "luis",
+        "matchId": "match-032",
+        "groupId": "D",
+        "homeScore": 2,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-059": {
+        "playerId": "luis",
+        "matchId": "match-059",
+        "groupId": "D",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-060": {
+        "playerId": "luis",
+        "matchId": "match-060",
+        "groupId": "D",
+        "homeScore": 0,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-009": {
+        "playerId": "luis",
+        "matchId": "match-009",
+        "groupId": "E",
+        "homeScore": 2,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-010": {
+        "playerId": "luis",
+        "matchId": "match-010",
+        "groupId": "E",
+        "homeScore": 5,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-033": {
+        "playerId": "luis",
+        "matchId": "match-033",
+        "groupId": "E",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-034": {
+        "playerId": "luis",
+        "matchId": "match-034",
+        "groupId": "E",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-055": {
+        "playerId": "luis",
+        "matchId": "match-055",
+        "groupId": "E",
+        "homeScore": 0,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-056": {
+        "playerId": "luis",
+        "matchId": "match-056",
+        "groupId": "E",
+        "homeScore": 1,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-011": {
+        "playerId": "luis",
+        "matchId": "match-011",
+        "groupId": "F",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-012": {
+        "playerId": "luis",
+        "matchId": "match-012",
+        "groupId": "F",
+        "homeScore": 1,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-035": {
+        "playerId": "luis",
+        "matchId": "match-035",
+        "groupId": "F",
+        "homeScore": 2,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-036": {
+        "playerId": "luis",
+        "matchId": "match-036",
+        "groupId": "F",
+        "homeScore": 0,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-057": {
+        "playerId": "luis",
+        "matchId": "match-057",
+        "groupId": "F",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-058": {
+        "playerId": "luis",
+        "matchId": "match-058",
+        "groupId": "F",
+        "homeScore": 0,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-015": {
+        "playerId": "luis",
+        "matchId": "match-015",
+        "groupId": "G",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-016": {
+        "playerId": "luis",
+        "matchId": "match-016",
+        "groupId": "G",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-039": {
+        "playerId": "luis",
+        "matchId": "match-039",
+        "groupId": "G",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-040": {
+        "playerId": "luis",
+        "matchId": "match-040",
+        "groupId": "G",
+        "homeScore": 0,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-063": {
+        "playerId": "luis",
+        "matchId": "match-063",
+        "groupId": "G",
+        "homeScore": 1,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-064": {
+        "playerId": "luis",
+        "matchId": "match-064",
+        "groupId": "G",
+        "homeScore": 1,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-013": {
+        "playerId": "luis",
+        "matchId": "match-013",
+        "groupId": "H",
+        "homeScore": 1,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-014": {
+        "playerId": "luis",
+        "matchId": "match-014",
+        "groupId": "H",
+        "homeScore": 4,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-037": {
+        "playerId": "luis",
+        "matchId": "match-037",
+        "groupId": "H",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-038": {
+        "playerId": "luis",
+        "matchId": "match-038",
+        "groupId": "H",
+        "homeScore": 3,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-065": {
+        "playerId": "luis",
+        "matchId": "match-065",
+        "groupId": "H",
+        "homeScore": 0,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-066": {
+        "playerId": "luis",
+        "matchId": "match-066",
+        "groupId": "H",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-017": {
+        "playerId": "luis",
+        "matchId": "match-017",
+        "groupId": "I",
+        "homeScore": 3,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-018": {
+        "playerId": "luis",
+        "matchId": "match-018",
+        "groupId": "I",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-041": {
+        "playerId": "luis",
+        "matchId": "match-041",
+        "groupId": "I",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-042": {
+        "playerId": "luis",
+        "matchId": "match-042",
+        "groupId": "I",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-061": {
+        "playerId": "luis",
+        "matchId": "match-061",
+        "groupId": "I",
+        "homeScore": 1,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-062": {
+        "playerId": "luis",
+        "matchId": "match-062",
+        "groupId": "I",
+        "homeScore": 3,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-019": {
+        "playerId": "luis",
+        "matchId": "match-019",
+        "groupId": "J",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-020": {
+        "playerId": "luis",
+        "matchId": "match-020",
+        "groupId": "J",
+        "homeScore": 2,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-043": {
+        "playerId": "luis",
+        "matchId": "match-043",
+        "groupId": "J",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-044": {
+        "playerId": "luis",
+        "matchId": "match-044",
+        "groupId": "J",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-069": {
+        "playerId": "luis",
+        "matchId": "match-069",
+        "groupId": "J",
+        "homeScore": 0,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-070": {
+        "playerId": "luis",
+        "matchId": "match-070",
+        "groupId": "J",
+        "homeScore": 0,
+        "awayScore": 4,
+        "status": "complete"
+      },
+      "match-023": {
+        "playerId": "luis",
+        "matchId": "match-023",
+        "groupId": "K",
+        "homeScore": 4,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-024": {
+        "playerId": "luis",
+        "matchId": "match-024",
+        "groupId": "K",
+        "homeScore": 0,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-047": {
+        "playerId": "luis",
+        "matchId": "match-047",
+        "groupId": "K",
+        "homeScore": 4,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-048": {
+        "playerId": "luis",
+        "matchId": "match-048",
+        "groupId": "K",
+        "homeScore": 4,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-071": {
+        "playerId": "luis",
+        "matchId": "match-071",
+        "groupId": "K",
+        "homeScore": 1,
+        "awayScore": 2,
+        "status": "complete"
+      },
+      "match-072": {
+        "playerId": "luis",
+        "matchId": "match-072",
+        "groupId": "K",
+        "homeScore": 1,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-021": {
+        "playerId": "luis",
+        "matchId": "match-021",
+        "groupId": "L",
+        "homeScore": 3,
+        "awayScore": 0,
+        "status": "complete"
+      },
+      "match-022": {
+        "playerId": "luis",
+        "matchId": "match-022",
+        "groupId": "L",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-045": {
+        "playerId": "luis",
+        "matchId": "match-045",
+        "groupId": "L",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      },
+      "match-046": {
+        "playerId": "luis",
+        "matchId": "match-046",
+        "groupId": "L",
+        "homeScore": 0,
+        "awayScore": 3,
+        "status": "complete"
+      },
+      "match-067": {
+        "playerId": "luis",
+        "matchId": "match-067",
+        "groupId": "L",
+        "homeScore": 0,
+        "awayScore": 4,
+        "status": "complete"
+      },
+      "match-068": {
+        "playerId": "luis",
+        "matchId": "match-068",
+        "groupId": "L",
+        "homeScore": 2,
+        "awayScore": 1,
+        "status": "complete"
+      }
+    },
+    "qualifiedPredictions": {
+      "A": {
+        "playerId": "luis",
+        "groupId": "A",
+        "firstPlaceTeamId": "korea-republic",
+        "secondPlaceTeamId": "mexico"
+      },
+      "B": {
+        "playerId": "luis",
+        "groupId": "B",
+        "firstPlaceTeamId": "canada",
+        "secondPlaceTeamId": "switzerland"
+      },
+      "C": {
+        "playerId": "luis",
+        "groupId": "C",
+        "firstPlaceTeamId": "brazil",
+        "secondPlaceTeamId": "morocco"
+      },
+      "D": {
+        "playerId": "luis",
+        "groupId": "D",
+        "firstPlaceTeamId": "turkiye",
+        "secondPlaceTeamId": "usa"
+      },
+      "E": {
+        "playerId": "luis",
+        "groupId": "E",
+        "firstPlaceTeamId": "germany",
+        "secondPlaceTeamId": "cote-divoire"
+      },
+      "F": {
+        "playerId": "luis",
+        "groupId": "F",
+        "firstPlaceTeamId": "netherlands",
+        "secondPlaceTeamId": "japan"
+      },
+      "G": {
+        "playerId": "luis",
+        "groupId": "G",
+        "firstPlaceTeamId": "belgium",
+        "secondPlaceTeamId": "egypt"
+      },
+      "H": {
+        "playerId": "luis",
+        "groupId": "H",
+        "firstPlaceTeamId": "spain",
+        "secondPlaceTeamId": "uruguay"
+      },
+      "I": {
+        "playerId": "luis",
+        "groupId": "I",
+        "firstPlaceTeamId": "france",
+        "secondPlaceTeamId": "norway"
+      },
+      "J": {
+        "playerId": "luis",
+        "groupId": "J",
+        "firstPlaceTeamId": "argentina",
+        "secondPlaceTeamId": "austria"
+      },
+      "K": {
+        "playerId": "luis",
+        "groupId": "K",
+        "firstPlaceTeamId": "portugal",
+        "secondPlaceTeamId": "colombia"
+      },
+      "L": {
+        "playerId": "luis",
+        "groupId": "L",
+        "firstPlaceTeamId": "england",
+        "secondPlaceTeamId": "croatia"
+      }
+    }
+  }
+}

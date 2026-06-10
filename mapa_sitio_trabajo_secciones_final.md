@@ -1,6 +1,6 @@
 # Mapa operativo de arquitectura del sitio - Polla Mundialera SECPLAN 2026
 
-Fecha de actualizacion: 2026-06-09
+Fecha de actualizacion: 2026-06-10
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
@@ -113,6 +113,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Client: `tabla.client.js` hidrata estados visibles y no mezcla drafts locales como fuente oficial en el SSR.
 - Marcador en vivo: `tabla.client.js` se suscribe a Supabase Realtime mediante `subscribeLiveData` del seam `lib/liveMatch/liveMatchState.js`. Cada cambio remoto recalcula standings/accuracy con oficiales + partido vivo, re-apunta las cards y revela el banner provisional. `localStorage` es solo cache/fallback.
 - Calculo (fuente unica): SSR y vivo usan `lib/liveMatch/liveScoring.js`. PUNTOS = ranking (Lone Wolf 5 / exacto compartido 3 / tendencia 1 / nada 0, no aditivo). PRECISION % = solo visual (exacto alcanzable vs imposible: con 5-2, 6-3 tiene mas % que 4-1); nunca afecta el orden. El panel "Predicciones de los jugadores" muestra Puntos y Precision en columnas separadas.
+- Refresco arcade aditivo (2026-06-10): `PodiumStrip.astro` (top-3 con medalla/brecha, sincronizado por `renderPodium` en cada recompute), shimmer del lider, badge LONE WOLF (CSS sobre `data-hit-type`) y cruce de resaltado fila/prediccion/podio (`wireCrossHighlight`). Sin cambios en `lib/tabla/*` ni en el orden funcional.
 - Cuando cambiar: formula de puntaje en `scoring-rules.json`/helpers de `lib/tabla`; filas/visual en componentes de `05_tabla`; pipeline en vivo en `tabla.client.js` + `lib/liveMatch/liveMatchState.js`.
 
 ### `06_proximo_partido`
@@ -153,7 +154,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Storage: lee `polla:selectedPlayerId`, `polla:predictions`; escribe `polla:activePredictionGroup` y `polla:activePredictionGroupIntent`.
 - Pulsos compartidos: Proximo Partido, Fixture y Equipos revelan agregados si
   el carton local esta completo o el jugador tiene una entrega oficial.
-- Cuando cambiar: metricas en `lib/statistics`; experiencia y filtros en `09_estadisticas`; ingesta en `scripts/predictions-importer.mjs`.
+- Data Arena (2026-06-10): al desbloquear se monta una capa de cartas jugables (flip 3D) antes del dashboard; el dashboard tabular queda como "Explorador detallado". Fichas resueltas en `data/stat-cards/players/*.json` via `lib/statistics/statCards.ts`; `statCardsRerank.ts` normaliza en memoria los rankings visibles al universo de 11 sin reescribir los JSON editoriales. Carta del dia + pulso de oficina derivados de `buildCommunityAnalysis`. Piezas: `DataArenaHero`, `FeaturedCard`, `CardDeck`, `PlayableStatCard`, `data-arena.client.js`.
+- Cuando cambiar: metricas en `lib/statistics`; experiencia y filtros en `09_estadisticas`; ingesta en `scripts/predictions-importer.mjs`; cartas/mazos en los componentes Data Arena + `statCards.ts`.
 
 ### `10_admin`
 
@@ -275,7 +277,9 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `teams.json` | 48 selecciones, banderas, escudos, portadas |
 | `groups.json` | Grupos A-L |
 | `fixture.json` | 72 partidos de fase de grupos |
-| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados |
+| `predicciones_*.json` | Fuentes versionadas de cada carton oficial; viven en la raiz del proyecto y alimentan `predictions:build` |
+| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados (11/15 cartones, 792 marcadores, 264 posiciones) |
+| `stat-cards/players/*.json` | Fichas estadisticas jugables ya resueltas por jugador (Data Arena), 1 por cartonista |
 | `predictions.mock.json` | Mock inicial o contrato de predicciones |
 | `results.json` | Resultados reales/futuros |
 | `results.mock.json` | Resultados demo para tabla |
@@ -308,6 +312,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `lib/tabla/formatRankingRows.ts` | View model de filas de ranking |
 | `lib/tabla/types.ts` | Tipos compartidos de tabla |
 | `lib/statistics/communityStatistics.js` | Perfiles, consensos, comparaciones, clasificados y pulsos compartidos |
+| `lib/statistics/statCards.ts` | Registry de fichas jugables (Data Arena): indexa `data/stat-cards/players/*.json` por player.id y resuelve avatar desde players.json |
+| `lib/statistics/statCardsRerank.ts` | Helper puro: clona fichas y normaliza rankings asc/desc al universo cargado; falla ante datos incompletos o ambiguos |
 | `lib/statistics/types.ts` | Contratos del dataset y view models estadisticos |
 
 ## Inventario de assets publicos
@@ -357,6 +363,8 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-10: Isaias y Jaime quedan integrados al nucleo oficial. Los 11 `predicciones_*.json` quedan versionados en la raiz para que `npm run predictions:build` sea reproducible en un clon limpio y regenere ambos datasets a 11/15 cartones, 792 marcadores y 264 posiciones clasificatorias con cero errores. Data Arena carga 11 fichas; `statCardsRerank.ts` normaliza en memoria todos los rankings visibles a `de 11`, conservando intactos los JSON y el contenido editorial. Jugador, Predicciones, Tabla y Admin crecen desde las fuentes compartidas, sin filas ni contadores manuales.
+- 2026-06-10: Integracion de Carlos y Luis Renato al nucleo. `npm run predictions:build` regenera `predictions.json` + `community-predictions.json` a 9/15 cartones (648 marcadores, 216 posiciones) leyendo los `predicciones_*.json` del root. Estadisticas suma una capa Data Arena de cartas jugables (flip 3D) sobre el dashboard tabular, alimentada por `data/stat-cards/players/*.json` via `lib/statistics/statCards.ts`; carta del dia + pulso de oficina derivados de `buildCommunityAnalysis`. Tabla 05 recibe refresco arcade aditivo: podio top-3 sincronizado, shimmer del lider, badge LONE WOLF y cruce de resaltado fila/prediccion. Counters de Admin/Estadisticas ya eran dinamicos. Tests del importer/estadisticas migrados a aserciones dinamicas (no congelan el conteo de cartones).
 - 2026-06-09: Estadisticas se convierte en Data Center coral. Siete JSON oficiales producen 504 marcadores y 168 posiciones clasificatorias. Se agrega importador versionado, validacion de tablas, dashboard de cuatro pestañas, deep links y pulsos bloqueados en Proximo partido, Fixture y Equipos. Tabla consume las predicciones reales y Admin muestra 7/15.
 - 2026-06-09: Jugador Marcos reemplazado por Jaime en la misma posicion del array (`players.json`), assets `jaime.webp` + `thumbs/jaime.webp`, mock `table-predictions.mock.json` migrado de `marcos` a `jaime`. Storage local sube a `production-reset-2026-06-09-jaime` para purgar drafts viejos. Cero apariciones productivas de Marcos.
 - 2026-06-08: Supabase pasa a ser fuente compartida del marcador y resultados. Lectura publica con RLS + Realtime; escritura solo por RPC con sesion admin temporal. `localStorage` queda como cache. Migracion versionada bajo `supabase/migrations/`.

@@ -27,6 +27,7 @@ const { row } = Astro.props;
   <div class="points-cell">
     <strong class="points-value" data-prediction-points>{row.points > 0 ? `+${row.points}` : "0"}</strong>
     <span class="points-type" data-prediction-type>{row.differenceLabel}</span>
+    <span class="wolf-badge" data-wolf-badge aria-hidden="true">LONE WOLF</span>
   </div>
   <div class="accuracy-cell">
     <span class="acc-top">
@@ -50,6 +51,33 @@ const { row } = Astro.props;
 
   .prediction-row:last-child {
     border-bottom: 0;
+  }
+
+  /* Cruce de resaltado con la fila de la tabla (mismo jugador). */
+  .prediction-row.is-cross-highlight {
+    background: color-mix(in srgb, var(--pm-cyan-200) 32%, transparent);
+    box-shadow: inset 3px 0 0 var(--pm-pink-500);
+  }
+
+  /* Badge LONE WOLF — acierto exacto unico. Nunca "BONUS". Se controla por
+     [data-hit-type="lone_wolf"], que el cliente actualiza en vivo. */
+  .wolf-badge {
+    display: none;
+    width: max-content;
+    margin-top: 0.1rem;
+    padding: 0.04rem 0.34rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--pm-gold-700, #b8860b) 16%, white);
+    color: var(--pm-gold-700, #b8860b);
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .prediction-row[data-hit-type="lone_wolf"] .wolf-badge {
+    display: inline-grid;
   }
 
   .player-cell {

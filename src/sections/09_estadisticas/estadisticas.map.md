@@ -1,7 +1,37 @@
 # 09_estadisticas — Mapa técnico
 
 ## Estado
-dashboard-coral-implemented
+dashboard-coral-implemented + data-arena-cards
+
+## Universo Data Arena de 11 jugadores - 2026-06-10
+
+- El registry carga 11 fichas, incluyendo Isaias y Jaime, ordenadas por numero
+  oficial y con avatar resuelto desde `players.json`.
+- `statCardsRerank.ts` clona las fichas y normaliza en memoria `rank`, `of` y
+  el texto `#R de 11` usando los valores reales de `summaryStats`.
+- El helper respeta rankings ascendentes/descendentes y empates; falla ante
+  metricas incompletas o una direccion editorial ambigua.
+- Los JSON fuente, sus valores, textos, rarezas, arquetipos y badges no se
+  reescriben. Los componentes siguen consumiendo el mismo contrato.
+- Counters vigentes: 11 jugadores, 72 partidos y 792 predicciones.
+
+## Data Arena de cartas jugables - 2026-06-10
+
+- Al desbloquear (mismo gate `isStatisticsUnlocked`), antes del dashboard tabular
+  se monta una **capa Data Arena** de cartas jugables; el dashboard de 4 tabs
+  queda como "Explorador detallado" debajo (no se elimina).
+- Cartas = contrato editorial YA RESUELTO en `src/data/stat-cards/players/*.json`,
+  cargado por `src/lib/statistics/statCards.ts` (indexa por player.id, resuelve
+  avatar real desde players.json, descarta `avatarSuggestedPath`).
+- Piezas: `DataArenaHero.astro` (counters dinámicos N/72/N*72), `FeaturedCard.astro`
+  (carta del día legendaria con rotación por fecha + pulso de oficina), `CardDeck.astro`
+  (Mazo Jugadores), `PlayableStatCard.astro` (flip 3D `<button>`, reverso/frente,
+  rareza→color). Flip por `data-arena.client.js` (toggle `aria-pressed`, teclado nativo).
+- "Pulso de oficina" (partido caliente + marcador de oficina) se DERIVA de
+  `buildCommunityAnalysis()` (matchPulses/exactScores) en el SSR; nada inventado.
+- Reveal: los bloques `[data-unlock-reveal]` se muestran en `applySnapshot` cuando
+  `state==="unlocked"`. Cartas renderizadas en SSR (sin innerHTML → CSS scoped aplica).
+- Respeta `prefers-reduced-motion` (flip sin animación). JS scoped a la sección.
 
 ## Data Center coral - 2026-06-09
 

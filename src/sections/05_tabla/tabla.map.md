@@ -3,12 +3,27 @@
 ## Estado
 supabase-realtime-active
 
+## Universo oficial de 11 cartones - 2026-06-10
+
+- Tabla consume dinamicamente los 11 cartones de `predictions.json`, incluyendo
+  a Isaias y Jaime, sin filas manuales ni cambios en `lib/tabla`.
+- El snapshot vigente contiene 792 marcadores y 264 posiciones clasificatorias.
+- Se conserva el orden funcional: Ranking a la izquierda, predicciones a la
+  derecha; mobile mantiene Tabla, Predicciones y Leyenda.
+
 ## Predicciones oficiales corales - 2026-06-09
 
 - `src/data/predictions.json` contiene los cartones oficiales importados.
 - Antes del primer resultado aparece un pulso de pretemporada con cartones y
   marcadores cargados; el ranking permanece en cero.
 - Desde el primer resultado, SSR y Realtime puntuan las predicciones con 5/3/1/0.
+
+## Refresco arcade aditivo (2026-06-10)
+- Nuevo `PodiumStrip.astro`: franja top-3 sobre la tabla (medalla por puesto, avatar, puntos y brecha con el lider). Se monta en `rankingArea`, no reemplaza la tabla.
+- `tabla.client.js` gana `renderPodium(rows)` (sincroniza el podio en cada recompute en vivo, nunca queda obsoleto) y `wireCrossHighlight()` (al pasar/enfocar fila, prediccion o podio, resalta al mismo jugador en las tres zonas via `.is-cross-highlight`).
+- `RankingRow.astro`: shimmer dorado suave del lider (`leaderGlow`, solo `prefers-reduced-motion: no-preference`) + estilo cross-highlight.
+- `PlayerPredictionRow.astro`: badge **LONE WOLF** (no "BONUS") controlado por `[data-hit-type="lone_wolf"]`, que el cliente actualiza en vivo; + estilo cross-highlight.
+- Sin cambios en `lib/tabla/*`, orden funcional, JSON de data, rutas ni navbar. JS sigue scoped a `[data-section="tabla"]`.
 
 ## COMANDA_10 - Iteracion visual hacia referencia arcade (2026-05-30)
 - Se recuperaron `PlayerPredictionsPanel` y `NextMatchCard` en la columna derecha (fueron retirados en Fase 10).

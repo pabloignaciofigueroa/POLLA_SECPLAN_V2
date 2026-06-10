@@ -159,6 +159,10 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     if (lockedContent) lockedContent.hidden = snapshot.state === "unlocked";
     const dashboard = section.querySelector("[data-stats-dashboard]");
     if (dashboard) dashboard.hidden = snapshot.state !== "unlocked";
+    // Data Arena + intro de detalle: misma puerta de desbloqueo.
+    section.querySelectorAll("[data-unlock-reveal]").forEach((node) => {
+      node.hidden = snapshot.state !== "unlocked";
+    });
   };
 
   const setStatus = (message) => setText("[data-dashboard-status]", message);

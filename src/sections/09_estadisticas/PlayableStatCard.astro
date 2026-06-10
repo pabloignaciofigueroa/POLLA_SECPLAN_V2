@@ -1,0 +1,322 @@
+---
+import type { PlayerStatCard, StatSubCard } from "../../lib/statistics/statCards";
+
+interface Props {
+  card: PlayerStatCard;
+  /** Subcarta a mostrar; por defecto la principal (mayor rareza). */
+  subCard?: StatSubCard;
+  /** Carta grande destacada (carta del dia). */
+  featured?: boolean;
+}
+
+const { card, subCard, featured = false } = Astro.props;
+const sub = subCard ?? card.primaryCard;
+
+const rarityLabel: Record<string, string> = {
+  comun: "Común",
+  rara: "Rara",
+  epica: "Épica",
+  legendaria: "Legendaria",
+  mitica: "Mítica",
+};
+const rarity = sub?.rarity ?? "comun";
+const value = sub?.metric?.value ?? "";
+const rank = sub?.metric?.rank ?? "";
+---
+
+{sub && (
+<button
+  type="button"
+  class:list={["flip-card", { featured }]}
+  data-flip-card
+  data-rarity={rarity}
+  aria-pressed="false"
+  aria-label={`Revelar carta de ${card.displayName}: ${sub.title}`}
+>
+  <span class="flip-inner">
+    <!-- REVERSO -->
+    <span class="face back" aria-hidden="true">
+      <span class="brand">DATA ARENA</span>
+      <span class="brand-sub">SECPLAN 2026</span>
+      <span class="mystery">?</span>
+      <span class="hint">Toca para revelar</span>
+    </span>
+
+    <!-- FRENTE -->
+    <span class="face front">
+      <span class="rarity">{rarityLabel[rarity] ?? rarity}</span>
+      <span class="head">
+        <span class="avatar">
+          <img src={card.avatar} alt="" width="120" height="120" loading="lazy" decoding="async" />
+        </span>
+        <span class="who">
+          <strong class="name">{card.displayName}</strong>
+          <span class="archetype">{card.playableCard.primaryArchetype}</span>
+        </span>
+      </span>
+      <span class="title"><span class="emoji" aria-hidden="true">{sub.emoji}</span>{sub.title}</span>
+      <span class="metric">
+        <b class="value">{value}</b>
+        {rank && <span class="rank">{rank}</span>}
+      </span>
+      <span class="reading">{sub.reading}</span>
+    </span>
+  </span>
+</button>
+)}
+
+<style>
+  .flip-card {
+    appearance: none;
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    perspective: 1200px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+
+  .flip-card:focus-visible {
+    outline: none;
+  }
+
+  .flip-card:focus-visible .flip-inner {
+    box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(18, 109, 255, 0.5));
+    border-radius: 1rem;
+  }
+
+  .flip-inner {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .flip-card[aria-pressed="true"] .flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card:hover .flip-inner {
+    transform: translateY(-4px) rotateY(var(--ry, 0deg));
+  }
+
+  .flip-card[aria-pressed="true"]:hover .flip-inner {
+    --ry: 180deg;
+  }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1rem;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* ── REVERSO ── */
+  .back {
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background:
+      radial-gradient(circle at 50% 22%, rgba(24, 221, 242, 0.4), transparent 55%),
+      linear-gradient(160deg, var(--pm-blue-700), var(--pm-blue-950, #04122e));
+    color: var(--pm-white);
+    text-align: center;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    color: var(--pm-cyan-500);
+  }
+
+  .brand-sub {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 850;
+    letter-spacing: 0.16em;
+    color: rgba(255, 255, 255, 0.66);
+  }
+
+  .mystery {
+    margin: 0.3rem 0;
+    font-family: var(--font-score, var(--font-display));
+    font-size: clamp(2.6rem, 8vw, 3.6rem);
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 0 18px rgba(24, 221, 242, 0.6);
+  }
+
+  .hint {
+    font-size: 0.58rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  /* ── FRENTE ── */
+  .front {
+    transform: rotateY(180deg);
+    gap: 0.42rem;
+    padding: 0.7rem;
+    border: 1.5px solid var(--rarity-color, var(--pm-cyan-500));
+    background:
+      radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--rarity-color, var(--pm-cyan-500)) 22%, transparent), transparent 45%),
+      linear-gradient(165deg, var(--pm-white), var(--pm-panel-soft, #eef4fb));
+    color: var(--pm-blue-900);
+    text-align: left;
+  }
+
+  .rarity {
+    align-self: flex-start;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--rarity-color, var(--pm-cyan-500));
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.54rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.45rem;
+    align-items: center;
+  }
+
+  .avatar {
+    display: grid;
+    width: 2.1rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 2px solid var(--rarity-color, var(--pm-cyan-500));
+    border-radius: 999px;
+    background: var(--pm-cyan-200);
+  }
+
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .who {
+    display: grid;
+    gap: 0.05rem;
+    min-width: 0;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .archetype {
+    font-size: 0.54rem;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pm-blue-700);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 950;
+    line-height: 1.05;
+    text-transform: uppercase;
+    color: var(--pm-blue-900);
+  }
+
+  .emoji {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .metric {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+
+  .value {
+    font-family: var(--font-score, var(--font-display));
+    font-size: clamp(1.6rem, 6vw, 2.3rem);
+    font-weight: 950;
+    line-height: 0.9;
+    color: var(--rarity-strong, var(--pm-blue-900));
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rank {
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pm-blue-700);
+  }
+
+  .reading {
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pm-blue-700);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Rareza → color ── */
+  .flip-card[data-rarity="comun"] { --rarity-color: var(--pm-blue-500); --rarity-strong: var(--pm-blue-700); }
+  .flip-card[data-rarity="rara"] { --rarity-color: var(--pm-cyan-500); --rarity-strong: var(--pm-cyan-700, #0e7490); }
+  .flip-card[data-rarity="epica"] { --rarity-color: var(--pm-purple-500); --rarity-strong: var(--pm-purple-700); }
+  .flip-card[data-rarity="legendaria"] { --rarity-color: var(--pm-gold-700, #b8860b); --rarity-strong: var(--pm-gold-700, #b8860b); }
+  .flip-card[data-rarity="mitica"] { --rarity-color: var(--pm-pink-600); --rarity-strong: var(--pm-pink-600); }
+
+  /* ── Destacada (carta del dia) ── */
+  .flip-card.featured {
+    aspect-ratio: auto;
+    min-height: 16rem;
+  }
+
+  .flip-card.featured .title { font-size: 0.92rem; }
+  .flip-card.featured .value { font-size: clamp(2.4rem, 8vw, 3.4rem); }
+  .flip-card.featured .reading { -webkit-line-clamp: 4; font-size: 0.7rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flip-inner { transition: none; }
+    .flip-card:hover .flip-inner { transform: rotateY(var(--ry, 0deg)); }
+  }
+</style>
