@@ -310,12 +310,37 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
       .filter((r) => r && r.matchId && Number.isInteger(r.homeTeamScore) && Number.isInteger(r.awayTeamScore))
       .map((r) => ({ matchId: r.matchId, status: "finished", homeScore: r.homeTeamScore, awayScore: r.awayTeamScore }));
 
-  const liveToResult = (liveMatch) => {
-    if (!liveMatch) return null;
-    const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
-    if (!matchId || !Number.isInteger(liveMatch.homeTeamScore) || !Number.isInteger(liveMatch.awayTeamScore)) return null;
-    return { matchId, status: "finished", homeScore: liveMatch.homeTeamScore, awayScore: liveMatch.awayTeamScore };
+const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
+
+const liveToResult = (liveMatch) => {
+  if (!liveMatch) return null;
+
+  const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
+  if (!matchId) return null;
+
+  const fixtureMatch = matchById.get(matchId);
+  const start = new Date(fixtureMatch?.dateUtc).getTime();
+
+  // Si el partido todavía no empieza, no se puntúa el 0-0 preparado por Admin.
+  if (!Number.isFinite(start) || Date.now() < start) return null;
+
+  // Después de 2 horas, ya no se trata como marcador vivo.
+  if (Date.now() > start + LIVE_WINDOW_MS) return null;
+
+  if (
+    !Number.isInteger(liveMatch.homeTeamScore) ||
+    !Number.isInteger(liveMatch.awayTeamScore)
+  ) {
+    return null;
+  }
+
+  return {
+    matchId,
+    status: "finished",
+    homeScore: liveMatch.homeTeamScore,
+    awayScore: liveMatch.awayTeamScore,
   };
+};
 
   const toggleProvisional = (on) => {
     const banner = section.querySelector("[data-tabla-provisional]");
