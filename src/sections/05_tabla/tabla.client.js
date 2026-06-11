@@ -310,37 +310,37 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
       .filter((r) => r && r.matchId && Number.isInteger(r.homeTeamScore) && Number.isInteger(r.awayTeamScore))
       .map((r) => ({ matchId: r.matchId, status: "finished", homeScore: r.homeTeamScore, awayScore: r.awayTeamScore }));
 
-const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
+  const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
 
-const liveToResult = (liveMatch) => {
-  if (!liveMatch) return null;
+  const liveToResult = (liveMatch) => {
+    if (!liveMatch) return null;
 
-  const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
-  if (!matchId) return null;
+    const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
+    if (!matchId) return null;
 
-  const fixtureMatch = matchById.get(matchId);
-  const start = new Date(fixtureMatch?.dateUtc).getTime();
+    const fixtureMatch = matchById.get(matchId);
+    const start = new Date(fixtureMatch?.dateUtc).getTime();
 
-  // Si el partido todavía no empieza, no se puntúa el 0-0 preparado por Admin.
-  if (!Number.isFinite(start) || Date.now() < start) return null;
+    // Si el partido todavía no empieza, no se puntúa el 0-0 preparado por Admin.
+    if (!Number.isFinite(start) || Date.now() < start) return null;
 
-  // Después de 2 horas, ya no se trata como marcador vivo.
-  if (Date.now() > start + LIVE_WINDOW_MS) return null;
+    // Después de 2 horas, ya no se trata como marcador vivo.
+    if (Date.now() > start + LIVE_WINDOW_MS) return null;
 
-  if (
-    !Number.isInteger(liveMatch.homeTeamScore) ||
-    !Number.isInteger(liveMatch.awayTeamScore)
-  ) {
-    return null;
-  }
+    if (
+      !Number.isInteger(liveMatch.homeTeamScore) ||
+      !Number.isInteger(liveMatch.awayTeamScore)
+    ) {
+      return null;
+    }
 
-  return {
-    matchId,
-    status: "finished",
-    homeScore: liveMatch.homeTeamScore,
-    awayScore: liveMatch.awayTeamScore,
+    return {
+      matchId,
+      status: "finished",
+      homeScore: liveMatch.homeTeamScore,
+      awayScore: liveMatch.awayTeamScore,
+    };
   };
-};
 
   const toggleProvisional = (on) => {
     const banner = section.querySelector("[data-tabla-provisional]");
@@ -348,33 +348,44 @@ const liveToResult = (liveMatch) => {
     section.dataset.provisional = on ? "true" : "false";
   };
 
-  const updateLiveMatchCard = (liveMatch, fixtureMatch) => {
+  const updateLiveMatchCard = (liveMatch, fixtureMatch, { isLive = true } = {}) => {
     const card = section.querySelector("[data-live-match-card]");
-    if (!card) return;
+    if (!card || !fixtureMatch) return;
+
     const setText = (sel, val) => {
       const node = card.querySelector(sel);
       if (node && val != null) node.textContent = val;
     };
-    card.dataset.liveState = "in_progress";
-    if (liveMatch.matchId) card.dataset.matchId = liveMatch.matchId;
-    setText("[data-live-status]", "EN VIVO");
-    setText("[data-live-home-score]", String(liveMatch.homeTeamScore));
-    setText("[data-live-away-score]", String(liveMatch.awayTeamScore));
-    setText("[data-live-separator]", "vs");
-    setText("[data-live-minute]", "EN VIVO");
-    const home = fixtureMatch?.homeTeam;
-    const away = fixtureMatch?.awayTeam;
+
+    const matchId = liveMatch?.matchId ?? fixtureMatch.id;
+    if (matchId) card.dataset.matchId = matchId;
+
+    card.dataset.liveState = isLive ? "in_progress" : "pending";
+
+    setText("[data-live-status]", isLive ? "EN VIVO" : "EN ESPERA");
+    setText("[data-live-home-score]", isLive ? String(liveMatch.homeTeamScore) : "-");
+    setText("[data-live-away-score]", isLive ? String(liveMatch.awayTeamScore) : "-");
+    setText("[data-live-separator]", isLive ? "vs" : "/");
+    setText("[data-live-minute]", isLive ? "EN VIVO" : "Sin goles aun");
+
+    const home = fixtureMatch.homeTeam;
+    const away = fixtureMatch.awayTeam;
+
     if (home) {
       setText("[data-live-home]", home.name);
       const flag = card.querySelector("[data-live-home-flag]");
       if (flag) flag.src = `/assets/flags/${home.id}.svg`;
     }
+
     if (away) {
       setText("[data-live-away]", away.name);
       const flag = card.querySelector("[data-live-away-flag]");
       if (flag) flag.src = `/assets/flags/${away.id}.svg`;
     }
-    if (fixtureMatch?.location) setText("[data-live-stadium]", fixtureMatch.location);
+
+    if (fixtureMatch.location) {
+      setText("[data-live-stadium]", fixtureMatch.location);
+    }
   };
 
   const updateNextMatchCard = (liveMatchId, officialResults) => {
@@ -386,17 +397,46 @@ const liveToResult = (liveMatch) => {
       .sort((a, b) => a.matchNumber - b.matchNumber)
       .find((m) => m.matchNumber > liveNumber && m.id !== liveMatchId && !finalized.has(m.id));
     if (!next) return;
+    updateNextMatchCardDirect(next);
+  };
+
+  const updateNextMatchCardDirect = (next) => {
+    const card = section.querySelector("[data-next-match-card]");
+    if (!card || !next) return;
+
     const setText = (sel, val) => {
       const node = card.querySelector(sel);
       if (node && val != null) node.textContent = val;
     };
+
     setText("[data-next-home]", next.homeTeam?.name);
     setText("[data-next-away]", next.awayTeam?.name);
+
     const dateLabel = next.dateChile
       ? new Intl.DateTimeFormat("es-CL", { day: "2-digit", month: "short" }).format(new Date(next.dateChile))
       : "--";
+
     setText("[data-next-date]", dateLabel);
     setText("[data-next-time]", next.timeChile ?? "--:--");
+  };
+
+  const firstOpenMatch = (officialIds) =>
+    [...matches]
+      .sort((a, b) => a.matchNumber - b.matchNumber)
+      .find((match) => !officialIds.has(match.id)) ?? null;
+
+  const resolvePendingDisplayMatch = (liveMatch, officialIds) => {
+    const remoteMatchId = liveMatch?.matchId ?? matchIdByNumber.get(liveMatch?.matchNumber);
+
+    // Si Admin ya dejó preparado el partido siguiente y todavía no está oficializado,
+    // mostramos ese partido en espera.
+    if (remoteMatchId && !officialIds.has(remoteMatchId)) {
+      return matchById.get(remoteMatchId) ?? null;
+    }
+
+    // Si el marcador remoto quedó apuntando al partido recién finalizado,
+    // saltamos al primer partido que todavía no tiene resultado oficial.
+    return firstOpenMatch(officialIds);
   };
 
   const recompute = ({ liveMatch, officialResults }) => {
@@ -406,8 +446,11 @@ const liveToResult = (liveMatch) => {
     const officialIds = new Set(official.map((r) => r.matchId));
     const liveActive = Boolean(live) && !officialIds.has(live.matchId);
 
-    // Nada que sobreponer: respetar el SSR (evita flash en la carga inicial).
-    if (!liveActive && official.length === 0) {
+    const pendingMatch = liveActive ? null : resolvePendingDisplayMatch(liveMatch, officialIds);
+
+    // Nada que sobreponer: respetar el SSR, salvo que exista un partido pendiente
+    // preparado por Admin que debamos mostrar sin puntuar.
+    if (!liveActive && official.length === 0 && !pendingMatch) {
       toggleProvisional(false);
       return;
     }
@@ -432,13 +475,17 @@ const liveToResult = (liveMatch) => {
     renderRanking(rows);
     renderPodium(rows);
 
-    const accuracyMatchId = liveActive ? live.matchId : currentMatchId;
-    renderAccuracy(calculateAccuracy(predictions, accuracyMatchId, effectiveResults));
+    const displayMatchId = liveActive ? live.matchId : pendingMatch?.id ?? currentMatchId;
+    renderAccuracy(calculateAccuracy(predictions, displayMatchId, effectiveResults));
 
     if (liveActive) {
-      updateLiveMatchCard(liveMatch, matchById.get(live.matchId));
+      updateLiveMatchCard(liveMatch, matchById.get(live.matchId), { isLive: true });
       updateNextMatchCard(live.matchId, officialResults);
+    } else if (pendingMatch) {
+      updateLiveMatchCard(liveMatch, pendingMatch, { isLive: false });
+      updateNextMatchCardDirect(pendingMatch);
     }
+
     toggleProvisional(liveActive);
   };
 
