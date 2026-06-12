@@ -1,4 +1,5 @@
 import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictionAccess.js";
+import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 
 (() => {
   const section = document.querySelector('[data-section="proximo-partido"]');
@@ -224,9 +225,13 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
     startCountdown(match.dateUtc, relevant.displayMode);
   };
 
+  let countdownTimer = null;
+
   const startCountdown = (dateUtc, displayMode) => {
     const el = section.querySelector("[data-countdown]");
     if (!el) return;
+    // Un solo interval vivo: re-renderizar no debe acumular timers.
+    if (countdownTimer) window.clearInterval(countdownTimer);
     const matchTime = new Date(dateUtc).getTime();
     const update = () => {
       if (displayMode === "live" || displayMode === "multi_live") {
@@ -253,7 +258,7 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
       el.dataset.state = "upcoming";
     };
     update();
-    setInterval(update, 1000);
+    countdownTimer = window.setInterval(update, 1000);
   };
 
   section.addEventListener("click", (event) => {
@@ -262,12 +267,26 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
     persistPredictionGroupIntent(target.dataset.predictionGroup || section.dataset.primaryGroupId || "A");
   });
 
-  const relevant = getRelevantMatches(matches, new Date());
-  const primaryMatch = relevant.primaryMatch;
-  if (primaryMatch && section.dataset.primaryMatchId === primaryMatch.id) {
-    renderCommunityPulse(primaryMatch.id);
-    startCountdown(primaryMatch.dateUtc, relevant.displayMode);
-  } else {
-    renderMatch(relevant);
-  }
+  // Los partidos con resultado oficial quedan fuera del "proximo": el partido
+  // destacado avanza apenas Admin oficializa, sin esperar la ventana horaria.
+  const recompute = (officialResults = []) => {
+    const officialIds = new Set(
+      (Array.isArray(officialResults) ? officialResults : [])
+        .filter((result) => result && result.matchId)
+        .map((result) => result.matchId)
+    );
+    const openMatches = matches.filter((match) => !officialIds.has(match.id));
+    const relevant = getRelevantMatches(openMatches.length ? openMatches : matches, new Date());
+    const primaryMatch = relevant.primaryMatch;
+    if (!primaryMatch) return;
+    if (section.dataset.primaryMatchId === primaryMatch.id) {
+      renderCommunityPulse(primaryMatch.id);
+      startCountdown(primaryMatch.dateUtc, relevant.displayMode);
+    } else {
+      renderMatch(relevant);
+    }
+  };
+
+  recompute([]);
+  subscribeLiveData(({ officialResults }) => recompute(officialResults));
 })();

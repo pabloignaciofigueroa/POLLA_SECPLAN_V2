@@ -15,9 +15,10 @@ const stadium = stadiumName ?? match.location;
 const cityLabel = city ?? "Sede por confirmar";
 ---
 
-<article class="selected-hero" data-selected-hero>
+<article class="selected-hero" data-selected-hero data-result="none">
   <header class="selected-header">
     <span class="badge">Partido seleccionado</span>
+    <span class="final-badge" data-selected-final-badge hidden>Resultado final</span>
     <span class="stage" data-selected-stage>{match.stage.replace(" - fecha ", " / Jornada ")}</span>
   </header>
 
@@ -29,8 +30,8 @@ const cityLabel = city ?? "Sede por confirmar";
       <h3 data-selected-home-name>{match.homeTeam.name}</h3>
     </div>
 
-    <div class="versus-core" aria-hidden="true">
-      <span>VS</span>
+    <div class="versus-core">
+      <span data-selected-versus>VS</span>
     </div>
 
     <div class="team away" data-selected-away>
@@ -173,6 +174,28 @@ const cityLabel = city ?? "Sede por confirmar";
     font-family: var(--font-display);
     font-size: 0.76rem;
     font-weight: 900;
+  }
+
+  /* Con resultado oficial, el "VS" pasa a marcador final con mas jerarquia. */
+  .selected-hero[data-result="official"] .versus-core {
+    min-width: 3.4rem;
+    border-radius: 0.65rem;
+    border-color: color-mix(in srgb, var(--pm-green-600) 45%, transparent);
+    font-family: var(--font-score);
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .final-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--pm-green-500) 18%, white);
+    color: var(--pm-green-700);
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   .meta-grid {

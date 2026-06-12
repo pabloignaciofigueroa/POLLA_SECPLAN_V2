@@ -4,16 +4,17 @@ interface Props {
   title: string;
   value: string | number;
   helper: string;
+  id?: string;
 }
 
-const { icon, title, value, helper } = Astro.props;
+const { icon, title, value, helper, id } = Astro.props;
 ---
 
-<article class="kpi-card" data-kpi-card data-icon={icon}>
+<article class="kpi-card" data-kpi-card data-icon={icon} data-kpi={id}>
   <div class="icon" aria-hidden="true">{icon}</div>
   <h3>{title}</h3>
-  <p class="value">{value}</p>
-  <p class="helper">{helper}</p>
+  <p class="value" data-kpi-value>{value}</p>
+  <p class="helper" data-kpi-helper>{helper}</p>
 </article>
 
 <style>

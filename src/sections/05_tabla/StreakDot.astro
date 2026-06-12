@@ -1,0 +1,55 @@
+---
+// Punto de racha por partido oficial. El color sale del hitType del scoring:
+// morado +5 Lone Wolf, azul +3 exacto, verde +1 tendencia, gris 0.
+interface Props {
+  value: string;
+}
+
+const LABELS: Record<string, string> = {
+  lone_wolf: "+5 Lone Wolf",
+  exact: "+3 Exacto",
+  tendency: "+1 Tendencia",
+  miss: "0 puntos",
+};
+
+const { value } = Astro.props;
+const type = LABELS[value] ? value : "miss";
+const label = LABELS[type];
+---
+
+<span class="streak-dot" data-hit-type={type} title={label} aria-label={label}></span>
+
+<style is:global>
+  /* is:global a proposito: tabla.client.js re-crea estos dots en vivo y los
+     nodos creados por JS no reciben el atributo scoped de Astro. El anclaje a
+     [data-rank-streak] evita fugas fuera de la celda de racha. */
+  [data-rank-streak] .streak-dot {
+    display: inline-block;
+    width: var(--streak-dot-size, 0.55rem);
+    aspect-ratio: 1;
+    border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
+    border-radius: 999px;
+    background: var(--pm-panel-soft, #e8edf5);
+  }
+
+  [data-rank-streak] .streak-dot[data-hit-type="lone_wolf"] {
+    background: var(--pm-purple-500);
+    border-color: var(--pm-purple-500);
+  }
+
+  [data-rank-streak] .streak-dot[data-hit-type="exact"] {
+    background: var(--pm-blue-500);
+    border-color: var(--pm-blue-500);
+  }
+
+  [data-rank-streak] .streak-dot[data-hit-type="tendency"] {
+    background: var(--pm-green-500);
+    border-color: var(--pm-green-500);
+  }
+
+  @media (max-width: 720px) {
+    [data-rank-streak] {
+      --streak-dot-size: 0.38rem;
+    }
+  }
+</style>

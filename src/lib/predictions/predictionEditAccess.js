@@ -31,6 +31,11 @@ function normalizeError(error, fallback) {
   if (message.includes("invalid_or_expired_edit_session")) {
     return new Error("La autorizacion de edicion expiro o fue revocada.");
   }
+  if (error?.code === "PGRST202" || message.includes("Could not find the function")) {
+    return new Error(
+      "Funciones de edicion no instaladas en Supabase. Aplicar supabase/remote/apply_prediction_edit_access.sql en el SQL Editor."
+    );
+  }
   return new Error(message || fallback);
 }
 

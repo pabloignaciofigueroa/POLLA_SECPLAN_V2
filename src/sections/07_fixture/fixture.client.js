@@ -1,4 +1,7 @@
 import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictionAccess.js";
+import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
+import { buildOfficialGroupStandings } from "../../lib/fixture/groupStandings.js";
+import groupsData from "../../data/groups.json";
 
 (() => {
   const section = document.querySelector('[data-section="fixture"]');
@@ -51,6 +54,21 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
     stage: payload.initialStage || "group",
     group: payload.initialGroup || "all",
     selectedId: payload.initialSelectedId || (matches[0] && matches[0].id),
+    // Resultados oficiales remotos (polla_official_results). El fixture solo
+    // lee: el calendario base nunca se modifica, el oficial manda encima.
+    officialByMatchId: new Map(),
+  };
+
+  const officialFor = (matchId) => {
+    const result = state.officialByMatchId.get(matchId);
+    if (
+      result &&
+      Number.isInteger(Number(result.homeTeamScore)) &&
+      Number.isInteger(Number(result.awayTeamScore))
+    ) {
+      return result;
+    }
+    return null;
   };
 
   const escapeHtml = (value) =>
@@ -76,6 +94,8 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
   };
 
   const getStatus = (match, now) => {
+    // El resultado oficial manda sobre cualquier estimacion por hora.
+    if (officialFor(match.id)) return "finished";
     const start = new Date(match.dateUtc).getTime();
     const nowMs = now.getTime();
     const activeWindow = minutes(120);
@@ -161,62 +181,71 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
   const getInfoForMatch = (matchId) =>
     (info.matches && info.matches[matchId]) || info.defaultInfo || {};
 
-  const getAgendaMatches = (match) => {
-    if (!match) return [];
-    const dateKey = match.dateChile.slice(0, 10);
-    return matches
-      .filter((item) => item.dateChile.slice(0, 10) === dateKey)
-      .sort((a, b) => new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime())
-      .slice(0, 5);
-  };
-
   const renderRow = (match, selected, status) => {
     const groupBadge = (match.groupLabel || "").replace("Grupo ", "G ");
     const matchNumber = String(match.matchNumber).padStart(2, "0");
     const pulse = communityPulseByMatch.get(match.id);
-    const showPulse = statsUnlocked() && pulse;
+    const official = officialFor(match.id);
+    const showPulse = !official && statsUnlocked() && pulse;
     const rowStatusLabel = showPulse ? consensusLabel(pulse.consensusLevel) : statusLabel(status);
     const consensusAttr = showPulse ? ` data-consensus="${escapeHtml(pulse.consensusLevel)}"` : "";
-    return `<li><button type="button" class="match-row" data-match-row="${escapeHtml(match.id)}" data-status="${status}" data-selected="${selected ? "true" : "false"}" data-group-key="${escapeHtml((match.groupId || "").toLowerCase())}" aria-pressed="${selected ? "true" : "false"}">`
+    const separator = official
+      ? `<span class="separator score">${escapeHtml(`${official.homeTeamScore} - ${official.awayTeamScore}`)}</span>`
+      : `<span class="separator">VS</span>`;
+    return `<li><button type="button" class="match-row" data-match-row="${escapeHtml(match.id)}" data-status="${status}" data-finished="${official ? "true" : "false"}" data-selected="${selected ? "true" : "false"}" data-group-key="${escapeHtml((match.groupId || "").toLowerCase())}" aria-pressed="${selected ? "true" : "false"}">`
       + `<span class="match-number">${escapeHtml(matchNumber)}</span>`
       + `<span class="time">${escapeHtml(formatTime(match.dateUtc))}</span>`
       + `<span class="team home"><span class="flag" aria-hidden="true"><img src="/assets/flags/${escapeHtml(match.homeTeam.id)}.svg" alt="" loading="lazy" decoding="async" width="48" height="36"></span><span class="team-name">${escapeHtml(match.homeTeam.name)}</span></span>`
-      + `<span class="separator">VS</span>`
+      + separator
       + `<span class="team away"><span class="team-name">${escapeHtml(match.awayTeam.name)}</span><span class="flag" aria-hidden="true"><img src="/assets/flags/${escapeHtml(match.awayTeam.id)}.svg" alt="" loading="lazy" decoding="async" width="48" height="36"></span></span>`
       + `<span class="group-badge">${escapeHtml(groupBadge)}</span>`
       + `<span class="status-pill"${consensusAttr}>${escapeHtml(rowStatusLabel)}</span>`
       + `</button></li>`;
   };
 
-  const renderAgenda = (match) => {
-    const agendaRows = section.querySelector("[data-agenda-rows]");
-    const agendaCount = section.querySelector("[data-agenda-count]");
-    if (!agendaRows || !agendaCount) return;
+  // Tabla real del grupo del partido seleccionado (reemplazo de la agenda).
+  // Calcula con fixture + resultados oficiales; nunca con predicciones.
+  const renderGroupStandings = (match) => {
+    const body = section.querySelector("[data-group-standings-body]");
+    if (!body || !match) return;
+    const group = groupsData.find((item) => item.id === match.groupId);
+    if (!group) return;
 
-    const now = new Date();
-    const agendaMatches = getAgendaMatches(match);
-    agendaCount.textContent = sameChileDay(match.dateChile, now)
-      ? `${agendaMatches.length} partidos hoy`
-      : `${agendaMatches.length} partidos`;
+    const result = buildOfficialGroupStandings({
+      group,
+      matches,
+      officialResults: Array.from(state.officialByMatchId.values()),
+    });
+    const hasResults = result.completedMatches > 0;
 
-    if (agendaMatches.length === 0) {
-      agendaRows.innerHTML = '<li class="empty"><span>Sin partidos programados para esta fecha.</span></li>';
-      return;
+    const title = section.querySelector("[data-group-standings-title]");
+    if (title) title.textContent = `Tabla Grupo ${group.id}`;
+    const count = section.querySelector("[data-group-standings-count]");
+    if (count) count.textContent = `${result.completedMatches} / ${result.totalMatches} partidos finalizados`;
+
+    body.innerHTML = result.standings
+      .map((row) => {
+        const qualified = hasResults && row.rank <= 2;
+        const dg = hasResults
+          ? (row.goalDifference > 0 ? `+${row.goalDifference}` : String(row.goalDifference))
+          : "—";
+        const gf = hasResults ? String(row.goalsFor) : "—";
+        return `<tr class="standings-row" data-qualified="${qualified ? "true" : "false"}">`
+          + `<td class="pos">${row.rank}</td>`
+          + `<td class="team"><img src="/assets/flags/${escapeHtml(row.teamId)}.svg" alt="" loading="lazy" decoding="async" width="24" height="18"><span>${escapeHtml(row.shortCode)}</span></td>`
+          + `<td class="pts">${row.points}</td>`
+          + `<td class="dg">${escapeHtml(dg)}</td>`
+          + `<td class="gf">${escapeHtml(gf)}</td>`
+          + `</tr>`;
+      })
+      .join("");
+
+    const footer = section.querySelector("[data-group-standings-footer]");
+    if (footer) {
+      footer.textContent = hasResults
+        ? `Top 2 actual: ${result.standings[0].name} y ${result.standings[1].name}.`
+        : "Grupo aún sin resultados oficiales.";
     }
-
-    agendaRows.innerHTML = agendaMatches.map((item) => {
-      const status = getStatus(item, now);
-      return `<li>`
-        + `<span class="time">${escapeHtml(formatTime(item.dateUtc))}</span>`
-        + `<span class="matchline">`
-        + `<span class="team home">${escapeHtml(item.homeTeam.name)}</span>`
-        + `<span class="vs" aria-hidden="true">vs</span>`
-        + `<span class="team away">${escapeHtml(item.awayTeam.name)}</span>`
-        + `<span class="group">${escapeHtml(item.groupLabel.replace("Grupo ", "G "))}</span>`
-        + `</span>`
-        + `<span class="status" data-status="${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span>`
-        + `</li>`;
-    }).join("");
   };
 
   const renderList = () => {
@@ -297,6 +326,27 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
     assignText("[data-selected-city]", cityLine);
     assignText("[data-selected-group]", match.groupLabel);
 
+    // Resultado oficial: marcador final en el hero + bloque en la info.
+    const official = officialFor(match.id);
+    const hero = section.querySelector("[data-selected-hero]");
+    if (hero) hero.dataset.result = official ? "official" : "none";
+    assignText(
+      "[data-selected-versus]",
+      official ? `${official.homeTeamScore} - ${official.awayTeamScore}` : "VS"
+    );
+    const finalBadge = section.querySelector("[data-selected-final-badge]");
+    if (finalBadge) finalBadge.hidden = !official;
+    const resultRow = section.querySelector("[data-info-result-row]");
+    if (resultRow) {
+      resultRow.hidden = !official;
+      if (official) {
+        assignText(
+          "[data-info-result]",
+          `${match.homeTeam.name} ${official.homeTeamScore} - ${official.awayTeamScore} ${match.awayTeam.name}`
+        );
+      }
+    }
+
     const refereeLine = matchInfo.referee && matchInfo.referee.name
       ? `${matchInfo.referee.name} (${matchInfo.referee.country || "-"})`
       : "Por confirmar";
@@ -348,7 +398,7 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
       }
     }
 
-    renderAgenda(match);
+    renderGroupStandings(match);
     renderCommunityPulse(match.id);
   };
 
@@ -421,4 +471,16 @@ import { isStatisticsUnlockedFromStorage } from "../../lib/predictions/predictio
   renderList();
   renderSelected();
   bindEvents();
+
+  // Primer paint sincrono arriba; el snapshot remoto llega async y re-pinta.
+  // FINALIZAR PARTIDO en Admin y los cambios Realtime re-disparan el callback.
+  subscribeLiveData(({ officialResults }) => {
+    state.officialByMatchId = new Map(
+      (Array.isArray(officialResults) ? officialResults : [])
+        .filter((result) => result && result.matchId)
+        .map((result) => [result.matchId, result])
+    );
+    renderList();
+    renderSelected();
+  });
 })();

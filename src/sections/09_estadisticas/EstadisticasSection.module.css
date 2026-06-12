@@ -629,6 +629,94 @@
   background: var(--pm-blue-100);
 }
 
+/* --- Auditoria de puntaje (partidos finalizados) ------------------------- */
+/* Mismo mapeo de color que la racha de /tabla:
+   morado +5 lone wolf, azul +3 exacto, verde +1 tendencia, gris 0. */
+
+.contentShell :global(.match-list button[data-finished="true"]) {
+  border-color: var(--pm-border-soft);
+  background: rgba(241, 245, 249, 0.82);
+}
+
+.contentShell :global(.match-list button[data-finished="true"] small) {
+  color: var(--pm-green-700);
+  font-weight: 850;
+}
+
+.contentShell :global(.detail-badges) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+
+.contentShell :global(.final-badge) {
+  padding: 0.32rem 0.52rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pm-green-500) 18%, white);
+  color: var(--pm-green-700);
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.contentShell :global(.score-dot) {
+  display: inline-block;
+  width: 0.6rem;
+  aspect-ratio: 1;
+  margin-right: 0.32rem;
+  border: 1px solid var(--pm-border-soft);
+  border-radius: 999px;
+  background: rgba(7, 26, 53, 0.16);
+  vertical-align: middle;
+}
+
+.contentShell :global(.score-dot[data-hit-type="lone_wolf"]) {
+  background: var(--pm-purple-500);
+  border-color: var(--pm-purple-500);
+}
+
+.contentShell :global(.score-dot[data-hit-type="exact"]) {
+  background: var(--pm-blue-500);
+  border-color: var(--pm-blue-500);
+}
+
+.contentShell :global(.score-dot[data-hit-type="tendency"]) {
+  background: var(--pm-green-500);
+  border-color: var(--pm-green-500);
+}
+
+.contentShell :global(.prediction-table-wrap td.suma) {
+  white-space: nowrap;
+}
+
+.contentShell :global(.prediction-table-wrap td.suma strong) {
+  font-family: var(--font-score);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.contentShell :global(.score-legend) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+  color: var(--pm-blue-700);
+  font-family: var(--font-ui, inherit);
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.contentShell :global(.score-legend span) {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .contentShell :global(.qualifier-layout) {
   grid-template-columns: 1fr;
 }

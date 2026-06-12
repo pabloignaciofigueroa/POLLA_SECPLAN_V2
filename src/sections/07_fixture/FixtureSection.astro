@@ -6,7 +6,7 @@ import FixtureFilters from "./FixtureFilters.astro";
 import FixtureListPanel from "./FixtureListPanel.astro";
 import SelectedMatchPanel from "./SelectedMatchPanel.astro";
 import TimezoneNotice from "./TimezoneNotice.astro";
-import DayAgendaPanel from "./DayAgendaPanel.astro";
+import GroupStandingsPanel from "./GroupStandingsPanel.astro";
 import MatchInfoPanel from "./MatchInfoPanel.astro";
 import CommunityMatchPulse from "../../components/statistics/CommunityMatchPulse.astro";
 
@@ -21,7 +21,6 @@ import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics
 import {
   getRelevantMatches,
   getTodayMatches,
-  getMatchesForChileDate,
   getCurrentRound,
   getMatchInfo,
   uniqueLocationCount,
@@ -68,7 +67,8 @@ const stagesConfig: { id: StageFilter; label: string; available: boolean }[] = [
 const initialFiltered = filterByGroup(filterByStage(matches, initialStage, now), initialGroup);
 const stageHeading = `${getStageLabel(initialStage)} · Jornada ${currentRound.current}`;
 const selectedInfo = getMatchInfo(infoBundle, primaryMatch.id);
-const agendaMatches = getMatchesForChileDate(matches, primaryMatch.dateChile).slice(0, 5);
+const primaryGroup = (groupsData as { id: string; teams: { id: string; name: string; shortCode: string }[] }[])
+  .find((group) => group.id === primaryMatch.groupId) ?? null;
 
 const summaryStats = {
   totalMatches: matches.length,
@@ -148,7 +148,7 @@ const clientPayload = {
         info={selectedInfo}
       >
         <MatchInfoPanel match={primaryMatch} info={selectedInfo} />
-        <DayAgendaPanel agendaMatches={agendaMatches} selectedDateChile={primaryMatch.dateChile} />
+        <GroupStandingsPanel group={primaryGroup} />
         <CommunityMatchPulse matchId={primaryMatch.id} />
       </SelectedMatchPanel>
     </div>

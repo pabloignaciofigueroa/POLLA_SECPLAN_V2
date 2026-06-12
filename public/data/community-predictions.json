@@ -3,12 +3,9 @@
   "source": "official-player-exports",
   "sourcePattern": "predicciones_*.json",
   "snapshotAt": "2026-06-11T19:27:13.081Z",
-  "expectedPlayers": 15,
+  "expectedPlayers": 13,
   "confirmedCards": 13,
-  "pendingPlayerIds": [
-    "gonzalo",
-    "ratinha"
-  ],
+  "pendingPlayerIds": [],
   "totals": {
     "predictions": 936,
     "qualifiedPositions": 312,

@@ -28,13 +28,6 @@
     "status": "available"
   },
   {
-    "id": "gonzalo",
-    "name": "Gonzalo",
-    "avatar": "/assets/players/gonzalo.webp",
-    "avatarThumb": "/assets/players/thumbs/gonzalo.webp",
-    "status": "available"
-  },
-  {
     "id": "humberto",
     "name": "Humberto",
     "avatar": "/assets/players/humberto.webp",
@@ -88,13 +81,6 @@
     "name": "Pancho",
     "avatar": "/assets/players/pancho.webp",
     "avatarThumb": "/assets/players/thumbs/pancho.webp",
-    "status": "available"
-  },
-  {
-    "id": "ratinha",
-    "name": "Ratinha",
-    "avatar": "/assets/players/ratinha.webp",
-    "avatarThumb": "/assets/players/thumbs/ratinha.webp",
     "status": "available"
   },
   {

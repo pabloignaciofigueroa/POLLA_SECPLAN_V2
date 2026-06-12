@@ -1,4 +1,4 @@
-export const POLLA_STORAGE_VERSION = "production-reset-2026-06-12-felipe-italo";
+export const POLLA_STORAGE_VERSION = "production-reset-2026-06-12-roster-13";
 
 export const POLLA_IDENTITY_STORAGE_KEYS = [
   "polla:selectedPlayerId",

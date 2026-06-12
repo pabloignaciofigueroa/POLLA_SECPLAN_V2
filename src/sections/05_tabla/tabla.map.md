@@ -22,7 +22,7 @@ supabase-realtime-active + tri-estado-formalizado
   (muestra el MISMO partido pendiente) y el panel derecho (filas EN ESPERA /
   0 puntos via `calculateAccuracy` sin resultado).
 - La fase live termina solo con FINALIZAR (sin expiracion automatica por
-  tiempo); el banner provisional cubre la espera hasta oficializar.
+  tiempo); el recompute provisional cubre la espera hasta oficializar.
 - Admin escribe `status` explicito en el payload (`live` al actualizar,
   `pending` al preparar el siguiente); compatible con filas viejas de Supabase
   (la fase no depende del status para decidir).
@@ -55,7 +55,7 @@ supabase-realtime-active + tri-estado-formalizado
 - Se recuperaron `PlayerPredictionsPanel` y `NextMatchCard` en la columna derecha (fueron retirados en Fase 10).
 - Se calculan `accuracyRows` via `calculateCurrentMatchAccuracy` y `nextMatch` via `resultsData.nextMatchId`.
 - Se compactaron verticalmente todos los componentes para lograr first view sin scroll en 1440x900 y 1280x900 con los 15 jugadores visibles.
-- Archivos tocados: TablaSection.astro, TablaSection.module.css, TablaHero.astro, RankingTable.astro, RankingRow.astro, MovementIndicator.astro, StreakPill.astro, LiveMatchCard.astro, PlayerPredictionsPanel.astro, PlayerPredictionRow.astro, NextMatchCard.astro.
+- Archivos tocados: TablaSection.astro, TablaSection.module.css, TablaHero.astro, RankingTable.astro, RankingRow.astro, MovementIndicator.astro, StreakDot.astro, LiveMatchCard.astro, PlayerPredictionsPanel.astro, PlayerPredictionRow.astro, NextMatchCard.astro.
 - Sin cambios en: tabla.client.js, JSON de data, storage keys, rutas, navbar.
 
 ## COMANDA_10 iteración 2 (2026-05-30)
@@ -75,7 +75,7 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 - ranking-table
 - ranking-row
 - movement-indicator
-- streak-pill
+- streak-dot (data-hit-type: lone_wolf morado / exact azul / tendency verde / miss gris)
 - live-match-card
 - player-predictions-panel
 - player-prediction-row
@@ -95,7 +95,7 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 ├── RankingTable.astro
 ├── RankingRow.astro
 ├── MovementIndicator.astro
-├── StreakPill.astro
+├── StreakDot.astro
 ├── LiveMatchCard.astro
 ├── PlayerPredictionsPanel.astro
 ├── PlayerPredictionRow.astro
@@ -114,7 +114,7 @@ Mostrar el centro competitivo vivo de la Polla: ranking, movimiento, puntos, par
 - src/data/predictions.json — predicciones oficiales usadas por el ranking.
 
 ## Lógica
-- src/lib/tabla/calculatePlayerStandings.ts — calcula puntos, posiciones, rendimiento y racha.
+- src/lib/tabla/calculatePlayerStandings.ts — calcula puntos, posiciones, rendimiento y racha (streak = hitType de los ultimos 5 partidos oficiales, render via StreakDot; tabla.client.js re-renderiza los dots en vivo con renderStreakDots).
 - src/lib/tabla/calculatePlayerMovement.ts — calcula sube/baja/mantiene/nuevo.
 - src/lib/tabla/calculateCurrentMatchAccuracy.ts — compara predicciones contra partido en curso.
 - src/lib/tabla/getLiveOrRelevantMatch.ts — selecciona partido actual y próximo.
@@ -164,7 +164,7 @@ La tabla ahora reacciona al marcador que el admin edita en `/admin`.
   - se recalculan standings (`calculateStandings(preds, resultsArg)`) y accuracy (`calculateAccuracy(preds, matchId, resultsArg)`) — ambas refactorizadas para recibir resultados por parametro.
   - flechas de movimiento = posicion provisional vs ranking oficial (sin live).
   - se re-apunta `LiveMatchCard` (hooks `data-live-*`, banderas `data-live-home/away-flag`) y `NextMatchCard` (`data-next-*`).
-  - se revela el banner `data-tabla-provisional` y `section[data-provisional]`.
+  - (2026-06-12) el banner provisional y PreseasonPulse fueron eliminados de la seccion (comanda 02): el ranking va directo del podio a la tabla.
 - Anti-flash: solo recalcula si hay live u oficiales que sobreponer; si no, respeta el SSR.
 - Predicciones: la tabla publica puntua contra oficiales (`predictions.json`); el recompute mergea `polla:predictions` solo para uso local (ver nota de testing del plan).
 - No se modifica `fixture.json` (calendario fijo).
@@ -199,3 +199,20 @@ Esta fase reemplaza como estado vigente el transporte local descrito en Fase 12.
 - `polla:liveMatchState` y `polla:officialResults` son solo cache/fallback.
 - Configuracion: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`.
 - DDL/RPC/publicacion: `supabase/migrations/20260608170000_polla_live_realtime.sql`.
+
+## Refresco 2026-06-12 (comandas 01/02/03/05)
+
+- Tipografia por rol: headers en --font-display 700 (tracking 0.06em), nombres
+  de jugadores en --font-ui 700, numeros (pos/pts/rend/predicciones/precision)
+  en --font-score 700 tabular-nums (Rajdhani; fonts.css corregido para que
+  Rajdhani gane sobre Barlow), estados secundarios (EN ESPERA / SIN INFO) en
+  --font-ui 600.
+- Racha: dots por hitType (slice -5), mismo mapeo de color que el panel
+  derecho y Estadisticas/Partidos: morado +5, azul +3, verde +1, gris 0.
+  StreakDot.astro usa <style is:global> anclado a [data-rank-streak] porque
+  tabla.client.js recrea los dots en runtime (renderStreakDots, sin innerHTML).
+- Barras eliminadas: PreseasonPulse (componente borrado) y banner provisional
+  (markup + CSS + toggleProvisional fuera). Podio -> ranking sin intermedios.
+- Mobile (<=720px): ranking = lista compacta de una linea por jugador
+  (38px | 1fr | 48px | 52px | 44px), header unico en el thead de RankingTable,
+  sin labels por fila (td::before eliminado), min-height 3.5rem por fila.

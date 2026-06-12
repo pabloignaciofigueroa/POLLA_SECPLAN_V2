@@ -9,11 +9,16 @@ interface Args {
 
 export function getLiveOrRelevantMatch({ matches, results, currentMatchId, nextMatchId }: Args) {
   const resultByMatchId = new Map(results.map((result) => [result.matchId, result]));
+  const isFinished = (matchId: string) => resultByMatchId.get(matchId)?.status === "finished";
   const current =
     matches.find((match) => match.id === currentMatchId) ??
     matches.find((match) => resultByMatchId.get(match.id)?.status === "in_progress") ??
+    matches.find((match) => !isFinished(match.id)) ??
     matches[0];
-  const next = matches.find((match) => match.id === nextMatchId) ?? matches.find((match) => match.id !== current?.id);
+  const next =
+    matches.find((match) => match.id === nextMatchId) ??
+    matches.find((match) => match.id !== current?.id && !isFinished(match.id)) ??
+    matches.find((match) => match.id !== current?.id);
 
   return {
     currentMatch: current,

@@ -6,6 +6,7 @@ import UnlockedBanner from "./UnlockedBanner.astro";
 import LockedPreviewPanel from "./LockedPreviewPanel.astro";
 import AntiCopyNotice from "./AntiCopyNotice.astro";
 import StatsDashboard from "./StatsDashboard.astro";
+import MissingPlayerIdentityModal from "./MissingPlayerIdentityModal.astro";
 import DataArenaHero from "./DataArenaHero.astro";
 import FeaturedCard from "./FeaturedCard.astro";
 import CardDeck from "./CardDeck.astro";
@@ -167,6 +168,8 @@ const clientPayload = {
       expectedPlayers={predictionsData.expectedPlayers}
     />
   </div>
+
+  <MissingPlayerIdentityModal />
 
   <script type="application/json" data-estadisticas-payload set:html={JSON.stringify(clientPayload)} />
   <script>

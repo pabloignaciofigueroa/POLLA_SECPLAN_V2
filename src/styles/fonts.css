@@ -62,7 +62,9 @@
 }
 
 :root {
+  /* Debe calzar con tokens.css (este archivo se importa despues y gana).
+     Rajdhani va primero en --font-score: es la font de marcador/scoreboard. */
   --font-display: "Barlow Condensed", system-ui, sans-serif;
   --font-ui: "Inter", system-ui, sans-serif;
-  --font-score: "Barlow Condensed", "Rajdhani", system-ui, sans-serif;
+  --font-score: "Rajdhani", "Barlow Condensed", system-ui, sans-serif;
 }

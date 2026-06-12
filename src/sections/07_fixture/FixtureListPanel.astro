@@ -207,6 +207,27 @@ const firstDayKey = grouped[0]?.dateKey;
     font-size: 0.7rem;
   }
 
+  /* Marcador oficial en la fila: reemplaza el "VS" con mas jerarquia. */
+  :global([data-section="fixture"] .day-stack .separator.score) {
+    color: var(--pm-blue-900);
+    font-family: var(--font-score);
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Partido cerrado: fondo neutro, sin perder la seleccion azul. */
+  :global([data-section="fixture"] .day-stack .match-row[data-finished="true"]) {
+    background: rgba(241, 245, 249, 0.85);
+  }
+
+  :global([data-section="fixture"] .day-stack .match-row[data-finished="true"] .status-pill) {
+    border-color: color-mix(in srgb, var(--pm-green-600) 35%, transparent);
+    background: color-mix(in srgb, var(--pm-green-500) 14%, white);
+    color: var(--pm-green-700);
+  }
+
   :global([data-section="fixture"] .day-stack .team) {
     display: flex;
     align-items: center;

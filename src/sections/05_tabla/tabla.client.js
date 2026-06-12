@@ -112,15 +112,15 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
         if (hitType === "lone_wolf" || hitType === "exact") {
           exactHits += 1;
           goalDifference += 4;
-          streak.push("G");
+          streak.push(hitType);
         } else if (hitType === "tendency") {
           tendencyHits += 1;
           goalDifference += Math.max(0, 4 - scoring.getGoalDistance(prediction, result));
-          streak.push("E");
+          streak.push("tendency");
         } else {
           misses += 1;
           if (hitType === "none") goalDifference += Math.max(0, 4 - scoring.getGoalDistance(prediction, result));
-          streak.push("P");
+          streak.push("miss");
         }
       });
 
@@ -139,7 +139,7 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
         misses,
         goalDifference,
         performance: maxPoints > 0 ? Math.max(0, Math.round((points / maxPoints) * 100)) : 0,
-        streak: streak.slice(-2),
+        streak: streak.slice(-5),
       };
     });
 
@@ -223,6 +223,32 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
     }
   };
 
+  // Racha: mismo mapeo de color que el scoring (morado +5, azul +3, verde +1,
+  // gris 0). Se reconstruye con createElement (sin innerHTML); el CSS vive
+  // global anclado a [data-rank-streak] porque estos nodos nacen en runtime.
+  const STREAK_LABELS = {
+    lone_wolf: "+5 Lone Wolf",
+    exact: "+3 Exacto",
+    tendency: "+1 Tendencia",
+    miss: "0 puntos",
+  };
+
+  const renderStreakDots = (rowNode, streak) => {
+    const wrap = rowNode.querySelector("[data-rank-streak]");
+    if (!wrap || !Array.isArray(streak)) return;
+    wrap.replaceChildren(
+      ...streak.map((hit) => {
+        const type = STREAK_LABELS[hit] ? hit : "miss";
+        const dot = document.createElement("span");
+        dot.className = "streak-dot";
+        dot.dataset.hitType = type;
+        dot.title = STREAK_LABELS[type];
+        dot.setAttribute("aria-label", STREAK_LABELS[type]);
+        return dot;
+      })
+    );
+  };
+
   const renderRanking = (rows) => {
     const body = section.querySelector("[data-ranking-body]");
     if (!body) return;
@@ -240,6 +266,7 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
       rowNode.querySelector("[data-rank-misses]").textContent = row.misses;
       rowNode.querySelector("[data-rank-difference]").textContent = row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference;
       rowNode.querySelector("[data-rank-performance]").textContent = `${row.performance}%`;
+      renderStreakDots(rowNode, row.streak);
       updateMovement(rowNode, row.movement);
       body.append(rowNode);
     });
@@ -306,8 +333,8 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
   // marcador del admin llega por subscribeLiveData: Supabase Realtime como
   // fuente compartida y localStorage/eventos como cache local. El tri-estado
   // official/live/pending se resuelve en lib/liveMatch/liveMatchPhase.js:
-  // solo "live" puntua y activa banner provisional; "pending" re-apunta las
-  // cards y el panel (EN ESPERA, 0 puntos) sin mover el ranking.
+  // solo "live" puntua; "pending" re-apunta las cards y el panel
+  // (EN ESPERA, 0 puntos) sin mover el ranking.
 
   const officialToResults = (officialResults) =>
     (officialResults ?? [])
@@ -337,12 +364,6 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
       homeScore: liveMatch.homeTeamScore,
       awayScore: liveMatch.awayTeamScore,
     };
-  };
-
-  const toggleProvisional = (on) => {
-    const banner = section.querySelector("[data-tabla-provisional]");
-    if (banner) banner.hidden = !on;
-    section.dataset.provisional = on ? "true" : "false";
   };
 
   const updateLiveMatchCard = (liveMatch, fixtureMatch, { isLive = true } = {}) => {
@@ -458,7 +479,6 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
     // Nada que sobreponer: respetar el SSR, salvo que exista un partido pendiente
     // preparado por Admin que debamos mostrar sin puntuar.
     if (!liveActive && official.length === 0 && !pendingMatch) {
-      toggleProvisional(false);
       return;
     }
 
@@ -492,8 +512,6 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
       updateLiveMatchCard(liveMatch, pendingMatch, { isLive: false });
       updateNextMatchCardDirect(pendingMatch);
     }
-
-    toggleProvisional(liveActive);
   };
 
   // Cruce de resaltado: al pasar/enfocar una fila o una prediccion, se resalta

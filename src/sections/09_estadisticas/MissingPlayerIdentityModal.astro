@@ -1,0 +1,201 @@
+---
+// Modal de identidad faltante: este dispositivo no sabe quien es el usuario.
+// No es un error ni un castigo: es una orientacion obligatoria hacia /jugador.
+// Sin boton de "estadisticas generales" — la seccion requiere identidad.
+---
+
+<div class="identity-modal" data-missing-identity-modal hidden>
+  <button
+    type="button"
+    class="backdrop"
+    data-missing-identity-close
+    aria-label="Cerrar aviso de identidad"
+  ></button>
+
+  <article
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="missing-identity-title"
+    tabindex="-1"
+    data-missing-identity-dialog
+  >
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="3.4"></circle>
+        <path d="M5.5 19.2c.9-3 3.4-4.7 6.5-4.7s5.6 1.7 6.5 4.7"></path>
+      </svg>
+    </span>
+
+    <p class="eyebrow">Identidad no detectada</p>
+    <h2 id="missing-identity-title">Este dispositivo no sabe quién eres</h2>
+    <p class="copy">
+      Para abrir tus estadísticas, comparar tu cartón con la comunidad y ubicarte
+      en los rankings, primero necesitamos saber qué jugador eres.
+    </p>
+    <p class="copy secondary">
+      Anda a la sección Jugador, elige tu personaje y vuelve acá. Si tu cartón ya
+      está confirmado, la página reconocerá tus datos oficiales.
+    </p>
+
+    <div class="actions">
+      <a class="primary" href="/jugador" data-missing-identity-cta>
+        ELEGIR MI JUGADOR
+        <span aria-hidden="true">→</span>
+      </a>
+      <button type="button" class="close" data-missing-identity-close>Cerrar</button>
+    </div>
+  </article>
+</div>
+
+<style>
+  .identity-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+  }
+
+  .identity-modal[hidden] {
+    display: none;
+  }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(6, 19, 38, 0.55);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+  }
+
+  .dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    width: min(26rem, 100%);
+    padding: clamp(1.2rem, 3vw, 1.7rem);
+    border: 1px solid color-mix(in srgb, var(--pm-blue-500) 35%, transparent);
+    border-top: 4px solid var(--pm-blue-500);
+    border-radius: 1.1rem;
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.99), rgba(244, 250, 255, 0.97)),
+      var(--pm-white);
+    box-shadow: 0 24px 56px rgba(7, 23, 53, 0.32);
+    text-align: center;
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 0.85rem;
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-purple-500));
+    color: var(--pm-white);
+  }
+
+  .icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    color: var(--pm-blue-500);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+    font-weight: 900;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .copy {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .copy.secondary {
+    color: var(--pm-text-soft);
+    font-weight: 500;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    width: 100%;
+    margin-top: 0.35rem;
+  }
+
+  .primary {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.95rem;
+    border: 2px solid var(--pm-cta-border);
+    border-radius: 0.6rem;
+    background: var(--pm-cta-bg);
+    color: var(--pm-cta-text);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    box-shadow: var(--pm-cta-shadow);
+    transition: transform var(--pm-transition-fast), background var(--pm-transition-fast);
+  }
+
+  .primary:hover {
+    transform: translateY(-1px);
+    background: var(--pm-cta-bg-hover);
+  }
+
+  .primary:focus-visible {
+    outline: none;
+    box-shadow: var(--pm-cta-shadow), var(--pm-focus-ring-yellow);
+  }
+
+  .close {
+    padding: 0.45rem;
+    border: 0;
+    background: none;
+    color: var(--pm-text-soft);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: var(--pm-blue-900);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primary:hover {
+      transform: none;
+    }
+  }
+</style>

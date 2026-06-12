@@ -67,8 +67,8 @@ const { row } = Astro.props;
     margin-top: 0.1rem;
     padding: 0.04rem 0.34rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--pm-gold-700, #b8860b) 16%, white);
-    color: var(--pm-gold-700, #b8860b);
+    background: color-mix(in srgb, var(--pm-purple-500) 14%, white);
+    color: var(--pm-purple-600);
     font-family: var(--font-display);
     font-size: 0.5rem;
     font-weight: 950;
@@ -119,6 +119,14 @@ const { row } = Astro.props;
     white-space: nowrap;
   }
 
+  /* Nombre = dato principal en font UI legible. */
+  .player-cell strong {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
   .score-chip {
     display: inline-grid;
     min-height: 1.5rem;
@@ -126,8 +134,11 @@ const { row } = Astro.props;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.74);
-    font-family: var(--font-display);
-    font-weight: 950;
+    font-family: var(--font-score);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    line-height: 1;
   }
 
   /* PUNTOS (oficiales) — separados de la precision visual. */
@@ -138,17 +149,21 @@ const { row } = Astro.props;
   }
 
   .points-value {
-    font-family: var(--font-display);
-    font-size: 0.92rem;
-    font-weight: 950;
+    font-family: var(--font-score);
+    font-size: 0.98rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     color: var(--pm-blue-900);
     line-height: 1;
   }
 
+  /* Estados secundarios (EN ESPERA, SIN INFO, tendencia): font UI legible. */
   .points-type {
+    font-family: var(--font-ui);
     font-size: 0.56rem;
-    font-weight: 850;
-    letter-spacing: 0.03em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
     text-transform: uppercase;
     color: var(--color-muted);
     overflow: hidden;
@@ -156,10 +171,11 @@ const { row } = Astro.props;
     white-space: nowrap;
   }
 
-  /* Color del puntaje segun tipo de acierto. */
-  .prediction-row[data-hit-type="lone_wolf"] .points-value { color: var(--pm-gold-700, #b8860b); }
-  .prediction-row[data-hit-type="exact"] .points-value { color: var(--pm-mint-600, #16a34a); }
-  .prediction-row[data-hit-type="tendency"] .points-value { color: var(--pm-blue-700); }
+  /* Color del puntaje segun tipo de acierto. Mapeo unico de toda la app:
+     morado +5 Lone Wolf, azul +3 exacto, verde +1 tendencia, gris 0. */
+  .prediction-row[data-hit-type="lone_wolf"] .points-value { color: var(--pm-purple-500); }
+  .prediction-row[data-hit-type="exact"] .points-value { color: var(--pm-blue-500); }
+  .prediction-row[data-hit-type="tendency"] .points-value { color: var(--pm-green-600); }
   .prediction-row[data-hit-type="none"] .points-value,
   .prediction-row[data-hit-type="no_info"] .points-value { color: var(--color-muted); }
 
@@ -178,13 +194,18 @@ const { row } = Astro.props;
   }
 
   .acc-percent {
-    font-weight: 950;
+    font-family: var(--font-score);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
   }
 
   .acc-label {
+    font-family: var(--font-ui);
     font-size: 0.52rem;
-    font-weight: 800;
+    font-weight: 600;
     letter-spacing: 0.02em;
+    line-height: 1.2;
     text-transform: uppercase;
     color: var(--color-muted);
     overflow: hidden;

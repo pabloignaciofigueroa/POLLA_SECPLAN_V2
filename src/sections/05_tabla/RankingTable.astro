@@ -114,9 +114,11 @@ const { rows } = Astro.props;
     padding: 0.38rem 0.52rem;
     border-bottom: 1px solid var(--color-line);
     color: var(--color-text);
-    font-size: 0.66rem;
-    font-weight: 950;
-    letter-spacing: 0.05em;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
     text-align: center;
     text-transform: uppercase;
   }
@@ -133,10 +135,12 @@ const { rows } = Astro.props;
     display: none;
   }
 
+  /* Mobile: lista compacta tipo marcador deportivo. Un solo header arriba
+     (este thead) y filas de una linea; sin labels repetidos por jugador. */
   @media (max-width: 720px) {
     .table-scroll {
       overflow: visible;
-      padding: 0.75rem;
+      padding: 0.6rem;
     }
 
     table,
@@ -147,13 +151,26 @@ const { rows } = Astro.props;
       width: 100%;
     }
 
-    thead {
-      display: none;
+    thead tr {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 48px 52px 44px;
+      gap: 8px;
+      align-items: center;
+      padding: 0 10px 4px;
+    }
+
+    th {
+      padding: 0;
+      border-bottom: 0;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--color-muted);
     }
 
     tbody {
       display: grid;
-      gap: 0.75rem;
+      gap: 6px;
     }
   }
 </style>

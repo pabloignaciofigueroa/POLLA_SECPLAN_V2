@@ -90,11 +90,32 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     return store?.[playerId] ?? null;
   };
 
+  const clearStoredIdentity = () => {
+    ["polla:selectedPlayerId", "polla:playerConfirmed", "polla:selectedPlayerSnapshot"].forEach(
+      (key) => {
+        try {
+          window.localStorage.removeItem(key);
+        } catch {}
+        try {
+          window.sessionStorage.removeItem(key);
+        } catch {}
+      }
+    );
+  };
+
   const computeSnapshot = () => {
-    const playerId = getLocalPlayerId();
+    const rawPlayerId = getLocalPlayerId();
+    // Nomina cerrada: una identidad que ya no existe en players.json es un
+    // jugador eliminado; se limpia para no dejar un fantasma bloqueando todo.
+    if (rawPlayerId && !playerById.has(rawPlayerId)) {
+      clearStoredIdentity();
+    }
+    const playerId = rawPlayerId && playerById.has(rawPlayerId) ? rawPlayerId : null;
     const bucket = getLocalPredictions(playerId);
     if (!playerId) {
-      return { playerId, completed: 0, total: TOTAL, percent: 0, state: "locked" };
+      // Identidad faltante: estado propio, distinto de "locked" (que significa
+      // predicciones incompletas). Aqui no hay 0/72 real que mostrar.
+      return { playerId: null, completed: 0, total: TOTAL, percent: 0, state: "no-identity" };
     }
     const completed = Object.values(bucket ?? {}).filter(
       (record) => record && record.status === "complete"
@@ -128,6 +149,7 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
   const applySnapshot = (snapshot) => {
     section.dataset.state = snapshot.state;
     state.selectedPlayerId = snapshot.playerId;
+    const noIdentity = snapshot.state === "no-identity";
     setText("[data-progress-completed]", snapshot.completed);
     setText("[data-progress-total]", snapshot.total);
     setText("[data-progress-percent]", `${snapshot.percent}%`);
@@ -141,18 +163,40 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     }
     const card = section.querySelector("[data-progress-card]");
     if (card) card.dataset.state = snapshot.state;
+    const noIdentityNote = section.querySelector("[data-no-identity-note]");
+    if (noIdentityNote) noIdentityNote.hidden = !noIdentity;
     setText(
       "[data-cta-label]",
-      snapshot.state === "unlocked" ? "VER ESTADÍSTICAS COMPLETAS" : "IR A PREDICCIONES"
+      snapshot.state === "unlocked"
+        ? "VER ESTADÍSTICAS COMPLETAS"
+        : noIdentity
+          ? "ELEGIR MI JUGADOR"
+          : "IR A PREDICCIONES"
     );
+    const primaryCta = section.querySelector("[data-primary-cta]");
+    if (primaryCta) {
+      primaryCta.setAttribute("href", noIdentity ? "/jugador" : TARGET);
+    }
     setText(
       "[data-progress-helper]",
       snapshot.state === "unlocked"
         ? snapshot.official
           ? "Tu cartón oficial está confirmado. El Data Center está activo en este dispositivo."
           : "Ya completaste tus 72 predicciones. El Data Center está activo."
-        : "Cada predicción confirmada te acerca a desbloquear todas las estadísticas."
+        : noIdentity
+          ? "Las estadísticas funcionan solo si sabemos quién eres. Elige tu jugador y vuelve acá."
+          : "Cada predicción confirmada te acerca a desbloquear todas las estadísticas."
     );
+
+    // Identidad faltante != Data Center bloqueado: son estados distintos y el
+    // hero debe decirlo con otro mensaje (no es falta de predicciones).
+    if (noIdentity) {
+      setText("[data-locked-eyebrow-label]", "IDENTIDAD NO DETECTADA");
+      setText(
+        "[data-locked-subtitle]",
+        "Este dispositivo no sabe quién eres. Elige tu jugador para abrir tus estadísticas."
+      );
+    }
 
     const banner = section.querySelector("[data-unlocked-banner]");
     if (banner) banner.hidden = snapshot.state !== "unlocked";
@@ -163,6 +207,68 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     // Data Arena + intro de detalle: misma puerta de desbloqueo.
     section.querySelectorAll("[data-unlock-reveal]").forEach((node) => {
       node.hidden = snapshot.state !== "unlocked";
+    });
+  };
+
+  // --- Modal de identidad faltante -----------------------------------------
+  const identityModal = section.querySelector("[data-missing-identity-modal]");
+  const identityDialog = section.querySelector("[data-missing-identity-dialog]");
+  let identityModalTrigger = null;
+
+  const getFocusable = (root) =>
+    Array.from(
+      root?.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ) || []
+    ).filter((node) => !node.hidden);
+
+  const openMissingIdentityModal = () => {
+    if (!identityModal) return;
+    identityModalTrigger =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    identityModal.hidden = false;
+    window.requestAnimationFrame(() => {
+      const first = getFocusable(identityDialog)[0];
+      (first || identityDialog)?.focus?.();
+    });
+  };
+
+  const closeMissingIdentityModal = () => {
+    if (!identityModal) return;
+    identityModal.hidden = true;
+    identityModalTrigger?.focus?.();
+  };
+
+  const wireMissingIdentityModal = () => {
+    if (!identityModal) return;
+    identityModal.querySelectorAll("[data-missing-identity-close]").forEach((button) => {
+      button.addEventListener("click", closeMissingIdentityModal);
+    });
+    identityModal.querySelector("[data-missing-identity-cta]")?.addEventListener("click", () => {
+      try {
+        window.sessionStorage.setItem("polla:returnAfterPlayerSelect", "/estadisticas");
+      } catch {}
+    });
+    document.addEventListener("keydown", (event) => {
+      if (!identityModal || identityModal.hidden) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMissingIdentityModal();
+        return;
+      }
+      if (event.key === "Tab") {
+        const focusable = getFocusable(identityDialog);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     });
   };
 
@@ -335,6 +441,26 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
       </div>`;
   };
 
+  // Resultado oficial normalizado para un partido (o null si no esta cerrado).
+  const officialForMatch = (matchId) => {
+    const official = state.liveSnapshot.officialResults.find(
+      (result) => result.matchId === matchId
+    );
+    if (!official) return null;
+    const homeScore = Number(official.homeTeamScore ?? official.homeScore);
+    const awayScore = Number(official.awayTeamScore ?? official.awayScore);
+    if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore)) return null;
+    return { homeScore, awayScore };
+  };
+
+  // Mapeo unico de color por tipo de acierto (igual que la racha de /tabla).
+  const HIT_DOT_TYPE = {
+    lone_wolf: "lone_wolf",
+    exact: "exact",
+    tendency: "tendency",
+  };
+  const hitDotType = (hitType) => HIT_DOT_TYPE[hitType] ?? "miss";
+
   const renderResultPulse = (pulse) => {
     const official = state.liveSnapshot.officialResults.find(
       (result) => result.matchId === pulse.matchId
@@ -373,7 +499,7 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
         );
         hitCounts[scored.hitType] = (hitCounts[scored.hitType] ?? 0) + 1;
       });
-      return `<div class="result-pulse finished"><strong>Final ${homeScore}-${awayScore}</strong><span>${hitCounts.lone_wolf} Lone Wolf · ${hitCounts.exact} exactos · ${hitCounts.tendency} tendencias · ${hitCounts.none} sin puntos</span></div>`;
+      return `<div class="result-pulse finished"><strong>Resultado final ${homeScore}-${awayScore}</strong><span>${hitCounts.lone_wolf} Lone Wolf · ${hitCounts.exact} exactos · ${hitCounts.tendency} tendencias · ${hitCounts.none} sin puntos</span></div>`;
     }
 
     let exactAlive = 0;
@@ -396,22 +522,86 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
   };
 
   const renderMatchDetail = (pulse) => {
-    const predictions = state.dataset.predictions
-      .filter((prediction) => prediction.matchId === pulse.matchId)
-      .sort((a, b) => profileName(a.playerId).localeCompare(profileName(b.playerId)));
+    const official = officialForMatch(pulse.matchId);
+    const predictions = state.dataset.predictions.filter(
+      (prediction) => prediction.matchId === pulse.matchId
+    );
+
+    // Auditoria de puntaje: con resultado oficial, cada fila muestra cuanto
+    // sumo (misma fuente unica calculatePointsForPrediction, universo completo
+    // del partido para que Lone Wolf sea correcto).
+    const scoredByPlayer = new Map();
+    if (official) {
+      predictions.forEach((prediction) => {
+        scoredByPlayer.set(
+          prediction.playerId,
+          calculatePointsForPrediction(prediction, official, predictions)
+        );
+      });
+    }
+
+    const rows = [...predictions].sort((a, b) => {
+      if (official) {
+        const pointsDiff =
+          (scoredByPlayer.get(b.playerId)?.points ?? 0) -
+          (scoredByPlayer.get(a.playerId)?.points ?? 0);
+        if (pointsDiff !== 0) return pointsDiff;
+      }
+      return profileName(a.playerId).localeCompare(profileName(b.playerId));
+    });
+
     const outcomeRows = [
       ["Gana local", pulse.outcomes.home, "home"],
       ["Empate", pulse.outcomes.draw, "draw"],
       ["Gana visita", pulse.outcomes.away, "away"],
     ];
+
+    const title = official
+      ? `${escapeHtml(pulse.homeTeam.name)} ${official.homeScore} - ${official.awayScore} ${escapeHtml(pulse.awayTeam.name)}`
+      : `${escapeHtml(pulse.homeTeam.name)} vs ${escapeHtml(pulse.awayTeam.name)}`;
+    const finalBadge = official ? `<span class="final-badge">RESULTADO FINAL</span>` : "";
+
+    const tableHead = official
+      ? `<tr><th>Jugador</th><th>Marcador</th><th>Tendencia</th><th>Suma</th></tr>`
+      : `<tr><th>Jugador</th><th>Marcador</th><th>Tendencia</th></tr>`;
+
+    const tableRows = rows
+      .map((prediction) => {
+        const baseCells = `
+                  <td>${escapeHtml(profileName(prediction.playerId))}</td>
+                  <td><strong>${prediction.homeScore}-${prediction.awayScore}</strong></td>
+                  <td>${outcomeLabel(getOutcome(prediction.homeScore, prediction.awayScore))}</td>`;
+        if (!official) {
+          return `<tr data-current-player="${prediction.playerId === state.selectedPlayerId}">${baseCells}</tr>`;
+        }
+        const scored = scoredByPlayer.get(prediction.playerId) ?? { points: 0, hitType: "none" };
+        const dotType = hitDotType(scored.hitType);
+        return `<tr data-current-player="${prediction.playerId === state.selectedPlayerId}">${baseCells}
+                  <td class="suma"><span class="score-dot" data-hit-type="${dotType}" aria-hidden="true"></span><strong>${scored.points > 0 ? `+${scored.points}` : "0"}</strong></td>
+                </tr>`;
+      })
+      .join("");
+
+    const legend = official
+      ? `<div class="score-legend" aria-label="Leyenda de puntaje">
+          <span><i class="score-dot" data-hit-type="lone_wolf" aria-hidden="true"></i> +5 Lone Wolf</span>
+          <span><i class="score-dot" data-hit-type="exact" aria-hidden="true"></i> +3 Exacto</span>
+          <span><i class="score-dot" data-hit-type="tendency" aria-hidden="true"></i> +1 Tendencia</span>
+          <span><i class="score-dot" data-hit-type="miss" aria-hidden="true"></i> 0 Sin puntos</span>
+        </div>`
+      : "";
+
     return `
-      <article class="match-detail">
+      <article class="match-detail" data-finished="${official ? "true" : "false"}">
         <header>
           <div>
             <span>Partido ${String(pulse.matchNumber).padStart(2, "0")} · Grupo ${escapeHtml(pulse.groupId)}</span>
-            <h2>${escapeHtml(pulse.homeTeam.name)} vs ${escapeHtml(pulse.awayTeam.name)}</h2>
+            <h2>${title}</h2>
           </div>
-          <span class="consensus-pill" data-level="${pulse.consensusLevel}">${consensusLabel(pulse.consensusLevel)}</span>
+          <div class="detail-badges">
+            ${finalBadge}
+            <span class="consensus-pill" data-level="${pulse.consensusLevel}">${consensusLabel(pulse.consensusLevel)}</span>
+          </div>
         </header>
         ${renderResultPulse(pulse)}
         <div class="outcome-bars">
@@ -425,17 +615,11 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
         <p class="favorite-score">Marcador coral: <strong>${escapeHtml(pulse.favoriteScore)}</strong> · promedio ${pulse.averageGoals.toFixed(2).replace(".", ",")} goles.</p>
         <div class="prediction-table-wrap">
           <table>
-            <thead><tr><th>Jugador</th><th>Marcador</th><th>Tendencia</th></tr></thead>
-            <tbody>
-              ${predictions.map((prediction) => `
-                <tr data-current-player="${prediction.playerId === state.selectedPlayerId}">
-                  <td>${escapeHtml(profileName(prediction.playerId))}</td>
-                  <td><strong>${prediction.homeScore}-${prediction.awayScore}</strong></td>
-                  <td>${outcomeLabel(getOutcome(prediction.homeScore, prediction.awayScore))}</td>
-                </tr>`).join("")}
-            </tbody>
+            <thead>${tableHead}</thead>
+            <tbody>${tableRows}</tbody>
           </table>
         </div>
+        ${legend}
       </article>`;
   };
 
@@ -477,12 +661,21 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
           </div>
           <p>${visible.length} partidos visibles</p>
           <div class="match-list">
-            ${visible.map((pulse) => `
-              <button type="button" data-community-match="${pulse.matchId}" aria-pressed="${pulse.matchId === state.selectedMatchId}">
+            ${visible.map((pulse) => {
+              const official = officialForMatch(pulse.matchId);
+              const headline = official
+                ? `${escapeHtml(pulse.homeTeam.name.toUpperCase())} ${official.homeScore}-${official.awayScore} ${escapeHtml(pulse.awayTeam.name.toUpperCase())}`
+                : `${escapeHtml(pulse.homeTeam.name)} vs ${escapeHtml(pulse.awayTeam.name)}`;
+              const meta = official
+                ? `Finalizado · ${consensusLabel(pulse.consensusLevel)}`
+                : `${escapeHtml(pulse.favoriteScore)} · ${consensusLabel(pulse.consensusLevel)}`;
+              return `
+              <button type="button" data-community-match="${pulse.matchId}" data-finished="${official ? "true" : "false"}" aria-pressed="${pulse.matchId === state.selectedMatchId}">
                 <span>${String(pulse.matchNumber).padStart(2, "0")} · G${pulse.groupId}</span>
-                <strong>${escapeHtml(pulse.homeTeam.name)} vs ${escapeHtml(pulse.awayTeam.name)}</strong>
-                <small>${escapeHtml(pulse.favoriteScore)} · ${consensusLabel(pulse.consensusLevel)}</small>
-              </button>`).join("")}
+                <strong>${headline}</strong>
+                <small>${meta}</small>
+              </button>`;
+            }).join("")}
           </div>
         </aside>
         ${selected ? renderMatchDetail(selected) : '<p class="stats-empty">Sin partidos para este filtro.</p>'}
@@ -686,6 +879,10 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
 
   const snapshot = computeSnapshot();
   applySnapshot(snapshot);
+  wireMissingIdentityModal();
+  if (snapshot.state === "no-identity") {
+    openMissingIdentityModal();
+  }
   if (snapshot.state === "unlocked") {
     loadDashboard();
     subscribeLiveData((liveSnapshot) => {

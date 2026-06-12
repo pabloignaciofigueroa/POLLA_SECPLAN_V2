@@ -1,0 +1,209 @@
+---
+// Tabla de clasificacion del grupo del partido seleccionado, calculada con
+// fixture.json + resultados oficiales (reemplaza a la antigua Agenda del dia).
+// SSR pinta el estado cero del grupo inicial; fixture.client.js recalcula al
+// seleccionar partido y al llegar resultados oficiales via subscribeLiveData.
+interface GroupTeam {
+  id: string;
+  name: string;
+  shortCode: string;
+}
+
+interface Props {
+  group?: {
+    id: string;
+    teams: GroupTeam[];
+  } | null;
+}
+
+const { group } = Astro.props;
+const teams = group?.teams ?? [];
+const groupId = group?.id ?? "";
+---
+
+<section class="group-standings-panel" data-group-standings-panel aria-label="Tabla del grupo">
+  <header class="standings-header">
+    <span class="icon" aria-hidden="true">TG</span>
+    <h3 data-group-standings-title>{groupId ? `Tabla Grupo ${groupId}` : "Tabla del grupo"}</h3>
+    <span class="count" data-group-standings-count>0 / 6 partidos finalizados</span>
+  </header>
+
+  <table class="standings-table">
+    <thead>
+      <tr>
+        <th scope="col">Pos</th>
+        <th scope="col" class="team-col">Equipo</th>
+        <th scope="col">Pts</th>
+        <th scope="col">DG</th>
+        <th scope="col">GF</th>
+      </tr>
+    </thead>
+    <tbody data-group-standings-body>
+      {teams.map((team, index) => (
+        <tr class="standings-row" data-qualified="false">
+          <td class="pos">{index + 1}</td>
+          <td class="team">
+            <img src={`/assets/flags/${team.id}.svg`} alt="" loading="lazy" decoding="async" width="24" height="18" />
+            <span>{team.shortCode}</span>
+          </td>
+          <td class="pts">0</td>
+          <td class="dg">—</td>
+          <td class="gf">—</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <p class="standings-footer" data-group-standings-footer>Grupo aún sin resultados oficiales.</p>
+</section>
+
+<style is:global>
+  /* is:global a proposito: fixture.client.js reconstruye el tbody con
+     innerHTML y los nodos creados en runtime no reciben el scope de Astro.
+     Todo queda anclado a [data-group-standings-panel]. */
+  [data-group-standings-panel] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
+    padding: 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--pm-blue-500) 24%, transparent);
+    border-radius: 0.72rem;
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--pm-blue-500) 10%, transparent),
+        color-mix(in srgb, var(--pm-cyan-500) 12%, transparent)
+      ),
+      var(--pm-panel-soft);
+  }
+
+  [data-group-standings-panel] .standings-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.32rem;
+    align-items: center;
+    padding-bottom: 0.26rem;
+    border-bottom: 1px solid rgba(7, 23, 53, 0.1);
+  }
+
+  [data-group-standings-panel] .icon {
+    display: grid;
+    place-items: center;
+    min-width: 1.22rem;
+    height: 1.22rem;
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--pm-blue-500) 14%, white);
+    color: var(--pm-blue-600);
+    font-size: 0.44rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  [data-group-standings-panel] h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  [data-group-standings-panel] .count {
+    color: var(--pm-blue-700);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  [data-group-standings-panel] .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  [data-group-standings-panel] .standings-table th {
+    padding: 0.18rem 0.3rem;
+    color: var(--pm-blue-700);
+    font-family: var(--font-display);
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  [data-group-standings-panel] .standings-table th.team-col {
+    text-align: left;
+  }
+
+  [data-group-standings-panel] .standings-row td {
+    padding: 0.26rem 0.3rem;
+    border-top: 1px solid rgba(7, 23, 53, 0.08);
+    color: var(--pm-blue-900);
+    font-size: 0.66rem;
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-group-standings-panel] .standings-row .pos {
+    font-family: var(--font-score);
+    font-weight: 700;
+  }
+
+  [data-group-standings-panel] .standings-row .team {
+    display: flex;
+    align-items: center;
+    gap: 0.32rem;
+    min-width: 0;
+    text-align: left;
+  }
+
+  [data-group-standings-panel] .standings-row .team img {
+    width: 1.18rem;
+    height: 0.88rem;
+    border: 1px solid var(--pm-border-soft);
+    border-radius: 0.2rem;
+    object-fit: cover;
+    flex: 0 0 auto;
+  }
+
+  [data-group-standings-panel] .standings-row .team span {
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  [data-group-standings-panel] .standings-row .pts,
+  [data-group-standings-panel] .standings-row .dg,
+  [data-group-standings-panel] .standings-row .gf {
+    font-family: var(--font-score);
+    font-weight: 700;
+  }
+
+  [data-group-standings-panel] .standings-row .pts {
+    color: var(--pm-blue-600);
+    font-size: 0.74rem;
+  }
+
+  /* Top 2 actual del grupo (solo con partidos jugados). */
+  [data-group-standings-panel] .standings-row[data-qualified="true"] td {
+    background: color-mix(in srgb, var(--pm-green-500) 9%, transparent);
+  }
+
+  [data-group-standings-panel] .standings-row[data-qualified="true"] .pos {
+    color: var(--pm-green-700);
+  }
+
+  [data-group-standings-panel] .standings-footer {
+    margin: 0;
+    color: var(--pm-blue-700);
+    font-size: 0.58rem;
+    font-weight: 750;
+  }
+</style>

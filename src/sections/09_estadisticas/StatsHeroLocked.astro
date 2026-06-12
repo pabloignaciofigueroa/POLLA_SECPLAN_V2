@@ -24,12 +24,12 @@ const { snapshot, confirmedCards = 0, expectedPlayers = 0 } = Astro.props;
   <div class="copy" data-animate="fade-up">
     <p class="eyebrow">
       <span class="lock-icon" aria-hidden="true">🔒</span>
-      DATA CENTER BLOQUEADO
+      <span data-locked-eyebrow-label>DATA CENTER BLOQUEADO</span>
     </p>
     <h1 id="estadisticas-title">
       <span class="title-main">Estadísticas</span>
     </h1>
-    <p class="subtitle">
+    <p class="subtitle" data-locked-subtitle>
       Completa tus <strong>72 predicciones</strong> para desbloquear la inteligencia de la comunidad.
     </p>
     <p class="community-count">

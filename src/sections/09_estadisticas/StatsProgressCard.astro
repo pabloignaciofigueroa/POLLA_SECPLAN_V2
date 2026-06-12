@@ -21,6 +21,10 @@ const { snapshot } = Astro.props;
     <span class="total" data-progress-total>{snapshot.total}</span>
   </p>
 
+  <p class="no-identity-note" data-no-identity-note hidden>
+    Jugador no seleccionado.<br />Elige tu personaje para abrir tus estadísticas.
+  </p>
+
   <div class="bar-shell" aria-hidden="true">
     <span class="bar-fill" data-progress-bar style={`width:${snapshot.percent}%`}></span>
   </div>
@@ -172,6 +176,23 @@ const { snapshot } = Astro.props;
     font-size: 0.78rem;
     font-weight: 600;
     line-height: 1.4;
+  }
+
+  /* Sin identidad local no hay progreso que mostrar: el 0/72 seria un dato
+     falso. Se reemplaza por la nota de jugador no seleccionado. */
+  .no-identity-note {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-ui);
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .progress-card[data-state="no-identity"] .value,
+  .progress-card[data-state="no-identity"] .bar-shell,
+  .progress-card[data-state="no-identity"] .percent {
+    display: none;
   }
 
   .primary-cta {

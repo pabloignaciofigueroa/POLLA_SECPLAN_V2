@@ -107,7 +107,11 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### `05_tabla`
 
 - Orquestador: `TablaSection.astro`.
-- Piezas principales: `TablaHero`, `RankingTable`, `RankingRow`, `MovementIndicator`, `LiveMatchCard`, `NextMatchCard`, `LastUpdateCard`.
+- Piezas principales: `TablaHero`, `RankingTable`, `RankingRow`, `MovementIndicator`, `StreakDot`, `LiveMatchCard`, `NextMatchCard`, `LastUpdateCard`.
+- Limpieza editorial (2026-06-12, comanda 02): se eliminaron el bloque Pretemporada (`PreseasonPulse`, componente borrado) y el banner "Tabla provisional"; la columna izquierda va Podio -> Ranking sin intermedios.
+- Tipografia por rol (comanda 01): headers `--font-display` 700, nombres de jugadores `--font-ui` 700, numeros (pos/pts/rend/predicciones/precision) `--font-score` 700 tabular-nums (Rajdhani activado: `fonts.css` ahora pone Rajdhani primero en `--font-score`), estados secundarios `--font-ui` 600.
+- Racha (comanda 05): `streak` guarda el hitType de los ultimos 5 partidos oficiales y se pinta con `StreakDot` (morado +5 lone_wolf, azul +3 exact, verde +1 tendency, gris 0). `tabla.client.js` re-renderiza los dots en vivo (`renderStreakDots`, sin innerHTML). Mismo mapeo de color en el panel derecho y en Estadisticas/Partidos.
+- Mobile (comanda 03): ranking = lista compacta de una linea por jugador (pos | jugador | pts | rend | racha), header unico en el thead, sin labels repetidos por fila.
 - Data: resultados mock, reglas de puntaje y predicciones mock.
 - Logica compartida: `src/lib/tabla/` calcula standings, movimientos, accuracy y partido relevante.
 - Client: `tabla.client.js` hidrata estados visibles y no mezcla drafts locales como fuente oficial en el SSR.
@@ -122,18 +126,20 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Orquestador: `ProximoPartidoSection.astro`.
 - Piezas principales: `MatchHeroHeader`, `FeaturedMatchLayout`, `TeamMatchCard`, `VersusCenter`, `MatchReadingPanel`, `MatchContextPanel`, `NextActionPanel`, `PredictionDeadlineNotice`.
 - Data: `fixture.json`, `teams.json`, `match-preview.mock.json`.
-- Client: recalcula estado temporal con hora real del navegador y puede enviar intencion de grupo hacia predicciones.
+- Client: recalcula estado temporal con hora real del navegador y puede enviar intencion de grupo hacia predicciones. Desde 2026-06-12 tambien se suscribe a `subscribeLiveData`: los partidos con resultado en `polla_official_results` quedan fuera del "proximo" y el destacado avanza apenas Admin oficializa (countdown con interval unico, sin acumulacion).
 - Gotcha local: algunas banderas/escudos se inyectan con `innerHTML`; el estilo debe ir inline o en reglas globales acotadas.
 - Cuando cambiar: partido destacado y lectura editorial en data/mock y logica de seccion.
 
 ### `07_fixture`
 
 - Orquestador: `FixtureSection.astro`.
-- Piezas principales: `FixtureHero`, `FixtureSummaryCards`, `FixtureFilters`, `FixtureListPanel`, `FixtureDayGroup`, `FixtureMatchRow`, `SelectedMatchPanel`, `SelectedMatchHero`, `MatchInfoPanel`, `DayAgendaPanel`, `TimezoneNotice`.
+- Piezas principales: `FixtureHero`, `FixtureSummaryCards`, `FixtureFilters`, `FixtureListPanel`, `FixtureDayGroup`, `FixtureMatchRow`, `SelectedMatchPanel`, `SelectedMatchHero`, `MatchInfoPanel`, `GroupStandingsPanel`, `TimezoneNotice`. (`DayAgendaPanel` quedo legacy sin montar, comanda 08.)
 - Data: `fixture.json`, `groups.json`, `match-info.mock.json`, assets de estadios.
-- Client: `fixture.client.js` controla filtros, seleccion de partido, paneles y agenda.
+- Resultados oficiales (2026-06-12, comanda 07): `fixture.client.js` se suscribe a `subscribeLiveData` y fusiona `polla_official_results` sobre el calendario en el cliente: la fila reemplaza "VS" por el marcador (`separator.score`, `data-finished`), el status oficial manda sobre la hora, el hero seleccionado muestra marcador + badge "Resultado final" (`data-result="official"`) y `MatchInfoPanel` agrega la fila "Resultado oficial". `fixture.json` sigue intacto; `fixture.logic.ts` (SSR) no toca Supabase.
+- Tabla de grupo (comanda 08): `GroupStandingsPanel` reemplaza a la agenda. Calcula en memoria con `lib/fixture/groupStandings.js` (adaptador sobre `calculateGroupStandings` de predicciones: 3/1/0, PTS > DG > GF > head-to-head) usando solo resultados oficiales. Header "Tabla Grupo X · N/6 finalizados", footer "Top 2 actual" o "Grupo aun sin resultados oficiales". Se recalcula al seleccionar partido y con cada snapshot remoto.
+- Client: `fixture.client.js` controla filtros, seleccion de partido, paneles y la tabla de grupo.
 - Storage: no escribe estado permanente.
-- Cuando cambiar: calendario en `fixture.json`, info extendida en `match-info.mock.json`, visual/lista en componentes de `07_fixture`.
+- Cuando cambiar: calendario en `fixture.json`, info extendida en `match-info.mock.json`, visual/lista en componentes de `07_fixture`, tabla de grupo en `GroupStandingsPanel` + `lib/fixture/groupStandings.js`.
 
 ### `08_equipos`
 
@@ -147,8 +153,10 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### `09_estadisticas`
 
 - Orquestador: `EstadisticasSection.astro`.
-- Piezas principales: `StatsHeroLocked`, `StatsProgressCard`, `StatsDashboard`, `LockedPreviewPanel`, `UnlockedBanner`.
-- Funcion: antes de 72/72 muestra la promesa anti-copia; despues monta perfil, comunidad, explorador de partidos, clasificados y comparador.
+- Piezas principales: `StatsHeroLocked`, `StatsProgressCard`, `StatsDashboard`, `LockedPreviewPanel`, `UnlockedBanner`, `MissingPlayerIdentityModal`.
+- Funcion: antes de 72/72 muestra la promesa anti-copia; despues monta perfil, partidos, comunidad, clasificados y comparador (orden de tabs 2026-06-12: MI PERFIL, PARTIDOS, COMUNIDAD, CLASIFICADOS).
+- Identidad requerida (comanda 06): sin `polla:selectedPlayerId` valido la seccion entra en estado `no-identity` (distinto de `locked`): no muestra 0/72 falso (la progress card dice "Jugador no seleccionado"), abre `MissingPlayerIdentityModal` (CTA "ELEGIR MI JUGADOR" -> `/jugador`, sin acceso a estadisticas generales) y guarda `polla:returnAfterPlayerSelect="/estadisticas"`; `/jugador` redirige de vuelta tras confirmar. Si el id guardado no existe en `players.json` (nomina cerrada), se limpia la identidad local.
+- Partidos como auditoria (comanda 09): con resultado en `polla_official_results`, el listado izquierdo muestra "EQUIPO X-Y EQUIPO · Finalizado" en gris palido (`data-finished`), el detalle titula con el marcador + badge RESULTADO FINAL, el resumen reusa `renderResultPulse` y la tabla agrega columna SUMA con `score-dot` + puntos por jugador via `calculatePointsForPrediction` (universo completo del partido, orden por puntos desc) + leyenda compacta. Partidos sin oficializar conservan la vista coral sin puntos.
 - Client: carga `/data/community-predictions.json` solo al desbloquear, admite deep links y se suscribe al marcador/resultados Supabase.
 - Logica coral compartida: `lib/statistics/communityStatistics.js`; contratos en `lib/statistics/types.ts`.
 - Importacion: `npm run predictions:build` valida los JSON de la raiz y regenera la fuente canonica.
@@ -169,6 +177,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Sesion: RPC `polla_admin_login` entrega token temporal; `sessionStorage` usa `polla:adminSessionToken` y `polla:adminSessionExpiresAt`. Duracion 2 horas.
 - Logout: eliminado del hero. La sesion admin solo expira por tiempo (2h) o limpiando `sessionStorage`.
 - Client: `admin.client.js` valida sesion antes de inicializar acciones, monta el mini marcador (`initLiveScoreControl`) y usa confirmacion inline de doble paso.
+- KPI Resultados oficiales (2026-06-12, comanda 05): `initOfficialResultsKpi` se suscribe a `subscribeLiveData` y pinta `X / 72` + "% cargados" (y el panel `data-results-loaded`/`data-results-pending`) contando filas reales de `polla_official_results`; el mock solo es el valor SSR inicial.
+- RPCs de edicion de predicciones: la migracion `20260609193000_prediction_edit_access.sql` NO esta aplicada en el Supabase remoto. Fix preparado en `supabase/remote/apply_prediction_edit_access.sql` (pegar en SQL Editor, idempotente, incluye reload del schema cache). Mientras tanto el panel marca `data-remote-unavailable` y muestra "Modulo no disponible" con mensaje claro.
 - Correcciones: Admin crea/revoca codigos de un solo uso; la sesion canjeada se
   vincula al jugador y vence a las dos horas.
 - Cuando cambiar: barrera/modal en `components/layout`; dashboard, mini marcador y acciones en `10_admin`; contrato de marcador vivo en `lib/liveMatch/liveMatchState.js`.
@@ -185,7 +195,8 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### Reset y version de storage
 
 - Archivo central: `src/lib/storage/resetPollaState.js`.
-- Version actual: `production-reset-2026-06-12-felipe-italo`.
+- Version actual: `production-reset-2026-06-12-roster-13`.
+- Identidad invalida (nomina cerrada): `/jugador` y `/estadisticas` validan el id guardado contra `players.json` y limpian las llaves de identidad si apunta a un jugador eliminado (el versionado preserva identidad, asi que esta limpieza es explicita).
 - `ensurePollaStorageVersion()` limpia drafts al detectar version distinta, preservando identidad cuando corresponde.
 - El hard reset desde jugador limpia identidad, predicciones, clasificados, favoritos y descarga final local.
 
@@ -267,6 +278,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `polla:adminSessionToken` | sessionStorage | Admin access | Lee/escribe | Token remoto temporal para RPC admin |
 | `polla:adminSessionExpiresAt` | sessionStorage | Admin access | Lee/escribe | Expiracion ISO de sesion admin |
 | `polla:playerResetFeedback` | sessionStorage | Jugador | Lee/escribe | Mensaje post reset |
+| `polla:returnAfterPlayerSelect` | sessionStorage | Estadisticas / Jugador | Lee/escribe | Retorno dirigido tras elegir jugador (modal identidad) |
 | `polla:liveMatchState` | localStorage | `lib/liveMatch/liveMatchState.js` | Cache | Ultimo marcador remoto conocido |
 | `polla:officialResults` | localStorage | `lib/liveMatch/liveMatchState.js` | Cache | Ultimos resultados remotos conocidos |
 
@@ -274,12 +286,12 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 
 | Archivo | Uso |
 | --- | --- |
-| `players.json` | Jugadores oficiales y avatars |
+| `players.json` | Jugadores oficiales y avatars (nomina cerrada: 13) |
 | `teams.json` | 48 selecciones, banderas, escudos, portadas |
 | `groups.json` | Grupos A-L |
 | `fixture.json` | 72 partidos de fase de grupos |
 | `predicciones_*.json` | Fuentes versionadas de cada carton oficial; viven en la raiz del proyecto y alimentan `predictions:build` |
-| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados (13/15 cartones, 936 marcadores, 312 posiciones) |
+| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados (13/13 cartones, 936 marcadores, 312 posiciones, cero pendientes) |
 | `stat-cards/players/*.json` | Fichas estadisticas jugables ya resueltas por jugador (Data Arena), 1 por cartonista (13) |
 | `stat-cards/data-arena-13.json` | Base agregada canonica del corte 13: rankings, duelos (pairwise) y highlights globales ya resueltos |
 | `predictions.mock.json` | Mock inicial o contrato de predicciones |
@@ -306,6 +318,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `lib/liveMatch/liveMatchPhase.js` | Fuente unica del tri-estado official/live/pending del marcador remoto (gating de puntaje por hora de fixture y goles explicitos) |
 | `lib/supabase/supabaseClient.js` | Cliente unico `@supabase/supabase-js` desde `PUBLIC_SUPABASE_URL`/`PUBLIC_SUPABASE_ANON_KEY` |
 | `lib/liveMatch/liveScoring.js` | Fuente UNICA de calculo (SSR + vivo): puntaje 5/3/1/0 (`calculatePointsForPrediction`) y precision visual alcanzable/imposible (`calculateLiveAccuracy`). Puntos != precision. |
+| `lib/fixture/groupStandings.js` | Tabla real de grupo (fixture + resultados oficiales); adaptador sobre `calculateGroupStandings` de predicciones |
 | `lib/stadiums/getStadiumAsset.ts` | Resuelve assets de estadios por fixture |
 | `lib/ui-assets/uiAssets.ts` | Referencias compartidas de assets UI |
 | `lib/tabla/calculatePlayerStandings.ts` | Ranking de jugadores |
@@ -367,6 +380,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-12 (comandas 01-09): La app pasa a modo competencia oficial. (a) Nomina cerrada a 13: Gonzalo y Ratinha fuera de `players.json`, assets y mock; rebuild 13/13 cartones / 936 / 312, cero pendientes; storage `production-reset-2026-06-12-roster-13`; `/jugador` y `/estadisticas` limpian identidad invalida. (b) Resultados oficiales mandan en todas las secciones: Fixture fusiona `polla_official_results` client-side (marcador en fila/hero/info, status finished), Proximo Partido salta oficializados, KPI Admin cuenta filas reales via `subscribeLiveData`. (c) Fixture: `GroupStandingsPanel` (tabla real del grupo via `lib/fixture/groupStandings.js`) reemplaza a `DayAgendaPanel` (legacy sin montar). (d) Racha de tabla = dots por hitType (slice -5) con mapeo unico morado +5 / azul +3 / verde +1 / gris 0, alineado en panel derecho y Estadisticas/Partidos; fix: la racha ahora se re-renderiza en vivo. (e) Tabla: tipografia por rol (display/ui/score; Rajdhani activado en fonts.css), barras Pretemporada y Tabla provisional eliminadas, ranking mobile compacto de una linea. (f) Estadisticas: tabs MI PERFIL > PARTIDOS > COMUNIDAD > CLASIFICADOS; pestana PARTIDOS como auditoria (columna SUMA + score-dots + leyenda); modal de identidad faltante con retorno dirigido (`polla:returnAfterPlayerSelect`). (g) Migracion prediction_edit_access detectada SIN aplicar en remoto: fix listo en `supabase/remote/apply_prediction_edit_access.sql` (accion manual en SQL Editor); el panel admin degrada con mensaje claro.
 - 2026-06-12: Tri-estado del marcador formalizado. Los dos parches de emergencia (bloqueo de puntaje antes del inicio y partido pendiente visible sin puntuar) se consolidan en `lib/liveMatch/liveMatchPhase.js`, fuente unica de official/live/pending para tabla y estadisticas. Admin escribe `status` explicito ("live" al actualizar, "pending" al preparar el siguiente tras FINALIZAR), sin migracion SQL y compatible con filas viejas. La hero card en espera usa el estado `waiting` estilizado del SSR; la fase live termina solo al oficializar (sin expiracion automatica). Caso vigente: Mexico 2-0 Sudafrica oficial puntuado; Corea-Chequia preparado EN ESPERA con 0 puntos. 10 tests nuevos en `tests/live-match-phase.test.mjs`.
 - 2026-06-12: Base Data Arena 13 integrada como corte canonico. `data/stat-cards/data-arena-13.json` + 13 fichas (entran Felipe 03 e Italo 13); el rerank en memoria deja todos los ranks visibles en `de 13`. Estadisticas suma dos paneles SSR nuevos dentro de la capa Data Arena: `ArenaHighlightsPanel` (6 tops globales) y `ArenaDuelsPanel` (gemelos de pronostico + rivalidades), alimentados por `lib/statistics/dataArenaBase.ts` que consume la base ya resuelta sin recalcular. Counters dinamicos quedan en 13/72/936. Tests de rerank migrados a universo dinamico con anclas a 13.
 - 2026-06-12: Felipe e Italo reemplazan a Daniel y Martin (identidad completa, mismas posiciones del array en `players.json`). Ambos entregaron carton oficial: el rebuild queda en 13/15 cartones, 936 marcadores y 312 posiciones; pendientes solo Gonzalo y Ratinha. Assets nuevos `{felipe,italo}.webp` + thumbs; los de daniel/martin se eliminaron sin referencias activas. `table-predictions.mock.json` y tests migrados (el test de carton local usa `gonzalo`, que sigue pendiente). Storage local sube a `production-reset-2026-06-12-felipe-italo`.

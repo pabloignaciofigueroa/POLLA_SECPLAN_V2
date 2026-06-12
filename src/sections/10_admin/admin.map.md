@@ -14,10 +14,13 @@ supabase-admin-active
   hora del fixture. Compatible con filas viejas sin status confiable.
 - Sin migracion SQL: el payload JSONB de `polla_live_match` ya acepta `status`.
 
-## Estado vigente de cartones - 2026-06-12
+## Estado vigente de cartones - 2026-06-12 (nomina cerrada)
 
-- Admin deriva de `predictions.json` 13/15 cartones confirmados, 936 marcadores
-  y dos jugadores pendientes (Gonzalo y Ratinha).
+- Nomina cerrada a 13 jugadores: Admin deriva de `predictions.json` 13/13
+  cartones confirmados, 936 marcadores y cero pendientes.
+- El KPI "Resultados oficiales" y el panel homonimo se actualizan en vivo
+  desde `polla_official_results` via `subscribeLiveData` (admin.client.js,
+  `initOfficialResultsKpi`); el mock solo es el valor SSR inicial.
 - Felipe e Italo aparecen por el mismo pipeline compartido; no se agregaron
   KPIs, filas ni reglas manuales.
 - La carga oficial sigue siendo `npm run predictions:build`.
@@ -91,13 +94,13 @@ AdminSection.module.css
 - Sidebar interna contiene 9 ítems: Dashboard, Jugadores, Predicciones, Solicitudes, Resultados oficiales, Base de datos, Exportar / Backup, Bitácora, Sistema.
 - Zona peligrosa separada: Reset local, Limpiar caché, Forzar recálculo.
 - KPIs:
-  - Jugadores registrados: 15
-  - Cartones confirmados: 0 / 15
+  - Jugadores registrados: 13
+  - Cartones confirmados: 13 / 13
   - Predicciones cargadas: 72
   - Solicitudes pendientes: 0
   - Resultados oficiales: 0 / 72
   - Estado del sistema: OK
-- Total posible de predicciones: 0 / 1008.
+- Total posible de predicciones: 936 (13 x 72).
 
 ## Restricciones
 - No exponer password, hash, `service_role` ni tokens Admin en el bundle.

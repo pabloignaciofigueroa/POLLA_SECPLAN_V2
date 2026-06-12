@@ -6,6 +6,7 @@ import {
   readOfficialResults,
   resolveCurrentMatch,
   saveLiveMatchState,
+  subscribeLiveData,
   validateAdminSession,
 } from "../../lib/liveMatch/liveMatchState.js";
 import {
@@ -79,6 +80,7 @@ import {
   };
 
   await initLiveScoreControl(section, payload, setFeedback);
+  initOfficialResultsKpi(section, payload);
   await initPredictionEditAccess(section, setFeedback);
 
   section.querySelectorAll("[data-admin-tab]").forEach((tab) => {
@@ -138,6 +140,32 @@ import {
     });
   });
 })();
+
+function initOfficialResultsKpi(section, payload) {
+  const totalMatches =
+    (Array.isArray(payload.liveMatches) && payload.liveMatches.length) || 72;
+  const kpiValue = section.querySelector(
+    '[data-kpi="official-results"] [data-kpi-value]'
+  );
+  const kpiHelper = section.querySelector(
+    '[data-kpi="official-results"] [data-kpi-helper]'
+  );
+  const panelLoaded = section.querySelector("[data-results-loaded]");
+  const panelPending = section.querySelector("[data-results-pending]");
+
+  const paint = (officialResults) => {
+    const loaded = Array.isArray(officialResults) ? officialResults.length : 0;
+    const percent = Math.round((loaded / totalMatches) * 100);
+    if (kpiValue) kpiValue.textContent = `${loaded} / ${totalMatches}`;
+    if (kpiHelper) kpiHelper.textContent = `${percent}% cargados`;
+    if (panelLoaded) panelLoaded.textContent = `${loaded} / ${totalMatches}`;
+    if (panelPending) panelPending.textContent = String(totalMatches - loaded);
+  };
+
+  // El snapshot inicial llega con el primer emit; FINALIZAR PARTIDO y los
+  // cambios Realtime re-disparan el callback, dejando el KPI siempre vivo.
+  subscribeLiveData(({ officialResults }) => paint(officialResults));
+}
 
 async function initPredictionEditAccess(section, setFeedback) {
   const panel = section.querySelector("[data-prediction-edit-admin]");
@@ -204,8 +232,11 @@ async function initPredictionEditAccess(section, setFeedback) {
   const refresh = async () => {
     try {
       paintStatuses(await listPredictionEditAccess());
+      panel.dataset.remoteUnavailable = "false";
     } catch (error) {
       paintStatuses();
+      panel.dataset.remoteUnavailable = "true";
+      if (summary) summary.textContent = "Módulo no disponible";
       setFeedback(error?.message || "No fue posible leer las autorizaciones de edición.");
     }
   };

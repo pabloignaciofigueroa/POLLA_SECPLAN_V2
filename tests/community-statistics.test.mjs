@@ -49,10 +49,10 @@ test("mantiene las metricas de aceptacion del snapshot", () => {
 test("ignora un carton local incompleto", () => {
   const merged = mergeLocalPlayer(
     dataset,
-    "gonzalo",
+    "jugador-prueba-local",
     {
       "match-001": {
-        playerId: "gonzalo",
+        playerId: "jugador-prueba-local",
         matchId: "match-001",
         groupId: "A",
         homeScore: 1,
@@ -70,7 +70,7 @@ test("incorpora temporalmente un carton local completo", () => {
     fixture.matches.map((match) => [
       match.id,
       {
-        playerId: "gonzalo",
+        playerId: "jugador-prueba-local",
         matchId: match.id,
         groupId: match.groupId,
         homeScore: 1,
@@ -83,7 +83,7 @@ test("incorpora temporalmente un carton local completo", () => {
     groups.map((group) => [
       group.id,
       {
-        playerId: "gonzalo",
+        playerId: "jugador-prueba-local",
         groupId: group.id,
         firstPlaceTeamId: group.teams[0].id,
         secondPlaceTeamId: group.teams[1].id,
@@ -92,17 +92,17 @@ test("incorpora temporalmente un carton local completo", () => {
   );
   const merged = mergeLocalPlayer(
     dataset,
-    "gonzalo",
+    "jugador-prueba-local",
     localPredictions,
     localQualified
   );
   assert.equal(merged.confirmedCards, dataset.confirmedCards + 1);
   assert.equal(
-    merged.predictions.filter((prediction) => prediction.playerId === "gonzalo").length,
+    merged.predictions.filter((prediction) => prediction.playerId === "jugador-prueba-local").length,
     72
   );
   assert.equal(
-    merged.qualifiedPredictions.filter((entry) => entry.playerId === "gonzalo").length,
+    merged.qualifiedPredictions.filter((entry) => entry.playerId === "jugador-prueba-local").length,
     24
   );
 });

@@ -1,6 +1,6 @@
 ---
 import MovementIndicator from "./MovementIndicator.astro";
-import StreakPill from "./StreakPill.astro";
+import StreakDot from "./StreakDot.astro";
 import type { RankingRow as RankingRowType } from "../../lib/tabla/types";
 
 interface Props {
@@ -45,7 +45,7 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
   <td data-cell="performance"><span data-rank-performance>{row.performance}%</span></td>
   <td data-cell="streak">
     <span class="streak-list" data-rank-streak>
-      {row.streak.map((item) => <StreakPill value={item} />)}
+      {row.streak.map((item) => <StreakDot value={item} />)}
     </span>
   </td>
 </tr>
@@ -116,8 +116,11 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     border-radius: var(--pm-radius-sm);
     background: var(--pm-white);
     color: var(--pm-blue-900);
-    font-family: var(--font-display);
-    font-weight: 950;
+    font-family: var(--font-score);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    line-height: 1;
   }
 
   tr[data-rank="top-1"] .position-badge {
@@ -157,15 +160,31 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     display: block;
   }
 
-  strong {
-    font-family: var(--font-display);
-    font-weight: 950;
+  /* Nombre de jugador = dato principal: font UI legible, no label arcade. */
+  td[data-cell="player"] strong {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
     color: var(--pm-blue-900);
   }
 
+  /* Numeros = scoreboard. */
   td[data-cell="points"] strong {
     color: var(--pm-pink-600);
-    font-size: 0.92rem;
+    font-family: var(--font-score);
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  td[data-cell="performance"] span {
+    font-family: var(--font-score);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    line-height: 1;
   }
 
   td[data-cell="played"],
@@ -182,7 +201,8 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
 
   .streak-list {
     display: inline-flex;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.22rem;
   }
 
   /* Shimmer suave del lider (acento dorado), respetando reduced-motion. */
@@ -197,35 +217,69 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     }
   }
 
+  /* Mobile: fila compacta de una linea (pos | jugador | pts | rend | racha).
+     Sin labels internos por fila: el header compacto vive una sola vez en el
+     thead de RankingTable. Altura objetivo 56-72px por jugador. */
   @media (max-width: 720px) {
     tr {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.45rem;
-      padding: 0.85rem;
+      grid-template-columns: 38px minmax(0, 1fr) 48px 52px 44px;
+      gap: 8px;
+      align-items: center;
+      min-height: 3.5rem;
+      padding: 8px 10px;
       border: 1px solid var(--pm-border-soft);
-      border-radius: var(--pm-radius-md);
+      border-radius: 14px;
     }
 
     td {
-      display: grid;
-      gap: 0.18rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 0;
-      text-align: left;
-    }
-
-    td::before {
-      content: attr(data-cell);
-      color: var(--pm-text-soft);
-      font-size: 0.58rem;
-      font-weight: 850;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      font-size: 0.82rem;
     }
 
     td[data-cell="player"] {
-      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-start;
+      gap: 8px;
       min-width: 0;
+    }
+
+    .position-badge {
+      min-width: 1.9rem;
+      min-height: 1.65rem;
+      border-radius: 9px;
+      font-size: 0.9rem;
+    }
+
+    .player-avatar {
+      width: 1.75rem;
+      flex: 0 0 auto;
+    }
+
+    td[data-cell="player"] strong {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      font-size: 0.88rem;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td[data-cell="points"] strong,
+    td[data-cell="performance"] span {
+      font-size: 0.95rem;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .streak-list {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.14rem;
     }
   }
 </style>

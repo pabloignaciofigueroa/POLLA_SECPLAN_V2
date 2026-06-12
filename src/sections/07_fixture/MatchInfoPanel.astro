@@ -53,6 +53,10 @@ const stadiumLine = stadiumCountry ? `${stadiumCity}, ${stadiumCountry}` : stadi
     </figure>
 
     <dl class="rows">
+      <div class="result-row" data-info-result-row hidden>
+        <dt>Resultado oficial</dt>
+        <dd data-info-result>—</dd>
+      </div>
       <div>
         <dt>Arbitro</dt>
         <dd data-info-referee>{refereeLine}</dd>
@@ -145,6 +149,18 @@ const stadiumLine = stadiumCountry ? `${stadiumCity}, ${stadiumCountry}` : stadi
     display: grid;
     gap: 0.12rem;
     min-width: 0;
+  }
+
+  .result-row {
+    grid-column: 1 / -1;
+  }
+
+  .result-row dd {
+    color: var(--pm-green-700);
+    font-family: var(--font-score);
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
   dt {

@@ -1,5 +1,8 @@
 export type Movement = "up" | "down" | "same" | "new";
 
+// Racha por partido oficial: mismo hitType del scoring (5/3/1/0).
+export type StreakHit = "lone_wolf" | "exact" | "tendency" | "miss";
+
 export type AccuracyLevel = "excellent" | "close" | "regular" | "far" | "very_far";
 
 export interface Player {
@@ -64,7 +67,7 @@ export interface RankingRow {
   misses: number;
   goalDifference: number;
   performance: number;
-  streak: string[];
+  streak: StreakHit[];
 }
 
 export interface MatchAccuracyRow {

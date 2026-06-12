@@ -63,15 +63,15 @@ export function calculatePlayerStandings(
       if (hitType === "lone_wolf" || hitType === "exact") {
         exactHits += 1;
         goalDifference += 4; // exacto = distancia 0
-        streak.push("G");
+        streak.push(hitType);
       } else if (hitType === "tendency") {
         tendencyHits += 1;
         goalDifference += Math.max(0, 4 - getGoalDistance(prediction, result));
-        streak.push("E");
+        streak.push("tendency");
       } else {
         misses += 1;
         if (hitType === "none") goalDifference += Math.max(0, 4 - getGoalDistance(prediction, result));
-        streak.push("P");
+        streak.push("miss");
       }
     });
 
@@ -94,7 +94,7 @@ export function calculatePlayerStandings(
       misses,
       goalDifference,
       performance,
-      streak: streak.slice(-2),
+      streak: streak.slice(-5),
     } satisfies RankingRow;
   });
 

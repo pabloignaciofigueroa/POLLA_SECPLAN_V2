@@ -411,7 +411,27 @@ const officialPlayerIds = predictionsData.submissions.map(
         syncPredictionLinks();
       };
 
-      const initialConfirmed = getStoredConfirmed();
+      const clearStoredIdentity = () => {
+        [selectedKey, confirmedKey, snapshotKey].forEach((key) => {
+          try {
+            window.localStorage.removeItem(key);
+          } catch {}
+          try {
+            window.sessionStorage.removeItem(key);
+          } catch {}
+        });
+      };
+
+      // Nomina cerrada: una identidad guardada que ya no existe en players.json
+      // (jugador eliminado) no puede seguir bloqueando la seleccion.
+      const storedSelectedId = getStoredSelectedId();
+      const storedIdIsValid =
+        !storedSelectedId || cards.some((card) => card.dataset.playerId === storedSelectedId);
+      if (!storedIdIsValid) {
+        clearStoredIdentity();
+      }
+
+      const initialConfirmed = storedIdIsValid && getStoredConfirmed();
       const initialPlayerId =
         (initialConfirmed && getStoredSelectedId()) || section.dataset.defaultPlayerId || "luis";
       const initialCard = findCard(initialPlayerId);
@@ -449,6 +469,22 @@ const officialPlayerIds = predictionsData.submissions.map(
           if (!playerId) return;
           setStoredSelection(playerId);
           paintSelected(findCard(playerId), true);
+
+          // Retorno dirigido (p.ej. Estadisticas pidio identidad): vuelve a la
+          // seccion de origen apenas se confirma el jugador.
+          let returnTo = null;
+          try {
+            returnTo = window.sessionStorage.getItem("polla:returnAfterPlayerSelect");
+          } catch {}
+          if (returnTo && returnTo.startsWith("/")) {
+            try {
+              window.sessionStorage.removeItem("polla:returnAfterPlayerSelect");
+            } catch {}
+            event.preventDefault();
+            window.location.assign(returnTo);
+            return;
+          }
+
           if (officialPlayerIds.has(playerId)) {
             event.preventDefault();
             openOfficialModal(playerId);

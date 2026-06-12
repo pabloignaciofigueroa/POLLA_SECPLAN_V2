@@ -5,7 +5,6 @@ import PodiumStrip from "./PodiumStrip.astro";
 import RankingTable from "./RankingTable.astro";
 import PlayerPredictionsPanel from "./PlayerPredictionsPanel.astro";
 import NextMatchCard from "./NextMatchCard.astro";
-import PreseasonPulse from "../../components/statistics/PreseasonPulse.astro";
 import playersData from "../../data/players.json";
 import fixtureData from "../../data/fixture.json";
 import resultsData from "../../data/results.json";
@@ -58,17 +57,6 @@ const clientPayload = {
     <div class={styles.dashboardGrid}>
       <div class={styles.rankingArea}>
         <PodiumStrip rows={rankingRows} />
-        {results.length === 0 && (
-          <PreseasonPulse
-            confirmedCards={predictionsData.confirmedCards}
-            expectedPlayers={predictionsData.expectedPlayers}
-            predictions={predictionsData.totals.predictions}
-          />
-        )}
-        <p class={styles.provisionalBanner} data-tabla-provisional hidden>
-          <span class={styles.provisionalDot} aria-hidden="true"></span>
-          Tabla provisional · incluye marcador en vivo
-        </p>
         <RankingTable rows={rankingRows} />
       </div>
 

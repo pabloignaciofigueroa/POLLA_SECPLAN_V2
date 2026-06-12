@@ -5,11 +5,11 @@ wireframe-implemented
 
 ## Felipe e Italo oficiales (reemplazan a Daniel y Martin) - 2026-06-12
 
-- El rebuild canonico carga 13/15 cartones, 936 marcadores y 312 posiciones
-  clasificatorias, con cero errores de validacion.
+- El rebuild canonico carga 13/13 cartones (nomina cerrada 2026-06-12), 936
+  marcadores y 312 posiciones clasificatorias, con cero errores de validacion.
 - `felipe` e `italo` usan el mismo flujo `official-locked` / `official-editing`
   que los demas cartonistas; no hay un sistema paralelo.
-- Los dos pendientes vigentes son Gonzalo y Ratinha.
+- No quedan pendientes: Gonzalo y Ratinha salieron de la nomina (cierre a 13).
 
 ## Isaias y Jaime oficiales - 2026-06-10
 
