@@ -1,13 +1,39 @@
 # 05_tabla — Mapa técnico
 
 ## Estado
-supabase-realtime-active
+supabase-realtime-active + tri-estado-formalizado
 
-## Universo oficial de 11 cartones - 2026-06-10
+## Tri-estado del marcador: official / live / pending - 2026-06-12
 
-- Tabla consume dinamicamente los 11 cartones de `predictions.json`, incluyendo
-  a Isaias y Jaime, sin filas manuales ni cambios en `lib/tabla`.
-- El snapshot vigente contiene 792 marcadores y 264 posiciones clasificatorias.
+- Fuente unica de fase: `lib/liveMatch/liveMatchPhase.js` →
+  `resolveLiveMatchPhase({ liveMatch, fixtureMatch, officialResults, now })`.
+  Formaliza los dos parches de emergencia previos (bloqueo de puntaje antes
+  del inicio + partido pendiente visible sin puntuar).
+- Tabla de decision: (1) sin payload/matchId → null; (2) matchId oficializado
+  → `official` (gana siempre); (3) scores no enteros → `pending`; (4) goles > 0
+  → `live` (acto explicito del Admin, inmune a relojes desfasados; un
+  preparado siempre nace 0-0); (5) 0-0 con hora de fixture → `live` desde el
+  kickoff (`dateUtc`/`dateChile`), antes `pending`; (6) 0-0 sin hora confiable
+  → `pending` (fail-safe: nunca regalar puntos).
+- En `tabla.client.js`: `liveToResult` volvio a ser conversion pura; el gating
+  vive en la fase. Solo `live` puntua, recalcula provisional, mueve flechas y
+  muestra el banner. `pending` re-apunta la hero card (estado `waiting`
+  amarillo, "EN ESPERA", "Sin goles aun", scores "-"), la NextMatchCard
+  (muestra el MISMO partido pendiente) y el panel derecho (filas EN ESPERA /
+  0 puntos via `calculateAccuracy` sin resultado).
+- La fase live termina solo con FINALIZAR (sin expiracion automatica por
+  tiempo); el banner provisional cubre la espera hasta oficializar.
+- Admin escribe `status` explicito en el payload (`live` al actualizar,
+  `pending` al preparar el siguiente); compatible con filas viejas de Supabase
+  (la fase no depende del status para decidir).
+- Tests: `tests/live-match-phase.test.mjs` (10 casos, incluye el caso real
+  Mexico 2-0 oficial + Corea-Chequia 0-0 preparado antes del kickoff).
+
+## Universo oficial de 13 cartones - 2026-06-12
+
+- Tabla consume dinamicamente los 13 cartones de `predictions.json`, incluyendo
+  a Felipe e Italo, sin filas manuales ni cambios en `lib/tabla`.
+- El snapshot vigente contiene 936 marcadores y 312 posiciones clasificatorias.
 - Se conserva el orden funcional: Ranking a la izquierda, predicciones a la
   derecha; mobile mantiene Tabla, Predicciones y Leyenda.
 

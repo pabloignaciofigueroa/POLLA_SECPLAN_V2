@@ -1,4 +1,5 @@
 import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
+import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 
 (async () => {
   const section = document.querySelector('[data-section="tabla"]');
@@ -300,40 +301,36 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 
   // ── Pipeline marcador en vivo -> tabla ──────────────────────────────────
   // La tabla SSR ya sale calculada con predictions.json. Solo recalculamos
-  // cuando hay marcador en vivo u oficiales que sobreponer (asi no se reordena
-  // tras el primer paint sin motivo = sin flash). El marcador del admin llega
-  // por subscribeLiveData: Supabase Realtime como fuente compartida y
-  // localStorage/eventos como cache local.
+  // cuando hay marcador en vivo, oficiales o un partido preparado que mostrar
+  // (asi no se reordena tras el primer paint sin motivo = sin flash). El
+  // marcador del admin llega por subscribeLiveData: Supabase Realtime como
+  // fuente compartida y localStorage/eventos como cache local. El tri-estado
+  // official/live/pending se resuelve en lib/liveMatch/liveMatchPhase.js:
+  // solo "live" puntua y activa banner provisional; "pending" re-apunta las
+  // cards y el panel (EN ESPERA, 0 puntos) sin mover el ranking.
 
   const officialToResults = (officialResults) =>
     (officialResults ?? [])
       .filter((r) => r && r.matchId && Number.isInteger(r.homeTeamScore) && Number.isInteger(r.awayTeamScore))
       .map((r) => ({ matchId: r.matchId, status: "finished", homeScore: r.homeTeamScore, awayScore: r.awayTeamScore }));
 
-  const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
+  const resolveLiveMatchId = (liveMatch) =>
+    liveMatch?.matchId ?? matchIdByNumber.get(liveMatch?.matchNumber) ?? null;
 
+  // Conversion pura marcador->resultado. El gating de CUANDO ese marcador
+  // puntua vive en resolveLiveMatchPhase (lib/liveMatch/liveMatchPhase.js):
+  // un 0-0 preparado no entrega puntos antes de la hora del fixture, y la
+  // fase live termina solo al oficializar (sin expiracion automatica).
   const liveToResult = (liveMatch) => {
     if (!liveMatch) return null;
-
-    const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
-    if (!matchId) return null;
-
-    const fixtureMatch = matchById.get(matchId);
-    const start = new Date(fixtureMatch?.dateUtc).getTime();
-
-    // Si el partido todavía no empieza, no se puntúa el 0-0 preparado por Admin.
-    if (!Number.isFinite(start) || Date.now() < start) return null;
-
-    // Después de 2 horas, ya no se trata como marcador vivo.
-    if (Date.now() > start + LIVE_WINDOW_MS) return null;
-
+    const matchId = resolveLiveMatchId(liveMatch);
     if (
+      !matchId ||
       !Number.isInteger(liveMatch.homeTeamScore) ||
       !Number.isInteger(liveMatch.awayTeamScore)
     ) {
       return null;
     }
-
     return {
       matchId,
       status: "finished",
@@ -360,7 +357,8 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
     const matchId = liveMatch?.matchId ?? fixtureMatch.id;
     if (matchId) card.dataset.matchId = matchId;
 
-    card.dataset.liveState = isLive ? "in_progress" : "pending";
+    // "waiting" es el estado de espera que estiliza LiveMatchCard.astro (SSR).
+    card.dataset.liveState = isLive ? "in_progress" : "waiting";
 
     setText("[data-live-status]", isLive ? "EN VIVO" : "EN ESPERA");
     setText("[data-live-home-score]", isLive ? String(liveMatch.homeTeamScore) : "-");
@@ -426,7 +424,7 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
       .find((match) => !officialIds.has(match.id)) ?? null;
 
   const resolvePendingDisplayMatch = (liveMatch, officialIds) => {
-    const remoteMatchId = liveMatch?.matchId ?? matchIdByNumber.get(liveMatch?.matchNumber);
+    const remoteMatchId = resolveLiveMatchId(liveMatch);
 
     // Si Admin ya dejó preparado el partido siguiente y todavía no está oficializado,
     // mostramos ese partido en espera.
@@ -441,7 +439,16 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 
   const recompute = ({ liveMatch, officialResults }) => {
     if (!scoring) return; // sin el modulo de calculo, no tocamos el SSR
-    const live = liveToResult(liveMatch);
+
+    // Tri-estado del marcador remoto: official / live (puntuable) / pending
+    // (visible sin puntuar). Fuente unica: lib/liveMatch/liveMatchPhase.js.
+    const phase = resolveLiveMatchPhase({
+      liveMatch,
+      fixtureMatch: matchById.get(resolveLiveMatchId(liveMatch)) ?? null,
+      officialResults,
+    });
+
+    const live = phase === "live" ? liveToResult(liveMatch) : null;
     const official = officialToResults(officialResults);
     const officialIds = new Set(official.map((r) => r.matchId));
     const liveActive = Boolean(live) && !officialIds.has(live.matchId);

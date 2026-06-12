@@ -3,11 +3,22 @@
 ## Estado
 supabase-admin-active
 
-## Estado vigente de cartones - 2026-06-10
+## Status explicito del marcador vivo - 2026-06-12
 
-- Admin deriva de `predictions.json` 11/15 cartones confirmados, 792 marcadores
-  y cuatro jugadores pendientes.
-- Isaias y Jaime aparecen por el mismo pipeline compartido; no se agregaron
+- `buildState(targetMatch, home, away, targetStatus = "live")` en
+  `admin.client.js`: ACTUALIZAR MARCADOR guarda `status: "live"` (es la
+  promocion explicita pending→live) y FINALIZAR prepara el siguiente partido
+  con `buildState(nextMatch, 0, 0, "pending")`.
+- La tabla y estadisticas resuelven la fase con
+  `lib/liveMatch/liveMatchPhase.js`; un 0-0 preparado nunca puntua antes de la
+  hora del fixture. Compatible con filas viejas sin status confiable.
+- Sin migracion SQL: el payload JSONB de `polla_live_match` ya acepta `status`.
+
+## Estado vigente de cartones - 2026-06-12
+
+- Admin deriva de `predictions.json` 13/15 cartones confirmados, 936 marcadores
+  y dos jugadores pendientes (Gonzalo y Ratinha).
+- Felipe e Italo aparecen por el mismo pipeline compartido; no se agregaron
   KPIs, filas ni reglas manuales.
 - La carga oficial sigue siendo `npm run predictions:build`.
 

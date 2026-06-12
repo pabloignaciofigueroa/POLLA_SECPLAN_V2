@@ -3,6 +3,13 @@
 ## Estado
 dashboard-coral-implemented + data-arena-cards + data-arena-base-13
 
+## Pulso live con tri-estado - 2026-06-12
+
+- `renderResultPulse` (explorador de partidos) usa
+  `lib/liveMatch/liveMatchPhase.js`: un partido preparado por Admin (pending)
+  ya no se muestra como "En vivo 0-0"; el pulso live solo aparece en fase
+  `live` (la hora viene de `pulse.dateChile`). Los finales oficiales no cambian.
+
 ## Base Data Arena 13 jugadores - 2026-06-12
 
 - Corte canonico de 13 jugadores: `src/data/stat-cards/data-arena-13.json`

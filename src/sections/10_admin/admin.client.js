@@ -335,15 +335,19 @@ async function initLiveScoreControl(section, payload, setFeedback) {
     if (els.awayMinus) els.awayMinus.disabled = awayScore <= 0;
   };
 
+  // status explicito: "live" = marcador puntuable (ACTUALIZAR MARCADOR es la
+  // promocion pending->live); "pending" = siguiente partido preparado que la
+  // tabla muestra EN ESPERA sin puntuar.
   const buildState = (
     targetMatch = match,
     targetHomeScore = homeScore,
-    targetAwayScore = awayScore
+    targetAwayScore = awayScore,
+    targetStatus = "live"
   ) => ({
     id: "current",
     matchId: targetMatch.id,
     matchNumber: targetMatch.matchNumber,
-    status: "live",
+    status: targetStatus,
     homeTeam: targetMatch.homeTeam.name,
     awayTeam: targetMatch.awayTeam.name,
     homeTeamScore: targetHomeScore,
@@ -352,7 +356,10 @@ async function initLiveScoreControl(section, payload, setFeedback) {
     awayTeamId: targetMatch.awayTeam.id,
     homeTeamShort: targetMatch.homeTeam.shortCode,
     awayTeamShort: targetMatch.awayTeam.shortCode,
-    lastEvent: "Actualizacion manual desde Admin",
+    lastEvent:
+      targetStatus === "pending"
+        ? "Siguiente partido preparado desde Admin"
+        : "Actualizacion manual desde Admin",
     updatedBy: "admin",
     updatedAt: new Date().toISOString(),
   });
@@ -421,7 +428,7 @@ async function initLiveScoreControl(section, payload, setFeedback) {
       .filter((item) => item?.matchId !== result.matchId)
       .concat(result);
     const nextMatch = nextOpenMatch(nextResults);
-    const nextState = buildState(nextMatch, 0, 0);
+    const nextState = buildState(nextMatch, 0, 0, "pending");
 
     els.finalizeBtn.dataset.pending = "true";
     try {

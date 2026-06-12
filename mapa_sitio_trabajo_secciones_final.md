@@ -26,7 +26,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | Estadisticas corales, comparador y consenso | `src/sections/09_estadisticas/`, `src/lib/statistics/` |
 | Dashboard Admin, gate y marcador global | `src/sections/10_admin/` |
 | Mini marcador en vivo del Admin, contrato y guardado | `src/sections/10_admin/MiniLiveScoreControl.astro`, `src/lib/liveMatch/liveMatchState.js` |
-| Pipeline marcador vivo -> tabla, recompute provisional, banner | `src/sections/05_tabla/tabla.client.js`, `src/lib/liveMatch/liveMatchState.js` |
+| Pipeline marcador vivo -> tabla, recompute provisional, banner | `src/sections/05_tabla/tabla.client.js`, `src/lib/liveMatch/liveMatchState.js`, `src/lib/liveMatch/liveMatchPhase.js` |
 | Data editable de jugadores/equipos/fixture/resultados | `src/data/` |
 | Reset/version de storage local | `src/lib/storage/resetPollaState.js` |
 | Identidad compartida de jugador | `src/lib/playerIdentity.js` |
@@ -112,6 +112,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 - Logica compartida: `src/lib/tabla/` calcula standings, movimientos, accuracy y partido relevante.
 - Client: `tabla.client.js` hidrata estados visibles y no mezcla drafts locales como fuente oficial en el SSR.
 - Marcador en vivo: `tabla.client.js` se suscribe a Supabase Realtime mediante `subscribeLiveData` del seam `lib/liveMatch/liveMatchState.js`. Cada cambio remoto recalcula standings/accuracy con oficiales + partido vivo, re-apunta las cards y revela el banner provisional. `localStorage` es solo cache/fallback.
+- Tri-estado (2026-06-12): `lib/liveMatch/liveMatchPhase.js` resuelve official/live/pending como fuente unica. Solo `live` puntua y activa el banner; `pending` (partido preparado por Admin) se muestra EN ESPERA en hero card, NextMatchCard y panel derecho con 0 puntos, sin mover ranking. Un 0-0 preparado nunca puntua antes de la hora del fixture; goles > 0 son acto explicito del Admin. Admin escribe `status` "live"/"pending" en el payload (compat con filas viejas).
 - Calculo (fuente unica): SSR y vivo usan `lib/liveMatch/liveScoring.js`. PUNTOS = ranking (Lone Wolf 5 / exacto compartido 3 / tendencia 1 / nada 0, no aditivo). PRECISION % = solo visual (exacto alcanzable vs imposible: con 5-2, 6-3 tiene mas % que 4-1); nunca afecta el orden. El panel "Predicciones de los jugadores" muestra Puntos y Precision en columnas separadas.
 - Refresco arcade aditivo (2026-06-10): `PodiumStrip.astro` (top-3 con medalla/brecha, sincronizado por `renderPodium` en cada recompute), shimmer del lider, badge LONE WOLF (CSS sobre `data-hit-type`) y cruce de resaltado fila/prediccion/podio (`wireCrossHighlight`). Sin cambios en `lib/tabla/*` ni en el orden funcional.
 - Cuando cambiar: formula de puntaje en `scoring-rules.json`/helpers de `lib/tabla`; filas/visual en componentes de `05_tabla`; pipeline en vivo en `tabla.client.js` + `lib/liveMatch/liveMatchState.js`.
@@ -302,6 +303,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `lib/playerIdentity.js` | Normaliza, guarda y lee identidad de jugador |
 | `lib/storage/resetPollaState.js` | Resetea/versiona storage local |
 | `lib/liveMatch/liveMatchState.js` | Seam Supabase: login/sesion admin RPC, guardado atomico, lecturas REST, cache y suscripcion Realtime |
+| `lib/liveMatch/liveMatchPhase.js` | Fuente unica del tri-estado official/live/pending del marcador remoto (gating de puntaje por hora de fixture y goles explicitos) |
 | `lib/supabase/supabaseClient.js` | Cliente unico `@supabase/supabase-js` desde `PUBLIC_SUPABASE_URL`/`PUBLIC_SUPABASE_ANON_KEY` |
 | `lib/liveMatch/liveScoring.js` | Fuente UNICA de calculo (SSR + vivo): puntaje 5/3/1/0 (`calculatePointsForPrediction`) y precision visual alcanzable/imposible (`calculateLiveAccuracy`). Puntos != precision. |
 | `lib/stadiums/getStadiumAsset.ts` | Resuelve assets de estadios por fixture |
@@ -365,6 +367,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-12: Tri-estado del marcador formalizado. Los dos parches de emergencia (bloqueo de puntaje antes del inicio y partido pendiente visible sin puntuar) se consolidan en `lib/liveMatch/liveMatchPhase.js`, fuente unica de official/live/pending para tabla y estadisticas. Admin escribe `status` explicito ("live" al actualizar, "pending" al preparar el siguiente tras FINALIZAR), sin migracion SQL y compatible con filas viejas. La hero card en espera usa el estado `waiting` estilizado del SSR; la fase live termina solo al oficializar (sin expiracion automatica). Caso vigente: Mexico 2-0 Sudafrica oficial puntuado; Corea-Chequia preparado EN ESPERA con 0 puntos. 10 tests nuevos en `tests/live-match-phase.test.mjs`.
 - 2026-06-12: Base Data Arena 13 integrada como corte canonico. `data/stat-cards/data-arena-13.json` + 13 fichas (entran Felipe 03 e Italo 13); el rerank en memoria deja todos los ranks visibles en `de 13`. Estadisticas suma dos paneles SSR nuevos dentro de la capa Data Arena: `ArenaHighlightsPanel` (6 tops globales) y `ArenaDuelsPanel` (gemelos de pronostico + rivalidades), alimentados por `lib/statistics/dataArenaBase.ts` que consume la base ya resuelta sin recalcular. Counters dinamicos quedan en 13/72/936. Tests de rerank migrados a universo dinamico con anclas a 13.
 - 2026-06-12: Felipe e Italo reemplazan a Daniel y Martin (identidad completa, mismas posiciones del array en `players.json`). Ambos entregaron carton oficial: el rebuild queda en 13/15 cartones, 936 marcadores y 312 posiciones; pendientes solo Gonzalo y Ratinha. Assets nuevos `{felipe,italo}.webp` + thumbs; los de daniel/martin se eliminaron sin referencias activas. `table-predictions.mock.json` y tests migrados (el test de carton local usa `gonzalo`, que sigue pendiente). Storage local sube a `production-reset-2026-06-12-felipe-italo`.
 - 2026-06-10: Isaias y Jaime quedan integrados al nucleo oficial. Los 11 `predicciones_*.json` quedan versionados en la raiz para que `npm run predictions:build` sea reproducible en un clon limpio y regenere ambos datasets a 11/15 cartones, 792 marcadores y 264 posiciones clasificatorias con cero errores. Data Arena carga 11 fichas; `statCardsRerank.ts` normaliza en memoria todos los rankings visibles a `de 11`, conservando intactos los JSON y el contenido editorial. Jugador, Predicciones, Tabla y Admin crecen desde las fuentes compartidas, sin filas ni contadores manuales.

@@ -10,6 +10,7 @@ import {
 } from "../../lib/statistics/communityStatistics.js";
 import { calculatePointsForPrediction } from "../../lib/liveMatch/liveScoring.js";
 import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
+import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js";
 
 (() => {
@@ -338,9 +339,20 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     const official = state.liveSnapshot.officialResults.find(
       (result) => result.matchId === pulse.matchId
     );
-    const live =
+    const liveCandidate =
       state.liveSnapshot.liveMatch?.matchId === pulse.matchId
         ? state.liveSnapshot.liveMatch
+        : null;
+    // Mismo tri-estado que la tabla: un partido preparado (pending) no se
+    // muestra como "En vivo 0-0"; el pulso live solo aparece en fase live.
+    const live =
+      liveCandidate &&
+      resolveLiveMatchPhase({
+        liveMatch: liveCandidate,
+        fixtureMatch: { id: pulse.matchId, dateChile: pulse.dateChile },
+        officialResults: state.liveSnapshot.officialResults,
+      }) === "live"
+        ? liveCandidate
         : null;
     const result = official ?? live;
     if (!result) return "";
