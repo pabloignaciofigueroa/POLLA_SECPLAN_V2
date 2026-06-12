@@ -98,15 +98,24 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 - IdentityMessageCard: placeholder `ID` -> `19-shield-secplan-blue-gold-star` (componente no montado en este snapshot; listo si se reactiva).
 - Avatares reales de players.json NO se tocan.
 
-## Martin incorporado (#15) - 2026-05-30
+## Felipe e Italo reemplazan a Daniel y Martin - 2026-06-12
 
-- Total jugadores: 15
-- Nuevo jugador: Martin
-- Asset: /assets/players/martin.webp (+ /assets/players/thumbs/martin.webp)
-- Orden: despues de Jaime, antes de Narigon (alfabetico)
-- id: "martin" (misma forma que el resto: id/name/avatar/avatarThumb/status; status "available")
-- Estado: integrado (grilla seleccionable/confirmable; guarda "martin" en polla:selectedPlayerId)
-- Propagacion automatica (deriva de players.json): tabla, predicciones, estadisticas, admin. En table-predictions.mock.json se agrego previousPositions["martin"]=15 para no marcarlo NEW.
+- Total jugadores: 15 (sin cambios de conteo; reemplazo de identidad 1:1).
+- `daniel` -> `felipe` (misma posicion del array, indice 2) y `martin` -> `italo`
+  (indice 10). Contrato intacto: id/name/avatar/avatarThumb/status.
+- Assets nuevos: /assets/players/{felipe,italo}.webp + thumbs. Los webp de
+  daniel/martin fueron eliminados (cero referencias activas).
+- Ambos entregaron carton oficial (predicciones_felipe_*.json y
+  predicciones_italo_*.json en site/); el rebuild quedo en 13/15 cartones.
+- table-predictions.mock.json migrado: previousPositions y predicciones demo
+  ahora usan `felipe` e `italo`.
+- Storage local subio a `production-reset-2026-06-12-felipe-italo` para purgar
+  identidades viejas (daniel/martin) en navegadores.
+
+### Historial: Martin incorporado (#15) - 2026-05-30 (superseded 2026-06-12)
+
+- Martin entro como jugador 15 el 2026-05-30 y fue reemplazado por Italo el
+  2026-06-12 sin llegar a entregar carton.
 
 ## Hard reset de jugador
 

@@ -2,18 +2,16 @@
   "schemaVersion": "2.0",
   "source": "official-player-exports",
   "sourcePattern": "predicciones_*.json",
-  "snapshotAt": "2026-06-10T16:43:15.314Z",
+  "snapshotAt": "2026-06-11T19:27:13.081Z",
   "expectedPlayers": 15,
-  "confirmedCards": 11,
+  "confirmedCards": 13,
   "pendingPlayerIds": [
-    "daniel",
     "gonzalo",
-    "martin",
     "ratinha"
   ],
   "totals": {
-    "predictions": 792,
-    "qualifiedPositions": 264,
+    "predictions": 936,
+    "qualifiedPositions": 312,
     "validationErrors": 0
   },
   "submissions": [
@@ -48,6 +46,16 @@
       "qualifiedCount": 24
     },
     {
+      "playerId": "felipe",
+      "displayName": "Felipe",
+      "fileName": "predicciones_felipe_2026-06-11_15-27.json",
+      "submittedAt": "2026-06-11T19:27:13.081Z",
+      "status": "confirmed",
+      "checksum": "b73e0ec1e423a61b53b5e0362b94235fd400b966f23e38fad8b9c70eb3461ab9",
+      "predictionCount": 72,
+      "qualifiedCount": 24
+    },
+    {
       "playerId": "humberto",
       "displayName": "Humberto",
       "fileName": "predicciones_humberto_2026-06-02_15-09.json",
@@ -64,6 +72,16 @@
       "submittedAt": "2026-06-10T16:43:15.314Z",
       "status": "confirmed",
       "checksum": "8e7d0cbe22af5ff1b7e55487e512229a47f137796b2ca9ab0bb133be179c9c18",
+      "predictionCount": 72,
+      "qualifiedCount": 24
+    },
+    {
+      "playerId": "italo",
+      "displayName": "Italo",
+      "fileName": "predicciones_italo_2026-06-11_15-22.json",
+      "submittedAt": "2026-06-11T19:22:14.954Z",
+      "status": "confirmed",
+      "checksum": "fc5c8db0f2b6e9d1684399b7e3da51d099efa3755a52d6eaac9890bbfdb93a13",
       "predictionCount": 72,
       "qualifiedCount": 24
     },
@@ -1858,6 +1876,582 @@
       "status": "complete"
     },
     {
+      "playerId": "felipe",
+      "matchId": "match-001",
+      "groupId": "A",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-002",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-003",
+      "groupId": "B",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-004",
+      "groupId": "D",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-005",
+      "groupId": "C",
+      "homeScore": 1,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-006",
+      "groupId": "D",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-007",
+      "groupId": "C",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-008",
+      "groupId": "B",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-009",
+      "groupId": "E",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-010",
+      "groupId": "E",
+      "homeScore": 6,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-011",
+      "groupId": "F",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-012",
+      "groupId": "F",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-013",
+      "groupId": "H",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-014",
+      "groupId": "H",
+      "homeScore": 4,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-015",
+      "groupId": "G",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-016",
+      "groupId": "G",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-017",
+      "groupId": "I",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-018",
+      "groupId": "I",
+      "homeScore": 0,
+      "awayScore": 4,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-019",
+      "groupId": "J",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-020",
+      "groupId": "J",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-021",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-022",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-023",
+      "groupId": "K",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-024",
+      "groupId": "K",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-025",
+      "groupId": "A",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-026",
+      "groupId": "B",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-027",
+      "groupId": "B",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-028",
+      "groupId": "A",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-029",
+      "groupId": "C",
+      "homeScore": 4,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-030",
+      "groupId": "C",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-031",
+      "groupId": "D",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-032",
+      "groupId": "D",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-033",
+      "groupId": "E",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-034",
+      "groupId": "E",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-035",
+      "groupId": "F",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-036",
+      "groupId": "F",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-037",
+      "groupId": "H",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-038",
+      "groupId": "H",
+      "homeScore": 4,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-039",
+      "groupId": "G",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-040",
+      "groupId": "G",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-041",
+      "groupId": "I",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-042",
+      "groupId": "I",
+      "homeScore": 6,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-043",
+      "groupId": "J",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-044",
+      "groupId": "J",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-045",
+      "groupId": "L",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-046",
+      "groupId": "L",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-047",
+      "groupId": "K",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-048",
+      "groupId": "K",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-049",
+      "groupId": "C",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-050",
+      "groupId": "C",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-051",
+      "groupId": "B",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-052",
+      "groupId": "B",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-053",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-054",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-055",
+      "groupId": "E",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-056",
+      "groupId": "E",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-057",
+      "groupId": "F",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-058",
+      "groupId": "F",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-059",
+      "groupId": "D",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-060",
+      "groupId": "D",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-061",
+      "groupId": "I",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-062",
+      "groupId": "I",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-063",
+      "groupId": "G",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-064",
+      "groupId": "G",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-065",
+      "groupId": "H",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-066",
+      "groupId": "H",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-067",
+      "groupId": "L",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-068",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-069",
+      "groupId": "J",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-070",
+      "groupId": "J",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-071",
+      "groupId": "K",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "felipe",
+      "matchId": "match-072",
+      "groupId": "K",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
       "playerId": "humberto",
       "matchId": "match-001",
       "groupId": "A",
@@ -3007,6 +3601,582 @@
       "groupId": "K",
       "homeScore": 1,
       "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-001",
+      "groupId": "A",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-002",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-003",
+      "groupId": "B",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-004",
+      "groupId": "D",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-005",
+      "groupId": "C",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-006",
+      "groupId": "D",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-007",
+      "groupId": "C",
+      "homeScore": 2,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-008",
+      "groupId": "B",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-009",
+      "groupId": "E",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-010",
+      "groupId": "E",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-011",
+      "groupId": "F",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-012",
+      "groupId": "F",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-013",
+      "groupId": "H",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-014",
+      "groupId": "H",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-015",
+      "groupId": "G",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-016",
+      "groupId": "G",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-017",
+      "groupId": "I",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-018",
+      "groupId": "I",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-019",
+      "groupId": "J",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-020",
+      "groupId": "J",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-021",
+      "groupId": "L",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-022",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-023",
+      "groupId": "K",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-024",
+      "groupId": "K",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-025",
+      "groupId": "A",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-026",
+      "groupId": "B",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-027",
+      "groupId": "B",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-028",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-029",
+      "groupId": "C",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-030",
+      "groupId": "C",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-031",
+      "groupId": "D",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-032",
+      "groupId": "D",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-033",
+      "groupId": "E",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-034",
+      "groupId": "E",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-035",
+      "groupId": "F",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-036",
+      "groupId": "F",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-037",
+      "groupId": "H",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-038",
+      "groupId": "H",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-039",
+      "groupId": "G",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-040",
+      "groupId": "G",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-041",
+      "groupId": "I",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-042",
+      "groupId": "I",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-043",
+      "groupId": "J",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-044",
+      "groupId": "J",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-045",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-046",
+      "groupId": "L",
+      "homeScore": 1,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-047",
+      "groupId": "K",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-048",
+      "groupId": "K",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-049",
+      "groupId": "C",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-050",
+      "groupId": "C",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-051",
+      "groupId": "B",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-052",
+      "groupId": "B",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-053",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-054",
+      "groupId": "A",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-055",
+      "groupId": "E",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-056",
+      "groupId": "E",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-057",
+      "groupId": "F",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-058",
+      "groupId": "F",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-059",
+      "groupId": "D",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-060",
+      "groupId": "D",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-061",
+      "groupId": "I",
+      "homeScore": 2,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-062",
+      "groupId": "I",
+      "homeScore": 1,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-063",
+      "groupId": "G",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-064",
+      "groupId": "G",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-065",
+      "groupId": "H",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-066",
+      "groupId": "H",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-067",
+      "groupId": "L",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-068",
+      "groupId": "L",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-069",
+      "groupId": "J",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-070",
+      "groupId": "J",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-071",
+      "groupId": "K",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "complete"
+    },
+    {
+      "playerId": "italo",
+      "matchId": "match-072",
+      "groupId": "K",
+      "homeScore": 1,
+      "awayScore": 2,
       "status": "complete"
     },
     {
@@ -6900,6 +8070,150 @@
       "teamId": "croatia"
     },
     {
+      "playerId": "felipe",
+      "groupId": "A",
+      "position": 1,
+      "teamId": "mexico"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "A",
+      "position": 2,
+      "teamId": "czechia"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "B",
+      "position": 1,
+      "teamId": "switzerland"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "B",
+      "position": 2,
+      "teamId": "bosnia-herzegovina"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "C",
+      "position": 1,
+      "teamId": "brazil"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "C",
+      "position": 2,
+      "teamId": "scotland"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "D",
+      "position": 1,
+      "teamId": "turkiye"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "D",
+      "position": 2,
+      "teamId": "paraguay"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "E",
+      "position": 1,
+      "teamId": "germany"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "E",
+      "position": 2,
+      "teamId": "ecuador"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "F",
+      "position": 1,
+      "teamId": "japan"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "F",
+      "position": 2,
+      "teamId": "netherlands"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "G",
+      "position": 1,
+      "teamId": "belgium"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "G",
+      "position": 2,
+      "teamId": "egypt"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "H",
+      "position": 1,
+      "teamId": "spain"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "H",
+      "position": 2,
+      "teamId": "uruguay"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "I",
+      "position": 1,
+      "teamId": "france"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "I",
+      "position": 2,
+      "teamId": "norway"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "J",
+      "position": 1,
+      "teamId": "argentina"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "J",
+      "position": 2,
+      "teamId": "algeria"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "K",
+      "position": 1,
+      "teamId": "portugal"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "K",
+      "position": 2,
+      "teamId": "colombia"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "L",
+      "position": 1,
+      "teamId": "england"
+    },
+    {
+      "playerId": "felipe",
+      "groupId": "L",
+      "position": 2,
+      "teamId": "croatia"
+    },
+    {
       "playerId": "humberto",
       "groupId": "A",
       "position": 1,
@@ -7186,6 +8500,150 @@
       "groupId": "L",
       "position": 2,
       "teamId": "croatia"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "A",
+      "position": 1,
+      "teamId": "mexico"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "A",
+      "position": 2,
+      "teamId": "czechia"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "B",
+      "position": 1,
+      "teamId": "canada"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "B",
+      "position": 2,
+      "teamId": "switzerland"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "C",
+      "position": 1,
+      "teamId": "morocco"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "C",
+      "position": 2,
+      "teamId": "brazil"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "D",
+      "position": 1,
+      "teamId": "australia"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "D",
+      "position": 2,
+      "teamId": "paraguay"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "E",
+      "position": 1,
+      "teamId": "germany"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "E",
+      "position": 2,
+      "teamId": "ecuador"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "F",
+      "position": 1,
+      "teamId": "sweden"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "F",
+      "position": 2,
+      "teamId": "netherlands"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "G",
+      "position": 1,
+      "teamId": "egypt"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "G",
+      "position": 2,
+      "teamId": "belgium"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "H",
+      "position": 1,
+      "teamId": "spain"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "H",
+      "position": 2,
+      "teamId": "uruguay"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "I",
+      "position": 1,
+      "teamId": "france"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "I",
+      "position": 2,
+      "teamId": "norway"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "J",
+      "position": 1,
+      "teamId": "austria"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "J",
+      "position": 2,
+      "teamId": "argentina"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "K",
+      "position": 1,
+      "teamId": "colombia"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "K",
+      "position": 2,
+      "teamId": "portugal"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "L",
+      "position": 1,
+      "teamId": "croatia"
+    },
+    {
+      "playerId": "italo",
+      "groupId": "L",
+      "position": 2,
+      "teamId": "england"
     },
     {
       "playerId": "jaime",

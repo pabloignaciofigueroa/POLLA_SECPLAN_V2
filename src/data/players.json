@@ -14,10 +14,10 @@
     "status": "available"
   },
   {
-    "id": "daniel",
-    "name": "Daniel",
-    "avatar": "/assets/players/daniel.webp",
-    "avatarThumb": "/assets/players/thumbs/daniel.webp",
+    "id": "felipe",
+    "name": "Felipe",
+    "avatar": "/assets/players/felipe.webp",
+    "avatarThumb": "/assets/players/thumbs/felipe.webp",
     "status": "available"
   },
   {
@@ -70,10 +70,10 @@
     "status": "available"
   },
   {
-    "id": "martin",
-    "name": "Martin",
-    "avatar": "/assets/players/martin.webp",
-    "avatarThumb": "/assets/players/thumbs/martin.webp",
+    "id": "italo",
+    "name": "Italo",
+    "avatar": "/assets/players/italo.webp",
+    "avatarThumb": "/assets/players/thumbs/italo.webp",
     "status": "available"
   },
   {

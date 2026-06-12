@@ -3,13 +3,20 @@
 ## Estado
 wireframe-implemented
 
+## Felipe e Italo oficiales (reemplazan a Daniel y Martin) - 2026-06-12
+
+- El rebuild canonico carga 13/15 cartones, 936 marcadores y 312 posiciones
+  clasificatorias, con cero errores de validacion.
+- `felipe` e `italo` usan el mismo flujo `official-locked` / `official-editing`
+  que los demas cartonistas; no hay un sistema paralelo.
+- Los dos pendientes vigentes son Gonzalo y Ratinha.
+
 ## Isaias y Jaime oficiales - 2026-06-10
 
-- El rebuild canonico carga 11/15 cartones, 792 marcadores y 264 posiciones
+- El rebuild canonico cargaba 11/15 cartones, 792 marcadores y 264 posiciones
   clasificatorias, con cero errores de validacion.
 - `isaias` y `jaime` usan el mismo flujo `official-locked` / `official-editing`
   que los demas cartonistas; no hay un sistema paralelo.
-- Los cuatro pendientes vigentes son Daniel, Gonzalo, Martin y Ratinha.
 
 ## Cartón oficial protegido - 2026-06-09
 

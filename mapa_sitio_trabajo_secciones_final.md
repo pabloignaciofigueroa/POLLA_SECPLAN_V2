@@ -1,6 +1,6 @@
 # Mapa operativo de arquitectura del sitio - Polla Mundialera SECPLAN 2026
 
-Fecha de actualizacion: 2026-06-10
+Fecha de actualizacion: 2026-06-12
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
@@ -184,7 +184,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 ### Reset y version de storage
 
 - Archivo central: `src/lib/storage/resetPollaState.js`.
-- Version actual: `production-reset-2026-06-09-official-access`.
+- Version actual: `production-reset-2026-06-12-felipe-italo`.
 - `ensurePollaStorageVersion()` limpia drafts al detectar version distinta, preservando identidad cuando corresponde.
 - El hard reset desde jugador limpia identidad, predicciones, clasificados, favoritos y descarga final local.
 
@@ -278,7 +278,7 @@ dentro de cada seccion quedan como mapas secundarios mas especificos.
 | `groups.json` | Grupos A-L |
 | `fixture.json` | 72 partidos de fase de grupos |
 | `predicciones_*.json` | Fuentes versionadas de cada carton oficial; viven en la raiz del proyecto y alimentan `predictions:build` |
-| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados (11/15 cartones, 792 marcadores, 264 posiciones) |
+| `predictions.json` | Dataset canonico de cartones oficiales: metadata, marcadores y clasificados (13/15 cartones, 936 marcadores, 312 posiciones) |
 | `stat-cards/players/*.json` | Fichas estadisticas jugables ya resueltas por jugador (Data Arena), 1 por cartonista |
 | `predictions.mock.json` | Mock inicial o contrato de predicciones |
 | `results.json` | Resultados reales/futuros |
@@ -363,6 +363,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-12: Felipe e Italo reemplazan a Daniel y Martin (identidad completa, mismas posiciones del array en `players.json`). Ambos entregaron carton oficial: el rebuild queda en 13/15 cartones, 936 marcadores y 312 posiciones; pendientes solo Gonzalo y Ratinha. Assets nuevos `{felipe,italo}.webp` + thumbs; los de daniel/martin se eliminaron sin referencias activas. `table-predictions.mock.json` y tests migrados (el test de carton local usa `gonzalo`, que sigue pendiente). Storage local sube a `production-reset-2026-06-12-felipe-italo`.
 - 2026-06-10: Isaias y Jaime quedan integrados al nucleo oficial. Los 11 `predicciones_*.json` quedan versionados en la raiz para que `npm run predictions:build` sea reproducible en un clon limpio y regenere ambos datasets a 11/15 cartones, 792 marcadores y 264 posiciones clasificatorias con cero errores. Data Arena carga 11 fichas; `statCardsRerank.ts` normaliza en memoria todos los rankings visibles a `de 11`, conservando intactos los JSON y el contenido editorial. Jugador, Predicciones, Tabla y Admin crecen desde las fuentes compartidas, sin filas ni contadores manuales.
 - 2026-06-10: Integracion de Carlos y Luis Renato al nucleo. `npm run predictions:build` regenera `predictions.json` + `community-predictions.json` a 9/15 cartones (648 marcadores, 216 posiciones) leyendo los `predicciones_*.json` del root. Estadisticas suma una capa Data Arena de cartas jugables (flip 3D) sobre el dashboard tabular, alimentada por `data/stat-cards/players/*.json` via `lib/statistics/statCards.ts`; carta del dia + pulso de oficina derivados de `buildCommunityAnalysis`. Tabla 05 recibe refresco arcade aditivo: podio top-3 sincronizado, shimmer del lider, badge LONE WOLF y cruce de resaltado fila/prediccion. Counters de Admin/Estadisticas ya eran dinamicos. Tests del importer/estadisticas migrados a aserciones dinamicas (no congelan el conteo de cartones).
 - 2026-06-09: Estadisticas se convierte en Data Center coral. Siete JSON oficiales producen 504 marcadores y 168 posiciones clasificatorias. Se agrega importador versionado, validacion de tablas, dashboard de cuatro pestañas, deep links y pulsos bloqueados en Proximo partido, Fixture y Equipos. Tabla consume las predicciones reales y Admin muestra 7/15.
