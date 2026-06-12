@@ -1,0 +1,268 @@
+---
+import type { ArenaDuelEntry } from "../../lib/statistics/dataArenaBase";
+
+interface Props {
+  mostSimilar: ArenaDuelEntry[];
+  biggestRivalries: ArenaDuelEntry[];
+}
+
+const { mostSimilar, biggestRivalries } = Astro.props;
+
+const lists: Array<{
+  key: string;
+  emoji: string;
+  title: string;
+  description: string;
+  scoreLabel: string;
+  tone: "twin" | "rival";
+  duels: ArenaDuelEntry[];
+}> = [
+  {
+    key: "similar",
+    emoji: "🧬",
+    title: "Gemelos de pronóstico",
+    description: "Los cartones que más se parecen entre sí.",
+    scoreLabel: "similitud",
+    tone: "twin",
+    duels: mostSimilar,
+  },
+  {
+    key: "rival",
+    emoji: "⚔️",
+    title: "Rivalidades máximas",
+    description: "Los cartones que ven mundiales opuestos.",
+    scoreLabel: "rivalidad",
+    tone: "rival",
+    duels: biggestRivalries,
+  },
+];
+---
+
+{(mostSimilar.length > 0 || biggestRivalries.length > 0) && (
+  <section class="duels" aria-label="Duelos entre jugadores">
+    <header class="head">
+      <p class="kicker">🥊 DUELOS DEL UNIVERSO</p>
+      <p class="sub">Cartón contra cartón: quién juega en pareja y quién a la contra.</p>
+    </header>
+
+    <div class="columns">
+      {lists.map((list) => (
+        <article class={`list ${list.tone}`}>
+          <header class="list-head">
+            <span class="list-emoji" aria-hidden="true">{list.emoji}</span>
+            <div>
+              <h3>{list.title}</h3>
+              <p>{list.description}</p>
+            </div>
+          </header>
+
+          <ul class="versus">
+            {list.duels.map((duel) => (
+              <li>
+                <div class="pair">
+                  <span class="side">
+                    <img src={duel.home.avatarThumb} alt="" width="34" height="34" loading="lazy" decoding="async" />
+                    <span class="side-name">{duel.home.displayName}</span>
+                  </span>
+                  <span class="vs" aria-hidden="true">vs</span>
+                  <span class="side away">
+                    <span class="side-name">{duel.away.displayName}</span>
+                    <img src={duel.away.avatarThumb} alt="" width="34" height="34" loading="lazy" decoding="async" />
+                  </span>
+                </div>
+                <div class="meta">
+                  <b class="score">{duel.score100.toFixed(1)}</b>
+                  <span class="score-label">{list.scoreLabel}</span>
+                  <span class="detail">
+                    {duel.exactScoreMatches} exactos iguales · {duel.sameOutcomeMatches} mismos resultados
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .duels {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .head {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .kicker {
+    margin: 0;
+    color: var(--pm-purple-700);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+  }
+
+  .sub {
+    margin: 0;
+    color: var(--pm-blue-700);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1.2vw, 0.8rem);
+  }
+
+  .list {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 0.9rem;
+    background: linear-gradient(160deg, var(--pm-white), var(--pm-panel-soft, #eef4fb));
+  }
+
+  .list.twin {
+    border: 1px solid color-mix(in srgb, var(--pm-cyan-500) 38%, transparent);
+  }
+
+  .list.rival {
+    border: 1px solid color-mix(in srgb, var(--pm-pink-600) 36%, transparent);
+  }
+
+  .list-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .list-emoji {
+    font-size: 1.15rem;
+    line-height: 1.2;
+  }
+
+  .list-head h3 {
+    margin: 0;
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    line-height: 1.05;
+  }
+
+  .list-head p {
+    margin: 0.1rem 0 0;
+    color: var(--pm-blue-700);
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .versus {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .versus li {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.5rem 0.55rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--pm-blue-100, #e5eefc) 55%, transparent);
+  }
+
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .side {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .side.away {
+    justify-content: flex-end;
+  }
+
+  .side img {
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(7, 23, 53, 0.16);
+    flex-shrink: 0;
+  }
+
+  .side-name {
+    color: var(--pm-blue-900);
+    font-size: 0.76rem;
+    font-weight: 850;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vs {
+    color: var(--pm-purple-700);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .score {
+    color: var(--pm-blue-900);
+    font-family: var(--font-score, var(--font-display));
+    font-size: 1.05rem;
+    font-weight: 950;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .list.rival .score {
+    color: var(--pm-pink-600);
+  }
+
+  .list.twin .score {
+    color: var(--pm-cyan-700, #0e7490);
+  }
+
+  .score-label {
+    color: var(--pm-blue-700);
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .detail {
+    color: var(--pm-blue-700);
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 760px) {
+    .columns {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

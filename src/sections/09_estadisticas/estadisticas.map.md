@@ -1,9 +1,28 @@
 # 09_estadisticas — Mapa técnico
 
 ## Estado
-dashboard-coral-implemented + data-arena-cards
+dashboard-coral-implemented + data-arena-cards + data-arena-base-13
 
-## Universo Data Arena de 11 jugadores - 2026-06-10
+## Base Data Arena 13 jugadores - 2026-06-12
+
+- Corte canonico de 13 jugadores: `src/data/stat-cards/data-arena-13.json`
+  (players, playerStats, rankings, matches, classificationConsensus,
+  pairwiseInteractions, globalHighlights), generado externamente y consumido
+  YA RESUELTO — los componentes no recalculan nada.
+- Las 13 fichas `players/card_jugable_jugador_*.json` incluyen a Felipe (03) e
+  Italo (13); el rerank en memoria normaliza todos los ranks visibles a `de 13`.
+- Accessor: `src/lib/statistics/dataArenaBase.ts` expone `getArenaHighlights()`
+  (6 tops: lone wolf, consenso, anti-oficina, over, under, rebeldes),
+  `getArenaDuels()` (mostSimilar + biggestRivalries) y `getArenaUniverseSize()`,
+  resolviendo identidad/avatar desde `players.json`.
+- Piezas nuevas: `ArenaHighlightsPanel.astro` (mini-leaderboards top 3 con lider
+  destacado) y `ArenaDuelsPanel.astro` (gemelos de pronostico + rivalidades, top 3
+  con score 0-100). Montadas dentro de `.data-arena` despues del `CardDeck`,
+  heredan el gate `data-unlock-reveal`. SSR estatico, sin client JS nuevo.
+- Counters vigentes: 13 jugadores, 72 partidos y 936 predicciones (dinamicos
+  desde `predictions.json`); HTML construido = 14 flip-cards (13 mazo + 1 del dia).
+
+## Universo Data Arena de 11 jugadores - 2026-06-10 (superseded 2026-06-12)
 
 - El registry carga 11 fichas, incluyendo Isaias y Jaime, ordenadas por numero
   oficial y con avatar resuelto desde `players.json`.

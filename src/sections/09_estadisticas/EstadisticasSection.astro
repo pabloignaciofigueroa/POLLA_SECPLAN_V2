@@ -9,6 +9,8 @@ import StatsDashboard from "./StatsDashboard.astro";
 import DataArenaHero from "./DataArenaHero.astro";
 import FeaturedCard from "./FeaturedCard.astro";
 import CardDeck from "./CardDeck.astro";
+import ArenaHighlightsPanel from "./ArenaHighlightsPanel.astro";
+import ArenaDuelsPanel from "./ArenaDuelsPanel.astro";
 
 import { TOTAL_PREDICTIONS } from "./estadisticas.logic";
 import type { ProgressSnapshot } from "./estadisticas.logic";
@@ -18,6 +20,11 @@ import groupsData from "../../data/groups.json";
 import teamsData from "../../data/teams.json";
 import playersData from "../../data/players.json";
 import { getPlayerStatCards } from "../../lib/statistics/statCards";
+import {
+  getArenaDuels,
+  getArenaHighlights,
+  getArenaUniverseSize,
+} from "../../lib/statistics/dataArenaBase";
 import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 
 const initialSnapshot: ProgressSnapshot = {
@@ -29,6 +36,11 @@ const initialSnapshot: ProgressSnapshot = {
 
 // ── Data Arena: fichas jugables ya resueltas (contrato editorial). ──
 const statCards = getPlayerStatCards();
+
+// Base agregada del corte canonico (13): highlights y duelos ya calculados.
+const arenaHighlights = getArenaHighlights();
+const arenaDuels = getArenaDuels();
+const arenaUniverseSize = getArenaUniverseSize();
 
 // Carta del dia (legendaria); rotacion determinista por dia de build.
 const legendaryPairs = statCards.flatMap((card) =>
@@ -138,6 +150,11 @@ const clientPayload = {
         />
       )}
       <CardDeck title="Mazo Jugadores" label="Jugadores" cards={statCards} />
+      <ArenaHighlightsPanel categories={arenaHighlights} universeSize={arenaUniverseSize} />
+      <ArenaDuelsPanel
+        mostSimilar={arenaDuels.mostSimilar}
+        biggestRivalries={arenaDuels.biggestRivalries}
+      />
     </div>
 
     <div class="detail-intro" data-unlock-reveal hidden>

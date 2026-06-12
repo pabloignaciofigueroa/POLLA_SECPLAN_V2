@@ -44,26 +44,28 @@ function fixtureCard(id, value, printedRank, descRank, ascRank = null) {
   };
 }
 
-test("reordena las fichas oficiales a universo 11 sin mutar las fuentes", async () => {
+test("reordena las fichas oficiales al universo cargado sin mutar las fuentes", async () => {
   const source = await readOfficialCards();
   const before = structuredClone(source);
   const reranked = rerankToUniverse(source);
+  const universe = source.length;
+  const universeSuffix = new RegExp(` de ${universe}$`);
 
   assert.deepEqual(source, before);
-  assert.equal(reranked.length, 11);
+  assert.equal(reranked.length, universe);
   assert.ok(
     reranked.every((card) =>
-      card.cards.every((subCard) => / de 11$/.test(subCard.metric.rank))
+      card.cards.every((subCard) => universeSuffix.test(subCard.metric.rank))
     )
   );
   assert.ok(
     reranked.every((card) =>
-      Object.values(card.rankings).every((entry) => entry.of === 11)
+      Object.values(card.rankings).every((entry) => entry.of === universe)
     )
   );
   assert.ok(
     reranked.every((card) =>
-      Object.values(card.specialRanksAscending).every((entry) => entry.of === 11)
+      Object.values(card.specialRanksAscending).every((entry) => entry.of === universe)
     )
   );
   reranked.forEach((card, index) => {
@@ -136,7 +138,7 @@ test("mantiene los casos ancla del universo oficial", async () => {
       .get(playerId)
       .cards.find((subCard) => subCard.metric.key === metricKey).metric.rank;
 
-  assert.equal(rankFor("isaias", "withMajorityOutcome"), "#2 de 11");
-  assert.equal(rankFor("jaime", "atLeastOneCleanSheet"), "#1 de 11");
-  assert.equal(rankFor("pancho", "averageGoalsPerMatch"), "#2 de 11");
+  assert.equal(rankFor("isaias", "withMajorityOutcome"), "#2 de 13");
+  assert.equal(rankFor("jaime", "atLeastOneCleanSheet"), "#1 de 13");
+  assert.equal(rankFor("pancho", "averageGoalsPerMatch"), "#2 de 13");
 });

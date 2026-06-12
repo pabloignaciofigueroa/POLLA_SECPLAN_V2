@@ -1,0 +1,606 @@
+{
+  "schemaVersion": "1.0",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "assetPurpose": "card_jugable_jugador",
+  "cardPlayableId": "card_jugable_jugador_03",
+  "fileSlug": "card_jugable_jugador_03_felipe",
+  "generatedAt": "2026-06-11T00:00:00-04:00",
+  "source": {
+    "predictionFile": "predicciones_felipe_2026-06-11_15-27.json",
+    "comparisonUniverse": [
+      "predicciones_carlos_2026-06-09_19-48.json",
+      "predicciones_chelo_2026-06-09_10-34.json",
+      "predicciones_eric_2026-06-09_11-58.json",
+      "predicciones_felipe_2026-06-11_15-27.json",
+      "predicciones_humberto_2026-06-02_15-09.json",
+      "predicciones_isaias_2026-06-10_12-43.json",
+      "predicciones_italo_2026-06-11_15-22.json",
+      "predicciones_jaime_2026-06-10_01-25.json",
+      "predicciones_luis_2026-06-09_10-56.json",
+      "predicciones_luis_renato_2026-06-10_00-55.json",
+      "predicciones_narigon_2026-06-09_14-25.json",
+      "predicciones_pancho_2026-06-09_10-04.json",
+      "predicciones_tanke_2026-06-09_09-55.json"
+    ],
+    "playersCompared": 13,
+    "matchesCompared": 72,
+    "note": "Estadísticas calculadas cruzando los JSON de predicciones cargados en esta conversación. No contiene resultados reales del Mundial.",
+    "replacementNote": "Felipe reemplaza a Daniel."
+  },
+  "player": {
+    "id": "felipe",
+    "displayName": "Felipe",
+    "officialPlayerNumber": 3,
+    "avatarSuggestedPath": "/assets/jugadores/felipe.png",
+    "status": "active"
+  },
+  "playableCard": {
+    "title": "CARD JUGABLE JUGADOR 03",
+    "subtitle": "Ficha estadística de Felipe",
+    "primaryArchetype": "CANDADO 1-0",
+    "tone": "candado_minimo",
+    "riskScore100": 33,
+    "stabilityScore100": 66,
+    "recommendedUse": [
+      "09_estadisticas",
+      "03_jugador",
+      "cards_reveal",
+      "whatsapp_share"
+    ],
+    "uiBehavior": {
+      "initialState": "faceDown",
+      "interaction": "click_or_tap_to_flip",
+      "frontState": "revealed_stats",
+      "supportsDeckFilter": true,
+      "deckFilterLabel": "Jugadores"
+    }
+  },
+  "summaryStats": {
+    "totalMatches": 72,
+    "totalGoalsPredicted": 176,
+    "averageGoalsPerMatch": 2.44,
+    "averageGoalDifference": 1.67,
+    "homeWins": 39,
+    "awayWins": 25,
+    "draws": 8,
+    "bothTeamsScore": 28,
+    "atLeastOneCleanSheet": 44,
+    "zeroZero": 1,
+    "oneNilFamily": 14,
+    "twoNilFamily": 14,
+    "twoOneFamily": 19,
+    "conservativeResults": 36,
+    "highScoring4PlusGoals": 8,
+    "diff3Plus": 15,
+    "diff4Plus": 6,
+    "loneWolfExactScores": 11,
+    "popularExactScores": 61,
+    "againstMajorityOutcome": 13,
+    "withMajorityOutcome": 55,
+    "noMajorityOutcomeMatches": 4,
+    "distinctExactScoresUsed": 15,
+    "mostRepeatedScores": [
+      {
+        "score": "2-1",
+        "count": 13
+      },
+      {
+        "score": "2-0",
+        "count": 8
+      },
+      {
+        "score": "0-1",
+        "count": 7
+      },
+      {
+        "score": "1-1",
+        "count": 7
+      },
+      {
+        "score": "1-0",
+        "count": 7
+      }
+    ],
+    "classificationRebelSlots": 5,
+    "classificationConsensusSlots": 19,
+    "uniqueQualifiedTeams": 0
+  },
+  "rankings": {
+    "totalGoalsPredicted": {
+      "rank": 11,
+      "of": 13,
+      "value": 176,
+      "direction": "desc"
+    },
+    "averageGoalsPerMatch": {
+      "rank": 11,
+      "of": 13,
+      "value": 2.44,
+      "direction": "desc"
+    },
+    "averageGoalDifference": {
+      "rank": 6,
+      "of": 13,
+      "value": 1.67,
+      "direction": "desc"
+    },
+    "homeWins": {
+      "rank": 4,
+      "of": 13,
+      "value": 39,
+      "direction": "desc"
+    },
+    "awayWins": {
+      "rank": 6,
+      "of": 13,
+      "value": 25,
+      "direction": "desc"
+    },
+    "draws": {
+      "rank": 8,
+      "of": 13,
+      "value": 8,
+      "direction": "desc"
+    },
+    "bothTeamsScore": {
+      "rank": 11,
+      "of": 13,
+      "value": 28,
+      "direction": "desc"
+    },
+    "atLeastOneCleanSheet": {
+      "rank": 3,
+      "of": 13,
+      "value": 44,
+      "direction": "desc"
+    },
+    "zeroZero": {
+      "rank": 3,
+      "of": 13,
+      "value": 1,
+      "direction": "desc"
+    },
+    "oneNilFamily": {
+      "rank": 2,
+      "of": 13,
+      "value": 14,
+      "direction": "desc"
+    },
+    "twoNilFamily": {
+      "rank": 7,
+      "of": 13,
+      "value": 14,
+      "direction": "desc"
+    },
+    "twoOneFamily": {
+      "rank": 4,
+      "of": 13,
+      "value": 19,
+      "direction": "desc"
+    },
+    "conservativeResults": {
+      "rank": 5,
+      "of": 13,
+      "value": 36,
+      "direction": "desc"
+    },
+    "highScoring4PlusGoals": {
+      "rank": 11,
+      "of": 13,
+      "value": 8,
+      "direction": "desc"
+    },
+    "diff3Plus": {
+      "rank": 4,
+      "of": 13,
+      "value": 15,
+      "direction": "desc"
+    },
+    "diff4Plus": {
+      "rank": 5,
+      "of": 13,
+      "value": 6,
+      "direction": "desc"
+    },
+    "loneWolfExactScores": {
+      "rank": 9,
+      "of": 13,
+      "value": 11,
+      "direction": "desc"
+    },
+    "popularExactScores": {
+      "rank": 5,
+      "of": 13,
+      "value": 61,
+      "direction": "desc"
+    },
+    "againstMajorityOutcome": {
+      "rank": 4,
+      "of": 13,
+      "value": 13,
+      "direction": "desc"
+    },
+    "withMajorityOutcome": {
+      "rank": 10,
+      "of": 13,
+      "value": 55,
+      "direction": "desc"
+    },
+    "distinctExactScoresUsed": {
+      "rank": 5,
+      "of": 13,
+      "value": 15,
+      "direction": "desc"
+    },
+    "classificationRebelSlots": {
+      "rank": 8,
+      "of": 13,
+      "value": 5,
+      "direction": "desc"
+    },
+    "classificationConsensusSlots": {
+      "rank": 5,
+      "of": 13,
+      "value": 19,
+      "direction": "desc"
+    },
+    "uniqueQualifiedTeams": {
+      "rank": 2,
+      "of": 13,
+      "value": 0,
+      "direction": "desc"
+    }
+  },
+  "specialRanksAscending": {
+    "averageGoalsPerMatch": {
+      "rank": 3,
+      "of": 13,
+      "value": 2.44,
+      "direction": "asc"
+    },
+    "averageGoalDifference": {
+      "rank": 7,
+      "of": 13,
+      "value": 1.67,
+      "direction": "asc"
+    },
+    "totalGoalsPredicted": {
+      "rank": 3,
+      "of": 13,
+      "value": 176,
+      "direction": "asc"
+    },
+    "highScoring4PlusGoals": {
+      "rank": 2,
+      "of": 13,
+      "value": 8,
+      "direction": "asc"
+    },
+    "draws": {
+      "rank": 4,
+      "of": 13,
+      "value": 8,
+      "direction": "asc"
+    }
+  },
+  "cards": [
+    {
+      "cardId": "felipe_candado_1_0",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🔒",
+      "title": "CANDADO 1-0",
+      "headline": "Felipe — CANDADO 1-0",
+      "metric": {
+        "key": "oneNilFamily",
+        "value": 14,
+        "rank": "#2 de 13"
+      },
+      "reading": "Cree en el triunfo mínimo y en sobrevivir con lo justo.",
+      "shareText": "Felipe desbloqueó carta: CANDADO 1-0. Dato clave: 14 (#2 de 13).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "felipe_cementerio_de_arcos",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "epica",
+      "emoji": "🧱",
+      "title": "CEMENTERIO DE ARCOS",
+      "headline": "Felipe — CEMENTERIO DE ARCOS",
+      "metric": {
+        "key": "atLeastOneCleanSheet",
+        "value": 44,
+        "rank": "#3 de 13"
+      },
+      "reading": "Muchas veces deja a un equipo en cero.",
+      "shareText": "Felipe desbloqueó carta: CEMENTERIO DE ARCOS. Dato clave: 44 (#3 de 13).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "felipe_localista_controlado",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "rara",
+      "emoji": "🏟️",
+      "title": "LOCALISTA CONTROLADO",
+      "headline": "Felipe — LOCALISTA CONTROLADO",
+      "metric": {
+        "key": "homeWins",
+        "value": 39,
+        "rank": "#4 de 13"
+      },
+      "reading": "Confía bastante en la casa, pero sin perder la planilla.",
+      "shareText": "Felipe desbloqueó carta: LOCALISTA CONTROLADO. Dato clave: 39 (#4 de 13).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "felipe_clasico_2_1",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "rara",
+      "emoji": "🎯",
+      "title": "CLÁSICO 2-1",
+      "headline": "Felipe — CLÁSICO 2-1",
+      "metric": {
+        "key": "twoOneFamily",
+        "value": 19,
+        "rank": "#4 de 13"
+      },
+      "reading": "Le gusta el marcador mundialero de ida y vuelta controlado.",
+      "shareText": "Felipe desbloqueó carta: CLÁSICO 2-1. Dato clave: 19 (#4 de 13).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    },
+    {
+      "cardId": "felipe_anti_oficina",
+      "cardType": "stat_player_card",
+      "deck": "mazo_jugadores",
+      "rarity": "rara",
+      "emoji": "🧨",
+      "title": "ANTI OFICINA",
+      "headline": "Felipe — ANTI OFICINA",
+      "metric": {
+        "key": "againstMajorityOutcome",
+        "value": 13,
+        "rank": "#4 de 13"
+      },
+      "reading": "Se sale del resultado colectivo y empuja contra la corriente.",
+      "shareText": "Felipe desbloqueó carta: ANTI OFICINA. Dato clave: 13 (#4 de 13).",
+      "visualHint": {
+        "front": "card estadística jugable con nombre, badge, número grande y lectura corta",
+        "back": "reverso Data Arena SECPLAN 2026 con patrón mundialero y signo de interrogación",
+        "animation": "flip 3D al click/tap; reveal del número y badge después del giro"
+      }
+    }
+  ],
+  "statDetails": {
+    "loneWolfExactExamples": [
+      {
+        "matchId": "match-004",
+        "matchNumber": 4,
+        "group": "D",
+        "homeTeam": "Estados Unidos",
+        "awayTeam": "Paraguay",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-009",
+        "matchNumber": 9,
+        "group": "E",
+        "homeTeam": "Costa de Marfil",
+        "awayTeam": "Ecuador",
+        "score": "0-0",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-010",
+        "matchNumber": 10,
+        "group": "E",
+        "homeTeam": "Alemania",
+        "awayTeam": "Curazao",
+        "score": "6-0",
+        "outcome": "local"
+      },
+      {
+        "matchId": "match-011",
+        "matchNumber": 11,
+        "group": "F",
+        "homeTeam": "Países Bajos",
+        "awayTeam": "Japón",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-017",
+        "matchNumber": 17,
+        "group": "I",
+        "homeTeam": "Francia",
+        "awayTeam": "Senegal",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-018",
+        "matchNumber": 18,
+        "group": "I",
+        "homeTeam": "Irak",
+        "awayTeam": "Noruega",
+        "score": "0-4",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-024",
+        "matchNumber": 24,
+        "group": "K",
+        "homeTeam": "Uzbekistán",
+        "awayTeam": "Colombia",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-042",
+        "matchNumber": 42,
+        "group": "I",
+        "homeTeam": "Francia",
+        "awayTeam": "Irak",
+        "score": "6-0",
+        "outcome": "local"
+      }
+    ],
+    "againstMajorityExamples": [
+      {
+        "matchId": "match-002",
+        "matchNumber": 2,
+        "group": "A",
+        "homeTeam": "Corea del Sur",
+        "awayTeam": "República Checa",
+        "score": "1-2",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-003",
+        "matchNumber": 3,
+        "group": "B",
+        "homeTeam": "Canadá",
+        "awayTeam": "Bosnia y Herzegovina",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-004",
+        "matchNumber": 4,
+        "group": "D",
+        "homeTeam": "Estados Unidos",
+        "awayTeam": "Paraguay",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-006",
+        "matchNumber": 6,
+        "group": "D",
+        "homeTeam": "Australia",
+        "awayTeam": "Türkiye",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-009",
+        "matchNumber": 9,
+        "group": "E",
+        "homeTeam": "Costa de Marfil",
+        "awayTeam": "Ecuador",
+        "score": "0-0",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-011",
+        "matchNumber": 11,
+        "group": "F",
+        "homeTeam": "Países Bajos",
+        "awayTeam": "Japón",
+        "score": "0-1",
+        "outcome": "visita"
+      },
+      {
+        "matchId": "match-017",
+        "matchNumber": 17,
+        "group": "I",
+        "homeTeam": "Francia",
+        "awayTeam": "Senegal",
+        "score": "1-1",
+        "outcome": "empate"
+      },
+      {
+        "matchId": "match-030",
+        "matchNumber": 30,
+        "group": "C",
+        "homeTeam": "Escocia",
+        "awayTeam": "Marruecos",
+        "score": "1-1",
+        "outcome": "empate"
+      }
+    ],
+    "classificationRebelSlots": [
+      {
+        "group": "B",
+        "slot": "secondPlace",
+        "pick": "bosnia-herzegovina",
+        "consensus": "canada"
+      },
+      {
+        "group": "C",
+        "slot": "secondPlace",
+        "pick": "scotland",
+        "consensus": "morocco"
+      },
+      {
+        "group": "F",
+        "slot": "firstPlace",
+        "pick": "japan",
+        "consensus": "netherlands"
+      },
+      {
+        "group": "F",
+        "slot": "secondPlace",
+        "pick": "netherlands",
+        "consensus": "japan"
+      },
+      {
+        "group": "J",
+        "slot": "secondPlace",
+        "pick": "algeria",
+        "consensus": "austria"
+      }
+    ],
+    "uniqueQualifiedTeams": [],
+    "mostRepeatedScores": [
+      {
+        "score": "2-1",
+        "count": 13
+      },
+      {
+        "score": "2-0",
+        "count": 8
+      },
+      {
+        "score": "0-1",
+        "count": 7
+      },
+      {
+        "score": "1-1",
+        "count": 7
+      },
+      {
+        "score": "1-0",
+        "count": 7
+      }
+    ]
+  },
+  "implementationNotes": {
+    "doNotRecalculateInComponent": true,
+    "codexInstruction": "Consumir este JSON como ficha editorial/estadística ya resuelta. No leer todos los JSON de predicciones desde el componente de card.",
+    "suggestedAstroComponent": "src/sections/09_estadisticas/PlayerPlayableStatCard.astro",
+    "suggestedClientScope": "[data-section=\"estadisticas\"]",
+    "avatarResolution": "En implementación real resolver avatar desde players.json usando /assets/players/<id>.webp; ignorar avatarSuggestedPath si el repo usa la convención nueva.",
+    "dataIntegrity": "No mezclar rankings de universo 9/11/13. Para Data Arena final regenerar todas las cards contra el mismo universo de 13 jugadores activos."
+  }
+}
