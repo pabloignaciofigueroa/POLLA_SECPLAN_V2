@@ -27,6 +27,10 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
   const matchById = new Map(matches.map((match) => [match.id, match]));
   const matchIdByNumber = new Map(matches.map((match) => [match.matchNumber, match.id]));
 
+  // El fixture manda: el "proximo partido" se decide por hora de inicio
+  // (dateUtc), NO por matchNumber (que es una etiqueta fija, no cronologica).
+  const byKickoff = (a, b) => new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime();
+
   // Fuente unica de calculo (mismo modulo que usa el SSR). Puntaje 5/3/1/0 y
   // precision visual separada del puntaje. Sin el, no recalculamos en vivo.
   let scoring = null;
@@ -411,10 +415,11 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
     const card = section.querySelector("[data-next-match-card]");
     if (!card) return;
     const finalized = new Set((officialResults ?? []).map((r) => r.matchId));
-    const liveNumber = matchById.get(liveMatchId)?.matchNumber ?? 0;
+    const liveMatch = matchById.get(liveMatchId);
+    const liveStart = liveMatch ? new Date(liveMatch.dateUtc).getTime() : -Infinity;
     const next = [...matches]
-      .sort((a, b) => a.matchNumber - b.matchNumber)
-      .find((m) => m.matchNumber > liveNumber && m.id !== liveMatchId && !finalized.has(m.id));
+      .sort(byKickoff)
+      .find((m) => m.id !== liveMatchId && !finalized.has(m.id) && new Date(m.dateUtc).getTime() >= liveStart);
     if (!next) return;
     updateNextMatchCardDirect(next);
   };
@@ -441,7 +446,7 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 
   const firstOpenMatch = (officialIds) =>
     [...matches]
-      .sort((a, b) => a.matchNumber - b.matchNumber)
+      .sort(byKickoff)
       .find((match) => !officialIds.has(match.id)) ?? null;
 
   const resolvePendingDisplayMatch = (liveMatch, officialIds) => {
