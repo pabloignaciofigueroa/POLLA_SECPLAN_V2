@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "predictions:build": "node scripts/build-predictions.mjs",
+    "results:snapshot": "node scripts/snapshot-official-results.mjs",
     "test": "node --test tests/*.test.mjs",
     "build": "astro build",
     "preview": "astro preview",

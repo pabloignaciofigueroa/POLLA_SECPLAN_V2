@@ -1,4 +1,6 @@
 ---
+import StatsGraphTab from "./StatsGraphTab.astro";
+
 interface Props {
   confirmedCards: number;
   expectedPlayers: number;
@@ -37,8 +39,8 @@ const { confirmedCards, expectedPlayers } = Astro.props;
   </header>
 
   <nav class="stats-tabs" aria-label="Secciones de estadísticas" role="tablist">
-    <button type="button" role="tab" id="stats-tab-perfil" data-stats-tab="perfil" aria-controls="stats-panel-perfil" aria-selected="true">
-      Mi perfil
+    <button type="button" role="tab" id="stats-tab-grafico" data-stats-tab="grafico" aria-controls="stats-panel-grafico" aria-selected="true">
+      Gráfico
     </button>
     <button type="button" role="tab" id="stats-tab-partidos" data-stats-tab="partidos" aria-controls="stats-panel-partidos" aria-selected="false" tabindex="-1">
       Partidos
@@ -46,8 +48,11 @@ const { confirmedCards, expectedPlayers } = Astro.props;
     <button type="button" role="tab" id="stats-tab-comunidad" data-stats-tab="comunidad" aria-controls="stats-panel-comunidad" aria-selected="false" tabindex="-1">
       Comunidad
     </button>
-    <button type="button" role="tab" id="stats-tab-clasificados" data-stats-tab="clasificados" aria-controls="stats-panel-clasificados" aria-selected="false" tabindex="-1">
-      Clasificados y comparador
+    <button type="button" role="tab" id="stats-tab-perfil" data-stats-tab="perfil" aria-controls="stats-panel-perfil" aria-selected="false" tabindex="-1">
+      Mi perfil
+    </button>
+    <button type="button" role="tab" id="stats-tab-comparar" data-stats-tab="comparar" aria-controls="stats-panel-comparar" aria-selected="false" tabindex="-1">
+      Comparar
     </button>
   </nav>
 
@@ -55,10 +60,13 @@ const { confirmedCards, expectedPlayers } = Astro.props;
     Preparando las comparaciones...
   </div>
 
-  <section id="stats-panel-perfil" data-stats-panel="perfil" role="tabpanel" aria-labelledby="stats-tab-perfil"></section>
+  <section id="stats-panel-grafico" data-stats-panel="grafico" role="tabpanel" aria-labelledby="stats-tab-grafico">
+    <StatsGraphTab />
+  </section>
+  <section id="stats-panel-perfil" data-stats-panel="perfil" role="tabpanel" aria-labelledby="stats-tab-perfil" hidden></section>
   <section id="stats-panel-comunidad" data-stats-panel="comunidad" role="tabpanel" aria-labelledby="stats-tab-comunidad" hidden></section>
   <section id="stats-panel-partidos" data-stats-panel="partidos" role="tabpanel" aria-labelledby="stats-tab-partidos" hidden></section>
-  <section id="stats-panel-clasificados" data-stats-panel="clasificados" role="tabpanel" aria-labelledby="stats-tab-clasificados" hidden></section>
+  <section id="stats-panel-comparar" data-stats-panel="comparar" role="tabpanel" aria-labelledby="stats-tab-comparar" hidden></section>
 </section>
 
 <style>
@@ -183,7 +191,7 @@ const { confirmedCards, expectedPlayers } = Astro.props;
 
   .stats-tabs {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.35rem;
     padding: 0.35rem;
     border: 1px solid rgba(7, 23, 53, 0.12);

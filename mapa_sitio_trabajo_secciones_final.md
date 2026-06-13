@@ -1,6 +1,6 @@
 # Mapa operativo de arquitectura del sitio - Polla Mundialera SECPLAN 2026
 
-Fecha de actualizacion: 2026-06-12
+Fecha de actualizacion: 2026-06-13
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
@@ -155,8 +155,9 @@ jornadas grandes de cambios quedan registradas en `workflow_*.md` (ultima:
 ### `09_estadisticas`
 
 - Orquestador: `EstadisticasSection.astro`.
-- Piezas principales: `StatsHeroLocked`, `StatsProgressCard`, `StatsDashboard`, `LockedPreviewPanel`, `UnlockedBanner`, `MissingPlayerIdentityModal`.
-- Funcion: antes de 72/72 muestra la promesa anti-copia; despues monta perfil, partidos, comunidad, clasificados y comparador (orden de tabs 2026-06-12: MI PERFIL, PARTIDOS, COMUNIDAD, CLASIFICADOS).
+- Piezas principales: `StatsHeroLocked`, `StatsProgressCard`, `StatsDashboard`, `LockedPreviewPanel`, `UnlockedBanner`, `MissingPlayerIdentityModal`, `StatsGraphTab` (+ `ScoreRaceGraph`/`ScoreRaceLegend`/`ScoreRaceNarrative`/`ScoreRacePopup`).
+- Funcion: antes de 72/72 muestra la promesa anti-copia; despues monta el dashboard de pestañas (orden de tabs 2026-06-13: GRÁFICO, PARTIDOS, COMUNIDAD, MI PERFIL, COMPARAR; GRÁFICO activa por defecto). CLASIFICADOS dejo de ser pestaña: su matriz vive ahora dentro de COMPARAR (junto al comparador). El deep link viejo `?tab=clasificados` se aliasa a `comparar` en `activateTab`.
+- Carrera de Puntaje (GRÁFICO, 2026-06-13): grafico de lineas de puntaje acumulado por jugador (nodos agrupados por `matchId+cumulativePoints` con badge de empate + pop-up, columna posicion actual, narrativa "Lo que paso en la oficina", timeline, leyenda). Datos = `buildScoreRaceTimeline`/`buildScoreRaceNarrative` (puros; reusan `liveScoring` y `liveMatchPhase`). `score-race.client.js` exporta `createScoreRace({section})` y NO se suscribe solo: `estadisticas.client.js` (dueño unico del dataset + `subscribeLiveData`) lo alimenta con `{dataset, liveSnapshot}` en la carga y en cada snapshot. Los resultados oficiales se SIEMBRAN de `src/data/official-results.json` (snapshot commiteado de `polla_official_results`, generado con `npm run results:snapshot`) y el snapshot en vivo se fusiona encima por `matchId` (el vivo gana / agrega partidos nuevos): el grafico dibuja la carrera al instante sin depender del handshake y nunca queda vacio (se elimino el estado "AÚN NO HAY CARRERA"). GSAP se importa lazy (chunk aparte) solo aqui y se omite con `prefers-reduced-motion`. Estilo en `<style is:global>` anclado a `[data-score-race]` (nodos pintados en runtime).
 - Identidad requerida (comanda 06): sin `polla:selectedPlayerId` valido la seccion entra en estado `no-identity` (distinto de `locked`): no muestra 0/72 falso (la progress card dice "Jugador no seleccionado"), abre `MissingPlayerIdentityModal` (CTA "ELEGIR MI JUGADOR" -> `/jugador`, sin acceso a estadisticas generales) y guarda `polla:returnAfterPlayerSelect="/estadisticas"`; `/jugador` redirige de vuelta tras confirmar. Si el id guardado no existe en `players.json` (nomina cerrada), se limpia la identidad local.
 - Partidos como auditoria (comanda 09): con resultado en `polla_official_results`, el listado izquierdo muestra "EQUIPO X-Y EQUIPO · Finalizado" en gris palido (`data-finished`), el detalle titula con el marcador + badge RESULTADO FINAL, el resumen reusa `renderResultPulse` y la tabla agrega columna SUMA con `score-dot` + puntos por jugador via `calculatePointsForPrediction` (universo completo del partido, orden por puntos desc) + leyenda compacta. Partidos sin oficializar conservan la vista coral sin puntos.
 - Client: carga `/data/community-predictions.json` solo al desbloquear, admite deep links y se suscribe al marcador/resultados Supabase.
@@ -165,7 +166,7 @@ jornadas grandes de cambios quedan registradas en `workflow_*.md` (ultima:
 - Storage: lee `polla:selectedPlayerId`, `polla:predictions`; escribe `polla:activePredictionGroup` y `polla:activePredictionGroupIntent`.
 - Pulsos compartidos: Proximo Partido, Fixture y Equipos revelan agregados si
   el carton local esta completo o el jugador tiene una entrega oficial.
-- Data Arena (2026-06-12, corte 13): al desbloquear se monta una capa de cartas jugables (flip 3D) antes del dashboard; el dashboard tabular queda como "Explorador detallado". Fichas resueltas en `data/stat-cards/players/*.json` (13, incluye Felipe e Italo) via `lib/statistics/statCards.ts`; `statCardsRerank.ts` normaliza en memoria los rankings visibles al universo de 13 sin reescribir los JSON editoriales. Base agregada canonica `data/stat-cards/data-arena-13.json` consumida ya resuelta por `lib/statistics/dataArenaBase.ts` (highlights globales + duelos). Carta del dia + pulso de oficina derivados de `buildCommunityAnalysis`. Piezas: `DataArenaHero`, `FeaturedCard`, `CardDeck`, `PlayableStatCard`, `ArenaHighlightsPanel`, `ArenaDuelsPanel`, `data-arena.client.js`.
+- Data Arena (2026-06-12, corte 13): al desbloquear el orden de bloques es dashboard tabular ("Explorador detallado") arriba (lo más importante), luego `arena-universe` (Highlights + Duelos del universo) en el medio y la capa de cartas jugables (flip 3D) al fondo. La capa de cartas conserva `data-data-arena` (único en la sección) para el flip. Fichas resueltas en `data/stat-cards/players/*.json` (13, incluye Felipe e Italo) via `lib/statistics/statCards.ts`; `statCardsRerank.ts` normaliza en memoria los rankings visibles al universo de 13 sin reescribir los JSON editoriales. Base agregada canonica `data/stat-cards/data-arena-13.json` consumida ya resuelta por `lib/statistics/dataArenaBase.ts` (highlights globales + duelos). Carta del dia + pulso de oficina derivados de `buildCommunityAnalysis`. Piezas: `DataArenaHero`, `FeaturedCard`, `CardDeck`, `PlayableStatCard`, `ArenaHighlightsPanel`, `ArenaDuelsPanel`, `data-arena.client.js`.
 - Cuando cambiar: metricas en `lib/statistics`; experiencia y filtros en `09_estadisticas`; ingesta en `scripts/predictions-importer.mjs`; cartas/mazos en los componentes Data Arena + `statCards.ts`.
 
 ### `10_admin`
@@ -298,6 +299,7 @@ jornadas grandes de cambios quedan registradas en `workflow_*.md` (ultima:
 | `stat-cards/data-arena-13.json` | Base agregada canonica del corte 13: rankings, duelos (pairwise) y highlights globales ya resueltos |
 | `predictions.mock.json` | Mock inicial o contrato de predicciones |
 | `results.json` | Resultados reales/futuros |
+| `official-results.json` | Snapshot commiteado de `polla_official_results` (Supabase) que SIEMBRA el GRÁFICO de Estadisticas; refrescar con `npm run results:snapshot` |
 | `results.mock.json` | Resultados demo para tabla |
 | `scoring-rules.json` | Puntaje exacto/tendencia/lone wolf |
 | `table-predictions.mock.json` | Predicciones mock para ranking |
@@ -330,6 +332,8 @@ jornadas grandes de cambios quedan registradas en `workflow_*.md` (ultima:
 | `lib/tabla/formatRankingRows.ts` | View model de filas de ranking |
 | `lib/tabla/types.ts` | Tipos compartidos de tabla |
 | `lib/statistics/communityStatistics.js` | Perfiles, consensos, comparaciones, clasificados y pulsos compartidos |
+| `lib/statistics/buildScoreRaceTimeline.js` | Carrera de Puntaje: timeline acumulado por jugador + clusters de empate (puro; reusa `liveScoring`) |
+| `lib/statistics/buildScoreRaceNarrative.js` | Carrera de Puntaje: relato automatico por partido y por jugador (puro, solo datos reales) |
 | `lib/statistics/statCards.ts` | Registry de fichas jugables (Data Arena): indexa `data/stat-cards/players/*.json` por player.id y resuelve avatar desde players.json |
 | `lib/statistics/statCardsRerank.ts` | Helper puro: clona fichas y normaliza rankings asc/desc al universo cargado; falla ante datos incompletos o ambiguos |
 | `lib/statistics/dataArenaBase.ts` | Accessor de la base Data Arena 13: highlights globales y duelos ya resueltos, identidad/avatar desde players.json |
@@ -368,6 +372,7 @@ jornadas grandes de cambios quedan registradas en `workflow_*.md` (ultima:
 ```powershell
 npm run dev
 npm run predictions:build
+npm run results:snapshot
 npm test
 npm run build
 npm run preview
@@ -382,6 +387,7 @@ rg -n "polla:finalDownloaded|polla:adminSessionToken|data-admin-access-trigger" 
 
 ## Historial compacto de decisiones vigentes
 
+- 2026-06-13 (comanda FABLE 5.0 "GRÁFICO"): Estadisticas estrena la pestaña GRÁFICO ("Carrera de Puntaje") como primera vista por defecto. Nuevo orden de tabs GRÁFICO/PARTIDOS/COMUNIDAD/MI PERFIL/COMPARAR; CLASIFICADOS deja de ser pestaña (su matriz pasa dentro de COMPARAR, junto al comparador) y `?tab=clasificados` se aliasa a `comparar`. Grafico = lineas de puntaje acumulado por jugador, nodos agrupados por empate (badge + pop-up), columna posicion actual, narrativa derivada de datos, timeline y leyenda. Logica pura nueva: `lib/statistics/buildScoreRaceTimeline.js` + `buildScoreRaceNarrative.js` (reusan `liveScoring` 5/3/1/0 y `liveMatchPhase` para el punto live provisional); piezas `StatsGraphTab`/`ScoreRaceGraph`/`ScoreRaceLegend`/`ScoreRaceNarrative`/`ScoreRacePopup` + `score-race.client.js` (`createScoreRace`, alimentado por `estadisticas.client.js`, dueño unico del dataset/realtime). GSAP lazy (chunk aparte, solo esta vista, respeta reduced-motion). 9 tests nuevos (`tests/score-race-timeline.test.mjs`); suite 42/42, build limpio.
 - 2026-06-12 (comandas 01-09): La app pasa a modo competencia oficial. (a) Nomina cerrada a 13: Gonzalo y Ratinha fuera de `players.json`, assets y mock; rebuild 13/13 cartones / 936 / 312, cero pendientes; storage `production-reset-2026-06-12-roster-13`; `/jugador` y `/estadisticas` limpian identidad invalida. (b) Resultados oficiales mandan en todas las secciones: Fixture fusiona `polla_official_results` client-side (marcador en fila/hero/info, status finished), Proximo Partido salta oficializados, KPI Admin cuenta filas reales via `subscribeLiveData`. (c) Fixture: `GroupStandingsPanel` (tabla real del grupo via `lib/fixture/groupStandings.js`) reemplaza a `DayAgendaPanel` (legacy sin montar). (d) Racha de tabla = dots por hitType (slice -5) con mapeo unico morado +5 / azul +3 / verde +1 / gris 0, alineado en panel derecho y Estadisticas/Partidos; fix: la racha ahora se re-renderiza en vivo. (e) Tabla: tipografia por rol (display/ui/score; Rajdhani activado en fonts.css), barras Pretemporada y Tabla provisional eliminadas, ranking mobile compacto de una linea. (f) Estadisticas: tabs MI PERFIL > PARTIDOS > COMUNIDAD > CLASIFICADOS; pestana PARTIDOS como auditoria (columna SUMA + score-dots + leyenda); modal de identidad faltante con retorno dirigido (`polla:returnAfterPlayerSelect`). (g) Migracion prediction_edit_access detectada SIN aplicar en remoto; se aplico el mismo dia via `supabase/remote/apply_prediction_edit_access.sql` en el SQL Editor (verificado: RPC responden). El panel admin degrada con mensaje claro ante caidas remotas.
 - 2026-06-12: Tri-estado del marcador formalizado. Los dos parches de emergencia (bloqueo de puntaje antes del inicio y partido pendiente visible sin puntuar) se consolidan en `lib/liveMatch/liveMatchPhase.js`, fuente unica de official/live/pending para tabla y estadisticas. Admin escribe `status` explicito ("live" al actualizar, "pending" al preparar el siguiente tras FINALIZAR), sin migracion SQL y compatible con filas viejas. La hero card en espera usa el estado `waiting` estilizado del SSR; la fase live termina solo al oficializar (sin expiracion automatica). Caso vigente: Mexico 2-0 Sudafrica oficial puntuado; Corea-Chequia preparado EN ESPERA con 0 puntos. 10 tests nuevos en `tests/live-match-phase.test.mjs`.
 - 2026-06-12: Base Data Arena 13 integrada como corte canonico. `data/stat-cards/data-arena-13.json` + 13 fichas (entran Felipe 03 e Italo 13); el rerank en memoria deja todos los ranks visibles en `de 13`. Estadisticas suma dos paneles SSR nuevos dentro de la capa Data Arena: `ArenaHighlightsPanel` (6 tops globales) y `ArenaDuelsPanel` (gemelos de pronostico + rivalidades), alimentados por `lib/statistics/dataArenaBase.ts` que consume la base ya resuelta sin recalcular. Counters dinamicos quedan en 13/72/936. Tests de rerank migrados a universo dinamico con anclas a 13.

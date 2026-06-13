@@ -1,7 +1,43 @@
 # 09_estadisticas — Mapa técnico
 
 ## Estado
-dashboard-coral-implemented + data-arena-cards + data-arena-base-13
+dashboard-coral-implemented + data-arena-cards + data-arena-base-13 + score-race-grafico
+
+## Carrera de Puntaje (pestaña GRÁFICO) - 2026-06-13
+
+- Primera pestaña y vista por defecto del dashboard. Orden de tabs:
+  GRÁFICO · PARTIDOS · COMUNIDAD · MI PERFIL · COMPARAR. La antigua pestaña
+  CLASIFICADOS se fusiono en COMPARAR (matriz de clasificados + comparador, mismo
+  panel `data-stats-panel="comparar"`). `activateTab` aliasa `clasificados`→`comparar`
+  y el fallback por defecto es `grafico`.
+- Datos (puro, testeable): `lib/statistics/buildScoreRaceTimeline.js` arma el
+  acumulado por jugador (orden por `matchNumber`, solo oficiales + live provisional
+  marcado `status:"live"`) y los `clusters` por `matchId+cumulativePoints` (badge de
+  empate, `maxHitTypeInCluster`). Reusa `calculatePointsForPrediction` (5/3/1/0); el
+  color de linea sale de `RACE_PALETTE` (estable por orden en players.json) y el color
+  de nodo del hitType. `buildScoreRaceNarrative.js` arma "Lo que paso en la oficina"
+  (plantillas: nuevo lider / no suma / salto / grupo apretado / partido seco / lone wolf)
+  y el relato por jugador, solo con datos reales.
+- UI: `StatsGraphTab.astro` (shell + `<style is:global>` anclado a `[data-score-race]`)
+  compone `ScoreRaceGraph`/`ScoreRaceLegend`/`ScoreRaceNarrative`/`ScoreRacePopup`.
+  `score-race.client.js` exporta `createScoreRace({section})`→`{update({dataset,liveSnapshot})}`:
+  pinta el SVG (lineas + nodos + columna posicion), leyenda, narrativa, timeline y el
+  pop-up de nodo (accesible: `<dialog>` showModal, Esc, backdrop, bottom-sheet mobile).
+- Integracion: `score-race.client.js` NO hace fetch ni `subscribeLiveData`. El dueño
+  unico de datos es `estadisticas.client.js`: instancia el grafico en `loadDashboard`
+  y lo actualiza con cada snapshot remoto (memo por firma de oficiales+live). Mapea
+  `homeTeamScore/awayTeamScore`→`homeScore/awayScore` en el seam antes del builder.
+- Baseline (2026-06-13): los resultados oficiales se SIEMBRAN de
+  `src/data/official-results.json` (snapshot commiteado de `polla_official_results`,
+  `npm run results:snapshot`) y `mergeOfficials` fusiona el snapshot en vivo encima por
+  `matchId` (el vivo gana / agrega). Asi el grafico dibuja los partidos cerrados al
+  instante (sin depender del handshake) y nunca queda vacio. Se ELIMINO el estado
+  "AÚN NO HAY CARRERA" (markup en `ScoreRaceGraph.astro`, CSS en `StatsGraphTab.astro`).
+  Predicciones siguen viniendo de `community-predictions.json` (ya confiable).
+- GSAP: `await import("gsap")` lazy dentro del init (chunk aparte, solo esta vista);
+  se omite con `prefers-reduced-motion`. Entrada: lineas L→R + nodos scale.
+- Tests: `tests/score-race-timeline.test.mjs` (acumulado monotono, clusters, 5/3/1/0,
+  rankAfterMatch, vacio, live provisional, narrativa).
 
 ## Pulso live con tri-estado - 2026-06-12
 
@@ -43,9 +79,12 @@ dashboard-coral-implemented + data-arena-cards + data-arena-base-13
 
 ## Data Arena de cartas jugables - 2026-06-10
 
-- Al desbloquear (mismo gate `isStatisticsUnlocked`), antes del dashboard tabular
-  se monta una **capa Data Arena** de cartas jugables; el dashboard de 4 tabs
-  queda como "Explorador detallado" debajo (no se elimina).
+- Orden al desbloquear (mismo gate `isStatisticsUnlocked`, 2026-06-12): el
+  dashboard de 4 tabs ("Explorador detallado") abre arriba como lo más
+  importante, luego el bloque `arena-universe` (Highlights + Duelos del universo)
+  en el medio, y la **capa Data Arena** de cartas jugables al fondo. La capa de
+  cartas conserva `data-data-arena` (único en la sección) para el flip; los
+  paneles del universo van en `arena-universe` sin ese atributo.
 - Cartas = contrato editorial YA RESUELTO en `src/data/stat-cards/players/*.json`,
   cargado por `src/lib/statistics/statCards.ts` (indexa por player.id, resuelve
   avatar real desde players.json, descarta `avatarSuggestedPath`).

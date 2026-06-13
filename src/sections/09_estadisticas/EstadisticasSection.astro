@@ -140,6 +140,27 @@ const clientPayload = {
       <AntiCopyNotice />
     </div>
 
+    {/* 1 — Lo mas importante: explorador detallado (sube al tope) */}
+    <div class="detail-intro" data-unlock-reveal hidden>
+      <h3>Explorador detallado</h3>
+      <p>Perfil, comunidad, partidos y clasificados: la data completa, cuando quieras bucear.</p>
+    </div>
+
+    <StatsDashboard
+      confirmedCards={predictionsData.confirmedCards}
+      expectedPlayers={predictionsData.expectedPlayers}
+    />
+
+    {/* 2 — Highlights + duelos del universo (se mantiene en el medio) */}
+    <div class="arena-universe" data-unlock-reveal hidden>
+      <ArenaHighlightsPanel categories={arenaHighlights} universeSize={arenaUniverseSize} />
+      <ArenaDuelsPanel
+        mostSimilar={arenaDuels.mostSimilar}
+        biggestRivalries={arenaDuels.biggestRivalries}
+      />
+    </div>
+
+    {/* 3 — Cartas jugables (bajan al fondo). Conserva data-data-arena para el flip. */}
     <div class="data-arena" data-data-arena data-unlock-reveal hidden>
       <DataArenaHero confirmedCards={predictionsData.confirmedCards} />
       {featured && (
@@ -151,22 +172,7 @@ const clientPayload = {
         />
       )}
       <CardDeck title="Mazo Jugadores" label="Jugadores" cards={statCards} />
-      <ArenaHighlightsPanel categories={arenaHighlights} universeSize={arenaUniverseSize} />
-      <ArenaDuelsPanel
-        mostSimilar={arenaDuels.mostSimilar}
-        biggestRivalries={arenaDuels.biggestRivalries}
-      />
     </div>
-
-    <div class="detail-intro" data-unlock-reveal hidden>
-      <h3>Explorador detallado</h3>
-      <p>Perfil, comunidad, partidos y clasificados: la data completa, cuando quieras bucear.</p>
-    </div>
-
-    <StatsDashboard
-      confirmedCards={predictionsData.confirmedCards}
-      expectedPlayers={predictionsData.expectedPlayers}
-    />
   </div>
 
   <MissingPlayerIdentityModal />
@@ -179,22 +185,28 @@ const clientPayload = {
 </section>
 
 <style>
-  .data-arena {
+  .data-arena,
+  .arena-universe {
     display: flex;
     flex-direction: column;
     gap: clamp(0.85rem, 2vw, 1.4rem);
   }
 
-  .data-arena[hidden] {
+  .data-arena[hidden],
+  .arena-universe[hidden] {
     display: none;
   }
 
-  .detail-intro {
+  /* Bloques secundarios bajo el dashboard: separador superior punteado.
+     El dashboard manda arriba; universo y cartas quedan delimitados debajo. */
+  .arena-universe,
+  .data-arena {
     margin-top: clamp(0.85rem, 2vw, 1.4rem);
     padding-top: 0.9rem;
     border-top: 1px dashed color-mix(in srgb, var(--pm-blue-700) 28%, transparent);
   }
 
+  /* La intro del explorador ahora abre la vista desbloqueada: sin separador. */
   .detail-intro[hidden] {
     display: none;
   }

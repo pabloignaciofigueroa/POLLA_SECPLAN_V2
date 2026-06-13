@@ -12,6 +12,7 @@ import { calculatePointsForPrediction } from "../../lib/liveMatch/liveScoring.js
 import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js";
+import { createScoreRace } from "./score-race.client.js";
 
 (() => {
   const section = document.querySelector('[data-section="estadisticas"]');
@@ -35,7 +36,7 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
   const teamById = new Map(teams.map((team) => [team.id, team]));
 
   const state = {
-    activeTab: "perfil",
+    activeTab: "grafico",
     selectedMatchId: "match-004",
     matchGroup: "all",
     consensus: "all",
@@ -45,6 +46,10 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     selectedPlayerId: null,
     liveSnapshot: { liveMatch: null, officialResults: [] },
   };
+
+  // Instancia del gráfico "Carrera de Puntaje" (pestaña GRÁFICO). Se crea al
+  // desbloquear y se alimenta con {dataset, liveSnapshot} en cada snapshot.
+  let scoreRace = null;
 
   const safeRead = (storage, key) => {
     try {
@@ -276,9 +281,10 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
   const profileName = (playerId) => playerById.get(playerId)?.name ?? playerId ?? "Jugador";
 
   const activateTab = (tabId, updateUrl = true) => {
-    const normalized = tabId === "comparar" ? "clasificados" : tabId;
-    const allowed = new Set(["perfil", "comunidad", "partidos", "clasificados"]);
-    state.activeTab = allowed.has(normalized) ? normalized : "perfil";
+    // "clasificados" (deep link viejo) se aliasa a "comparar".
+    const normalized = tabId === "clasificados" ? "comparar" : tabId;
+    const allowed = new Set(["grafico", "perfil", "comunidad", "partidos", "comparar"]);
+    state.activeTab = allowed.has(normalized) ? normalized : "grafico";
     section.querySelectorAll("[data-stats-tab]").forEach((button) => {
       const active = button.dataset.statsTab === state.activeTab;
       button.setAttribute("aria-selected", active ? "true" : "false");
@@ -721,7 +727,7 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
   };
 
   const renderQualifiers = () => {
-    const panel = section.querySelector('[data-stats-panel="clasificados"]');
+    const panel = section.querySelector('[data-stats-panel="comparar"]');
     if (!panel || !state.analysis) return;
     const urlTeam = new URL(window.location.href).searchParams.get("team");
     panel.innerHTML = `
@@ -783,11 +789,15 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
       });
 
       const params = new URL(window.location.href).searchParams;
-      state.activeTab = params.get("tab") || "perfil";
+      state.activeTab = params.get("tab") || "grafico";
       state.selectedMatchId = params.get("match") || state.selectedMatchId;
       state.comparePlayerId = params.get("player") || null;
       renderAll();
       activateTab(state.activeTab, false);
+      // Carrera de Puntaje: este script es el dueño único del dataset y de
+      // subscribeLiveData; el gráfico solo recibe {dataset, liveSnapshot}.
+      if (!scoreRace) scoreRace = createScoreRace({ section });
+      scoreRace.update({ dataset: state.dataset, liveSnapshot: state.liveSnapshot });
       setStatus(
         `${state.analysis.confirmedCards} cartones comparados · ${state.dataset.predictions.length} pronósticos oficiales`
       );
@@ -854,7 +864,7 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     } else if (target.matches("[data-compare-player]")) {
       state.comparePlayerId = target.value;
       const url = new URL(window.location.href);
-      url.searchParams.set("tab", "clasificados");
+      url.searchParams.set("tab", "comparar");
       url.searchParams.set("player", target.value);
       window.history.replaceState({}, "", url);
       renderQualifiers();
@@ -887,7 +897,10 @@ import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js"
     loadDashboard();
     subscribeLiveData((liveSnapshot) => {
       state.liveSnapshot = liveSnapshot;
-      if (state.analysis) renderMatches();
+      if (state.analysis) {
+        renderMatches();
+        scoreRace?.update({ dataset: state.dataset, liveSnapshot });
+      }
     });
   }
 })();
