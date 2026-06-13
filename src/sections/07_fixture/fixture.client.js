@@ -28,27 +28,6 @@ import groupsData from "../../data/groups.json";
   const consensusLabel = (level) =>
     ({ unanimous: "Unánime", strong: "Consenso fuerte", open: "Abierto", divided: "Dividido" })[level] ?? "Abierto";
 
-  const renderCommunityPulse = (matchId) => {
-    const node = section.querySelector("[data-community-pulse]");
-    const pulse = communityPulseByMatch.get(matchId);
-    if (!node || !pulse) return;
-    const link = node.querySelector("a");
-    if (link) link.href = `/estadisticas?tab=partidos&match=${encodeURIComponent(matchId)}`;
-    node.dataset.unlocked = statsUnlocked() ? "true" : "false";
-    const title = node.querySelector("[data-pulse-title]");
-    const copy = node.querySelector("[data-pulse-copy]");
-    if (!statsUnlocked()) {
-      if (title) title.textContent = "DATA CENTER BLOQUEADO";
-      if (copy) copy.textContent = "Completa tus 72 predicciones para revelar cómo votó la oficina.";
-      return;
-    }
-    if (title) title.textContent = `${consensusLabel(pulse.consensusLevel)} · favorito ${pulse.favoriteScore}`;
-    if (copy) copy.textContent = `${pulse.outcomes.home} local · ${pulse.outcomes.draw} empate · ${pulse.outcomes.away} visita`;
-    const bars = node.querySelectorAll("[data-pulse-bars] i");
-    [pulse.outcomes.home, pulse.outcomes.draw, pulse.outcomes.away].forEach((value, index) => {
-      if (bars[index]) bars[index].style.height = `${Math.max(8, Math.round((value / pulse.totalCards) * 100))}%`;
-    });
-  };
 
   const state = {
     stage: payload.initialStage || "group",
@@ -399,7 +378,6 @@ import groupsData from "../../data/groups.json";
     }
 
     renderGroupStandings(match);
-    renderCommunityPulse(match.id);
   };
 
   const updateStageTabs = () => {

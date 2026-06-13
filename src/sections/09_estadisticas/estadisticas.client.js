@@ -411,11 +411,6 @@ import { createScoreRace } from "./score-race.client.js";
 
     panel.innerHTML = `
       <div class="community-layout">
-        <section class="community-score">
-          <span>El marcador de la oficina</span>
-          <strong>${escapeHtml(state.analysis.favoriteScores[0]?.score ?? "--")}</strong>
-          <p>Aparece ${state.analysis.favoriteScores[0]?.count ?? 0} veces entre ${state.dataset.predictions.length} pronósticos.</p>
-        </section>
         <section class="story-feed">
           <h2>Lo que está diciendo la Polla</h2>
           <ul>${stories.map((story) => `<li>${escapeHtml(story)}</li>`).join("")}</ul>
@@ -618,7 +613,6 @@ import { createScoreRace } from "./score-race.client.js";
               <strong>${count}/${pulse.totalCards}</strong>
             </div>`).join("")}
         </div>
-        <p class="favorite-score">Marcador coral: <strong>${escapeHtml(pulse.favoriteScore)}</strong> · promedio ${pulse.averageGoals.toFixed(2).replace(".", ",")} goles.</p>
         <div class="prediction-table-wrap">
           <table>
             <thead>${tableHead}</thead>
@@ -632,11 +626,18 @@ import { createScoreRace } from "./score-race.client.js";
   const renderMatches = () => {
     const panel = section.querySelector('[data-stats-panel="partidos"]');
     if (!panel || !state.analysis) return;
-    const visible = state.analysis.matchPulses.filter(
-      (pulse) =>
-        (state.matchGroup === "all" || pulse.groupId === state.matchGroup) &&
-        (state.consensus === "all" || pulse.consensusLevel === state.consensus)
-    );
+    const visible = state.analysis.matchPulses
+      .filter(
+        (pulse) =>
+          (state.matchGroup === "all" || pulse.groupId === state.matchGroup) &&
+          (state.consensus === "all" || pulse.consensusLevel === state.consensus)
+      )
+      // Orden del fixture (cronologico por hora de juego, como /fixture), no por grupo.
+      .sort(
+        (a, b) =>
+          new Date(a.dateChile).getTime() - new Date(b.dateChile).getTime() ||
+          a.matchNumber - b.matchNumber
+      );
     if (!visible.some((pulse) => pulse.matchId === state.selectedMatchId)) {
       state.selectedMatchId = visible[0]?.matchId ?? state.analysis.matchPulses[0]?.matchId;
     }
@@ -674,7 +675,7 @@ import { createScoreRace } from "./score-race.client.js";
                 : `${escapeHtml(pulse.homeTeam.name)} vs ${escapeHtml(pulse.awayTeam.name)}`;
               const meta = official
                 ? `Finalizado · ${consensusLabel(pulse.consensusLevel)}`
-                : `${escapeHtml(pulse.favoriteScore)} · ${consensusLabel(pulse.consensusLevel)}`;
+                : consensusLabel(pulse.consensusLevel);
               return `
               <button type="button" data-community-match="${pulse.matchId}" data-finished="${official ? "true" : "false"}" aria-pressed="${pulse.matchId === state.selectedMatchId}">
                 <span>${String(pulse.matchNumber).padStart(2, "0")} · G${pulse.groupId}</span>

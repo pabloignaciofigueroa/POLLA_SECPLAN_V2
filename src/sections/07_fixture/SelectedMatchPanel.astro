@@ -37,10 +37,6 @@ const { match, info } = Astro.props;
     min-width: 0;
   }
 
-  .details-grid :global([data-community-pulse]) {
-    grid-column: 1 / -1;
-  }
-
   @media (max-width: 560px) {
     .details-grid {
       grid-template-columns: 1fr;

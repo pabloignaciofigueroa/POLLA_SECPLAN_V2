@@ -3,13 +3,14 @@
 ## Estado
 wireframe-implemented
 
-## Pulso coral - 2026-06-09
+## Consenso en la lista - 2026-06-09 (coral removido 2026-06-13)
 
-- La lista agrega consenso cuando el cartón local está completo o el jugador
-  seleccionado tiene una entrega oficial.
-- El panel seleccionado muestra reparto, marcador favorito y deep link al
-  explorador de Estadisticas.
-- La informacion proviene de `lib/statistics/communityStatistics.js`.
+- La lista de partidos muestra el nivel de CONSENSO (Unánime/Consenso fuerte/
+  Dividido) por fila, desde `lib/statistics/communityStatistics.js`
+  (`communityPulseByMatch` en `fixture.client.js`).
+- La card "Pronóstico coral" (`CommunityMatchPulse`) del panel seleccionado se
+  ELIMINÓ el 2026-06-13 (concepto coral retirado de toda la app). El consenso de
+  la lista se mantiene; el `favoriteScore` sigue en la librería sin mostrarse.
 
 ## Fase 10 - Simplificacion arcade
 Fixture reducido a hero, 3 KPIs, filtros, lista, partido seleccionado y horario Chile. Se retiraron agenda duplicada, info tecnica y notificaciones.

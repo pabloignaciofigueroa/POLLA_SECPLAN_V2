@@ -8,7 +8,6 @@ import SelectedMatchPanel from "./SelectedMatchPanel.astro";
 import TimezoneNotice from "./TimezoneNotice.astro";
 import GroupStandingsPanel from "./GroupStandingsPanel.astro";
 import MatchInfoPanel from "./MatchInfoPanel.astro";
-import CommunityMatchPulse from "../../components/statistics/CommunityMatchPulse.astro";
 
 import fixtureData from "../../data/fixture.json";
 import groupsData from "../../data/groups.json";
@@ -149,7 +148,6 @@ const clientPayload = {
       >
         <MatchInfoPanel match={primaryMatch} info={selectedInfo} />
         <GroupStandingsPanel group={primaryGroup} />
-        <CommunityMatchPulse matchId={primaryMatch.id} />
       </SelectedMatchPanel>
     </div>
 

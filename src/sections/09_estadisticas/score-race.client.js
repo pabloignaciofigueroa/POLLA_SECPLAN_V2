@@ -24,10 +24,10 @@ const HIT_LABEL = {
 
 // PAD.left = gutter del eje Y; LEAD/TRAIL separan los datos del eje y del borde
 // (asi los nodos de la primera columna no tapan las etiquetas del eje).
-const PAD = { top: 18, right: 22, bottom: 36, left: 44 };
-const LEAD = 18;
+const PAD = { top: 18, right: 22, bottom: 36, left: 38 };
+const LEAD = 16;
 const TRAIL = 14;
-const RAIL_W = 84; // ancho fijo del riel "posición" (debe coincidir con la CSS)
+const RAIL_W = 180; // ancho fijo del riel "posición" con nombre (debe coincidir con la CSS)
 const CANVAS_GAP = 8; // gap del grid .race-canvas (0.5rem)
 const MIN_COL = 60; // ancho minimo por partido antes de hacer scroll
 const PLOT_H = 300;
@@ -346,9 +346,9 @@ export function createScoreRace({ section }) {
       el.graph.append(state.floating);
     }
 
-    // Columna "posición actual".
+    // Columna "posición actual" a la IZQUIERDA + el gráfico a la derecha.
     const rail = renderRail();
-    el.canvas.append(scroll, rail);
+    el.canvas.append(rail, scroll);
 
     applyFocusVisual();
     if (!reducedMotion && !state.animated) animateEntrance(svg);
@@ -375,7 +375,7 @@ export function createScoreRace({ section }) {
       item.className = "race-rail-item";
       item.dataset.playerId = row.playerId;
       item.style.setProperty("--c", row.color);
-      item.innerHTML = `<span class="race-rail-pos">${t?.rankAfterMatch ?? "-"}</span><img class="race-rail-avatar" src="${row.avatar}" alt="" style="--c:${row.color}"><span class="race-rail-pts">${t?.cumulativePoints ?? 0}</span>`;
+      item.innerHTML = `<span class="race-rail-pos">${t?.rankAfterMatch ?? "-"}</span><img class="race-rail-avatar" src="${row.avatar}" alt="" style="--c:${row.color}"><span class="race-rail-name">${escapeHtml(row.displayName)}</span><span class="race-rail-pts">${t?.cumulativePoints ?? 0}</span>`;
       item.addEventListener("mouseenter", () => {
         state.hoverPlayerId = row.playerId;
         applyFocusVisual();
@@ -405,6 +405,8 @@ export function createScoreRace({ section }) {
       chip.className = "race-chip";
       chip.dataset.playerId = row.playerId;
       chip.style.setProperty("--c", row.color);
+      // Pintado por puntaje del partido seleccionado (morado/azul/verde/gris).
+      chip.dataset.hitType = row.totals[idx]?.hitType ?? "none";
       if (row.playerId === youId) chip.dataset.you = "true";
       chip.innerHTML = `<img src="${row.avatar}" alt="" style="--c:${row.color}"><span>${row.displayName}</span>${row.playerId === youId ? '<span class="race-you-badge">TU LÍNEA</span>' : ""}`;
       chip.addEventListener("mouseenter", () => {

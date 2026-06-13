@@ -3,12 +3,11 @@
 ## Estado
 wireframe-implemented
 
-## Pulso coral - 2026-06-09
+## Pulso coral - REMOVIDO 2026-06-13
 
-- La ficha modal muestra cuantos cartones clasifican a la seleccion y cuantos
-  la ponen primera de grupo.
-- El detalle se desbloquea con 72/72 local o una entrega oficial y enlaza a
-  `/estadisticas?tab=clasificados&team=<id>`.
+- El bloque "Pronóstico coral" del modal de equipo (`data-modal-prediction-pulse`)
+  se ELIMINÓ (concepto coral retirado de toda la app), junto con su hidratación en
+  `equipos.client.js` y el payload `teamSupport`/`confirmedCards`. JSON intactos.
 
 ## Fase 10 - Simplificacion arcade
 Album reducido a grupo activo por defecto, filtros A-L y 4 cards. Se retiro el chip "todos", el strip de confederaciones y el texto descriptivo de cards.

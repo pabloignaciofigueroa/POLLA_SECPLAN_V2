@@ -74,15 +74,20 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
     font-weight: 700;
   }
 
-  /* ── Layout ────────────────────────────────────────────────────────────── */
+  /* ── Layout: el gráfico ocupa TODO el ancho; narrativa + leyenda van debajo ── */
   [data-score-race] .race-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.42fr);
+    display: flex;
+    flex-direction: column;
     gap: 0.85rem;
-    align-items: start;
   }
   [data-score-race] .race-main { display: flex; min-width: 0; flex-direction: column; gap: 0.6rem; }
-  [data-score-race] .race-side { display: flex; min-width: 0; flex-direction: column; gap: 0.7rem; }
+  [data-score-race] .race-side {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: start;
+  }
 
   [data-score-race] .race-graph,
   [data-score-race] .race-narrative,
@@ -102,7 +107,7 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
     padding: 0.85rem;
   }
 
-  [data-score-race] .race-canvas { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 0.5rem; }
+  [data-score-race] .race-canvas { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 0.5rem; }
   [data-score-race] .race-scroll { overflow-x: auto; overflow-y: hidden; min-width: 0; padding-bottom: 0.3rem; }
   [data-score-race] .race-svg { display: block; }
 
@@ -171,10 +176,10 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
   [data-score-race] .race-rail-head { color: var(--pm-blue-700); font-family: var(--font-display); font-size: 0.56rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
   [data-score-race] .race-rail-item {
     display: grid;
-    grid-template-columns: 1.1rem 1.5rem auto;
-    gap: 0.3rem;
+    grid-template-columns: 1.1rem 1.5rem minmax(0, 1fr) auto;
+    gap: 0.32rem;
     align-items: center;
-    padding: 0.12rem 0.2rem;
+    padding: 0.16rem 0.28rem;
     border-radius: 0.5rem;
     background: transparent;
     border: 0;
@@ -185,7 +190,8 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
   [data-score-race] .race-rail-item.is-focus { background: var(--pm-blue-100); }
   [data-score-race] .race-rail-pos { font-family: var(--font-score); font-size: 0.78rem; font-weight: 800; color: var(--pm-blue-900); font-variant-numeric: tabular-nums; }
   [data-score-race] .race-rail-avatar { width: 1.5rem; height: 1.5rem; border-radius: 999px; object-fit: cover; border: 2px solid var(--c, var(--pm-blue-500)); }
-  [data-score-race] .race-rail-pts { font-family: var(--font-score); font-size: 0.74rem; font-weight: 800; color: var(--pm-blue-900); font-variant-numeric: tabular-nums; }
+  [data-score-race] .race-rail-name { min-width: 0; font-family: var(--font-ui); font-size: 0.8rem; font-weight: 700; color: var(--pm-blue-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  [data-score-race] .race-rail-pts { font-family: var(--font-score); font-size: 0.78rem; font-weight: 800; color: var(--pm-blue-900); font-variant-numeric: tabular-nums; }
 
   /* ── Línea de tiempo ───────────────────────────────────────────────────── */
   [data-score-race] .race-timeline-wrap { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -242,6 +248,12 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
     color: var(--pm-blue-900);
   }
   [data-score-race] .race-chip img { width: 1.25rem; height: 1.25rem; border-radius: 999px; object-fit: cover; border: 2px solid var(--c, var(--pm-blue-500)); }
+  /* Pintado por puntaje del partido seleccionado (mismo mapeo que los nodos). */
+  [data-score-race] .race-chip[data-hit-type="lone_wolf"] { border-color: var(--race-purple); background: color-mix(in srgb, var(--race-purple) 16%, white); }
+  [data-score-race] .race-chip[data-hit-type="exact"] { border-color: var(--race-blue); background: color-mix(in srgb, var(--race-blue) 16%, white); }
+  [data-score-race] .race-chip[data-hit-type="tendency"] { border-color: var(--race-green); background: color-mix(in srgb, var(--race-green) 16%, white); }
+  [data-score-race] .race-chip[data-hit-type="none"],
+  [data-score-race] .race-chip[data-hit-type="no_info"] { border-color: rgba(7, 23, 53, 0.18); background: rgba(7, 23, 53, 0.05); }
   [data-score-race] .race-chip[data-you="true"] { box-shadow: 0 0 0 2px var(--pm-yellow-500); }
   [data-score-race] .race-chip.is-focus { background: var(--pm-blue-100); }
   [data-score-race] .race-chip .race-you-badge { font-size: 0.54rem; font-weight: 900; color: var(--pm-blue-700); letter-spacing: 0.04em; }
@@ -280,12 +292,16 @@ import ScoreRacePopup from "./ScoreRacePopup.astro";
   [data-score-race] .race-prow-pts .race-dot { width: 0.55rem; }
 
   /* ── Responsive ────────────────────────────────────────────────────────── */
-  @media (max-width: 880px) {
-    [data-score-race] .race-layout { grid-template-columns: 1fr; }
+  @media (max-width: 720px) {
+    [data-score-race] .race-side { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
     [data-score-race] .race-canvas { grid-template-columns: 1fr; }
     [data-score-race] .race-rail { flex-direction: row; flex-wrap: wrap; gap: 0.3rem; }
+    /* En el cel el orden ya da la posición: se oculta el número y queda
+       avatar · nombre · pts (más aire para el nombre). */
+    [data-score-race] .race-rail-pos { display: none; }
+    [data-score-race] .race-rail-item { grid-template-columns: 1.5rem minmax(0, 1fr) auto; }
     /* Bottom sheet en mobile */
     [data-score-race] .race-popup { width: 100vw; max-width: 100vw; margin: auto auto 0; border-radius: 1rem 1rem 0 0; }
     [data-score-race] .race-popup-inner { border-radius: 1rem 1rem 0 0; }

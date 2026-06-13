@@ -5,14 +5,10 @@ import FeaturedMatchLayout from "./FeaturedMatchLayout.astro";
 import MatchReadingPanel from "./MatchReadingPanel.astro";
 import MatchContextPanel from "./MatchContextPanel.astro";
 import NextActionPanel from "./NextActionPanel.astro";
-import CommunityMatchPulse from "../../components/statistics/CommunityMatchPulse.astro";
 import fixtureData from "../../data/fixture.json";
 import teamsData from "../../data/teams.json";
 import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
 import predictionsData from "../../data/predictions.json";
-import groupsData from "../../data/groups.json";
-import playersData from "../../data/players.json";
-import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
 import { getRelevantMatches } from "./proximo-partido.logic";
 import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
 
@@ -85,20 +81,11 @@ const stadium = toStadium(primaryMatch.location);
 const stadiumsByMatchId = Object.fromEntries(
   matches.map((match) => [match.id, toStadium(match.location)]),
 );
-const communityAnalysis = buildCommunityAnalysis({
-  dataset: predictionsData,
-  matches,
-  groups: groupsData,
-  teams,
-  players: playersData,
-});
-
 const clientPayload = {
   matches,
   teams,
   h2hMatches,
   stadiums: stadiumsByMatchId,
-  communityPulses: communityAnalysis.matchPulses,
   confirmedPlayerIds: predictionsData.submissions.map(
     (submission) => submission.playerId
   ),
@@ -131,7 +118,6 @@ const clientPayload = {
         awayTeamName={primaryMatch.awayTeam.name}
         groupId={primaryMatch.groupId}
       />
-      <CommunityMatchPulse matchId={primaryMatch.id} compact />
     </div>
   </div>
 

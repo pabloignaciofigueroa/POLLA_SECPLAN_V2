@@ -3,13 +3,12 @@
 ## Estado
 wireframe-implemented
 
-## Pulso coral - 2026-06-09
+## Pulso coral - REMOVIDO 2026-06-13
 
-- El partido relevante incorpora `CommunityMatchPulse`.
-- Con cartón pendiente e incompleto funciona como teaser bloqueado.
-- Con 72/72 local o una entrega oficial muestra consenso, marcador favorito y
-  reparto local/empate/visita desde cualquier dispositivo.
-- El enlace abre `/estadisticas?tab=partidos&match=<id>`.
+- El `CommunityMatchPulse` ("Pronóstico coral") que incorporaba el partido
+  relevante se ELIMINÓ (concepto coral retirado de toda la app). Se borró el
+  mount, `renderCommunityPulse` y el payload `communityPulses` de la sección.
+  `communityStatistics.js`/JSON intactos.
 
 ## Fase 10 - Simplificacion arcade
 La previa queda en hero, equipos/VS, lectura de 3 claves y panel de comunidad. Se retiraron contexto tecnico, deadline y CTA de prediccion.
