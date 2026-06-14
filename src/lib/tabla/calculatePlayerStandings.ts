@@ -8,11 +8,20 @@ export function calculatePlayerStandings(
   predictions: Prediction[],
   results: MatchResult[],
   scoringRules: ScoringRules,
-  previousPositions: Record<string, number> = {}
+  previousPositions: Record<string, number> = {},
+  matchOrder: Map<string, number> = new Map()
 ): RankingRow[] {
-  const finishedResults = results.filter(
-    (result) => result.status === "finished" && typeof result.homeScore === "number" && typeof result.awayScore === "number"
-  );
+  // La racha debe leerse en el orden en que se vivieron los partidos (dia/hora),
+  // no en el orden FIFA. Ordenamos cronologicamente via matchOrder (matchId -> N).
+  const finishedResults = results
+    .filter(
+      (result) => result.status === "finished" && typeof result.homeScore === "number" && typeof result.awayScore === "number"
+    )
+    .sort(
+      (a, b) =>
+        (matchOrder.get(a.matchId) ?? Number.MAX_SAFE_INTEGER) -
+        (matchOrder.get(b.matchId) ?? Number.MAX_SAFE_INTEGER)
+    );
 
   if (finishedResults.length === 0) {
     return formatRankingRows(
@@ -94,7 +103,8 @@ export function calculatePlayerStandings(
       misses,
       goalDifference,
       performance,
-      streak: streak.slice(-5),
+      // Ultimos 5 partidos, mas NUEVO a la izquierda (reverse del orden cronologico).
+      streak: streak.slice(-5).reverse(),
     } satisfies RankingRow;
   });
 

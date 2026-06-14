@@ -12,6 +12,8 @@ export interface FixtureTeam {
 export interface FixtureMatch {
   id: string;
   matchNumber: number;
+  /** Numero correlativo cronologico (1..N) para mostrar. Derivado, no del JSON. */
+  displayNumber?: number;
   roundNumber: number;
   groupId: string;
   groupLabel: string;

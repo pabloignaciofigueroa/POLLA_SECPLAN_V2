@@ -107,7 +107,16 @@ export function createScoreRace({ section }) {
   // garantiza que el gráfico dibuje los partidos cerrados al instante, sin
   // depender del handshake en vivo. El snapshot remoto gana por matchId (corrige
   // o agrega partidos nuevos que cierre el Admin).
-  const mergeOfficials = (live = []) => {
+  const mergeOfficials = (live = [], remoteLoaded = false) => {
+    // Una vez que llego el snapshot remoto, ESE es la verdad sobre que partidos
+    // estan finalizados. Asi des-finalizar (borrar de la tabla remota) realmente
+    // saca el partido del grafico, aunque siga en el baseline commiteado. El piso
+    // (official-results.json) solo se usa para el primer paint, antes del handshake.
+    if (remoteLoaded) {
+      const byId = new Map();
+      for (const r of live ?? []) if (r?.matchId) byId.set(r.matchId, r);
+      return [...byId.values()];
+    }
     const byId = new Map();
     for (const r of officialBaseline.results ?? []) if (r?.matchId) byId.set(r.matchId, r);
     for (const r of live ?? []) if (r?.matchId) byId.set(r.matchId, r); // el vivo manda
@@ -250,7 +259,7 @@ export function createScoreRace({ section }) {
       }
       svg.append(col);
       const tick = svgEl("text", { class: "race-xtick", x, y: g.height - 18, "text-anchor": "middle" });
-      tick.textContent = `P${m.matchNumber}`;
+      tick.textContent = `P${m.displayNumber ?? m.matchNumber}`;
       svg.append(tick);
       const res = svgEl("text", { class: "race-xresult", x, y: g.height - 6, "text-anchor": "middle" });
       res.textContent = m.status === "live" ? `${m.homeScore}-${m.awayScore}*` : `${m.homeScore}-${m.awayScore}`;
@@ -316,7 +325,7 @@ export function createScoreRace({ section }) {
         "data-cumulative": cl.cumulativePoints,
         tabindex: "0",
         role: "button",
-        "aria-label": `Partido ${g.matches[i].matchNumber}, ${cl.cumulativePoints} puntos, ${cl.count} ${cl.count === 1 ? "jugador" : "jugadores"}`,
+        "aria-label": `Partido ${g.matches[i].displayNumber ?? g.matches[i].matchNumber}, ${cl.cumulativePoints} puntos, ${cl.count} ${cl.count === 1 ? "jugador" : "jugadores"}`,
       });
       node.append(svgEl("circle", { r: cl.count > 1 ? 11 : 6.5, cx: 0, cy: 0 }));
       if (cl.count > 1) {
@@ -434,7 +443,7 @@ export function createScoreRace({ section }) {
       item.setAttribute("role", "tab");
       item.setAttribute("aria-selected", i === state.selectedIndex ? "true" : "false");
       const result = m.status === "live" ? `${m.homeScore}-${m.awayScore} EN VIVO` : `${m.homeScore}-${m.awayScore}`;
-      item.innerHTML = `<span class="race-tl-n">P${m.matchNumber}</span><span class="race-tl-r">${result}</span>`;
+      item.innerHTML = `<span class="race-tl-n">P${m.displayNumber ?? m.matchNumber}</span><span class="race-tl-r">${result}</span>`;
       item.addEventListener("click", () => selectMatch(i));
       el.timeline.append(item);
     });
@@ -478,7 +487,7 @@ export function createScoreRace({ section }) {
       el.popupKicker.textContent = `Nodo: ${cluster.cumulativePoints} pts · ${cluster.count} ${cluster.count === 1 ? "jugador" : "jugadores"}`;
     }
     if (el.popupTitle) {
-      el.popupTitle.textContent = `Partido ${m.matchNumberLabel} · ${m.homeTeam.name} ${m.homeScore}-${m.awayScore} ${m.awayTeam.name}`;
+      el.popupTitle.textContent = `Partido ${m.displayNumberLabel ?? m.matchNumberLabel} · ${m.homeTeam.name} ${m.homeScore}-${m.awayScore} ${m.awayTeam.name}`;
     }
     const byId = new Map(state.timeline.players.map((p) => [p.playerId, p]));
     const rows = cluster.playerIds
@@ -543,9 +552,9 @@ export function createScoreRace({ section }) {
   };
 
   // ── Update público ──────────────────────────────────────────────────────
-  const update = ({ dataset, liveSnapshot } = {}) => {
+  const update = ({ dataset, liveSnapshot, remoteLoaded = false } = {}) => {
     if (!dataset || !Array.isArray(dataset.predictions)) return;
-    const merged = mergeOfficials(liveSnapshot?.officialResults);
+    const merged = mergeOfficials(liveSnapshot?.officialResults, remoteLoaded);
     const officials = normalizeOfficials(merged);
     const live = resolveLive(liveSnapshot?.liveMatch, merged);
     const signature = JSON.stringify({

@@ -8,6 +8,7 @@ interface TeamSlim {
 interface MatchSlim {
   id: string;
   matchNumber: number;
+  displayNumber?: number;
   dateUtc: string;
   homeTeam: TeamSlim;
   awayTeam: TeamSlim;
@@ -30,7 +31,7 @@ const { match } = Astro.props;
   <header class="head">
     <span class="dot" aria-hidden="true"></span>
     <span class="label">Marcador en vivo</span>
-    <span class="match-tag" data-live-match-tag>P{match.matchNumber}</span>
+    <span class="match-tag" data-live-match-tag>P{match.displayNumber ?? match.matchNumber}</span>
   </header>
 
   <div class="board">

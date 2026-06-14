@@ -32,7 +32,7 @@ function matchNarrative(timeline, i) {
   const leader = leaderAt(players, i);
   const prevLeader = i > 0 ? leaderAt(players, i - 1) : null;
   if (leader && i > 0 && (!prevLeader || prevLeader.playerId !== leader.playerId)) {
-    events.push({ priority: 4, text: `${leader.displayName} tomó la punta después del partido ${m.matchNumber}.` });
+    events.push({ priority: 4, text: `${leader.displayName} tomó la punta después del partido ${m.displayNumber ?? m.matchNumber}.` });
   } else if (leader && i === 0) {
     events.push({ priority: 2, text: `${leader.displayName} arranca arriba la carrera.` });
   }
@@ -80,7 +80,7 @@ function matchNarrative(timeline, i) {
     if (last >= 0 && i - last >= 2) {
       events.push({
         priority: 1,
-        text: `${leader.displayName} sigue arriba, pero no marca desde el partido ${matches[last].matchNumber}.`,
+        text: `${leader.displayName} sigue arriba, pero no marca desde el partido ${matches[last].displayNumber ?? matches[last].matchNumber}.`,
       });
     }
   }
@@ -95,7 +95,7 @@ function matchNarrative(timeline, i) {
     matchId: m.matchId,
     matchNumber: m.matchNumber,
     status: m.status,
-    title: `Partido ${m.matchNumberLabel} · ${m.label}`,
+    title: `Partido ${m.displayNumberLabel ?? m.matchNumberLabel} · ${m.label}`,
     body,
     highlights: picked.map((e) => e.text),
   };

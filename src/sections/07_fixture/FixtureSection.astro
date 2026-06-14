@@ -16,6 +16,7 @@ import playersData from "../../data/players.json";
 import predictionsData from "../../data/predictions.json";
 import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
 import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
+import { buildMatchSequence } from "../../lib/fixture/matchSequence.js";
 
 import {
   getRelevantMatches,
@@ -29,7 +30,15 @@ import {
 } from "./fixture.logic";
 import type { FixtureMatch, MatchInfoBundle, StageFilter } from "./fixture.logic";
 
-const matches = fixtureData.matches as FixtureMatch[];
+// Numero correlativo cronologico (1..N) sobre los 72 partidos. Solo visual: el
+// matchNumber FIFA del JSON no se toca. Se inyecta como displayNumber para que la
+// fila y el re-render en vivo muestren el orden en que se viven los partidos.
+const rawMatches = fixtureData.matches as FixtureMatch[];
+const sequenceById = buildMatchSequence(rawMatches);
+const matches = rawMatches.map((match) => ({
+  ...match,
+  displayNumber: sequenceById.get(match.id) ?? match.matchNumber,
+})) as FixtureMatch[];
 const groups = (groupsData as { id: string; label: string }[]).map((g) => ({ id: g.id, label: g.label }));
 const infoBundle: MatchInfoBundle = {
   defaultInfo: {

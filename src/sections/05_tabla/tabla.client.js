@@ -88,9 +88,17 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 
   // Puntaje y precision via el modulo unico `scoring` (mismo que el SSR).
   const calculateStandings = (predictions, resultsArg = results) => {
-    const finishedResults = resultsArg.filter(
-      (result) => result.status === "finished" && Number.isInteger(result.homeScore) && Number.isInteger(result.awayScore)
-    );
+    // La racha se lee en el orden en que se vivieron los partidos (dateUtc), no en
+    // el orden FIFA con que llegan los resultados oficiales.
+    const finishedResults = resultsArg
+      .filter(
+        (result) => result.status === "finished" && Number.isInteger(result.homeScore) && Number.isInteger(result.awayScore)
+      )
+      .sort((a, b) => {
+        const ta = matchById.get(a.matchId)?.dateUtc;
+        const tb = matchById.get(b.matchId)?.dateUtc;
+        return new Date(ta ?? 0).getTime() - new Date(tb ?? 0).getTime();
+      });
     const byPlayerMatch = new Map(predictions.map((prediction) => [`${prediction.playerId}:${prediction.matchId}`, prediction]));
     const predsByMatch = new Map();
     predictions.forEach((prediction) => {
@@ -143,7 +151,8 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
         misses,
         goalDifference,
         performance: maxPoints > 0 ? Math.max(0, Math.round((points / maxPoints) * 100)) : 0,
-        streak: streak.slice(-5),
+        // Ultimos 5, mas NUEVO a la izquierda (reverse del orden cronologico).
+        streak: streak.slice(-5).reverse(),
       };
     });
 

@@ -162,7 +162,7 @@ import groupsData from "../../data/groups.json";
 
   const renderRow = (match, selected, status) => {
     const groupBadge = (match.groupLabel || "").replace("Grupo ", "G ");
-    const matchNumber = String(match.matchNumber).padStart(2, "0");
+    const matchNumber = String(match.displayNumber ?? match.matchNumber).padStart(2, "0");
     const pulse = communityPulseByMatch.get(match.id);
     const official = officialFor(match.id);
     const showPulse = !official && statsUnlocked() && pulse;

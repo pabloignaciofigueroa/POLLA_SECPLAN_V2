@@ -262,6 +262,34 @@ export async function saveOfficialResult(result) {
   return list;
 }
 
+export async function deleteOfficialResult(matchId) {
+  if (!matchId) throw new Error("Falta el identificador del partido.");
+
+  if (!isRemoteLiveDataEnabled()) {
+    const list = readCachedOfficialResults().filter(
+      (item) => item && item.matchId !== matchId
+    );
+    cacheOfficialResults(list);
+    dispatch(OFFICIAL_RESULTS_EVENT, list);
+    return list;
+  }
+
+  const client = requireSupabase();
+  const { error } = await client.rpc("polla_delete_official_result", {
+    p_token: getAdminToken(),
+    p_match_id: matchId,
+  });
+
+  if (error) throw normalizeRemoteError(error, "No fue posible des-finalizar el partido.");
+
+  const list = (await readOfficialResults()).filter(
+    (item) => item && item.matchId !== matchId
+  );
+  cacheOfficialResults(list);
+  dispatch(OFFICIAL_RESULTS_EVENT, list);
+  return list;
+}
+
 export async function finalizeOfficialResult(result, nextLiveMatch) {
   if (!isRemoteLiveDataEnabled()) {
     await saveOfficialResult(result);

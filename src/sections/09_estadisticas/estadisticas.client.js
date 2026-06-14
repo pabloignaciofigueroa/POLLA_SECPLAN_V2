@@ -9,6 +9,7 @@ import {
   mergeLocalPlayer,
 } from "../../lib/statistics/communityStatistics.js";
 import { calculatePointsForPrediction } from "../../lib/liveMatch/liveScoring.js";
+import { buildMatchSequence, padLabel } from "../../lib/fixture/matchSequence.js";
 import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 import { isStatisticsUnlocked } from "../../lib/predictions/predictionAccess.js";
@@ -34,6 +35,11 @@ import { createScoreRace } from "./score-race.client.js";
   const playerById = new Map(players.map((player) => [player.id, player]));
   const matchById = new Map(fixture.matches.map((match) => [match.id, match]));
   const teamById = new Map(teams.map((team) => [team.id, team]));
+  // Numero correlativo cronologico (1..N) para mostrar en la lista y el detalle,
+  // en vez del matchNumber FIFA (que mezcla grupos por horario).
+  const sequenceById = buildMatchSequence(fixture.matches);
+  const displayLabelFor = (matchId, fallback) =>
+    padLabel(sequenceById.get(matchId) ?? fallback);
 
   const state = {
     activeTab: "grafico",
@@ -596,7 +602,7 @@ import { createScoreRace } from "./score-race.client.js";
       <article class="match-detail" data-finished="${official ? "true" : "false"}">
         <header>
           <div>
-            <span>Partido ${String(pulse.matchNumber).padStart(2, "0")} · Grupo ${escapeHtml(pulse.groupId)}</span>
+            <span>Partido ${displayLabelFor(pulse.matchId, pulse.matchNumber)} · Grupo ${escapeHtml(pulse.groupId)}</span>
             <h2>${title}</h2>
           </div>
           <div class="detail-badges">
@@ -678,7 +684,7 @@ import { createScoreRace } from "./score-race.client.js";
                 : consensusLabel(pulse.consensusLevel);
               return `
               <button type="button" data-community-match="${pulse.matchId}" data-finished="${official ? "true" : "false"}" aria-pressed="${pulse.matchId === state.selectedMatchId}">
-                <span>${String(pulse.matchNumber).padStart(2, "0")} · G${pulse.groupId}</span>
+                <span>${displayLabelFor(pulse.matchId, pulse.matchNumber)} · G${pulse.groupId}</span>
                 <strong>${headline}</strong>
                 <small>${meta}</small>
               </button>`;
@@ -798,7 +804,9 @@ import { createScoreRace } from "./score-race.client.js";
       // Carrera de Puntaje: este script es el dueño único del dataset y de
       // subscribeLiveData; el gráfico solo recibe {dataset, liveSnapshot}.
       if (!scoreRace) scoreRace = createScoreRace({ section });
-      scoreRace.update({ dataset: state.dataset, liveSnapshot: state.liveSnapshot });
+      // Primer paint: el baseline commiteado pinta los partidos cerrados al
+      // instante (remoteLoaded:false). El snapshot remoto llega luego y manda.
+      scoreRace.update({ dataset: state.dataset, liveSnapshot: state.liveSnapshot, remoteLoaded: false });
       setStatus(
         `${state.analysis.confirmedCards} cartones comparados · ${state.dataset.predictions.length} pronósticos oficiales`
       );
@@ -900,7 +908,8 @@ import { createScoreRace } from "./score-race.client.js";
       state.liveSnapshot = liveSnapshot;
       if (state.analysis) {
         renderMatches();
-        scoreRace?.update({ dataset: state.dataset, liveSnapshot });
+        // El snapshot remoto es autoritativo: des-finalizar saca el partido.
+        scoreRace?.update({ dataset: state.dataset, liveSnapshot, remoteLoaded: true });
       }
     });
   }

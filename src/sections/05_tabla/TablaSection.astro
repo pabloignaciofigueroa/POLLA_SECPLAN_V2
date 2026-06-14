@@ -15,6 +15,7 @@ import liveScoringUrl from "../../lib/liveMatch/liveScoring.js?url";
 import { calculatePlayerStandings } from "../../lib/tabla/calculatePlayerStandings";
 import { calculateCurrentMatchAccuracy } from "../../lib/tabla/calculateCurrentMatchAccuracy";
 import { getLiveOrRelevantMatch } from "../../lib/tabla/getLiveOrRelevantMatch";
+import { buildMatchSequence } from "../../lib/fixture/matchSequence.js";
 import type { Match, MatchResult, Player, Prediction, ScoringRules } from "../../lib/tabla/types";
 
 const players = playersData as Player[];
@@ -29,7 +30,9 @@ const { currentMatch, currentResult } = getLiveOrRelevantMatch({
   currentMatchId: resultsData.currentMatchId,
   nextMatchId: resultsData.nextMatchId,
 });
-const rankingRows = calculatePlayerStandings(players, predictions, results, scoringRules, previousPositions);
+// Orden cronologico (matchId -> N) para que la racha se lea por dia/hora real.
+const matchSequence = buildMatchSequence(matches);
+const rankingRows = calculatePlayerStandings(players, predictions, results, scoringRules, previousPositions, matchSequence);
 const nextMatch = matches.find(m => m.id === resultsData.nextMatchId);
 const displayMatch = currentMatch ?? nextMatch;
 const accuracyRows = displayMatch

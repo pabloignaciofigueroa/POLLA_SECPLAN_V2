@@ -14,6 +14,7 @@ import {
   listPredictionEditAccess,
   revokePredictionEditAccess,
 } from "../../lib/predictions/predictionEditAccess.js";
+import { confirmDialog } from "./adminConfirm.js";
 
 (async () => {
   const section = document.querySelector('[data-section="admin"]');
@@ -360,7 +361,7 @@ async function initLiveScoreControl(section, payload, setFeedback) {
     if (els.awayName) els.awayName.textContent = match.awayTeam.shortCode;
     if (els.homeScore) els.homeScore.textContent = String(homeScore);
     if (els.awayScore) els.awayScore.textContent = String(awayScore);
-    if (els.matchTag) els.matchTag.textContent = `P${match.matchNumber}`;
+    if (els.matchTag) els.matchTag.textContent = `P${match.displayNumber ?? match.matchNumber}`;
     control.dataset.matchNumber = String(match.matchNumber);
     if (els.homeMinus) els.homeMinus.disabled = homeScore <= 0;
     if (els.awayMinus) els.awayMinus.disabled = awayScore <= 0;
@@ -443,6 +444,22 @@ async function initLiveScoreControl(section, payload, setFeedback) {
   els.finalizeBtn?.addEventListener("click", async () => {
     if (els.finalizeBtn.dataset.pending === "true") return;
 
+    const displayLabel = match.displayNumber ?? match.matchNumber;
+    const finishedLabel = `${match.homeTeam.shortCode} ${homeScore} - ${awayScore} ${match.awayTeam.shortCode}`;
+
+    // SIEMPRE confirmar antes de oficializar: entrega puntos y mueve el partido.
+    const confirmed = await confirmDialog({
+      title: `Finalizar P${displayLabel}`,
+      message: `Vas a oficializar ${finishedLabel}. Esto entrega puntos a todos los jugadores y deja el partido como finalizado. ¿Confirmas?`,
+      confirmLabel: "Sí, finalizar",
+      cancelLabel: "Cancelar",
+      tone: "danger",
+    });
+    if (!confirmed) {
+      setFeedback("Finalización cancelada. No se modificó ningún resultado.");
+      return;
+    }
+
     const result = {
       matchId: match.id,
       matchNumber: match.matchNumber,
@@ -454,7 +471,6 @@ async function initLiveScoreControl(section, payload, setFeedback) {
       awayTeamScore: awayScore,
       finishedAt: new Date().toISOString(),
     };
-    const finishedLabel = `${match.homeTeam.shortCode} ${homeScore} - ${awayScore} ${match.awayTeam.shortCode}`;
     const nextResults = officialResults
       .filter((item) => item?.matchId !== result.matchId)
       .concat(result);
@@ -471,7 +487,7 @@ async function initLiveScoreControl(section, payload, setFeedback) {
       if (els.updateBtn) els.updateBtn.dataset.saved = "false";
       render();
       setFeedback(
-        `Resultado oficializado globalmente: ${finishedLabel}. Ahora editando P${match.matchNumber}.`
+        `Resultado oficializado globalmente: ${finishedLabel}. Ahora editando P${match.displayNumber ?? match.matchNumber}.`
       );
     } catch (error) {
       setFeedback(

@@ -15,6 +15,7 @@
 // Salida: { matches, players, clusters, maxCumulative } (ver README del comanda).
 
 import { calculatePointsForPrediction } from "../liveMatch/liveScoring.js";
+import { buildMatchSequence, padLabel } from "../fixture/matchSequence.js";
 
 // Paleta arcade estable (determinista por orden en players.json). No existe un
 // token de color por jugador en el proyecto, asi que esta es la fuente unica.
@@ -53,6 +54,9 @@ export function buildScoreRaceTimeline({
 } = {}) {
   const fixtureMatches = Array.isArray(fixture) ? fixture : (fixture?.matches ?? []);
   const matchesById = new Map(fixtureMatches.map((m) => [m.id, m]));
+  // Numero correlativo cronologico (1..N) sobre los 72 partidos. El eje X usa
+  // este orden/etiqueta, NO el matchNumber FIFA (que mezcla grupos por horario).
+  const sequenceById = buildMatchSequence(fixtureMatches);
 
   // Resultados oficiales normalizados por partido.
   const resultByMatch = new Map();
@@ -74,11 +78,17 @@ export function buildScoreRaceTimeline({
     }
   }
 
-  // Eje X: partidos oficiales en orden de fixture + el live provisional al final.
+  // Eje X: partidos oficiales en orden CRONOLOGICO real (dia/hora), + el live al
+  // final. Asi el progreso de puntos sube en el orden en que se vivieron, no en el
+  // orden FIFA (que pondria Haiti-Escocia antes que Qatar/Brasil, etc.).
   const orderedMatches = [...resultByMatch.keys()]
     .map((id) => matchesById.get(id))
     .filter(Boolean)
-    .sort((a, b) => a.matchNumber - b.matchNumber);
+    .sort(
+      (a, b) =>
+        new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime() ||
+        a.matchNumber - b.matchNumber
+    );
   if (liveResult) {
     const liveMatch = matchesById.get(liveResult.matchId);
     if (liveMatch) orderedMatches.push(liveMatch);
@@ -86,10 +96,14 @@ export function buildScoreRaceTimeline({
 
   const matches = orderedMatches.map((m) => {
     const res = liveResult && liveResult.matchId === m.id ? liveResult : resultByMatch.get(m.id);
+    const displayNumber = sequenceById.get(m.id) ?? m.matchNumber;
     return {
       matchId: m.id,
       matchNumber: m.matchNumber,
       matchNumberLabel: String(m.matchNumber).padStart(2, "0"),
+      // Numero correlativo cronologico para mostrar (P1, P2, ...).
+      displayNumber,
+      displayNumberLabel: padLabel(displayNumber),
       label: `${m.homeTeam.shortCode} ${res.homeScore}-${res.awayScore} ${m.awayTeam.shortCode}`,
       homeTeam: m.homeTeam,
       awayTeam: m.awayTeam,
