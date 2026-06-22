@@ -8256,7 +8256,7 @@
       "playerId": "humberto",
       "groupId": "D",
       "position": 2,
-      "teamId": "paraguay"
+      "teamId": "usa"
     },
     {
       "playerId": "humberto",
@@ -9505,6 +9505,20 @@
       "groupId": "L",
       "position": 2,
       "teamId": "croatia"
+    }
+  ],
+  "derivationWarnings": [
+    {
+      "playerId": "humberto",
+      "groupId": "D",
+      "declared": {
+        "first": "australia",
+        "second": "paraguay"
+      },
+      "derived": {
+        "first": "australia",
+        "second": "usa"
+      }
     }
   ],
   "previousPositions": {}

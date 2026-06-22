@@ -82,7 +82,7 @@ Regla madre: no existe polla incompleta. El JSON final solo se descarga cuando e
 ## Modulos ESM
 - `predicciones.validation.js`: modulo puro sin DOM; valida grupo y polla completa con contadores 72/12/24.
 - `predicciones.export.js`: construye el payload oficial, genera `predicciones_<jugador>_<YYYY-MM-DD_HH-mm>.json` y descarga con `Blob`.
-- `predicciones.standings.js`: calcula tabla de posiciones, clasificados automaticos y resultados random ponderados.
+- `predicciones.standings.js`: calcula tabla de posiciones, clasificados automaticos y resultados random ponderados. Desempate = criterio OFICIAL FIFA 2026 (head-to-head PRIMERO): PTS > head-to-head(pts,DG,GF) > DG total > GF total > fair play N/A > fallback (indice original). Fuente unica `compareRows` (2 equipos) + `rankGroupRows` (mini-tabla transitiva para 3+); se propaga a tabla de grupo de `/fixture`, 1o/2o en vivo y bonos +1/+3.
 
 ## Storage
 - `polla:predictions`

@@ -72,13 +72,21 @@ test("rechaza jugadores desconocidos", () => {
   );
 });
 
-test("rechaza clasificados incoherentes con los marcadores", () => {
-  const broken = structuredClone(entries[0]);
-  broken.fileName = "clasificados-incoherentes.json";
-  broken.document.groupPredictions[0].firstPlace = "south-africa";
-  assert.throws(
-    () => validateSubmission({ ...broken, ...context }),
-    /pero los marcadores producen/
+test("clasificado declarado distinto al recompute: se DERIVA al criterio 2026 + aviso (no falla)", () => {
+  const altered = structuredClone(entries[0]);
+  altered.fileName = "declarado-distinto.json";
+  const groupId = altered.document.groupPredictions[0].groupId;
+  // declarar un 1o valido del grupo pero distinto al que producen los marcadores.
+  altered.document.groupPredictions[0].firstPlace = "south-africa";
+  const validated = validateSubmission({ ...altered, ...context });
+  // ya no falla: el clasificado se deriva del recompute 2026, el declarado es advisory.
+  const first = validated.qualifiedPredictions.find(
+    (q) => q.groupId === groupId && q.position === 1
+  );
+  assert.notEqual(first.teamId, "south-africa", "deriva del recompute 2026, no del declarado");
+  assert.ok(
+    validated.warnings.some((w) => w.groupId === groupId),
+    "registra un aviso de derivacion para el grupo alterado"
   );
 });
 

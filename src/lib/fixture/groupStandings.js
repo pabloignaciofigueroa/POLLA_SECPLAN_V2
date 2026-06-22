@@ -32,3 +32,52 @@ export function buildOfficialGroupStandings({ group, matches = [], officialResul
 
   return calculateGroupStandings(group, groupMatches, resultsMap);
 }
+
+const readScores = (payload) => {
+  const home = payload?.homeScore ?? payload?.homeTeamScore;
+  const away = payload?.awayScore ?? payload?.awayTeamScore;
+  const h = Number(home);
+  const a = Number(away);
+  if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return null;
+  return { homeScore: h, awayScore: a };
+};
+
+/**
+ * Tabla de grupo desde resultados OFICIALES mezclados con LIVE (provisional).
+ *
+ * Oficial es autoritativo (pisa al live del mismo partido); el live solo rellena
+ * partidos aun no oficiales. NO hace gating de fase: asume que `live` ya viene
+ * filtrado a "los que cuentan" por F1 (resolveActiveWindow). El mapeo *TeamScore ->
+ * *Score se tolera aqui (igual que buildOfficialGroupStandings), no es un segundo
+ * gating. Reusa calculateGroupStandings (desempate gratis).
+ *
+ * @param {{ group: object, matches: object[], official: object[], live: object[] }} args
+ * @returns {ReturnType<typeof calculateGroupStandings> & { isProvisional: boolean, liveCount: number, finishedCount: number }}
+ */
+export function buildMergedGroupStandings({ group, matches = [], official = [], live = [] }) {
+  const groupMatches = matches.filter((match) => match.groupId === group?.id);
+  const groupMatchIds = new Set(groupMatches.map((match) => match.id));
+
+  const resultsMap = {};
+  let finishedCount = 0;
+  for (const result of official) {
+    if (!result?.matchId || !groupMatchIds.has(result.matchId)) continue;
+    const scores = readScores(result);
+    if (!scores) continue;
+    if (!resultsMap[result.matchId]) finishedCount += 1;
+    resultsMap[result.matchId] = scores;
+  }
+
+  let liveCount = 0;
+  for (const result of live) {
+    if (!result?.matchId || !groupMatchIds.has(result.matchId)) continue;
+    if (resultsMap[result.matchId]) continue; // oficial pisa live
+    const scores = readScores(result);
+    if (!scores) continue;
+    resultsMap[result.matchId] = scores;
+    liveCount += 1;
+  }
+
+  const standings = calculateGroupStandings(group, groupMatches, resultsMap);
+  return { ...standings, finishedCount, liveCount, isProvisional: liveCount > 0 };
+}

@@ -66,7 +66,7 @@ function applyResult(row, goalsFor, goalsAgainst) {
   }
 }
 
-function directStats(teamId, opponents, matches, predictions) {
+export function directStats(teamId, opponents, matches, predictions) {
   const stats = { points: 0, goalDifference: 0, goalsFor: 0 };
   const opponentSet = new Set(opponents);
 
@@ -93,22 +93,113 @@ function directStats(teamId, opponents, matches, predictions) {
   return stats;
 }
 
-function compareRows(a, b, groupMatches, predictions) {
-  const globalDiff =
-    b.points - a.points ||
-    b.goalDifference - a.goalDifference ||
-    b.goalsFor - a.goalsFor;
-  if (globalDiff !== 0) return globalDiff;
+// Desempate al criterio OFICIAL FIFA Copa 2026 (head-to-head ANTES de la DG/GF global).
+// Orden: puntos -> head-to-head(pts,DG,GF entre los empatados) -> DG total -> GF total
+//        -> fair play (NO DISPONIBLE: no hay datos de tarjetas en la polla)
+//        -> fallback declarado (indice original estable; ver rankGroupRows/doc).
+// Cambio vs el criterio viejo (2018/2022): el head-to-head SUBE de prioridad.
+// Comparador par-a-par valido para 2 equipos; para 3+ usar rankGroupRows (mini-tabla
+// transitiva). Fuente unica: no duplicar esta logica en otra parte.
+export function compareRows(a, b, groupMatches, predictions) {
+  // 1) Puntos totales (deben estar empatados para llegar al desempate).
+  if (b.points !== a.points) return b.points - a.points;
 
+  // 2) PASO 1 - head-to-head entre los dos equipos (pts, DG, GF).
   const aDirect = directStats(a.teamId, [b.teamId], groupMatches, predictions);
   const bDirect = directStats(b.teamId, [a.teamId], groupMatches, predictions);
-  const directDiff =
+  const h2h =
     bDirect.points - aDirect.points ||
     bDirect.goalDifference - aDirect.goalDifference ||
     bDirect.goalsFor - aDirect.goalsFor;
-  if (directDiff !== 0) return directDiff;
+  if (h2h !== 0) return h2h;
 
+  // 3) PASO 2 - totales del grupo (DG total, GF total).
+  const overall = b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor;
+  if (overall !== 0) return overall;
+
+  // 4) fair play (tarjetas): NO DISPONIBLE en el modelo (no hay datos de tarjetas).
+  // 5) fallback final declarado de la polla: indice original estable (no azar).
   return a.originalIndex - b.originalIndex;
+}
+
+const sameMini = (a, b) =>
+  a.points === b.points && a.goalDifference === b.goalDifference && a.goalsFor === b.goalsFor;
+
+// Ordena un CLUSTER de equipos empatados a puntos al criterio 2026, transitivo:
+// PASO 1 (head-to-head) = mini-tabla del record COMPLETO de cada equipo contra el resto
+// del cluster (no comparador par-a-par no transitivo). Los que sigan iguales en la mini
+// caen al PASO 2 (DG total -> GF total -> fair play N/A -> fallback indice original).
+// Borde FIFA conocido (no implementado): si tras el PASO 2 un subconjunto vuelve a
+// empatar, la regla re-aplica desde el PASO 1 a ese subconjunto. La version cluster +
+// fallback resuelve los casos practicos de la polla.
+function rankCluster(cluster, groupMatches, predictions) {
+  if (cluster.length === 1) return cluster.slice();
+
+  const ids = cluster.map((row) => row.teamId);
+  const mini = new Map(
+    cluster.map((row) => [
+      row.teamId,
+      directStats(row.teamId, ids.filter((id) => id !== row.teamId), groupMatches, predictions),
+    ])
+  );
+
+  // PASO 1: mini-tabla (pts -> DG -> GF entre los empatados). Transitiva: ordena por el
+  // record agregado precomputado de cada equipo dentro del cluster.
+  const byMini = [...cluster].sort((a, b) => {
+    const ma = mini.get(a.teamId);
+    const mb = mini.get(b.teamId);
+    return (
+      mb.points - ma.points ||
+      mb.goalDifference - ma.goalDifference ||
+      mb.goalsFor - ma.goalsFor ||
+      0
+    );
+  });
+
+  // Sub-clusters que quedan IGUALES en la mini -> PASO 2 (totales del grupo).
+  const ordered = [];
+  let i = 0;
+  while (i < byMini.length) {
+    let j = i;
+    while (j < byMini.length && sameMini(mini.get(byMini[j].teamId), mini.get(byMini[i].teamId))) {
+      j += 1;
+    }
+    const sub = byMini.slice(i, j);
+    if (sub.length === 1) {
+      ordered.push(sub[0]);
+    } else {
+      ordered.push(
+        ...[...sub].sort(
+          (a, b) =>
+            b.goalDifference - a.goalDifference || // PASO 2: DG total
+            b.goalsFor - a.goalsFor || // PASO 2: GF total
+            // fair play (tarjetas): NO DISPONIBLE.
+            a.originalIndex - b.originalIndex // fallback declarado (no azar)
+        )
+      );
+    }
+    i = j;
+  }
+  return ordered;
+}
+
+// Ordenador del grupo al criterio 2026 (puro, transitivo, determinista). Agrupa por
+// puntos y resuelve cada cluster de empatados con la mini-tabla. Reemplaza el
+// `.sort(compareRows)` par-a-par (no confiable en empates de 3+).
+export function rankGroupRows(rows, groupMatches = [], predictions = {}) {
+  const byPoints = [...rows].sort(
+    (a, b) => b.points - a.points || a.originalIndex - b.originalIndex
+  );
+  const ordered = [];
+  let i = 0;
+  while (i < byPoints.length) {
+    let j = i;
+    while (j < byPoints.length && byPoints[j].points === byPoints[i].points) j += 1;
+    const cluster = byPoints.slice(i, j);
+    ordered.push(...(cluster.length === 1 ? cluster : rankCluster(cluster, groupMatches, predictions)));
+    i = j;
+  }
+  return ordered;
 }
 
 export function calculateGroupStandings(group, groupMatches = [], predictions = {}) {
@@ -130,8 +221,10 @@ export function calculateGroupStandings(group, groupMatches = [], predictions = 
     completedMatches += 1;
   }
 
-  const standings = Array.from(rowsByTeam.values()).sort((a, b) =>
-    compareRows(a, b, groupMatches, predictions)
+  const standings = rankGroupRows(
+    Array.from(rowsByTeam.values()),
+    groupMatches,
+    predictions
   );
 
   standings.forEach((row, index) => {

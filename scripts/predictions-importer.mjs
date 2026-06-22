@@ -63,6 +63,7 @@ export function validateSubmission({
   const seenMatches = new Set();
   const predictions = [];
   const qualifiedPredictions = [];
+  const warnings = [];
 
   for (const groupEntry of groupPredictions) {
     const group = groupById.get(groupEntry.groupId);
@@ -120,16 +121,24 @@ export function validateSubmission({
       matches.filter((match) => match.groupId === group.id),
       predictionsByMatch
     );
+    // Fuente de verdad del clasificado = marcadores x criterio OFICIAL FIFA 2026
+    // (no el declarado). Los cartones se llenaron con el criterio viejo; donde el
+    // head-to-head cambia el orden, el declarado queda obsoleto. Se DERIVA del recompute
+    // 2026 y se registra un aviso; no se falla (el torneo real tambien usa 2026).
     const automatic = getAutomaticQualified(standings);
+    if (automatic.firstPlaceTeamId == null || automatic.secondPlaceTeamId == null) {
+      fail(fileName, `Grupo ${group.id}: no se pudo derivar el clasificado (grupo incompleto).`);
+    }
     if (
       automatic.firstPlaceTeamId !== firstPlaceTeamId ||
       automatic.secondPlaceTeamId !== secondPlaceTeamId
     ) {
-      fail(
-        fileName,
-        `Grupo ${group.id} declara ${firstPlaceTeamId}/${secondPlaceTeamId}, ` +
-          `pero los marcadores producen ${automatic.firstPlaceTeamId}/${automatic.secondPlaceTeamId}.`
-      );
+      warnings.push({
+        playerId,
+        groupId: group.id,
+        declared: { first: firstPlaceTeamId, second: secondPlaceTeamId },
+        derived: { first: automatic.firstPlaceTeamId, second: automatic.secondPlaceTeamId },
+      });
     }
 
     qualifiedPredictions.push(
@@ -137,13 +146,13 @@ export function validateSubmission({
         playerId,
         groupId: group.id,
         position: 1,
-        teamId: firstPlaceTeamId,
+        teamId: automatic.firstPlaceTeamId,
       },
       {
         playerId,
         groupId: group.id,
         position: 2,
-        teamId: secondPlaceTeamId,
+        teamId: automatic.secondPlaceTeamId,
       }
     );
   }
@@ -178,6 +187,7 @@ export function validateSubmission({
     },
     predictions,
     qualifiedPredictions,
+    warnings,
   };
 }
 
@@ -193,6 +203,7 @@ export function buildDataset({
   const submissions = [];
   const predictions = [];
   const qualifiedPredictions = [];
+  const derivationWarnings = [];
 
   for (const entry of entries) {
     const validated = validateSubmission({
@@ -209,6 +220,7 @@ export function buildDataset({
     submissions.push(validated.submission);
     predictions.push(...validated.predictions);
     qualifiedPredictions.push(...validated.qualifiedPredictions);
+    derivationWarnings.push(...(validated.warnings ?? []));
   }
 
   submissions.sort((a, b) => a.playerId.localeCompare(b.playerId));
@@ -247,6 +259,7 @@ export function buildDataset({
     submissions,
     predictions,
     qualifiedPredictions,
+    derivationWarnings,
     previousPositions: {},
   };
 }
