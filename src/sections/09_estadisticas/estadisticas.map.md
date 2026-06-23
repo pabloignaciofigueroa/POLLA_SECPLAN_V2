@@ -1,7 +1,43 @@
 # 09_estadisticas — Mapa técnico
 
 ## Estado
-dashboard-coral-implemented + data-arena-cards + data-arena-base-13 + score-race-grafico
+dashboard-coral-implemented + data-arena-cards + data-arena-base-13 + score-race-grafico + clasificacion-grupos-f9
+
+## Clasificacion de grupos (pestaña CLASIFICACIÓN, F9) - 2026-06-23
+
+- Nueva pestaña `data-stats-tab="grupos"` / panel `data-stats-panel="grupos"`,
+  agregada AL FINAL del tablist (orden: GRÁFICO · PARTIDOS · COMUNIDAD · MI PERFIL ·
+  COMPARAR · CLASIFICACIÓN). `activateTab` registra "grupos" en la lista blanca;
+  `.stats-tabs` paso de 5 a 6 columnas (3 en tablet, 2 en mobile). Deep-link `?tab=grupos`.
+- Vista POR JUGADOR de sus 12 grupos (A..L). Selector propio del panel
+  (`[data-grupos-player-select]`) arranca en `polla:selectedPlayerId` y se puede
+  cambiar sin tocar la identidad local. Por grupo: pick 1o/2o vs equipo que va
+  ahora, +1/+3/0 por linea, total del grupo, y ESTADO.
+- Estados (regla clave, gate de la fundacion — F9 NO re-gatea):
+  - BLOQUEADO (gris/candado): `computeGroupSituation(...).definitionStarted === false`
+    y no FINAL. Pick visible, sin equipo actual (candado), sin puntos ("—"). Es el
+    estado por defecto de casi todos los grupos en un dia normal. NUNCA muestra un
+    1o/2o provisional sacado de fechas 1-2.
+  - EN DEFINICION (naranja): >=1 final de 3a fecha del grupo en vivo. 1o/2o y puntos
+    provisionales.
+  - DEFINITIVO (verde): closure `state==='final'`. 1o/2o y puntos congelados.
+- Fuente unica (CERO formula nueva en la UI): `buildGroupBonuses.byGroup` da las
+  lineas +1/+3/0 por jugador SOLO para grupos en definicion/cerrados; los bloqueados
+  no aparecen en `byGroup` y se pintan desde el pick directo (`qualifiedPredictions`).
+  El estado/1o/2o sale de `computeGroupSituation`; el gatillo de `isGroupDefinitionStarted`.
+- Pipeline (igual que F7/tabla): F1 `resolveActiveWindow` es el UNICO que gatea fase
+  y mapea `*TeamScore`→`*Score`; de su salida sale `gatedLive` (TODOS los marcadores
+  en vivo a la vez, no solo el ultimo) que consumen las libs de grupo.
+- Dueño unico del dataset: `estadisticas.client.js` reusa el `subscribeLiveData` que
+  YA existe (NO abre un segundo). Re-render de `renderGrupos` cuando la pestaña grupos
+  esta activa, con memo por firma (oficiales + live + closures + jugador). Solo LECTURA
+  (multi-write off; `closuresByGroup` derivado de `liveSnapshot.groupClosures`).
+- CSS: el panel se llena por innerHTML en runtime, asi que el estilo va en
+  `<style is:global>` anclado a `[data-stats-panel="grupos"]` (gotcha de scope).
+  Estados con color + texto/candado (no color solo). Sin animaciones nuevas; mobile en
+  1 columna; tabs accesibles (role=tab/aria-selected/aria-controls).
+- Tests: `tests/estadisticas-grupos-matrix.test.mjs` (caso BLOQUEADO total, un final
+  abre solo su grupo, +1/+3/0 por linea, DEFINITIVO solo con closure).
 
 ## Carrera de Puntaje (pestaña GRÁFICO) - 2026-06-13
 

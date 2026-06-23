@@ -2,7 +2,18 @@ import players from "../../data/players.json";
 import fixture from "../../data/fixture.json";
 import groups from "../../data/groups.json";
 import teams from "../../data/teams.json";
+import predictionsData from "../../data/predictions.json";
 import { ensurePollaStorageVersion } from "../../lib/storage/resetPollaState.js";
+// F9: clasificacion 1o/2o por grupo. Bonos + estado del grupo salen de la
+// fundacion (cero formula nueva en la UI); el gatillo del bono (>=1 final de 3a
+// fecha) ya esta en isGroupDefinitionStarted, no se re-gatea aqui.
+import { buildGroupBonuses } from "../../lib/scoring/groupBonuses.js";
+import {
+  computeGroupSituation,
+  isGroupDefinitionStarted,
+  GROUP_STATE,
+} from "../../lib/fixture/groupState.js";
+import { resolveActiveWindow } from "../../lib/liveMatch/activeWindow.js";
 import {
   buildCommunityAnalysis,
   getOutcome,
@@ -35,6 +46,9 @@ import { createScoreRace } from "./score-race.client.js";
   const playerById = new Map(players.map((player) => [player.id, player]));
   const matchById = new Map(fixture.matches.map((match) => [match.id, match]));
   const teamById = new Map(teams.map((team) => [team.id, team]));
+  // F9: picks de clasificacion 1o/2o por jugador/grupo. El pick existe SIEMPRE
+  // (se muestra incluso en grupos bloqueados); lo que se gatea es el puntaje.
+  const qualifiedPredictions = predictionsData.qualifiedPredictions ?? [];
   // Numero correlativo cronologico (1..N) para mostrar en la lista y el detalle,
   // en vez del matchNumber FIFA (que mezcla grupos por horario).
   const sequenceById = buildMatchSequence(fixture.matches);
@@ -50,6 +64,11 @@ import { createScoreRace } from "./score-race.client.js";
     analysis: null,
     dataset: null,
     selectedPlayerId: null,
+    // F9: jugador mostrado en la pestana Clasificacion (selector propio del panel;
+    // arranca en la identidad local y se puede cambiar sin tocar la identidad).
+    groupPlayerId: null,
+    // F9: firma del ultimo snapshot rendido (memo para no re-pintar sin cambios).
+    groupsSignature: null,
     liveSnapshot: { liveMatch: null, officialResults: [] },
   };
 
@@ -289,7 +308,7 @@ import { createScoreRace } from "./score-race.client.js";
   const activateTab = (tabId, updateUrl = true) => {
     // "clasificados" (deep link viejo) se aliasa a "comparar".
     const normalized = tabId === "clasificados" ? "comparar" : tabId;
-    const allowed = new Set(["grafico", "perfil", "comunidad", "partidos", "comparar"]);
+    const allowed = new Set(["grafico", "perfil", "comunidad", "partidos", "comparar", "grupos"]);
     state.activeTab = allowed.has(normalized) ? normalized : "grafico";
     section.querySelectorAll("[data-stats-tab]").forEach((button) => {
       const active = button.dataset.statsTab === state.activeTab;
@@ -304,6 +323,11 @@ import { createScoreRace } from "./score-race.client.js";
       url.searchParams.set("tab", state.activeTab);
       if (state.activeTab !== "partidos") url.searchParams.delete("match");
       window.history.replaceState({}, "", url);
+    }
+    // F9: al entrar a Clasificacion, pintar con el snapshot mas reciente.
+    if (state.activeTab === "grupos" && state.analysis) {
+      state.groupsSignature = null;
+      renderGrupos();
     }
   };
 
@@ -763,11 +787,243 @@ import { createScoreRace } from "./score-race.client.js";
       </div>`;
   };
 
+  // ── F9: Clasificacion 1o/2o por grupo ───────────────────────────────────────
+  // Vista por jugador de sus 12 grupos. Estado por grupo (BLOQUEADO / EN
+  // DEFINICION / DEFINITIVO) y bonos +1/+3/0 salen de la fundacion; aqui NO se
+  // re-implementa ni la formula del bono ni el gatillo. Solo lectura del seam.
+  const GROUP_IDS = groups.map((group) => group.id);
+  const groupById = new Map(groups.map((group) => [group.id, group]));
+  // teamById ya cubre teams.json; el shortCode vive ahi. Fallback a mayusculas.
+  const groupCodeOf = (teamId) =>
+    teamById.get(teamId)?.shortCode ?? (teamId ? String(teamId).toUpperCase() : "—");
+  const groupNameOf = (teamId) => teamById.get(teamId)?.name ?? (teamId ? String(teamId) : "—");
+
+  const groupPickFor = (playerId, groupId, position) =>
+    (qualifiedPredictions.find(
+      (q) => q.playerId === playerId && q.groupId === groupId && q.position === position
+    ) ?? {}).teamId ?? null;
+
+  // closuresByGroup desde el snapshot (groupClosures es un array de GroupClosure).
+  const closuresByGroupFrom = (snapshot) => {
+    const map = {};
+    (snapshot.groupClosures ?? []).forEach((closure) => {
+      if (closure?.groupId) map[closure.groupId] = closure;
+    });
+    return map;
+  };
+
+  // Modelo del panel para UN jugador: 12 grupos con estado y, si aplica, los
+  // bonos por linea (de buildGroupBonuses.byGroup). Replica el patron F7: F1
+  // (resolveActiveWindow) es el unico que gatea fase y mapea *TeamScore->*Score;
+  // de ahi sale el `gatedLive` que consumen las libs de grupo.
+  const buildGroupsModel = (playerId) => {
+    const officialResults = state.liveSnapshot.officialResults ?? [];
+    // TODOS los marcadores en vivo a la vez (no solo el ultimo): liveMatches[].
+    const liveMatches = Array.isArray(state.liveSnapshot.liveMatches)
+      ? state.liveSnapshot.liveMatches
+      : state.liveSnapshot.liveMatch
+        ? [state.liveSnapshot.liveMatch]
+        : [];
+    const closuresByGroup = closuresByGroupFrom(state.liveSnapshot);
+    const now = Date.now();
+
+    // Ventana activa = unica fuente del gating de fase + mapeo de marcador.
+    const win = resolveActiveWindow({
+      fixture: fixture.matches,
+      official: officialResults,
+      live: liveMatches,
+      now,
+    });
+    const gatedLive = win.matches
+      .filter((m) => m.phase === "live")
+      .map((m) => ({ matchId: m.matchId, homeScore: m.homeScore, awayScore: m.awayScore }));
+
+    // Bonos solo de grupos EN DEFINICION o cerrados (los bloqueados NO aparecen).
+    const { byGroup } = buildGroupBonuses({
+      players,
+      qualifiedPredictions,
+      groups,
+      fixture: fixture.matches,
+      official: officialResults,
+      live: gatedLive,
+      closuresByGroup,
+    });
+
+    let definitiveTotal = 0;
+    let provisionalTotal = 0;
+
+    const cards = GROUP_IDS.map((groupId) => {
+      const group = groupById.get(groupId);
+      const closure = closuresByGroup[groupId] ?? null;
+      const pick1 = groupPickFor(playerId, groupId, 1);
+      const pick2 = groupPickFor(playerId, groupId, 2);
+
+      const sit = computeGroupSituation(groupId, {
+        group,
+        fixture: fixture.matches,
+        official: officialResults,
+        live: gatedLive,
+        closure,
+      });
+      const started = sit.definitionStarted;
+      const isFinal = sit.state === GROUP_STATE.FINAL;
+
+      // BLOQUEADO: sin ventana abierta y sin closure final. Pick visible, sin
+      // equipo actual y sin puntos. Estado por defecto de casi todos los grupos.
+      if (!started && !isFinal) {
+        return {
+          groupId,
+          label: group?.label ?? `Grupo ${groupId}`,
+          state: "locked",
+          pick1,
+          pick2,
+          current1: null,
+          current2: null,
+          points1: null,
+          points2: null,
+          total: null,
+        };
+      }
+
+      // EN DEFINICION o DEFINITIVO: tomar las 2 lineas del jugador de byGroup.
+      const lines = byGroup[groupId] ?? [];
+      const lineFor = (evento) =>
+        lines.find((l) => l.playerId === playerId && l.evento === evento) ?? null;
+      const line1 = lineFor("first");
+      const line2 = lineFor("second");
+      const points1 = line1?.puntos ?? 0;
+      const points2 = line2?.puntos ?? 0;
+      const total = points1 + points2;
+
+      if (isFinal) definitiveTotal += total;
+      else provisionalTotal += total;
+
+      return {
+        groupId,
+        label: group?.label ?? `Grupo ${groupId}`,
+        state: isFinal ? "final" : "in_definition",
+        pick1: line1?.predictedTeamId ?? pick1,
+        pick2: line2?.predictedTeamId ?? pick2,
+        // Equipo que va 1o/2o ahora (provisional si en definicion, congelado si final).
+        current1: sit.first ?? null,
+        current2: sit.second ?? null,
+        points1,
+        points2,
+        total,
+      };
+    });
+
+    return { cards, definitiveTotal, provisionalTotal };
+  };
+
+  const STATE_LABEL = {
+    locked: "BLOQUEADO",
+    in_definition: "EN DEFINICION",
+    final: "DEFINITIVO",
+  };
+
+  const renderGroupCard = (card) => {
+    const locked = card.state === "locked";
+    const renderSlot = (position, pick, current, points) => {
+      const pickCode = groupCodeOf(pick);
+      const pickName = groupNameOf(pick);
+      const bonus = position === 1 ? "+1" : "+3";
+      if (locked) {
+        return `
+          <div class="g-slot" data-grupo-${position === 1 ? "first" : "second"}>
+            <span class="g-pos"><span class="g-badge" data-pos="${position}">${position}o</span> ${bonus}</span>
+            <span class="g-pick" title="${escapeHtml(pickName)}">${escapeHtml(pickCode)}</span>
+            <span class="g-arrow" aria-hidden="true">→</span>
+            <span class="g-current g-locked-current" aria-label="Se activa al empezar la fecha final">🔒</span>
+            <span class="g-pts g-pts-locked">—</span>
+          </div>`;
+      }
+      const hit = points > 0;
+      const currentCode = groupCodeOf(current);
+      const currentName = groupNameOf(current);
+      return `
+        <div class="g-slot" data-grupo-${position === 1 ? "first" : "second"} data-hit="${hit}">
+          <span class="g-pos"><span class="g-badge" data-pos="${position}">${position}o</span> ${bonus}</span>
+          <span class="g-pick" title="${escapeHtml(pickName)}">${escapeHtml(pickCode)}</span>
+          <span class="g-arrow" aria-hidden="true">→</span>
+          <span class="g-current" title="${escapeHtml(currentName)}">${escapeHtml(currentCode)}</span>
+          <span class="g-pts" data-hit="${hit}">${hit ? `+${points}` : "0"}</span>
+        </div>`;
+    };
+
+    const totalLabel = locked ? "—" : card.total > 0 ? `+${card.total}` : "0";
+    return `
+      <article class="grupo-card" data-grupo-card data-group-id="${card.groupId}" data-grupo-state="${card.state}">
+        <header class="grupo-head">
+          <h3>${escapeHtml(card.label)}</h3>
+          <span class="grupo-state" data-grupo-state="${card.state}">
+            ${locked ? '<span class="g-lock" aria-hidden="true">🔒</span>' : ""}${STATE_LABEL[card.state]}
+          </span>
+        </header>
+        <div class="grupo-slots">
+          ${renderSlot(1, card.pick1, card.current1, card.points1)}
+          ${renderSlot(2, card.pick2, card.current2, card.points2)}
+        </div>
+        <footer class="grupo-foot">
+          <span>Total grupo</span>
+          <strong class="grupo-total" data-grupo-total>${totalLabel}</strong>
+        </footer>
+      </article>`;
+  };
+
+  const renderGrupos = (panelArg) => {
+    const panel = panelArg ?? section.querySelector('[data-stats-panel="grupos"]');
+    if (!panel) return;
+    // Jugador del panel: arranca en la identidad local; el selector lo cambia.
+    if (!state.groupPlayerId || !playerById.has(state.groupPlayerId)) {
+      state.groupPlayerId =
+        (state.selectedPlayerId && playerById.has(state.selectedPlayerId)
+          ? state.selectedPlayerId
+          : null) ?? players[0]?.id ?? null;
+    }
+    const playerId = state.groupPlayerId;
+    const { cards, definitiveTotal, provisionalTotal } = buildGroupsModel(playerId);
+    const lockedCount = cards.filter((c) => c.state === "locked").length;
+
+    const playerOptions = players
+      .map(
+        (player) =>
+          `<option value="${player.id}" ${player.id === playerId ? "selected" : ""}>${escapeHtml(player.name)}</option>`
+      )
+      .join("");
+
+    panel.innerHTML = `
+      <div class="grupos-layout" data-grupos-player="${escapeHtml(playerId ?? "")}">
+        <header class="grupos-head">
+          <div class="grupos-head-main">
+            <span class="grupos-kicker">CLASIFICACION 1o / 2o</span>
+            <label class="grupos-player-select">
+              <span class="sr-only">Jugador</span>
+              <select data-grupos-player-select aria-label="Elegir jugador">${playerOptions}</select>
+            </label>
+          </div>
+          <dl class="grupos-totals" aria-label="Total de clasificacion del jugador">
+            <div><dt>Definitivo</dt><dd data-grupos-definitive>${definitiveTotal > 0 ? `+${definitiveTotal}` : "0"}</dd></div>
+            <div><dt>En definicion</dt><dd data-grupos-provisional>${provisionalTotal > 0 ? `+${provisionalTotal}` : "0"}</dd></div>
+            <div><dt>Bloqueados</dt><dd data-grupos-locked>${lockedCount}/12</dd></div>
+          </dl>
+        </header>
+        <p class="grupos-note">
+          Los grupos bloqueados se activan cuando empieza su fecha final. Hasta
+          entonces ves tu pronostico, sin 1o/2o provisional ni puntos.
+        </p>
+        <div class="grupos-grid">
+          ${cards.map(renderGroupCard).join("")}
+        </div>
+      </div>`;
+  };
+
   const renderAll = () => {
     renderProfile();
     renderCommunity();
     renderMatches();
     renderQualifiers();
+    renderGrupos();
   };
 
   const loadDashboard = async () => {
@@ -877,6 +1133,11 @@ import { createScoreRace } from "./score-race.client.js";
       url.searchParams.set("player", target.value);
       window.history.replaceState({}, "", url);
       renderQualifiers();
+    } else if (target.matches("[data-grupos-player-select]")) {
+      // F9: cambiar el jugador del panel Clasificacion re-pinta la matriz.
+      state.groupPlayerId = target.value;
+      state.groupsSignature = null; // forzar re-render aunque el snapshot no cambie
+      renderGrupos();
     }
   });
 
@@ -910,6 +1171,20 @@ import { createScoreRace } from "./score-race.client.js";
         renderMatches();
         // El snapshot remoto es autoritativo: des-finalizar saca el partido.
         scoreRace?.update({ dataset: state.dataset, liveSnapshot, remoteLoaded: true });
+      }
+      // F9: re-pintar Clasificacion si su pestana esta activa. Memo por firma
+      // (oficiales + live + closures + jugador) para no re-pintar sin cambios.
+      if (state.activeTab === "grupos") {
+        const signature = JSON.stringify({
+          o: liveSnapshot.officialResults ?? [],
+          l: liveSnapshot.liveMatches ?? (liveSnapshot.liveMatch ? [liveSnapshot.liveMatch] : []),
+          c: liveSnapshot.groupClosures ?? [],
+          p: state.groupPlayerId,
+        });
+        if (signature !== state.groupsSignature) {
+          state.groupsSignature = signature;
+          renderGrupos();
+        }
       }
     });
   }
