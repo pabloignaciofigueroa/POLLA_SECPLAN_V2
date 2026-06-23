@@ -6,6 +6,7 @@ import MatchReadingPanel from "./MatchReadingPanel.astro";
 import MatchContextPanel from "./MatchContextPanel.astro";
 import NextActionPanel from "./NextActionPanel.astro";
 import GroupDefinitionCenter from "./GroupDefinitionCenter.astro";
+import LivePersonalCard from "./LivePersonalCard.astro";
 import fixtureData from "../../data/fixture.json";
 import teamsData from "../../data/teams.json";
 import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
@@ -130,6 +131,10 @@ const clientPayload = {
       />
     </div>
   </div>
+
+  <!-- F10: barra personal fija (solo mobile, solo con vivo). Alimentada por el mismo
+       recompute de F6 (recomputeCenter) en proximo-partido.client.js. -->
+  <LivePersonalCard />
 
   <script type="application/json" data-proximo-partido-payload set:html={JSON.stringify(clientPayload)} />
   <script>

@@ -3,6 +3,46 @@
 ## Estado
 wireframe-implemented
 
+## F10 - Barra personal fija en vivo (2026-06-23, SOLO mobile, SOLO LECTURA)
+
+Pieza nueva `LivePersonalCard.astro`: una barra FIJA al fondo del viewport que aparece
+SOLO en mobile (<=720px) y SOLO cuando hay un grupo EN DEFINICION (mismo gate que el Centro
+de F6). Es la version "siempre a la vista en el celular" de la tarjeta "Tu impacto" de F6:
+muestra TU proyectado + "N oficiales + M en juego" mientras scrolleas, sin buscar tu fila.
+
+- Markup SSR estatico (contenedor `[data-live-personal-card]`, `data-active="false"` por
+  defecto -> oculto, cero regresion). El client solo setea `textContent`/`data-*` sobre nodos
+  ya renderizados (no inyecta DOM por innerHTML), asi que el CSS scoped de Astro aplica
+  (no hace falta `<style is:global>` aqui).
+- Capa 1 (colapsada): "TU PUNTAJE EN VIVO" + proyectado protagonista (`[data-lpc-projected]`)
+  + subtexto "N oficiales + M en juego" (`[data-lpc-subtext]`, gris si delta 0) + sello
+  EN VIVO (rojo, pulso) si hay un final del grupo activo en vivo. La barra ES el control.
+- Capa 2 (un toque, `[data-lpc-detail]`, cerrada por defecto): resumen por origen
+  (Partidos +X de `me.match.projected` / Clasificacion +Y de `me.group.projected`) + matriz
+  corta de 4 variables (Final 1 / Final 2 / 1o / 2o) leida de `me.lines` igual que F6, +
+  link "ver cronologia" que scrollea al feed F8 si esta activo.
+- Estados: sin `polla:selectedPlayerId` valido -> CTA "Elige tu jugador" (`[data-lpc-cta]`)
+  -> /jugador. Sin vivo -> oculta. Bono de grupo bloqueado: heredado del gate de la fundacion
+  (aporta 0 al ledger); el desglose nunca pinta 1o/2o provisional de grupos bloqueados.
+
+Wiring (MISMO dueno del dataset, sin canal nuevo):
+- `proximo-partido.client.js` alimenta la barra desde el UNICO `subscribeLiveData` ya
+  existente (F6/F8). En `recomputeCenter` se llama `updateLivePersonalCard(...)` en TODOS los
+  caminos: sin `activeGroupId` -> `{hasLive:false}` (oculta); con grupo en definicion ->
+  `{hasLive:true, me, pid, sit, effByMatch, finals}` con `me = ledger.byPlayer[pid]`. CERO
+  formula de puntaje en la UI (solo mapea `regla`/origen -> etiqueta/color, como F6). Releer
+  `polla:selectedPlayerId` en cada recompute.
+- No tapar contenido: `.proximoPartidoSection[data-lpc-active="true"] .contentShell` reserva
+  `padding-bottom: calc(5.5rem + env(safe-area-inset-bottom))` en <=720px. La barra respeta
+  `env(safe-area-inset-bottom)`. a11y: `aria-expanded` en el toggle, `aria-hidden` cuando
+  inactiva, `aria-live="polite"` en el subtexto, `:focus-visible`. Animacion <300ms con
+  `prefers-reduced-motion` -> sin desplazamiento/pulso.
+- Extension a /tabla y /estadisticas: DIFERIDA (ver
+  `comandas_F10_tarjeta_personal/22_pasoC_pulido_extension.md`, NOTA EJECUCION 2026-06-23):
+  el desglose esta acoplado al grupo unico en definicion de F6 y /estadisticas no calcula
+  `buildPointLedger.byPlayer` en su owner; no era reuso limpio sin regresion. El core
+  (/proximo-partido) es obligatorio y queda hecho.
+
 ## F8 - Cronologia "Que cambio" (2026-06-23, SOLO LECTURA)
 
 Feed cronologico que vive DENTRO del Centro de definicion (F6), DEBAJO de la tabla viva:

@@ -35,6 +35,16 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
     SSR/sincrono y dejar que el snapshot repinte.
 - Pintar dots de racha sin destruir el DOM: usar un `renderStreakDots` que actualice
   en vivo sin `innerHTML` completo, para no perder estado ni parpadear.
+- Barra fija inferior (F10 `LivePersonalCard`): una barra `position:fixed; bottom:0`
+  TAPA el ultimo contenido y, en iOS con notch, el home indicator se come la base.
+  - Fix: reservar espacio inferior en el contenido cuando la barra esta activa: sobre el
+    contenedor del contenido, `padding-bottom: calc(<alto barra> + env(safe-area-inset-bottom))`
+    bajo `[data-lpc-active="true"]`, y meter `env(safe-area-inset-bottom)` en el padding de
+    la propia barra. Ademas: la barra debe existir SOLO en mobile (`@media (max-width:720px)`)
+    y SOLO con vivo (el client togglea `data-active`); en desktop / sin vivo NO debe estar en el
+    DOM visible (cero regresion). Si su markup es SSR-estatico y el client solo setea
+    `textContent`/`data-*` (no inyecta nodos por innerHTML), el CSS scoped de Astro SI aplica:
+    no hace falta `<style is:global>` (ese gotcha es solo para DOM creado por innerHTML).
 
 ## 2. Datos en vivo, seam y suscripcion
 

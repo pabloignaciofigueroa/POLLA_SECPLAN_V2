@@ -68,6 +68,12 @@
   .detailsGrid {
     grid-template-columns: 1fr;
   }
+
+  /* F10: con la barra personal fija activa, reservar espacio inferior para que el
+     ultimo contenido no quede tapado (incluye safe-area en iOS). */
+  .proximoPartidoSection[data-lpc-active="true"] .contentShell {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

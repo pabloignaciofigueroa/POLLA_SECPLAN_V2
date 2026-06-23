@@ -660,6 +660,153 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     prevChangeSnapshot = snapshot;
   };
 
+  // ── F10: barra personal fija en vivo (SOLO mobile, SOLO con vivo) ───────────
+  // Presentacional: se alimenta del MISMO recompute que F6 (este `recomputeCenter`).
+  // No abre canal nuevo, no recalcula puntaje: LEE me = ledger.byPlayer[pid] (official,
+  // projected, lines). Oculta sin vivo / sin centro activo -> cero regresion. En desktop
+  // nunca se muestra (gate por CSS @media). El estado vive en data-attributes.
+  const lpc = section.querySelector("[data-live-personal-card]");
+  const lpcCta = lpc?.querySelector("[data-lpc-cta]");
+  const lpcBar = lpc?.querySelector("[data-lpc-toggle]");
+  const lpcDetail = lpc?.querySelector("[data-lpc-detail]");
+
+  const setLpcText = (sel, value) => {
+    const el = lpc?.querySelector(sel);
+    if (el) el.textContent = value;
+  };
+
+  // Rellena las 4 filas del desglose (Paso B), reusando me.lines EXACTAMENTE como F6:
+  // cero formula nueva. Defensa BLOQUEADO replica el gate heredado (no deberia ocurrir
+  // con la barra activa, que exige centro en definicion, pero se mantiene por seguridad).
+  const fillLpcDetail = (activeGroupId, sit, me, pid, effByMatch, finals) => {
+    if (!lpcDetail || !me) return;
+    const matchProjected = Math.round(me.match?.projected ?? 0);
+    const groupProjected = Math.round(me.group?.projected ?? 0);
+    setLpcText("[data-lpc-sum-match]", fmtSigned(matchProjected));
+    setLpcText("[data-lpc-sum-group]", fmtSigned(groupProjected));
+
+    const lineByKey = (predicate) => (me.lines ?? []).find(predicate) ?? null;
+    const predByMatch = (matchId) =>
+      predictions.find((p) => p.playerId === pid && p.matchId === matchId) ?? null;
+    const qpFor = (position) =>
+      qualifiedPredictions.find(
+        (q) => q.playerId === pid && q.groupId === activeGroupId && q.position === position
+      )?.teamId ?? null;
+
+    const fillRow = (key, { variable, pred, now, type, token, pts }) => {
+      const tr = lpcDetail.querySelector(`[data-lpc-row="${key}"]`);
+      if (!tr) return;
+      const set = (sel, value) => {
+        const el = tr.querySelector(sel);
+        if (el) el.textContent = value;
+      };
+      set("[data-lpc-var]", variable);
+      set("[data-lpc-pred]", pred);
+      set("[data-lpc-now]", now);
+      const typeEl = tr.querySelector("[data-lpc-type]");
+      if (typeEl) {
+        typeEl.textContent = type;
+        typeEl.dataset.token = token;
+      }
+      set("[data-lpc-pts]", pts);
+    };
+
+    (finals ?? []).forEach((match, index) => {
+      const line = lineByKey((l) => l.origen === "match" && l.evento === match.id);
+      const pred = predByMatch(match.id);
+      const eff = effByMatch?.get(match.id) ?? null;
+      const meta = MATCH_TYPE[line?.regla] ?? MATCH_TYPE.none;
+      fillRow(index === 0 ? "final1" : "final2", {
+        variable: `${codeOf(match.homeTeam?.id)}–${codeOf(match.awayTeam?.id)}`,
+        pred: pred ? `${pred.homeScore}-${pred.awayScore}` : "—",
+        now: eff ? `${eff.homeScore}-${eff.awayScore}` : "POR INICIAR",
+        type: line ? meta.label : "SIN INFO",
+        token: meta.token,
+        pts: fmtSigned(line ? line.puntos : 0),
+      });
+    });
+
+    const groupBlocked = sit?.definitionStarted === false && sit?.state !== "final";
+    [
+      { key: "first", position: 1, current: sit?.first, badge: "1o de grupo" },
+      { key: "second", position: 2, current: sit?.second, badge: "2o de grupo" },
+    ].forEach(({ key, position, current, badge }) => {
+      if (groupBlocked) {
+        fillRow(key, { variable: badge, pred: "—", now: "—", type: "BLOQUEADO", token: "locked", pts: "—" });
+        return;
+      }
+      const line = lineByKey((l) => l.origen === "group" && l.group === activeGroupId && l.evento === key);
+      const meta = GROUP_TYPE[line?.regla] ?? GROUP_TYPE.group_miss;
+      fillRow(key, {
+        variable: badge,
+        pred: codeOf(qpFor(position)),
+        now: codeOf(current),
+        type: meta.label,
+        token: meta.token,
+        pts: fmtSigned(line ? line.puntos : 0),
+      });
+    });
+
+    // Link a la cronologia F8 solo si el feed esta presente y activo.
+    const chrono = lpcDetail.querySelector("[data-lpc-chrono]");
+    if (chrono) chrono.hidden = !(feed && feed.dataset.active === "true");
+  };
+
+  // Estado de la barra: CTA (sin jugador), oculta (sin vivo) o activa (proyectado + subtexto).
+  // `hasLive` lo decide el owner (centro en definicion = activeGroupId). me/pid/sit/effByMatch/
+  // finals vienen del recompute. NO recalcula nada.
+  const updateLivePersonalCard = (ctx) => {
+    if (!lpc) return;
+    const { hasLive, me, pid, hasIdentity, activeGroupId, sit, effByMatch, finals } = ctx;
+
+    // Sin vivo -> oculta del todo (cero regresion). Tambien colapsa el detalle.
+    if (!hasLive) {
+      lpc.dataset.active = "false";
+      lpc.setAttribute("aria-hidden", "true");
+      section.dataset.lpcActive = "false";
+      if (lpcBar) lpcBar.setAttribute("aria-expanded", "false");
+      if (lpcDetail) lpcDetail.hidden = true;
+      return;
+    }
+
+    lpc.dataset.active = "true";
+    lpc.setAttribute("aria-hidden", "false");
+    section.dataset.lpcActive = "true";
+
+    // Con vivo pero sin jugador elegido -> CTA breve, sin barra.
+    if (!hasIdentity || !me) {
+      if (lpcCta) lpcCta.hidden = false;
+      if (lpcBar) lpcBar.hidden = true;
+      if (lpcDetail) lpcDetail.hidden = true;
+      return;
+    }
+    if (lpcCta) lpcCta.hidden = true;
+    if (lpcBar) lpcBar.hidden = false;
+
+    const official = Math.round(me.official ?? 0);
+    const projected = Math.round(me.projected ?? 0);
+    const delta = projected - official;
+    setLpcText("[data-lpc-projected]", String(projected));
+    const subtext = lpc.querySelector("[data-lpc-subtext]");
+    if (subtext) {
+      subtext.textContent = `${official} oficiales + ${fmtSigned(delta)} en juego`;
+      subtext.dataset.trend = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+    }
+
+    // Sello EN VIVO: hay al menos un final del grupo activo EN VIVO (no oficial).
+    const live = lpc.querySelector("[data-lpc-live]");
+    if (live) {
+      const anyLiveFinal = (finals ?? []).some((m) => {
+        const eff = effByMatch?.get(m.id);
+        return eff && !eff.official;
+      });
+      live.hidden = !anyLiveFinal;
+    }
+
+    // Si el detalle esta abierto, re-pintar sin cerrarlo.
+    fillLpcDetail(activeGroupId, sit, me, pid, effByMatch, finals);
+  };
+
   const recomputeCenter = (snapshot) => {
     if (!center) return;
     const official = snapshot?.officialResults ?? [];
@@ -674,6 +821,8 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
 
     if (!activeGroupId) {
       center.dataset.active = "false";
+      // F10: sin grupo en definicion = sin vivo para la barra -> oculta (cero regresion).
+      updateLivePersonalCard({ hasLive: false });
       return;
     }
     center.dataset.active = "true";
@@ -690,6 +839,7 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     if (sit.definitionStarted === false && sit.state !== "final") {
       // Defensa: sin definicion no se pinta la tabla viva (no deberia ocurrir en F6).
       center.dataset.active = "false";
+      updateLivePersonalCard({ hasLive: false });
       return;
     }
     renderStandings(sit);
@@ -705,10 +855,25 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
       window: activeWindow,
       now,
     });
-    let pid = readSelectedPlayerId();
-    if (!pid || !ledger.byPlayer[pid]) pid = players[0]?.id;
+    const selectedId = readSelectedPlayerId();
+    const hasIdentity = Boolean(selectedId && ledger.byPlayer[selectedId]);
+    let pid = selectedId;
+    if (!hasIdentity) pid = players[0]?.id;
     const me = pid ? ledger.byPlayer[pid] : null;
     renderImpact(activeGroupId, sit, me, pid, effByMatch, finals);
+
+    // F10: la barra usa el MISMO me/sit/effByMatch/finals (cero formula nueva). Hay vivo
+    // porque el centro esta en definicion (activeGroupId != null). Sin identidad -> CTA.
+    updateLivePersonalCard({
+      hasLive: true,
+      hasIdentity,
+      me: hasIdentity ? me : null,
+      pid: hasIdentity ? pid : null,
+      activeGroupId,
+      sit,
+      effByMatch,
+      finals,
+    });
   };
 
   section.addEventListener("click", (event) => {
@@ -760,6 +925,27 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
         if (open) detail.removeAttribute("hidden");
         else detail.setAttribute("hidden", "");
         toggle.setAttribute("aria-expanded", String(open));
+      }
+      return;
+    }
+
+    // F10: la barra personal es el control que despliega su desglose. Cerrado por defecto.
+    const lpcToggle = target.closest("[data-lpc-toggle]");
+    if (lpcToggle && lpc && lpc.contains(lpcToggle)) {
+      const open = lpcDetail?.hasAttribute("hidden");
+      if (lpcDetail) {
+        if (open) lpcDetail.removeAttribute("hidden");
+        else lpcDetail.setAttribute("hidden", "");
+      }
+      lpcToggle.setAttribute("aria-expanded", String(Boolean(open)));
+      return;
+    }
+
+    // F10: "ver cronologia" -> scroll al feed F8 (si esta presente y activo).
+    const lpcChrono = target.closest("[data-lpc-chrono]");
+    if (lpcChrono && lpc && lpc.contains(lpcChrono)) {
+      if (feed && feed.dataset.active === "true") {
+        feed.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       return;
     }
