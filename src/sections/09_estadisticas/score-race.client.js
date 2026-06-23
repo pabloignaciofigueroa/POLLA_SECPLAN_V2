@@ -132,7 +132,10 @@ export function createScoreRace({ section }) {
       }))
       .filter((r) => r.matchId && Number.isInteger(r.homeScore) && Number.isInteger(r.awayScore));
 
-  const resolveLive = (liveMatch, officialResults) => {
+  // Resuelve UN payload de vivo a {matchId, homeScore, awayScore} solo si su fase
+  // es "live" (mismo tri-estado que la tabla: un 0-0 preparado no puntua). Mapea
+  // *TeamScore -> *Score en el seam, antes del builder.
+  const resolveOneLive = (liveMatch, officialResults) => {
     if (!liveMatch) return null;
     const matchId = liveMatch.matchId ?? matchIdByNumber.get(liveMatch.matchNumber);
     if (!matchId) return null;
@@ -146,6 +149,23 @@ export function createScoreRace({ section }) {
     const awayScore = Number(liveMatch.awayTeamScore ?? liveMatch.awayScore);
     if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore)) return null;
     return { matchId, homeScore, awayScore };
+  };
+
+  // F12: resuelve TODOS los marcadores en vivo del snapshot (los 2 finales
+  // simultaneos), no solo el ultimo. Cada uno se gatea por fase y se deduplica por
+  // matchId. Fallback al `liveMatch` singular legado si `liveMatches` viene vacio.
+  const resolveLives = (liveSnapshot, officialResults) => {
+    const list = Array.isArray(liveSnapshot?.liveMatches)
+      ? liveSnapshot.liveMatches
+      : liveSnapshot?.liveMatch
+        ? [liveSnapshot.liveMatch]
+        : [];
+    const byId = new Map();
+    for (const raw of list) {
+      const resolved = resolveOneLive(raw, officialResults);
+      if (resolved && !byId.has(resolved.matchId)) byId.set(resolved.matchId, resolved);
+    }
+    return [...byId.values()];
   };
 
   // ── Geometría dinámica: el gráfico llena el ancho de la card y se comprime
@@ -556,10 +576,11 @@ export function createScoreRace({ section }) {
     if (!dataset || !Array.isArray(dataset.predictions)) return;
     const merged = mergeOfficials(liveSnapshot?.officialResults, remoteLoaded);
     const officials = normalizeOfficials(merged);
-    const live = resolveLive(liveSnapshot?.liveMatch, merged);
+    // F12: todos los vivos del snapshot (los 2 finales), no solo el ultimo.
+    const lives = resolveLives(liveSnapshot, merged);
     const signature = JSON.stringify({
       o: officials.map((r) => `${r.matchId}:${r.homeScore}-${r.awayScore}`).sort(),
-      l: live ? `${live.matchId}:${live.homeScore}-${live.awayScore}` : null,
+      l: lives.map((r) => `${r.matchId}:${r.homeScore}-${r.awayScore}`).sort(),
     });
     if (signature === state.signature && state.timeline) return; // memo
     state.signature = signature;
@@ -569,7 +590,7 @@ export function createScoreRace({ section }) {
       predictions: dataset.predictions,
       fixture: fixtureData,
       officialResults: officials,
-      liveMatchState: live,
+      liveMatches: lives,
     });
     state.narrative = buildScoreRaceNarrative(state.timeline);
 

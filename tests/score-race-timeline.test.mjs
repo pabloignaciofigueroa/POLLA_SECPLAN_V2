@@ -154,3 +154,188 @@ test("narrativa: una entrada por partido + relato por jugador, sin inventar en v
   assert.deepEqual(empty.matchNarratives, []);
   assert.deepEqual(empty.playerNarratives, {});
 });
+
+// ── F12: determinismo del historico (Paso A) ────────────────────────────────
+// Universo con dateUtc EXPLICITO. Dos finales simultaneos (match-072 y match-071
+// comparten dateUtc) para probar el desempate estable matchNumber -> matchId, y un
+// par mismo dateUtc + mismo matchNumber para forzar el ultimo recurso (matchId).
+const det = {
+  // dateUtc fuera de orden a proposito; matchNumber tambien desordenado.
+  fixture: {
+    matches: [
+      { id: "match-070", matchNumber: 70, groupId: "K", dateUtc: "2026-06-26T18:00:00Z", dateChile: "z1", homeTeam: team("K1"), awayTeam: team("K2") },
+      // Simultaneos (mismo dateUtc): match-072 tiene matchNumber MAYOR que match-071.
+      { id: "match-072", matchNumber: 72, groupId: "K", dateUtc: "2026-06-27T18:00:00Z", dateChile: "z2", homeTeam: team("K3"), awayTeam: team("K4") },
+      { id: "match-071", matchNumber: 71, groupId: "K", dateUtc: "2026-06-27T18:00:00Z", dateChile: "z3", homeTeam: team("K5"), awayTeam: team("K6") },
+      // Empate total dateUtc + matchNumber con match-073 vs match-073b: desempata matchId.
+      { id: "match-073b", matchNumber: 73, groupId: "L", dateUtc: "2026-06-28T18:00:00Z", dateChile: "z4", homeTeam: team("L3"), awayTeam: team("L4") },
+      { id: "match-073", matchNumber: 73, groupId: "L", dateUtc: "2026-06-28T18:00:00Z", dateChile: "z5", homeTeam: team("L1"), awayTeam: team("L2") },
+    ],
+  },
+  predictions: [
+    P("a", "match-070", 1, 0), P("b", "match-070", 0, 0), P("c", "match-070", 2, 1), P("d", "match-070", 0, 1),
+    P("a", "match-071", 1, 0), P("b", "match-071", 1, 0), P("c", "match-071", 0, 0), P("d", "match-071", 2, 2),
+    P("a", "match-072", 0, 2), P("b", "match-072", 1, 1), P("c", "match-072", 0, 2), P("d", "match-072", 0, 2),
+    P("a", "match-073", 3, 1), P("b", "match-073", 0, 0), P("c", "match-073", 1, 1), P("d", "match-073", 2, 0),
+    P("a", "match-073b", 0, 0), P("b", "match-073b", 1, 1), P("c", "match-073b", 0, 0), P("d", "match-073b", 2, 2),
+  ],
+};
+const detOfficial = [
+  { matchId: "match-070", homeScore: 1, awayScore: 0 },
+  { matchId: "match-071", homeScore: 1, awayScore: 0 },
+  { matchId: "match-072", homeScore: 0, awayScore: 2 },
+  { matchId: "match-073", homeScore: 1, awayScore: 1 },
+  { matchId: "match-073b", homeScore: 0, awayScore: 0 },
+];
+
+// Firma estable de la salida del builder (orden de matches + clusters + totales).
+const signatureOf = (tl) =>
+  JSON.stringify({
+    matches: tl.matches.map((m) => `${m.matchId}:${m.status}:${m.homeScore}-${m.awayScore}`),
+    clusters: tl.clusters.map((c) => `${c.matchId}|${c.cumulativePoints}|${[...c.playerIds].join(",")}|${c.maxHitTypeInCluster}`),
+    totals: tl.players.map((p) => `${p.playerId}:${p.totals.map((t) => t.cumulativePoints).join("-")}`),
+    max: tl.maxCumulative,
+  });
+
+const shuffle = (arr, seed) => {
+  // Barajado determinista (LCG) para reproducir el test, pero distinto orden de entrada.
+  const out = [...arr];
+  let s = seed >>> 0;
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+test("F12 determinismo: eje X estable por dateUtc -> matchNumber -> matchId", () => {
+  const tl = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: detOfficial });
+  // Orden esperado: 070 (mas temprano), luego los simultaneos 071<072 por matchNumber,
+  // luego el empate total 073<073b por matchId.
+  assert.deepEqual(
+    tl.matches.map((m) => m.matchId),
+    ["match-070", "match-071", "match-072", "match-073", "match-073b"]
+  );
+});
+
+test("F12 determinismo: simultaneas en distinto orden de entrada -> salida identica", () => {
+  const orderA = [detOfficial[1], detOfficial[2]]; // [071, 072]
+  const orderB = [detOfficial[2], detOfficial[1]]; // [072, 071]
+  const tlA = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: orderA });
+  const tlB = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: orderB });
+  assert.deepEqual(tlA.matches.map((m) => m.matchId), ["match-071", "match-072"]);
+  assert.equal(signatureOf(tlA), signatureOf(tlB));
+});
+
+test("F12 determinismo: barajar officialResults muchas veces -> salida identica", () => {
+  const base = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: detOfficial });
+  const baseSig = signatureOf(base);
+  for (let seed = 1; seed <= 25; seed += 1) {
+    const shuffled = shuffle(detOfficial, seed);
+    const tl = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: shuffled });
+    assert.equal(signatureOf(tl), baseSig, `barajado seed=${seed} debe dar salida identica`);
+  }
+});
+
+test("F12 determinismo: mismo dateUtc, distinto matchNumber -> menor matchNumber primero", () => {
+  const only = [detOfficial[2], detOfficial[1]]; // [072, 071] (072 tiene matchNumber mayor)
+  const tl = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: only });
+  assert.deepEqual(tl.matches.map((m) => m.matchNumber), [71, 72]);
+});
+
+test("F12 determinismo: mismo dateUtc Y mismo matchNumber -> desempata por matchId", () => {
+  const only = [detOfficial[4], detOfficial[3]]; // [073b, 073] (mismo matchNumber 73)
+  const tl = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: only });
+  // "match-073" < "match-073b" por localeCompare.
+  assert.deepEqual(tl.matches.map((m) => m.matchId), ["match-073", "match-073b"]);
+});
+
+// ── F12: overlay multi-final en vivo (Paso B) ───────────────────────────────
+test("F12 vivo multiple: dos liveMatches -> ambos como nodos status:'live', orden determinista", () => {
+  // match-070 oficial; match-071 y match-072 (simultaneos) en vivo a la vez.
+  const officials = [{ matchId: "match-070", homeScore: 1, awayScore: 0 }];
+  const lives = [
+    { matchId: "match-072", homeScore: 0, awayScore: 2 },
+    { matchId: "match-071", homeScore: 1, awayScore: 0 },
+  ];
+  const tl = buildScoreRaceTimeline({ players, predictions: det.predictions, fixture: det.fixture, officialResults: officials, liveMatches: lives });
+  assert.deepEqual(tl.matches.map((m) => m.matchId), ["match-070", "match-071", "match-072"]);
+  assert.equal(tl.matches[0].status, "official");
+  assert.equal(tl.matches[1].status, "live");
+  assert.equal(tl.matches[2].status, "live");
+  // Orden entre los vivos NO depende del orden de entrada (071 antes que 072).
+  const reversed = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: officials,
+    liveMatches: [lives[1], lives[0]],
+  });
+  assert.equal(signatureOf(tl), signatureOf(reversed));
+});
+
+test("F12 vivo->oficial: un final que pasa de live a oficial queda en su posicion estable", () => {
+  // Con match-071 en vivo: queda al final (despues del oficial match-070).
+  const officialsBefore = [{ matchId: "match-070", homeScore: 1, awayScore: 0 }];
+  const tlLive = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: officialsBefore,
+    liveMatches: [{ matchId: "match-071", homeScore: 1, awayScore: 0 }],
+  });
+  assert.equal(tlLive.matches.find((m) => m.matchId === "match-071").status, "live");
+
+  // Al oficializar match-071 (mismo marcador), su posicion estable es por dateUtc:
+  // 070 < 071. Aqui ambos son del mismo dia distinto, asi que 071 va segundo.
+  const tlOfficial = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: [...officialsBefore, { matchId: "match-071", homeScore: 1, awayScore: 0 }],
+  });
+  assert.deepEqual(tlOfficial.matches.map((m) => m.matchId), ["match-070", "match-071"]);
+  assert.equal(tlOfficial.matches.find((m) => m.matchId === "match-071").status, "official");
+  // El acumulado del jugador no cambia por haber pasado de live a oficial (mismo marcador).
+  const livePts = byId(tlLive, "a").totals.find((t) => t.matchId === "match-071").cumulativePoints;
+  const offPts = byId(tlOfficial, "a").totals.find((t) => t.matchId === "match-071").cumulativePoints;
+  assert.equal(livePts, offPts);
+});
+
+test("F12 compat N=1: liveMatchState singular da la misma salida que liveMatches de uno", () => {
+  const officials = [{ matchId: "match-070", homeScore: 1, awayScore: 0 }];
+  const singular = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: officials,
+    liveMatchState: { matchId: "match-071", homeScore: 1, awayScore: 0 },
+  });
+  const arrayOfOne = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: officials,
+    liveMatches: [{ matchId: "match-071", homeScore: 1, awayScore: 0 }],
+  });
+  assert.equal(signatureOf(singular), signatureOf(arrayOfOne));
+  // El vivo sigue siendo el ultimo nodo (cero regresion vs comportamiento previo).
+  assert.equal(singular.matches[singular.matches.length - 1].matchId, "match-071");
+  assert.equal(singular.matches[singular.matches.length - 1].status, "live");
+});
+
+test("F12 vivo no pisa al oficial del mismo match (oficial gana)", () => {
+  const officials = [{ matchId: "match-070", homeScore: 1, awayScore: 0 }];
+  const tl = buildScoreRaceTimeline({
+    players,
+    predictions: det.predictions,
+    fixture: det.fixture,
+    officialResults: officials,
+    liveMatches: [{ matchId: "match-070", homeScore: 5, awayScore: 5 }],
+  });
+  assert.equal(tl.matches.length, 1);
+  assert.equal(tl.matches[0].status, "official");
+  assert.equal(tl.matches[0].homeScore, 1);
+  assert.equal(tl.matches[0].awayScore, 0);
+});

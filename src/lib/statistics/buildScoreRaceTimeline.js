@@ -10,7 +10,8 @@
 //   predictions      : [{ playerId, matchId, homeScore, awayScore }]  (flat)
 //   fixture          : { matches: [...] }  o  [...]
 //   officialResults  : [{ matchId, homeScore, awayScore }]
-//   liveMatchState   : { matchId, homeScore, awayScore } | null  (provisional)
+//   liveMatches      : [{ matchId, homeScore, awayScore }]  (provisional, varios)
+//   liveMatchState   : { matchId, homeScore, awayScore } | null  (legado, 1 solo)
 //
 // Salida: { matches, players, clusters, maxCumulative } (ver README del comanda).
 
@@ -45,11 +46,26 @@ const toInt = (value) => {
   return Number.isInteger(n) ? n : null;
 };
 
+// Orden estable TOTAL del eje X: dateUtc -> matchNumber -> matchId. El mismo set
+// de resultados produce SIEMPRE el mismo grafico, sin importar el orden del array
+// de entrada ni el segundo en que se finalizo cada partido. El ultimo desempate
+// (matchId) resuelve el caso de dos finales simultaneos (mismo dateUtc) y el caso
+// raro de mismo dateUtc Y mismo matchNumber. NUNCA se ordena por un timestamp de
+// finalizacion / carga. Identico criterio que buildMatchSequence (eje X = acumulado).
+const byStableMatchOrder = (a, b) =>
+  new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime() ||
+  (a.matchNumber ?? 0) - (b.matchNumber ?? 0) ||
+  String(a.id).localeCompare(String(b.id));
+
 export function buildScoreRaceTimeline({
   players = [],
   predictions = [],
   fixture = [],
   officialResults = [],
+  // F12: overlay en vivo de MULTIPLES partidos (los 2 finales simultaneos de un
+  // grupo). `liveMatches` (arreglo) es la forma nueva; `liveMatchState` (singular)
+  // se mantiene por compatibilidad y se trata como un arreglo de uno.
+  liveMatches = null,
   liveMatchState = null,
 } = {}) {
   const fixtureMatches = Array.isArray(fixture) ? fixture : (fixture?.matches ?? []);
@@ -68,34 +84,43 @@ export function buildScoreRaceTimeline({
     resultByMatch.set(result.matchId, { homeScore, awayScore, status: "official" });
   }
 
-  // Partido en vivo (provisional) solo si todavia no es oficial.
-  let liveResult = null;
-  if (liveMatchState && liveMatchState.matchId && !resultByMatch.has(liveMatchState.matchId)) {
-    const homeScore = toInt(liveMatchState.homeScore);
-    const awayScore = toInt(liveMatchState.awayScore);
-    if (homeScore !== null && awayScore !== null) {
-      liveResult = { matchId: liveMatchState.matchId, homeScore, awayScore, status: "live" };
-    }
+  // Partidos en vivo (provisionales). Solo cuentan los que TODAVIA no son
+  // oficiales (el oficial siempre gana). Acepta `liveMatches[]` (varios) o el
+  // singular legado `liveMatchState`. Se deduplica por matchId; ante dos payloads
+  // del mismo partido, el primero valido manda (el seam ya emite uno por matchId).
+  const liveInput = Array.isArray(liveMatches)
+    ? liveMatches
+    : liveMatchState
+      ? [liveMatchState]
+      : [];
+  const liveByMatch = new Map();
+  for (const live of liveInput) {
+    if (!live || !live.matchId) continue;
+    if (resultByMatch.has(live.matchId)) continue; // oficial gana, no se pisa
+    if (liveByMatch.has(live.matchId)) continue; // ya tomado
+    const homeScore = toInt(live.homeScore);
+    const awayScore = toInt(live.awayScore);
+    if (homeScore === null || awayScore === null) continue;
+    liveByMatch.set(live.matchId, { matchId: live.matchId, homeScore, awayScore, status: "live" });
   }
 
-  // Eje X: partidos oficiales en orden CRONOLOGICO real (dia/hora), + el live al
-  // final. Asi el progreso de puntos sube en el orden en que se vivieron, no en el
-  // orden FIFA (que pondria Haiti-Escocia antes que Qatar/Brasil, etc.).
-  const orderedMatches = [...resultByMatch.keys()]
+  // Eje X: partidos oficiales en orden CRONOLOGICO real (dia/hora) estable, luego
+  // los vivos (tambien en orden estable ENTRE ellos) al final. Mantener los vivos
+  // al final preserva el comportamiento de hoy con N=1 (el provisional es el ultimo
+  // nodo) y, con DOS finales, su orden mutuo es determinista (matchNumber -> matchId),
+  // no depende del segundo de finalizacion ni del orden del array de entrada.
+  const orderedOfficial = [...resultByMatch.keys()]
     .map((id) => matchesById.get(id))
     .filter(Boolean)
-    .sort(
-      (a, b) =>
-        new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime() ||
-        a.matchNumber - b.matchNumber
-    );
-  if (liveResult) {
-    const liveMatch = matchesById.get(liveResult.matchId);
-    if (liveMatch) orderedMatches.push(liveMatch);
-  }
+    .sort(byStableMatchOrder);
+  const orderedLive = [...liveByMatch.keys()]
+    .map((id) => matchesById.get(id))
+    .filter(Boolean)
+    .sort(byStableMatchOrder);
+  const orderedMatches = [...orderedOfficial, ...orderedLive];
 
   const matches = orderedMatches.map((m) => {
-    const res = liveResult && liveResult.matchId === m.id ? liveResult : resultByMatch.get(m.id);
+    const res = liveByMatch.get(m.id) ?? resultByMatch.get(m.id);
     const displayNumber = sequenceById.get(m.id) ?? m.matchNumber;
     return {
       matchId: m.id,

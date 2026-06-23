@@ -47,9 +47,10 @@ dashboard-coral-implemented + data-arena-cards + data-arena-base-13 + score-race
   panel `data-stats-panel="comparar"`). `activateTab` aliasa `clasificados`→`comparar`
   y el fallback por defecto es `grafico`.
 - Datos (puro, testeable): `lib/statistics/buildScoreRaceTimeline.js` arma el
-  acumulado por jugador (orden por `matchNumber`, solo oficiales + live provisional
-  marcado `status:"live"`) y los `clusters` por `matchId+cumulativePoints` (badge de
-  empate, `maxHitTypeInCluster`). Reusa `calculatePointsForPrediction` (5/3/1/0); el
+  acumulado por jugador (orden estable `dateUtc -> matchNumber -> matchId`, solo
+  oficiales + live(s) provisional(es) marcado(s) `status:"live"`) y los `clusters` por
+  `matchId+cumulativePoints` (badge de empate, `maxHitTypeInCluster`). Reusa
+  `calculatePointsForPrediction` (5/3/1/0); el
   color de linea sale de `RACE_PALETTE` (estable por orden en players.json) y el color
   de nodo del hitType. `buildScoreRaceNarrative.js` arma "Lo que paso en la oficina"
   (plantillas: nuevo lider / no suma / salto / grupo apretado / partido seco / lone wolf)
@@ -74,6 +75,41 @@ dashboard-coral-implemented + data-arena-cards + data-arena-base-13 + score-race
   se omite con `prefers-reduced-motion`. Entrada: lineas L→R + nodos scale.
 - Tests: `tests/score-race-timeline.test.mjs` (acumulado monotono, clusters, 5/3/1/0,
   rankAfterMatch, vacio, live provisional, narrativa).
+
+## Grafico determinista + overlay multi-final (F12) - 2026-06-23
+
+- DETERMINISMO del historico: el eje X se reconstruye con orden estable TOTAL
+  `dateUtc -> matchNumber -> matchId`, NUNCA por el segundo en que el Admin apreto
+  "finalizar" ni por el orden del array de `officialResults`. Mismo set de resultados
+  -> SIEMPRE el mismo grafico (mismo orden, mismos clusters, mismos acumulados). El
+  comparador `byStableMatchOrder` (builder) y `buildMatchSequence` (eje X correlativo)
+  usan EXACTAMENTE el mismo criterio; ambos endurecidos con el desempate final
+  `matchId` (`String(a.id).localeCompare(...)`) para el caso de dos finales simultaneos
+  (mismo `dateUtc`, desempate por `matchNumber`) y el caso raro de mismo `dateUtc` Y
+  mismo `matchNumber`.
+- OVERLAY EN VIVO MULTIPLE: `buildScoreRaceTimeline` acepta `liveMatches[]` (los 2
+  finales simultaneos de un grupo a la vez) ademas del `liveMatchState` singular legado
+  (back-compat: un singular = arreglo de uno). Cada vivo cuenta solo si su `matchId` NO
+  es ya oficial (el oficial gana), se valida a enteros y se deduplica por `matchId`. Los
+  oficiales van primero en orden estable y los vivos despues (tambien en orden estable
+  ENTRE ellos); con N=1 el vivo sigue siendo el ultimo nodo (cero regresion). Al
+  oficializar, el partido pasa a su posicion estable por `dateUtc` (no "al final por
+  haber llegado ultimo").
+- SEAM (cliente): `score-race.client.js` resuelve TODOS los `liveSnapshot.liveMatches`
+  (antes solo el `liveMatch` singular) via `resolveLives` -> `resolveOneLive`, gateando
+  cada uno por `resolveLiveMatchPhase` (solo fase `live` cuenta), mapeando
+  `*TeamScore -> *Score`, y los pasa al builder como `liveMatches`. Fallback al singular
+  legado si `liveMatches` viene vacio. Sigue SIN fetch ni `subscribeLiveData` propio: el
+  dueno unico del dataset es `estadisticas.client.js` (que ya emite `liveMatches[]`).
+- ALCANCE: la Carrera de Puntaje suma SOLO puntaje de PARTIDO (5/3/1/0). Los bonos de
+  clasificacion 1o/2o (+1/+3) NO entran al grafico (decision de alcance F12; cambiarlo
+  altera la semantica del grafico y seria otra comanda). Fuente unica de puntaje
+  `liveScoring.js` (el builder no reimplementa el calculo). Solo LECTURA del seam.
+- Tests nuevos (F12, en `score-race-timeline.test.mjs`): orden estable
+  dateUtc/matchNumber/matchId; simultaneas en distinto orden de entrada -> salida
+  identica; barajar `officialResults` 25 veces -> salida identica; desempate por
+  matchNumber y por matchId; vivo multiple (2 finales) determinista; vivo->oficial en
+  posicion estable; compat N=1 (singular == arreglo de uno); el vivo no pisa al oficial.
 
 ## Pulso live con tri-estado - 2026-06-12
 

@@ -125,8 +125,19 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
     Estadisticas.
 - El grafico/historico que se reordena segun el orden administrativo de
   finalizacion: si el Admin finaliza B antes que A, la curva cambia de forma.
-  - Fix: para el HISTORICO cerrado, reconstruir con orden estable por numero oficial
-    de partido. En vivo si se puede mostrar en orden de evento.
+  - Fix (F12): para el HISTORICO cerrado, reconstruir con orden estable TOTAL
+    `dateUtc -> matchNumber -> matchId`, NUNCA por el segundo de finalizacion ni por el
+    orden del array de `officialResults`. El desempate final `matchId`
+    (`String(a.id).localeCompare(b.id)`) cubre dos finales simultaneos (mismo `dateUtc`,
+    desempata `matchNumber`) y el caso raro de mismo `dateUtc` Y `matchNumber`. El MISMO
+    criterio debe vivir en el builder del grafico (`buildScoreRaceTimeline.byStableMatchOrder`)
+    y en el numero correlativo del eje X (`matchSequence.buildMatchSequence`); si divergen,
+    el nodo y su etiqueta P-N se desincronizan. Mismo set de resultados -> grafico identico:
+    hay tests que BARAJAN `officialResults` y exigen salida identica (orden, clusters, totales).
+  - El vivo SI puede ir al final (orden de evento), pero su orden ENTRE varios vivos
+    tambien debe ser estable (los 2 finales simultaneos): el builder acepta `liveMatches[]`
+    y los ordena con el mismo `byStableMatchOrder`. El overlay del grafico es SOLO puntaje
+    de partido (no suma bonos 1o/2o; eso cambiaria la semantica del grafico).
 - Cronologia "Que cambio" (F8): la linea de tiempo confiable se arma por DIFERENCIA entre
   snapshots EN EL CLIENTE (snapshot anterior vs nuevo en cada recompute), NO por el `ts` del
   libro contable (`buildPointLedger` line.ts es best-effort: puede venir null o desordenado).

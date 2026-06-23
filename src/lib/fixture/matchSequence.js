@@ -15,10 +15,15 @@
  * @returns {Map<string, number>} matchId -> numero correlativo cronologico (1..N)
  */
 export function buildMatchSequence(matches = []) {
+  // Orden estable total: dateUtc -> matchNumber -> matchId. El ultimo desempate
+  // (matchId) cubre el caso raro de mismo dateUtc Y mismo matchNumber (no deberia
+  // pasar) para que el numero correlativo nunca dependa del orden del array de
+  // entrada. NUNCA se usa un timestamp de finalizacion / carga aqui.
   const ordered = [...matches].sort(
     (a, b) =>
       new Date(a.dateUtc).getTime() - new Date(b.dateUtc).getTime() ||
-      (a.matchNumber ?? 0) - (b.matchNumber ?? 0)
+      (a.matchNumber ?? 0) - (b.matchNumber ?? 0) ||
+      String(a.id).localeCompare(String(b.id))
   );
   const byId = new Map();
   ordered.forEach((match, index) => {
