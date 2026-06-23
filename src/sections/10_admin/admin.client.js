@@ -1,5 +1,6 @@
 import {
   clearAdminSession,
+  clearLiveScore,
   closeGroup,
   finalizeOfficialResult,
   hasValidAdminSession,
@@ -8,9 +9,15 @@ import {
   reopenGroup,
   resolveCurrentMatch,
   saveLiveMatchState,
+  setLiveScore,
   subscribeLiveData,
   validateAdminSession,
 } from "../../lib/liveMatch/liveMatchState.js";
+import {
+  buildLiveControlModels,
+  buildLiveScorePayload,
+  buildFinalizeResult,
+} from "../../lib/liveMatch/liveMultiControl.js";
 import {
   createPredictionEditCode,
   listPredictionEditAccess,
@@ -91,9 +98,15 @@ import { confirmDialog } from "./adminConfirm.js";
   };
 
   await initLiveScoreControl(section, payload, setFeedback);
-  // Un solo dueno del snapshot para KPI + panel de cierre (una sola suscripcion).
+  // Un solo dueno del snapshot para KPI + panel de cierre + control multi (UNA sola
+  // suscripcion). El subscribe del KPI reenvia cada snapshot a ambos consumidores;
+  // ninguno abre un segundo canal (invariante: un solo dueno del dataset por pagina).
   const renderGroupClose = initGroupClosePanel(section, payload);
-  initOfficialResultsKpi(section, payload, renderGroupClose);
+  const renderMultiLive = initMultiLiveControls(section, payload, setFeedback);
+  initOfficialResultsKpi(section, payload, (snapshot) => {
+    renderGroupClose(snapshot);
+    renderMultiLive(snapshot);
+  });
   await initPredictionEditAccess(section, setFeedback);
 
   section.querySelectorAll("[data-admin-tab]").forEach((tab) => {
@@ -802,6 +815,279 @@ function initGroupClosePanel(section, payload) {
   });
 
   return render;
+}
+
+// ── Stage 2: control MULTI-marcador (DEFINICION SIMULTANEA) ─────────────────────
+// Devuelve render(snapshot): el dueno del snapshot (initOfficialResultsKpi) lo invoca en
+// cada emit. NO abre subscribeLiveData propio (un solo dueno del dataset). En la fecha
+// final, cuando hay >=2 finales del grupo vivos a la vez, muestra DOS controles lado a
+// lado; cada uno escribe por su matchId (setLiveScore), limpia su fila (clearLiveScore) y
+// finaliza su partido (finalizeOfficialResult) SIN tocar el otro. Con N=1 el panel queda
+// oculto: el flujo diario sigue por el MiniLiveScoreControl single (byte-igual).
+//
+// La escritura multi va detras de MULTI_LIVE_WRITE_ENABLED (guardrail). Hasta que el
+// operador aplique la migracion multi-fila en remoto Y suba el flag (paso manual acoplado),
+// Actualizar/Finalizar muestran el error de guardrail inline; no rompe el N=1 diario.
+function initMultiLiveControls(section, payload, setFeedback) {
+  const panel = section.querySelector("[data-live-controls]");
+  if (!panel) return () => {};
+  const body = panel.querySelector("[data-live-controls-body]");
+  const feedback = panel.querySelector("[data-live-controls-feedback]");
+  if (!body) return () => {};
+
+  const fixtureMatches = Array.isArray(payload.liveMatches) ? payload.liveMatches : [];
+  if (fixtureMatches.length === 0) return () => {};
+  const fixture = { matches: fixtureMatches };
+
+  const setLocalFeedback = (msg) => {
+    if (feedback) feedback.textContent = msg;
+    if (typeof setFeedback === "function") setFeedback(msg);
+  };
+  const escapeHtml = (v) =>
+    String(v ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  // Estado local de edicion por matchId (lo que el admin lleva sin guardar). No viene del
+  // snapshot: se preserva entre re-renders para no perder los steppers mientras edita.
+  const edits = new Map(); // matchId -> { home, away }
+  const pending = new Set(); // matchId con accion en curso
+  let controls = [];
+
+  const editFor = (control) => {
+    if (!edits.has(control.matchId)) {
+      edits.set(control.matchId, { home: control.homeScore, away: control.awayScore });
+    }
+    return edits.get(control.matchId);
+  };
+
+  const renderCard = (control) => {
+    const live = control.editable;
+    const edit = editFor(control);
+    const busy = pending.has(control.matchId);
+    const stateLabel = live ? "EN VIVO" : "OFICIAL";
+    const tag = `P${control.displayNumber}`;
+    const home = live ? edit.home : control.homeScore;
+    const away = live ? edit.away : control.awayScore;
+
+    const stepper = (side, value) => `
+      <div class="lc-stepper">
+        <button type="button" class="lc-step minus" data-lc-step="${escapeHtml(control.matchId)}:${side}:-" ${value <= 0 || busy ? "disabled" : ""}>−</button>
+        <span class="lc-score" data-lc-score="${escapeHtml(control.matchId)}:${side}">${value}</span>
+        <button type="button" class="lc-step plus" data-lc-step="${escapeHtml(control.matchId)}:${side}:+" ${busy ? "disabled" : ""}>+</button>
+      </div>`;
+
+    const board = `
+      <div class="lc-board">
+        <div class="lc-team">
+          <span class="lc-team-name">${escapeHtml(control.homeTeam.shortCode || control.homeTeam.name)}</span>
+          ${live ? stepper("home", home) : `<span class="lc-score">${home}</span>`}
+        </div>
+        <span class="lc-versus" aria-hidden="true">—</span>
+        <div class="lc-team">
+          <span class="lc-team-name">${escapeHtml(control.awayTeam.shortCode || control.awayTeam.name)}</span>
+          ${live ? stepper("away", away) : `<span class="lc-score">${away}</span>`}
+        </div>
+      </div>`;
+
+    const actions = live
+      ? `<div class="lc-actions">
+           <button type="button" class="lc-update" data-lc-update="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Actualizar</button>
+           <button type="button" class="lc-finalize" data-lc-finalize="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Finalizar</button>
+           <button type="button" class="lc-clear" data-lc-clear="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Quitar</button>
+         </div>`
+      : `<p class="lc-official-note">Ya oficializado. Se administra desde "Avance de partidos".</p>`;
+
+    return `
+      <article class="lc-card" data-phase="${control.phase}" data-match-id="${escapeHtml(control.matchId)}">
+        <header class="lc-card-head">
+          <span class="lc-dot" aria-hidden="true"></span>
+          <span class="lc-tag">${escapeHtml(tag)}</span>
+          <span class="lc-state">${stateLabel}</span>
+        </header>
+        ${board}
+        ${actions}
+      </article>`;
+  };
+
+  const render = (snapshot) => {
+    const snap = snapshot ?? { liveMatches: [], officialResults: [] };
+    const model = buildLiveControlModels({
+      fixture,
+      liveMatches: snap.liveMatches ?? [],
+      officialResults: snap.officialResults ?? [],
+    });
+    controls = model.controls;
+    const controlById = new Map(controls.map((c) => [c.matchId, c]));
+
+    // Sincronizar el estado local de edicion con los marcadores live entrantes: drop de
+    // los que ya no son live; semilla de los nuevos (sin pisar una edicion en curso del
+    // admin que ya difiere del valor remoto).
+    for (const matchId of Array.from(edits.keys())) {
+      const c = controlById.get(matchId);
+      if (!c || !c.editable) edits.delete(matchId);
+    }
+
+    // CERO regresion / N=1 byte-igual: el panel SOLO aparece con >=2 marcadores vivos a la
+    // vez (definicion simultanea). Con 0 o 1 vivo queda oculto; el flujo diario lo maneja
+    // el control single de siempre.
+    if (model.liveCount < 2) {
+      panel.hidden = true;
+      body.innerHTML = "";
+      return;
+    }
+    panel.hidden = false;
+
+    const groupIds = Object.keys(model.byGroup);
+    body.innerHTML = groupIds
+      .map((groupId) => {
+        const cards = model.byGroup[groupId].map(renderCard).join("");
+        const label = groupIds.length > 1 ? `<p class="lc-group-label">Grupo ${escapeHtml(groupId)}</p>` : "";
+        return `<div class="lc-group">${label}<div class="lc-grid">${cards}</div></div>`;
+      })
+      .join("");
+  };
+
+  const controlById = () => new Map(controls.map((c) => [c.matchId, c]));
+  const repaintScores = (matchId) => {
+    const edit = edits.get(matchId);
+    if (!edit) return;
+    const homeEl = body.querySelector(`[data-lc-score="${matchId}:home"]`);
+    const awayEl = body.querySelector(`[data-lc-score="${matchId}:away"]`);
+    if (homeEl) homeEl.textContent = String(edit.home);
+    if (awayEl) awayEl.textContent = String(edit.away);
+    const homeMinus = body.querySelector(`[data-lc-step="${matchId}:home:-"]`);
+    const awayMinus = body.querySelector(`[data-lc-step="${matchId}:away:-"]`);
+    if (homeMinus) homeMinus.disabled = edit.home <= 0;
+    if (awayMinus) awayMinus.disabled = edit.away <= 0;
+    const update = body.querySelector(`[data-lc-update="${matchId}"]`);
+    if (update) update.dataset.saved = "false";
+  };
+
+  body.addEventListener("click", async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const stepBtn = target.closest("[data-lc-step]");
+    if (stepBtn) {
+      const [matchId, side, dir] = stepBtn.getAttribute("data-lc-step").split(":");
+      const edit = edits.get(matchId);
+      if (!edit) return;
+      if (dir === "+") edit[side] += 1;
+      else edit[side] = Math.max(0, edit[side] - 1);
+      repaintScores(matchId);
+      return;
+    }
+
+    const updateBtn = target.closest("[data-lc-update]");
+    if (updateBtn) {
+      const matchId = updateBtn.getAttribute("data-lc-update");
+      const control = controlById().get(matchId);
+      const edit = edits.get(matchId);
+      if (!control || !edit || pending.has(matchId)) return;
+      pending.add(matchId);
+      try {
+        await setLiveScore(
+          buildLiveScorePayload(control, { homeScore: edit.home, awayScore: edit.away })
+        );
+        updateBtn.dataset.saved = "true";
+        setLocalFeedback(
+          `Marcador de P${control.displayNumber} actualizado: ${control.homeTeam.shortCode} ${edit.home} - ${edit.away} ${control.awayTeam.shortCode}.`
+        );
+      } catch (error) {
+        setLocalFeedback(liveControlErrorMessage(error));
+      } finally {
+        pending.delete(matchId);
+      }
+      return;
+    }
+
+    const clearBtn = target.closest("[data-lc-clear]");
+    if (clearBtn) {
+      const matchId = clearBtn.getAttribute("data-lc-clear");
+      const control = controlById().get(matchId);
+      if (!control || pending.has(matchId)) return;
+      const ok = await confirmDialog({
+        title: `Quitar marcador P${control.displayNumber}`,
+        message: `Vas a quitar el marcador en vivo de ${control.homeTeam.name} vs ${control.awayTeam.name}. El otro partido del grupo NO se toca. ¿Confirmas?`,
+        confirmLabel: "Si, quitar",
+        cancelLabel: "Cancelar",
+        tone: "danger",
+      });
+      if (!ok) {
+        setLocalFeedback("Limpieza cancelada. No se quito ningun marcador.");
+        return;
+      }
+      pending.add(matchId);
+      try {
+        await clearLiveScore(matchId);
+        edits.delete(matchId);
+        setLocalFeedback(`Marcador de P${control.displayNumber} quitado. El otro sigue intacto.`);
+      } catch (error) {
+        setLocalFeedback(liveControlErrorMessage(error));
+      } finally {
+        pending.delete(matchId);
+      }
+      return;
+    }
+
+    const finalizeBtn = target.closest("[data-lc-finalize]");
+    if (finalizeBtn) {
+      const matchId = finalizeBtn.getAttribute("data-lc-finalize");
+      const control = controlById().get(matchId);
+      const edit = edits.get(matchId);
+      if (!control || !edit || pending.has(matchId)) return;
+      const label = `${control.homeTeam.shortCode} ${edit.home} - ${edit.away} ${control.awayTeam.shortCode}`;
+      const ok = await confirmDialog({
+        title: `Finalizar P${control.displayNumber}`,
+        message: `Vas a oficializar ${label}. Esto entrega puntos y deja SOLO este partido como finalizado; el otro final del grupo sigue en vivo. ¿Confirmas?`,
+        confirmLabel: "Si, finalizar",
+        cancelLabel: "Cancelar",
+        tone: "danger",
+      });
+      if (!ok) {
+        setLocalFeedback("Finalizacion cancelada. No se modifico ningun resultado.");
+        return;
+      }
+      pending.add(matchId);
+      try {
+        // next-live = null: en multi NO se auto-avanza al siguiente partido (eso es el
+        // flujo single N=1). La RPC limpia SOLO la fila live de ESTE match; el otro queda.
+        await finalizeOfficialResult(buildFinalizeResult(control, { homeScore: edit.home, awayScore: edit.away }), null);
+        edits.delete(matchId);
+        setLocalFeedback(`P${control.displayNumber} finalizado: ${label}. El otro final del grupo sigue en vivo.`);
+      } catch (error) {
+        setLocalFeedback(liveControlErrorMessage(error));
+      } finally {
+        pending.delete(matchId);
+      }
+      return;
+    }
+  });
+
+  return render;
+}
+
+// Mensaje inline para las RPC del control multi (nunca alert). PGRST202 -> falta el SQL;
+// guardrail deshabilitado -> falta subir el flag tras aplicar la migracion; P0001 -> sesion.
+function liveControlErrorMessage(error) {
+  const msg = String(error?.message ?? "");
+  if (msg.includes("PGRST202")) {
+    return "Falta aplicar la migracion multi-fila en Supabase (operador). No se pudo guardar.";
+  }
+  if (msg.includes("deshabilitado") || msg.includes("MULTI_LIVE_WRITE_ENABLED")) {
+    return "Escritura multi deshabilitada: el operador debe aplicar la migracion y subir el flag.";
+  }
+  if (
+    msg.includes("invalid_or_expired_admin_session") ||
+    msg.includes("expiro") ||
+    msg.includes("P0001")
+  ) {
+    return "Sesion de administrador vencida. Reingresa la clave admin.";
+  }
+  return msg || "No fue posible completar la operacion del marcador.";
 }
 
 // Traduce los errores de las RPC de cierre a un mensaje claro inline (no alert).

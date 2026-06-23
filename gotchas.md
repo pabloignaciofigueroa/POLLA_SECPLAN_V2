@@ -244,6 +244,24 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
   - El SQL (`polla_group_closure` + RPC) vive en el repo pero APLICARLO en remoto es PASO
     MANUAL del operador (ventana sin partido, backup; sin service key en el repo). Si la RPC
     responde PGRST202 es que falta aplicar la migracion (no es bug del cliente).
+- Control MULTI-marcador (Stage 2) en /admin: el panel `MultiLiveScoreControls` administra DOS
+  finales del grupo vivos a la vez. Trampas durables:
+  - Multi-fila live: UNA fila por `match_id`. `setLiveScore` hace upsert por matchId,
+    `clearLiveScore(matchId)` borra SOLO esa fila y `polla_finalize_match` limpia SOLO la fila
+    del finalizado (con `nextLive=null` no toca al otro). Finalizar/quitar uno NO afecta al
+    otro. N=1 byte-igual: con un partido, `polla_save_live_match` es wrapper fino sobre
+    `set_live_score` (deriva matchId del payload) y el panel multi queda OCULTO (`liveCount<2`);
+    el flujo diario sigue por el control single (`saveLiveMatchState`, INTACTO).
+  - GUARDRAIL `MULTI_LIVE_WRITE_ENABLED` (en `liveMatchState.js`): queda en `false` en el repo.
+    `setLiveScore`/`clearLiveScore` LANZAN salvo override por-llamada `allowMultiWrite:true`
+    (solo tests). Flipear el flag SIN aplicar la migracion multi-fila en remoto rompe el path
+    (RPC inexistente) y rompe el test GUARDRAIL A3. Son DOS pasos manuales ACOPLADOS del
+    operador, misma ventana sin partido vivo + backup: (1) aplicar
+    `apply_polla_live_match_multi.sql`; (2) recien entonces subir el flag y desplegar.
+  - El panel multi NO abre un segundo `subscribeLiveData`: cuelga del UNICO subscribe del admin
+    (fan-out de `initOfficialResultsKpi` a GroupClose + control multi). Un solo dueno del dataset.
+  - Sutil: la rama LOCAL (offline) de `finalizeOfficialResult` debe quitar la fila live del
+    finalizado igual que la RPC remota; si no, queda un marcador vivo fantasma en el cache.
 
 ## 9. Cards compartidas y borrado seguro
 

@@ -13,6 +13,7 @@ import BackupExportPanel from "./BackupExportPanel.astro";
 import LocalCleanupPanel from "./LocalCleanupPanel.astro";
 import ActivityLogPanel from "./ActivityLogPanel.astro";
 import MatchProgressPanel from "./MatchProgressPanel.astro";
+import MultiLiveScoreControls from "./MultiLiveScoreControls.astro";
 import GroupClosePanel from "./GroupClosePanel.astro";
 
 import playersData from "../../data/players.json";
@@ -57,6 +58,7 @@ dashboard.system = {
 const sequenceById = buildMatchSequence(fixtureData.matches);
 const liveMatches = fixtureData.matches.map((match) => ({
   id: match.id,
+  groupId: match.groupId,
   matchNumber: match.matchNumber,
   displayNumber: sequenceById.get(match.id) ?? match.matchNumber,
   dateUtc: match.dateUtc,
@@ -148,6 +150,8 @@ const clientPayload = {
       </p>
 
       <MatchProgressPanel />
+
+      <MultiLiveScoreControls />
 
       <GroupClosePanel />
 

@@ -466,7 +466,21 @@ export async function deleteOfficialResult(matchId) {
 export async function finalizeOfficialResult(result, nextLiveMatch) {
   if (!isRemoteLiveDataEnabled()) {
     await saveOfficialResult(result);
-    await saveLiveMatchState(nextLiveMatch);
+    // Mismo invariante que la RPC remota: el partido finalizado deja de ser vivo, asi que
+    // se quita SU fila live del cache (los demas marcadores vivos quedan intactos: finalizar
+    // uno no borra el otro). Sin esto el cache local conservaria una fila live fantasma del
+    // match ya oficial.
+    const liveList = readCachedLiveMatches().filter(
+      (item) => item && item.matchId !== result?.matchId
+    );
+    if (nextLiveMatch && nextLiveMatch.matchId) {
+      const deduped = liveList.filter((item) => item.matchId !== nextLiveMatch.matchId);
+      deduped.push(nextLiveMatch);
+      cacheLiveMatches(deduped);
+    } else {
+      cacheLiveMatches(liveList);
+    }
+    dispatch(LIVE_SCORE_EVENT, nextLiveMatch ?? null);
     return { result, liveMatch: nextLiveMatch };
   }
 

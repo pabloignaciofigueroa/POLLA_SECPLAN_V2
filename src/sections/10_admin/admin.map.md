@@ -3,6 +3,59 @@
 ## Estado
 supabase-admin-active
 
+## Stage 2 - Control MULTI-marcador (2026-06-23, definicion simultanea: ESCRITURA de N vivos)
+
+Cuando en la fecha final hay DOS finales del mismo grupo vivos a la vez, el admin necesita
+administrar AMBOS marcadores por separado. Stage 2 agrega ese panel sin tocar el flujo de UN
+partido (N=1 byte-igual).
+
+- Componente: `MultiLiveScoreControls.astro` (contenedor `[data-live-controls]`, SSR-oculto,
+  CSS `is:global` anclado, mismo patron que `GroupClosePanel`: el DOM nace por innerHTML y no
+  recibe el scope de Astro, gotcha 1). Montado en `AdminSection.astro` despues de
+  `MatchProgressPanel`.
+- Logica de UI: `admin.client.js` -> `initMultiLiveControls(section, payload, setFeedback)`,
+  devuelve `render(snapshot)`. NO abre `subscribeLiveData` propio: cuelga del UNICO subscribe
+  del admin (`initOfficialResultsKpi` reenvia el snapshot a GroupClose Y al control multi; un
+  solo dueno del dataset, fan-out como F11).
+- Logica PURA testeable offline: `src/lib/liveMatch/liveMultiControl.js`
+  (`buildLiveControlModels` envuelve `resolveActiveWindow`; `buildLiveScorePayload` /
+  `buildFinalizeResult` parametrizan el payload por matchId). CERO formula nueva de fase: el
+  gating ("que marcador cuenta") sigue en `activeWindow.js`/`liveMatchPhase.js`.
+- El panel SOLO aparece con `liveCount >= 2` (definicion simultanea). Con 0/1 vivo queda
+  oculto -> CERO regresion + N=1 byte-igual: el flujo diario lo maneja el
+  `MiniLiveScoreControl` single de siempre (`saveLiveMatchState`, INTACTO).
+
+### Escritura por matchId (RPC security definer con sesion admin, detras del guardrail)
+- "Actualizar" de un control -> `setLiveScore({ matchId, homeTeamScore, awayTeamScore })`
+  (RPC `polla_set_live_score`, upsert por match_id). Cada control opera SOLO sobre su matchId.
+- "Quitar" -> `confirmDialog` (doble paso inline) -> `clearLiveScore(matchId)` (RPC
+  `polla_clear_live_score`, borra SOLO esa fila).
+- "Finalizar" -> `confirmDialog` con resumen -> `finalizeOfficialResult(result, null)` para ESE
+  matchId. La RPC `polla_finalize_match` escribe el oficial + LIMPIA solo la fila live de ese
+  match; `nextLive=null` (en multi NO se auto-avanza). Finalizar/quitar uno NO afecta al otro.
+- Errores inline (`liveControlErrorMessage`): PGRST202 -> falta aplicar la migracion;
+  guardrail deshabilitado -> falta subir el flag; P0001 -> sesion vencida. Nunca alert/confirm/prompt.
+
+### GUARDRAIL y PASOS MANUALES PENDIENTES (operador humano)
+- `MULTI_LIVE_WRITE_ENABLED` SIGUE en `false` en `src/lib/liveMatch/liveMatchState.js`. Todo el
+  path multi-write esta detras del guardrail; `setLiveScore`/`clearLiveScore` lanzan salvo
+  override por-llamada `allowMultiWrite: true` (usado SOLO en tests). El test
+  `GUARDRAIL A3: multi-write deshabilitado por defecto` lo asegura (queda verde).
+- DOS pasos manuales ACOPLADOS, en la MISMA ventana sin partido vivo y con backup:
+  (1) aplicar `supabase/remote/apply_polla_live_match_multi.sql` en el SQL Editor (la
+  migracion `20260622120000_polla_live_match_multi.sql` ya existe; NO la ejecuto el agente, no
+  hay service key en el repo); (2) RECIEN ENTONCES poner `MULTI_LIVE_WRITE_ENABLED = true` y
+  desplegar. Flipear sin la migracion romperia el path (RPC inexistente).
+- Fix de coherencia en el seam: la rama LOCAL (offline) de `finalizeOfficialResult` ahora quita
+  la fila live del match finalizado (antes solo lo hacia la rama remota), alineada con la RPC.
+  La rama remota (produccion N=1) no cambio.
+
+### Tests
+- `tests/live-multi-control.test.mjs` (offline, RPC via cache stub de window/localStorage):
+  N=1 vs N=2 (simultaneo), hermano oficial read-only, dos marcadores independientes (upsert por
+  matchId), clear/finalize de uno deja vivo el otro, N=1 byte-igual y GUARDRAIL A3 re-afirmado
+  con override por-llamada (sin tocar el flag global).
+
 ## F11 - Cierre de grupo + reversion (2026-06-23, PRIMER consumidor que ESCRIBE)
 
 Panel `GroupClosePanel.astro` (montado en `AdminSection.astro` despues de

@@ -39,6 +39,27 @@ logica pura testeable en `lib/admin/groupClosePreview.js`. Sin grupos por cerrar
 oculto (cero regresion). El SQL (`polla_group_closure` + RPC) YA existe en el repo y NO se toca
 aqui: APLICARLO en remoto (ventana sin partido, backup) sigue PENDIENTE para el operador humano.
 
+2026-06-23 Stage 2 = ADMIN control MULTI-marcador (definicion simultanea, ESCRITURA de N
+marcadores vivos): panel `MultiLiveScoreControls` en /admin (despues de `MatchProgressPanel`,
+detras de `[data-admin-protected]`) que, en la fecha final con DOS finales del grupo vivos a la
+vez, muestra DOS controles lado a lado; cada uno escribe por su `matchId` via `setLiveScore`
+(upsert por match_id), limpia con `clearLiveScore(matchId)` y finaliza con
+`finalizeOfficialResult(result, null)` (la RPC `polla_finalize_match` limpia SOLO la fila live
+del finalizado: finalizar/quitar uno NO afecta al otro). Logica de UI en
+`admin.client.js`->`initMultiLiveControls` (cuelga del UNICO subscribe del admin, sin canal
+nuevo); logica pura testeable en `src/lib/liveMatch/liveMultiControl.js`
+(`buildLiveControlModels` envuelve `resolveActiveWindow`). El panel SOLO aparece con dos o mas
+marcadores vivos (`liveCount >= 2`); con N=1 queda oculto y el flujo diario sigue BYTE-IGUAL por el control single
+(`saveLiveMatchState`). Tests offline en `tests/live-multi-control.test.mjs` (override
+`allowMultiWrite:true` por-llamada; el flag global NO se toca). PASOS MANUALES PENDIENTES del
+operador, ACOPLADOS y en la misma ventana sin partido vivo + backup: (1) aplicar
+`supabase/remote/apply_polla_live_match_multi.sql` en remoto; (2) recien entonces poner
+`MULTI_LIVE_WRITE_ENABLED = true`. El agente NO toco Supabase remoto ni flipeo el flag.
+
+Estado remoto (2026-06-23): migracion `polla_live_match_multi` SIGUE SIN aplicar en remoto
+(PENDIENTE del operador); el multi-write esta implementado pero bloqueado por
+`MULTI_LIVE_WRITE_ENABLED=false` en el codigo commiteado.
+
 Estado de commits (2026-06-22): fundacion F0-F5 + desempate 2026 = commiteados en
 `44846b1` (sin push). PENDIENTE de aplicar en remoto: migraciones
 `polla_live_match_multi` + `group_closure` (ventana SIN partido vivo; ver
@@ -228,6 +249,7 @@ Estado de commits (2026-06-22): fundacion F0-F5 + desempate 2026 = commiteados e
 - RPCs de edicion de predicciones: la migracion `20260609193000_prediction_edit_access.sql` fue aplicada al Supabase remoto el 2026-06-12 via `supabase/remote/apply_prediction_edit_access.sql` (SQL Editor) y verificada: las RPC responden (`invalid_or_expired_admin_session` ante token invalido, ya no PGRST202). Si alguna vez vuelve el error de schema cache, ese archivo es re-ejecutable. El panel degrada con `data-remote-unavailable` + "Modulo no disponible" ante cualquier caida remota.
 - Correcciones: Admin crea/revoca codigos de un solo uso; la sesion canjeada se
   vincula al jugador y vence a las dos horas.
+- Control MULTI-marcador (Stage 2, 2026-06-23): `MultiLiveScoreControls.astro` + `initMultiLiveControls` (en `admin.client.js`) muestran DOS controles lado a lado cuando hay >=2 finales del grupo vivos a la vez; cada uno escribe por su `matchId` (`setLiveScore`/`clearLiveScore`/`finalizeOfficialResult(result, null)`). Finalizar/quitar uno NO afecta al otro. Logica pura: `lib/liveMatch/liveMultiControl.js`. Detras del guardrail `MULTI_LIVE_WRITE_ENABLED` (en `false`); con N=1 el panel queda oculto y el control single sigue byte-igual. Ver detalle y PASOS MANUALES PENDIENTES en `src/sections/10_admin/admin.map.md`.
 - Cuando cambiar: barrera/modal en `components/layout`; dashboard, mini marcador y acciones en `10_admin`; contrato de marcador vivo en `lib/liveMatch/liveMatchState.js`.
 
 ## Flujos compartidos
