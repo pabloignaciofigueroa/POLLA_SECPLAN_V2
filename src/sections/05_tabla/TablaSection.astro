@@ -10,6 +10,7 @@ import fixtureData from "../../data/fixture.json";
 import resultsData from "../../data/results.json";
 import scoringRulesData from "../../data/scoring-rules.json";
 import predictionsData from "../../data/predictions.json";
+import groupsData from "../../data/groups.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import liveScoringUrl from "../../lib/liveMatch/liveScoring.js?url";
 import { calculatePlayerStandings } from "../../lib/tabla/calculatePlayerStandings";
@@ -50,6 +51,9 @@ const clientPayload = {
   displayMatchId: displayMatch?.id,
   resetStateUrl,
   liveScoringUrl,
+  // F7: libro contable en vivo (proyectado + delta + formula). Solo lectura.
+  qualifiedPredictions: predictionsData.qualifiedPredictions,
+  groups: groupsData,
 };
 ---
 

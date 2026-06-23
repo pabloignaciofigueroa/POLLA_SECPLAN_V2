@@ -17,6 +17,10 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
   data-rank={rankClass}
   data-position={row.position}
   data-animate="fade-in"
+  role="button"
+  tabindex="0"
+  aria-expanded="false"
+  aria-label={`Ver desglose de ${row.name}`}
   style={`--i:${row.position}`}
 >
   <td data-cell="position">
@@ -36,7 +40,16 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     <strong data-rank-name>{row.name}</strong>
     <MovementIndicator movement={row.movement} />
   </td>
-  <td data-cell="points"><strong data-rank-points>{row.points}</strong></td>
+  <td data-cell="points">
+    <span class="points-stack">
+      <span class="points-main">
+        <strong data-rank-projected data-rank-points>{row.points}</strong>
+        <span class="delta-pill" data-rank-delta data-trend="flat" hidden
+          ><span data-rank-delta-num>+0</span><span class="delta-tag"> EN VIVO</span></span>
+      </span>
+      <small class="points-sub" data-rank-official-wrap hidden><span data-rank-official>{row.points}</span> oficiales</small>
+    </span>
+  </td>
   <td data-cell="played" data-rank-played>{row.played}</td>
   <td data-cell="exact" data-rank-exact>{row.exactHits}</td>
   <td data-cell="tendency" data-rank-tendency>{row.tendencyHits}</td>
@@ -54,7 +67,13 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
   tr {
     border-bottom: 1px solid var(--pm-border-soft);
     background: var(--pm-white);
+    cursor: pointer;
     transition: background var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+
+  tr:focus-visible {
+    outline: none;
+    box-shadow: inset 4px 0 0 var(--pm-pink-500), var(--pm-focus-ring-yellow);
   }
 
   tr:last-child {
@@ -179,6 +198,51 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
     line-height: 1;
   }
 
+  /* F7: proyectado (protagonista) + delta + oficial (subtitulo). En modo normal el
+     delta y el subtitulo van ocultos, asi la celda se ve igual que hoy. */
+  .points-stack {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.12rem;
+    line-height: 1;
+  }
+
+  .points-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .delta-pill {
+    font-family: var(--font-score);
+    font-size: 0.62rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    padding: 0.05rem 0.32rem;
+    border-radius: var(--pm-radius-pill);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .delta-pill[hidden] { display: none; }
+  .delta-pill[data-trend="up"] { color: var(--pm-white); background: var(--pm-green-600); }
+  .delta-pill[data-trend="down"] { color: var(--pm-white); background: var(--pm-red-500); }
+  .delta-pill[data-trend="flat"] { color: var(--pm-blue-900); background: var(--pm-border-soft); }
+
+  .points-sub {
+    font-family: var(--font-ui);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-muted, #5b6b86);
+    white-space: nowrap;
+  }
+  .points-sub[hidden] { display: none; }
+  .points-sub span {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+  }
+
   td[data-cell="performance"] span {
     font-family: var(--font-score);
     font-weight: 700;
@@ -274,6 +338,21 @@ const rankClass = row.points > 0 && row.position <= 3 ? `top-${row.position}` : 
       font-size: 0.95rem;
       line-height: 1;
       text-align: center;
+    }
+
+    /* F7 mobile: en la columna de puntos solo entra proyectado + numero de delta;
+       "EN VIVO" y el subtitulo "oficiales" se ocultan para no romper la grilla. */
+    .points-main {
+      flex-direction: column;
+      gap: 0.08rem;
+    }
+    .delta-tag,
+    .points-sub {
+      display: none;
+    }
+    .delta-pill {
+      font-size: 0.54rem;
+      padding: 0.02rem 0.24rem;
     }
 
     .streak-list {

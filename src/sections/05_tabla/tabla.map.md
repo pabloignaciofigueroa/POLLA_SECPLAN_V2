@@ -1,7 +1,37 @@
 # 05_tabla — Mapa técnico
 
 ## Estado
-supabase-realtime-active + tri-estado-formalizado
+supabase-realtime-active + tri-estado-formalizado + ranking-vivo-explicable (F7)
+
+## F7 - Ranking vivo explicable (2026-06-23, SOLO LECTURA)
+
+DEFINICION SIMULTANEA F7. El ranking ahora cuenta TODOS los marcadores en vivo a la vez y
+muestra, por jugador, el total proyectado + delta + una formula expandible. Hereda el
+gatillo del bono de grupo de la fundacion (F6 paso A): grupos bloqueados aportan 0; F7 NO
+re-gatea ni reimplementa puntaje.
+
+- `tabla.client.js` `recompute(snapshot)` lee `snapshot.liveMatches[]` (no solo el legado).
+  Construye los resultados efectivos desde `resolveActiveWindow` + `resolveEffectiveResults`
+  (F1 gatea fase y mapea `*TeamScore->*Score`) para TODOS los vivos + oficiales, y los pasa a
+  `calculateStandings` (stats de PARTIDO: PJ/exactos/racha/rendimiento/DG, como hoy).
+- Proyectado/oficial/delta + lineas salen de `buildPointLedger` (`ledger.byPlayer[id]`):
+  `projected = official + provisional`. El bono 1o/2o solo de grupos en definicion/cerrados.
+  Las filas se ORDENAN por `projected` (desempates de hoy: rendimiento, DG, nombre); sin bono
+  ni vivo `projected == points` -> orden identico al de hoy.
+- `RankingRow.astro`: celda de puntos = `[data-rank-projected]` (protagonista) +
+  `[data-rank-delta]` (pildora `+N EN VIVO`, `[data-rank-delta-num]` para mobile) +
+  `[data-rank-official]` (subtitulo, oculto sin vivo). Fila interactiva (`role=button`,
+  `aria-expanded`): al tocar abre la fila-detalle `[data-rank-detail]` (una a la vez).
+- Fila-detalle (Nivel 2): se crea en runtime (innerHTML) desde `ledger.byPlayer[id].lines`;
+  reconcilia `oficial + variacion = proyectado` + frase "por que cambia". CSS en
+  `<style is:global>` anclado a `[data-rank-detail]` (RankingTable.astro), animacion <300ms,
+  respeta `prefers-reduced-motion`.
+- Flechas: posicion PROYECTADA vs posicion OFICIAL (`ledger.official`) cuando hay delta; sin
+  delta, el comportamiento de hoy (vs `previousPositions`). El hero card "EN VIVO" / panel de
+  precision / proximo partido siguen con el `liveMatch` legado (un solo vivo).
+- Payload SSR ampliado en `TablaSection.astro` con `qualifiedPredictions` y `groups`.
+- Un solo dueno del dataset: el unico `subscribeLiveData(recompute)`. NO se toca
+  `calculatePlayerStandings.ts` (SSR). Solo lectura (`MULTI_LIVE_WRITE_ENABLED=false`).
 
 ## Tri-estado del marcador: official / live / pending - 2026-06-12
 

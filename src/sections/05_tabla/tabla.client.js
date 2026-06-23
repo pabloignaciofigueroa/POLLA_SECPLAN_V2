@@ -1,5 +1,8 @@
 import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
+import { resolveActiveWindow, resolveEffectiveResults } from "../../lib/liveMatch/activeWindow.js";
+import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
+import { computeGroupSituation } from "../../lib/fixture/groupState.js";
 
 (async () => {
   const section = document.querySelector('[data-section="tabla"]');
@@ -23,6 +26,12 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
   const scoringRules = payload.scoringRules ?? { exact: 3, tendency: 1, loneWolf: 5 };
   const previousPositions = payload.previousPositions ?? {};
   const currentMatchId = payload.displayMatchId ?? payload.currentMatchId;
+  // F7: libro contable en vivo (proyectado + delta + formula). Bono de grupo ya gateado.
+  const groups = payload.groups ?? [];
+  const qualifiedPredictions = payload.qualifiedPredictions ?? [];
+  const groupById = new Map(groups.map((group) => [group.id, group]));
+  const teamById = new Map();
+  groups.forEach((group) => (group.teams ?? []).forEach((team) => teamById.set(team.id, team)));
   const matches = payload.matches ?? [];
   const matchById = new Map(matches.map((match) => [match.id, match]));
   const matchIdByNumber = new Map(matches.map((match) => [match.matchNumber, match.id]));
@@ -270,9 +279,26 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
       const rowNode = body.querySelector(`[data-ranking-row][data-player-id="${row.playerId}"]`);
       if (!rowNode) return;
       rowNode.dataset.position = row.position;
-      rowNode.dataset.rank = row.points > 0 && row.position <= 3 ? `top-${row.position}` : "other";
+      // Protagonista = proyectado (oficial + provisional); el oficial queda secundario.
+      const projected = row.projected ?? row.points;
+      const officialPts = row.official ?? row.points;
+      const delta = row.delta ?? projected - officialPts;
+      const showProjection = delta !== 0;
+      rowNode.dataset.rank = projected > 0 && row.position <= 3 ? `top-${row.position}` : "other";
       rowNode.querySelector("[data-rank-position]").textContent = row.position;
-      rowNode.querySelector("[data-rank-points]").textContent = row.points;
+      const projEl = rowNode.querySelector("[data-rank-projected]");
+      if (projEl) projEl.textContent = projected;
+      const offEl = rowNode.querySelector("[data-rank-official]");
+      if (offEl) offEl.textContent = officialPts;
+      const deltaEl = rowNode.querySelector("[data-rank-delta]");
+      if (deltaEl) {
+        const numEl = deltaEl.querySelector("[data-rank-delta-num]");
+        if (numEl) numEl.textContent = `${delta > 0 ? "+" : ""}${delta}`;
+        deltaEl.dataset.trend = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+        deltaEl.hidden = !showProjection;
+      }
+      const offWrap = rowNode.querySelector("[data-rank-official-wrap]");
+      if (offWrap) offWrap.hidden = !showProjection;
       rowNode.querySelector("[data-rank-played]").textContent = row.played;
       rowNode.querySelector("[data-rank-exact]").textContent = row.exactHits;
       rowNode.querySelector("[data-rank-tendency]").textContent = row.tendencyHits;
@@ -290,7 +316,8 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
   const renderPodium = (rows) => {
     const strip = section.querySelector("[data-podium-strip]");
     if (!strip) return;
-    const leaderPoints = rows[0]?.points ?? 0;
+    const pointsOf = (row) => row.projected ?? row.points;
+    const leaderPoints = rows[0] ? pointsOf(rows[0]) : 0;
     for (let i = 0; i < 3; i += 1) {
       const card = strip.querySelector(`[data-podium-slot="${i + 1}"]`);
       const row = rows[i];
@@ -299,9 +326,9 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
       const nameEl = card.querySelector("[data-podium-name]");
       if (nameEl) nameEl.textContent = row.name;
       const ptsEl = card.querySelector("[data-podium-points]");
-      if (ptsEl) ptsEl.textContent = row.points;
+      if (ptsEl) ptsEl.textContent = pointsOf(row);
       const gapEl = card.querySelector("[data-podium-gap]");
-      if (gapEl) gapEl.textContent = i === 0 ? "LÍDER" : `a ${Math.max(0, leaderPoints - row.points)} pts`;
+      if (gapEl) gapEl.textContent = i === 0 ? "LÍDER" : `a ${Math.max(0, leaderPoints - pointsOf(row))} pts`;
       const img = card.querySelector("[data-podium-avatar]");
       const src = avatarById.get(row.playerId);
       if (img && src) img.src = src;
@@ -472,56 +499,288 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
     return firstOpenMatch(officialIds);
   };
 
-  const recompute = ({ liveMatch, officialResults }) => {
+  // ── F7 Nivel 2: formula expandible por jugador ──────────────────────────────
+  // El detalle se arma SOLO desde el libro (ledger.byPlayer[id].lines): cero formula
+  // de puntaje en la UI; aqui solo se mapea regla -> etiqueta/color y se contextualiza.
+  const MATCH_TYPE = {
+    lone_wolf: { label: "LONE WOLF", token: "lone_wolf" },
+    exact_shared: { label: "EXACTO", token: "exact_shared" },
+    tendency: { label: "TENDENCIA", token: "tendency" },
+    none: { label: "SIN PUNTOS", token: "none" },
+  };
+  const GROUP_TYPE = {
+    group_first: { label: "ACIERTA 1o", token: "group_first" },
+    group_second: { label: "ACIERTA 2o", token: "group_second" },
+    group_miss: { label: "NO COINCIDE", token: "group_miss" },
+  };
+  const fmtSigned = (n) => (Number(n) > 0 ? `+${n}` : String(n));
+  const codeOf = (teamId) => teamById.get(teamId)?.shortCode ?? (teamId ? String(teamId).toUpperCase() : "—");
+  const esc = (value) =>
+    String(value ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  let detailState = null;
+  let openDetailPlayerId = null;
+
+  const groupSituation = (groupId) => {
+    if (!detailState) return { first: null, second: null };
+    if (detailState.sitCache.has(groupId)) return detailState.sitCache.get(groupId);
+    const sit = computeGroupSituation(groupId, {
+      group: groupById.get(groupId),
+      fixture: matches,
+      official: detailState.official,
+      live: detailState.live,
+    });
+    detailState.sitCache.set(groupId, sit);
+    return sit;
+  };
+
+  const buildDetailHtml = (playerId) => {
+    const me = detailState?.byPlayer?.[playerId];
+    if (!me) return "";
+    const lines = me.lines ?? [];
+    const matchLines = lines.filter((l) => l.origen === "match" && l.estado !== "anulado");
+    const groupLines = lines.filter((l) => l.origen === "group" && l.estado !== "anulado");
+    const variacion = me.projected - me.official;
+    const predFor = (matchId) =>
+      (detailState.predictions ?? []).find((p) => p.playerId === playerId && p.matchId === matchId) ?? null;
+
+    const rows = [];
+    rows.push(
+      `<tr class="rd-base"><td class="rd-var">Puntaje oficial</td><td class="rd-pred"></td><td class="rd-now"></td><td class="rd-type"></td><td class="rd-pts">${me.official}</td></tr>`
+    );
+    matchLines.forEach((l) => {
+      const m = matchById.get(l.evento);
+      const meta = MATCH_TYPE[l.regla] ?? MATCH_TYPE.none;
+      const pred = predFor(l.evento);
+      const eff = detailState.effByMatch.get(l.evento) ?? null;
+      const matchup = m ? `${codeOf(m.homeTeam?.id)}-${codeOf(m.awayTeam?.id)}` : l.evento;
+      rows.push(
+        `<tr><td class="rd-var">${esc(matchup)}</td>` +
+          `<td class="rd-pred">${pred ? `${pred.homeScore}-${pred.awayScore}` : "—"}</td>` +
+          `<td class="rd-now">${eff ? `${eff.homeScore}-${eff.awayScore}` : "—"}</td>` +
+          `<td class="rd-type" data-token="${meta.token}">${meta.label}</td>` +
+          `<td class="rd-pts">${fmtSigned(l.puntos)}</td></tr>`
+      );
+    });
+    groupLines.forEach((l) => {
+      const meta = GROUP_TYPE[l.regla] ?? GROUP_TYPE.group_miss;
+      const pos = l.evento === "first" ? 1 : 2;
+      const predicted = (qualifiedPredictions.find(
+        (q) => q.playerId === playerId && q.groupId === l.group && q.position === pos
+      ) ?? {}).teamId ?? null;
+      const sit = groupSituation(l.group);
+      const current = pos === 1 ? sit.first : sit.second;
+      rows.push(
+        `<tr><td class="rd-var"><span class="rd-badge" data-pos="${pos}">${pos}o</span> Grupo ${esc(l.group)}</td>` +
+          `<td class="rd-pred">${esc(codeOf(predicted))}</td>` +
+          `<td class="rd-now">${esc(codeOf(current))}</td>` +
+          `<td class="rd-type" data-token="${meta.token}">${meta.label}</td>` +
+          `<td class="rd-pts">${fmtSigned(l.puntos)}</td></tr>`
+      );
+    });
+
+    const matchSum = matchLines.reduce((s, l) => s + l.puntos, 0);
+    const groupSum = groupLines.reduce((s, l) => s + l.puntos, 0);
+    const groupMissPicked = groupLines.some(
+      (l) =>
+        l.regla === "group_miss" &&
+        qualifiedPredictions.some(
+          (q) => q.playerId === playerId && q.groupId === l.group && q.position === (l.evento === "first" ? 1 : 2)
+        )
+    );
+    let frase;
+    if (variacion === 0) frase = "Sin cambios en vivo todavia.";
+    else if (matchSum > 0 && groupSum > 0)
+      frase = `Suma +${matchSum} por los marcadores y +${groupSum} por sus clasificados.`;
+    else if (matchSum > 0 && groupSum === 0 && groupMissPicked)
+      frase = `Gana +${matchSum} en los partidos, pero su clasificado del grupo aun no coincide: neto ${fmtSigned(variacion)}.`;
+    else if (matchSum > 0) frase = `Suma +${matchSum} por los marcadores en vivo.`;
+    else frase = `Suma +${groupSum} por sus clasificados 1o/2o.`;
+
+    return (
+      `<div class="rank-detail-inner">` +
+      `<table class="rd-table"><tbody>${rows.join("")}</tbody></table>` +
+      `<p class="rd-foot"><span>${me.official} oficial ${variacion >= 0 ? "+" : "-"} ${Math.abs(variacion)} en vivo =</span> <strong>${me.projected} proyectado</strong></p>` +
+      `<p class="rd-why">${esc(frase)}</p>` +
+      `</div>`
+    );
+  };
+
+  const closeOpenDetail = () => {
+    const prev = section.querySelector("[data-rank-detail]");
+    if (prev) prev.remove();
+    if (openDetailPlayerId) {
+      const prevRow = section.querySelector(`[data-ranking-row][data-player-id="${openDetailPlayerId}"]`);
+      if (prevRow) prevRow.setAttribute("aria-expanded", "false");
+    }
+    openDetailPlayerId = null;
+  };
+
+  const openDetail = (rowNode, playerId) => {
+    const html = buildDetailHtml(playerId);
+    if (!html) return;
+    const tr = document.createElement("tr");
+    tr.className = "rank-detail-row";
+    tr.dataset.rankDetail = "";
+    tr.dataset.playerId = playerId;
+    const td = document.createElement("td");
+    td.colSpan = rowNode.children.length || 10;
+    td.innerHTML = html;
+    tr.append(td);
+    rowNode.after(tr);
+    rowNode.setAttribute("aria-expanded", "true");
+    openDetailPlayerId = playerId;
+  };
+
+  const toggleDetail = (rowNode) => {
+    const playerId = rowNode.dataset.playerId;
+    if (!playerId) return;
+    const wasOpen = openDetailPlayerId === playerId;
+    closeOpenDetail();
+    if (!wasOpen) openDetail(rowNode, playerId);
+  };
+
+  const wireRowToggles = () => {
+    const body = section.querySelector("[data-ranking-body]");
+    if (!body) return;
+    body.addEventListener("click", (event) => {
+      const row = event.target instanceof Element ? event.target.closest("[data-ranking-row]") : null;
+      if (!row || !body.contains(row)) return;
+      toggleDetail(row);
+    });
+    body.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const row = event.target instanceof Element ? event.target.closest("[data-ranking-row]") : null;
+      if (!row || row !== event.target) return;
+      event.preventDefault();
+      toggleDetail(row);
+    });
+  };
+
+  const recompute = (snapshot = {}) => {
     if (!scoring) return; // sin el modulo de calculo, no tocamos el SSR
 
-    // Tri-estado del marcador remoto: official / live (puntuable) / pending
-    // (visible sin puntuar). Fuente unica: lib/liveMatch/liveMatchPhase.js.
-    const phase = resolveLiveMatchPhase({
+    const officialResults = snapshot.officialResults ?? [];
+    const liveMatch = snapshot.liveMatch ?? null; // legado (el mas nuevo): hero card + panel + proximo
+    // F7 paso A: el RANKING cuenta TODOS los marcadores en vivo (no solo el ultimo).
+    const liveMatches = Array.isArray(snapshot.liveMatches)
+      ? snapshot.liveMatches
+      : liveMatch
+        ? [liveMatch]
+        : [];
+    const now = Date.now();
+
+    // F1 es el unico que gatea fase y mapea *TeamScore->*Score, para TODOS los vivos.
+    const win = resolveActiveWindow({ fixture: matches, official: officialResults, live: liveMatches, now });
+    const { byMatch } = resolveEffectiveResults({ official: officialResults, window: win });
+    const byMatchIds = new Set(byMatch.keys());
+
+    const official = officialToResults(officialResults);
+    const officialIds = new Set(official.map((r) => r.matchId));
+
+    // Hero card / panel / proximo: siguen con el marcador legado (un solo vivo).
+    const legacyPhase = resolveLiveMatchPhase({
       liveMatch,
       fixtureMatch: matchById.get(resolveLiveMatchId(liveMatch)) ?? null,
       officialResults,
     });
+    const legacyLive = legacyPhase === "live" ? liveToResult(liveMatch) : null;
+    const legacyLiveActive = Boolean(legacyLive) && !officialIds.has(legacyLive.matchId);
+    const pendingMatch = legacyLiveActive ? null : resolvePendingDisplayMatch(liveMatch, officialIds);
 
-    const live = phase === "live" ? liveToResult(liveMatch) : null;
-    const official = officialToResults(officialResults);
-    const officialIds = new Set(official.map((r) => r.matchId));
-    const liveActive = Boolean(live) && !officialIds.has(live.matchId);
-
-    const pendingMatch = liveActive ? null : resolvePendingDisplayMatch(liveMatch, officialIds);
-
-    // Nada que sobreponer: respetar el SSR, salvo que exista un partido pendiente
-    // preparado por Admin que debamos mostrar sin puntuar.
-    if (!liveActive && official.length === 0 && !pendingMatch) {
+    // Nada que sobreponer: respetar el SSR, salvo un partido pendiente que mostrar sin puntuar.
+    if (byMatchIds.size === 0 && official.length === 0 && !pendingMatch) {
       return;
     }
 
     const predictions = mergeLocalPredictions();
+    // Resultados efectivos = baseline (results.json) sobrescrito por oficiales + TODOS los vivos.
+    const liveAndOfficial = Array.from(byMatch.values()).map((r) => ({
+      matchId: r.matchId,
+      status: "finished",
+      homeScore: r.homeScore,
+      awayScore: r.awayScore,
+    }));
+    const effectiveResults = [...results.filter((r) => !byMatchIds.has(r.matchId)), ...liveAndOfficial];
+    // Base sin vivo (solo oficiales) para las flechas.
     const baseResults = [...results.filter((r) => !officialIds.has(r.matchId)), ...official];
-    const effectiveResults = liveActive
-      ? [...baseResults.filter((r) => r.matchId !== live.matchId), live]
-      : baseResults;
 
+    // Stats de PARTIDO (PJ/exactos/racha/rendimiento/DG + puntaje de partido), como hoy.
     let rows = calculateStandings(predictions, effectiveResults);
-    if (liveActive) {
-      // Flechas de movimiento = efecto del marcador en vivo vs el ranking oficial.
-      const basePos = new Map(
-        calculateStandings(predictions, baseResults).map((row) => [row.playerId, row.position])
+
+    // F7 paso B: total PROYECTADO + delta desde el libro contable. El bono de grupo YA
+    // viene gateado por la fundacion (grupos bloqueados aportan 0); aqui NO se re-filtra.
+    const ledger = buildPointLedger({
+      players,
+      predictions,
+      qualifiedPredictions,
+      groups,
+      fixture: matches,
+      official: officialResults,
+      live: liveMatches,
+      window: win,
+      now,
+    });
+    // Estado para la formula expandible (Nivel 2): se lee al abrir una fila.
+    detailState = {
+      byPlayer: ledger.byPlayer,
+      predictions,
+      official: officialResults,
+      live: liveMatches,
+      effByMatch: byMatch,
+      sitCache: new Map(),
+    };
+    const ledgerFor = (id) => ledger.byPlayer[id] ?? { official: 0, projected: 0, lines: [] };
+    rows = rows.map((row) => {
+      const l = ledgerFor(row.playerId);
+      return { ...row, official: l.official, projected: l.projected, delta: l.projected - l.official, lines: l.lines };
+    });
+    const hasProjection = rows.some((row) => row.delta !== 0);
+
+    // Orden por proyectado, con los mismos desempates de hoy (rendimiento, DG, nombre).
+    // Sin bono ni vivo, projected == points -> orden IDENTICO al de hoy.
+    const byProjected = (a, b) =>
+      b.projected - a.projected ||
+      b.performance - a.performance ||
+      b.goalDifference - a.goalDifference ||
+      a.name.localeCompare(b.name);
+    rows.sort(byProjected);
+
+    if (hasProjection) {
+      // Flechas = posicion PROYECTADA vs posicion OFICIAL (plano oficial = ledger.official).
+      const officialOrder = [...rows].sort(
+        (a, b) =>
+          b.official - a.official ||
+          b.performance - a.performance ||
+          b.goalDifference - a.goalDifference ||
+          a.name.localeCompare(b.name)
       );
-      rows = rows.map((row) => {
-        const previousPosition = basePos.get(row.playerId) ?? row.previousPosition;
-        return { ...row, previousPosition, movement: calculateMovement(row.position, previousPosition) };
-      });
+      const officialPos = new Map(officialOrder.map((row, index) => [row.playerId, index + 1]));
+      rows = rows.map((row, index) => ({
+        ...row,
+        position: index + 1,
+        movement: calculateMovement(index + 1, officialPos.get(row.playerId)),
+      }));
+    } else {
+      // Sin proyeccion (sin vivo): mismo orden y flechas que hoy (vs previousPositions).
+      rows = rows.map((row, index) => ({ ...row, position: index + 1 }));
     }
+    // El detalle abierto sobrevive al re-render (se recrea con datos frescos).
+    const reopenPid = openDetailPlayerId;
+    closeOpenDetail();
     renderRanking(rows);
     renderPodium(rows);
+    if (reopenPid) {
+      const rowNode = section.querySelector(`[data-ranking-row][data-player-id="${reopenPid}"]`);
+      if (rowNode) openDetail(rowNode, reopenPid);
+    }
 
-    const displayMatchId = liveActive ? live.matchId : pendingMatch?.id ?? currentMatchId;
+    const displayMatchId = legacyLiveActive ? legacyLive.matchId : pendingMatch?.id ?? currentMatchId;
     renderAccuracy(calculateAccuracy(predictions, displayMatchId, effectiveResults));
 
-    if (liveActive) {
-      updateLiveMatchCard(liveMatch, matchById.get(live.matchId), { isLive: true });
-      updateNextMatchCard(live.matchId, officialResults);
+    if (legacyLiveActive) {
+      updateLiveMatchCard(liveMatch, matchById.get(legacyLive.matchId), { isLive: true });
+      updateNextMatchCard(legacyLive.matchId, officialResults);
     } else if (pendingMatch) {
       updateLiveMatchCard(liveMatch, pendingMatch, { isLive: false });
       updateNextMatchCardDirect(pendingMatch);
@@ -550,6 +809,7 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
     });
   };
   wireCrossHighlight();
+  wireRowToggles();
 
   subscribeLiveData(recompute);
 })();
