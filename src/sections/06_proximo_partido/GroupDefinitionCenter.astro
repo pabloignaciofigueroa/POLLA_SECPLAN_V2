@@ -7,6 +7,7 @@
 import LiveMatchMini from "./LiveMatchMini.astro";
 import LiveGroupStandings from "./LiveGroupStandings.astro";
 import YourImpactCard from "./YourImpactCard.astro";
+import WhatChangedFeed from "./WhatChangedFeed.astro";
 ---
 
 <section
@@ -41,6 +42,11 @@ import YourImpactCard from "./YourImpactCard.astro";
       <div class="gdc-impact" data-gdc-impact>
         <YourImpactCard />
       </div>
+    </div>
+
+    <!-- F8 Cronologia "Que cambio": debajo de la tabla viva, mismo recompute. -->
+    <div class="gdc-feed" data-gdc-feed>
+      <WhatChangedFeed />
     </div>
   </div>
 </section>

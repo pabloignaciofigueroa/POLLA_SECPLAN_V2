@@ -117,6 +117,15 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
   finalizacion: si el Admin finaliza B antes que A, la curva cambia de forma.
   - Fix: para el HISTORICO cerrado, reconstruir con orden estable por numero oficial
     de partido. En vivo si se puede mostrar en orden de evento.
+- Cronologia "Que cambio" (F8): la linea de tiempo confiable se arma por DIFERENCIA entre
+  snapshots EN EL CLIENTE (snapshot anterior vs nuevo en cada recompute), NO por el `ts` del
+  libro contable (`buildPointLedger` line.ts es best-effort: puede venir null o desordenado).
+  - Fix: el motor `lib/statistics/buildChangeEvents.js` compara prev vs curr y el orden es el
+    de LLEGADA de los snapshots (dentro de un snapshot: goles -> reordenamientos -> impactos).
+    F8 es SOLO LECTURA: no recalcula puntaje (toda cifra sale del ledger/situations que el
+    recompute ya produjo) y los eventos de 1o/2o solo se narran para grupos EN DEFINICION
+    (gate heredado `isGroupDefinitionStarted`; los bloqueados ni siquiera entran a `situations`).
+    No requiere Supabase nuevo (la tabla `polla_match_event` esta fuera de alcance).
 - Desempate de tabla de grupo = criterio OFICIAL FIFA Copa 2026 (head-to-head PRIMERO,
   cambio central de 2026). Orden EXACTO: puntos -> head-to-head(pts, DG, GF entre los
   empatados) -> DG total -> GF total -> fair play (NO DISPONIBLE: no hay datos de

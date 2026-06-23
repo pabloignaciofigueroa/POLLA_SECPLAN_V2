@@ -3,6 +3,55 @@
 ## Estado
 wireframe-implemented
 
+## F8 - Cronologia "Que cambio" (2026-06-23, SOLO LECTURA)
+
+Feed cronologico que vive DENTRO del Centro de definicion (F6), DEBAJO de la tabla viva:
+narra las DIFERENCIAS entre snapshots consecutivos (gol -> reordenamiento -> impacto por
+jugador -> "sin cambios"), mas nuevo arriba. No es una vista de estado (eso es F6/F7/F9):
+es la pelicula de los cambios. NO recalcula puntaje ni re-gatea: LEE lo que el recompute
+ya produjo.
+
+Pieza nueva:
+- `WhatChangedFeed.astro`: shell SSR oculto por defecto (`data-active="false"`); cabecera +
+  filtros Todos/Mi jugador (`[data-wcf-filter]`, `aria-pressed`) + lista (`[data-wcf-list]`,
+  `aria-live="polite"`) + pildora de cola "N cambios nuevos" (`[data-wcf-queue]`). Los items
+  se crean en runtime por innerHTML, asi que su CSS va en `<style is:global>` anclado a
+  `[data-what-changed-feed]` (gotcha de scope). Montado dentro de `GroupDefinitionCenter`
+  (`[data-gdc-feed]`), por lo que solo es visible cuando el centro esta activo (cero regresion).
+
+Motor de diff (PURO, testeable con node):
+- `src/lib/statistics/buildChangeEvents.js` + `deriveRanking`. Firma:
+  `buildChangeEvents({ prev, curr, players, fixture, teamLabels, playerLabels, forPlayerId })`
+  donde `prev`/`curr` = `{ effectiveByMatch:Map, situations:{gid->GroupSituation}, byPlayer, ranking }`.
+  - GOAL: el marcador efectivo de un partido cambio (antes->ahora). Cualquier partido vivo.
+  - REORDER: cambio de `first`/`second`/orden de standings en un grupo EN DEFINICION. Gate
+    heredado: `situations` SOLO trae grupos con `definitionStarted` true (o `state==='final'`);
+    los BLOQUEADOS no entran -> nunca eventos de 1o/2o de fechas 1-2.
+  - IMPACT: por jugador, cambio de `projected` (descompuesto en `+N por marcador` /
+    `+N por 1o/2o` leyendo `ledger.lines`, anulado=0) y/o de puesto de ranking, con signo.
+  - NONE: el "0 se explica" (jugador estable). Opt-in via `forPlayerId` (filtro Mi jugador).
+  - Orden dentro de un snapshot: goles -> reordenamientos -> impactos -> none. Entre snapshots,
+    orden de LLEGADA. NO se usa el `ts` del libro (best-effort).
+  - CERO formula nueva: toda cifra sale de `resolveEffectiveResults` / `computeGroupSituation`
+    / `buildPointLedger().byPlayer` que el recompute ya calculo.
+
+Wiring (mismo dueno del dataset):
+- `proximo-partido.client.js` reusa el UNICO `subscribeLiveData(recompute)` de F6 (NO abre un
+  segundo canal). En `recomputeCenter`: `buildChangeSnapshot` arma el snapshot derivado,
+  `updateFeed` corre `buildChangeEvents(prev, curr)`, mantiene `prevChangeSnapshot`, acumula
+  los eventos (cap 200, mas nuevo arriba), filtra Todos/Mi jugador, lleva la cola de no leidos.
+- Anti-saturacion: los impactos de un MISMO lote (snapshot) cuando son >=4 se colapsan en un
+  resumen "N jugadores afectados" expandible (`[data-wcf-more]` / `[data-wcf-sublist]`).
+- Animacion de entrada del item: fade/slide <300ms (transform/opacity), `prefers-reduced-motion`
+  -> sin desplazamiento. Timer de limpieza unico (no acumula).
+- Cero regresion: sin grupo en definicion el centro (y el feed) queda oculto; el diff avanza
+  igual sin mostrar nada -> /proximo-partido identico a hoy.
+- NO usa la tabla persistida `polla_match_event` (fuera de alcance): cronologia por diff en cliente.
+
+Tests: `tests/change-events.test.mjs` (gol entre snapshots, reorder solo en definicion, grupo
+bloqueado sin 1o/2o, impacto descompuesto con signo, "sin cambios", orden deterministico,
+deriveRanking).
+
 ## F6 - Centro de definicion de grupo (2026-06-22, SOLO LECTURA)
 
 Capa nueva que aparece en /proximo-partido SOLO cuando un grupo entra a su ventana final

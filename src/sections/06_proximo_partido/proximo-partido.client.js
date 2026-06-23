@@ -3,6 +3,7 @@ import { subscribeLiveData } from "../../lib/liveMatch/liveMatchState.js";
 import { resolveActiveWindow, resolveEffectiveResults } from "../../lib/liveMatch/activeWindow.js";
 import { getGroupFinalMatches, computeGroupSituation } from "../../lib/fixture/groupState.js";
 import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
+import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChangeEvents.js";
 
 (() => {
   const section = document.querySelector('[data-section="proximo-partido"]');
@@ -457,6 +458,208 @@ import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
     if (foot) foot.textContent = fmtSigned(matrixTotal);
   };
 
+  // ── F8: Cronologia "Que cambio" (SOLO LECTURA) ─────────────────────────────
+  // Se arma por DIFERENCIA entre el snapshot anterior y el actual (en cliente). NO usa el
+  // `ts` del libro como linea de tiempo: el orden es el de llegada de los snapshots. Cero
+  // formula nueva: lee effectiveByMatch / situations / byPlayer que el recompute ya produjo.
+  const feed = center?.querySelector("[data-what-changed-feed]");
+  const FEED_CAP = 200; // tope para no crecer infinito
+  const teamLabels = Object.fromEntries(teams.map((t) => [t.id, t.shortCode]));
+  const playerLabels = Object.fromEntries(players.map((p) => [p.id, p.name]));
+
+  let prevChangeSnapshot = null; // snapshot derivado del recompute anterior
+  let feedItems = []; // lista cronologica (mas nuevo arriba), cap FEED_CAP
+  let feedSeq = 0; // id incremental para keys de item
+  let feedBatch = 0; // lote (snapshot) en que llego cada grupo de eventos
+  let unreadCount = 0; // eventos llegados sin leer (cola)
+  let enterTimer = null; // limpieza de la marca de animacion de entrada
+  const GROUP_IMPACT_THRESHOLD = 4; // a partir de N impactos en un lote, se agrupan
+
+  const ICON = { goal: "⚽", reorder: "⇅", impact: "+/-", none: "–" };
+
+  // Detecta el filtro "Mi jugador" y su id (igual contrato que F6).
+  const feedSelectedPlayer = () => {
+    const pid = readSelectedPlayerId();
+    return pid && players.some((p) => p.id === pid) ? pid : null;
+  };
+
+  // Construye el snapshot derivado que consume el motor de diff. effectiveByMatch cubre
+  // TODOS los partidos efectivos (para narrar goles de cualquier partido vivo); situations
+  // SOLO lleva grupos EN DEFINICION (gate heredado): nunca eventos de 1o/2o de bloqueados.
+  const buildChangeSnapshot = ({ official, live, activeWindow }) => {
+    const { byMatch: effectiveByMatch } = resolveEffectiveResults({ official, window: activeWindow });
+    const ledger = buildPointLedger({
+      players, predictions, qualifiedPredictions, groups,
+      fixture: matches, official, live, window: activeWindow, now: Date.now(),
+    });
+    const situations = {};
+    for (const group of groups) {
+      const sit = computeGroupSituation(group.id, { group, fixture: matches, official, live });
+      // Solo grupos EN DEFINICION (o ya final): los bloqueados no narran 1o/2o.
+      if (sit.definitionStarted !== false || sit.state === "final") situations[group.id] = sit;
+    }
+    const ranking = deriveRanking(ledger.byPlayer, players);
+    return { effectiveByMatch, situations, byPlayer: ledger.byPlayer, ranking };
+  };
+
+  const isAtTop = () => {
+    const list = feed?.querySelector("[data-wcf-list]");
+    return !list || list.scrollTop <= 4;
+  };
+
+  const escapeHtml = (s) =>
+    String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // Crea el <li> de un evento simple (gol / reorder / impact / none).
+  const renderItemNode = (item) => {
+    const ev = item.event;
+    const li = document.createElement("li");
+    li.className = "wcf-item";
+    li.dataset.type = ev.type;
+    li.dataset.sign = ev.sign ?? "neutral";
+    if (item.fresh) li.dataset.enter = "1";
+    const badge =
+      ev.type === "reorder"
+        ? ` <span class="wcf-badge" data-pos="1">1o</span><span class="wcf-badge" data-pos="2">2o</span>`
+        : "";
+    li.innerHTML =
+      `<span class="wcf-ico" aria-hidden="true">${escapeHtml(ICON[ev.type] ?? "•")}</span>` +
+      `<span class="wcf-text">${escapeHtml(ev.text)}${badge}</span>`;
+    return li;
+  };
+
+  // Crea el <li> resumen "N jugadores afectados" con sublista expandible (anti-saturacion:
+  // un gol que mueve a muchos jugadores no se vuelve N lineas sueltas).
+  const renderImpactSummaryNode = (items) => {
+    const li = document.createElement("li");
+    li.className = "wcf-item";
+    li.dataset.type = "impact";
+    li.dataset.sign = "neutral";
+    if (items.some((it) => it.fresh)) li.dataset.enter = "1";
+    const subItems = items
+      .map((it) => `<li class="wcf-subitem">${escapeHtml(it.event.text)}</li>`)
+      .join("");
+    li.innerHTML =
+      `<span class="wcf-ico" aria-hidden="true">${escapeHtml(ICON.impact)}</span>` +
+      `<span class="wcf-text">${items.length} jugadores afectados` +
+      `<div class="wcf-summary">` +
+      `<button type="button" class="wcf-more" data-wcf-more aria-expanded="false">Ver detalle</button>` +
+      `<ul class="wcf-sublist" data-wcf-sublist hidden>${subItems}</ul>` +
+      `</div></span>`;
+    return li;
+  };
+
+  // Agrupa los impactos de un mismo lote (snapshot) cuando son muchos: 1 resumen
+  // "N afectados" expandible en vez de N items sueltos. En "Mi jugador" no se agrupa.
+  const renderFeed = () => {
+    if (!feed) return;
+    const list = feed.querySelector("[data-wcf-list]");
+    const empty = feed.querySelector("[data-wcf-empty]");
+    if (!list) return;
+    const filter = feed.dataset.filter === "mine" ? "mine" : "all";
+    const myId = feedSelectedPlayer();
+
+    const visible = feedItems.filter((item) => {
+      if (filter === "all") return true;
+      // Mi jugador: eventos de ese jugador (impact/none) o eventos sin jugador (gol/reorder).
+      if (item.event.playerId) return item.event.playerId === myId;
+      return false;
+    });
+
+    list.innerHTML = "";
+    if (empty) empty.hidden = !(filter === "mine" && visible.length === 0);
+
+    // Recorrido en orden (mas nuevo arriba). Agrupa rachas de impactos del MISMO lote.
+    let i = 0;
+    while (i < visible.length) {
+      const item = visible[i];
+      if (filter === "all" && item.event.type === "impact") {
+        // junta los impactos contiguos del mismo lote
+        const batch = item.batch;
+        let j = i;
+        const run = [];
+        while (j < visible.length && visible[j].event.type === "impact" && visible[j].batch === batch) {
+          run.push(visible[j]);
+          j += 1;
+        }
+        if (run.length >= GROUP_IMPACT_THRESHOLD) {
+          list.append(renderImpactSummaryNode(run));
+        } else {
+          for (const it of run) list.append(renderItemNode(it));
+        }
+        i = j;
+        continue;
+      }
+      list.append(renderItemNode(item));
+      i += 1;
+    }
+
+    // Limpiar la marca de animacion para que no re-anime en el proximo repaint.
+    if (enterTimer) window.clearTimeout(enterTimer);
+    enterTimer = window.setTimeout(() => {
+      for (const fi of feedItems) fi.fresh = false;
+      list.querySelectorAll('[data-enter="1"]').forEach((el) => el.removeAttribute("data-enter"));
+    }, 300);
+  };
+
+  const renderQueue = () => {
+    if (!feed) return;
+    const pill = feed.querySelector("[data-wcf-queue]");
+    const count = feed.querySelector("[data-wcf-queue-count]");
+    if (!pill) return;
+    if (unreadCount > 0) {
+      if (count) count.textContent = String(unreadCount);
+      pill.hidden = false;
+    } else {
+      pill.hidden = true;
+    }
+  };
+
+  // Aplica el diff (lista de eventos nuevos) a la cronologia acumulada.
+  const pushEvents = (events) => {
+    if (!events.length) return;
+    const wasAtTop = isAtTop();
+    const batch = ++feedBatch;
+    for (const ev of events) {
+      feedItems.unshift({ id: ++feedSeq, batch, event: ev, fresh: true });
+    }
+    if (feedItems.length > FEED_CAP) feedItems.length = FEED_CAP;
+    if (!wasAtTop) unreadCount += events.length;
+    renderFeed();
+    renderQueue();
+    if (wasAtTop) {
+      const list = feed?.querySelector("[data-wcf-list]");
+      if (list) list.scrollTop = 0;
+    }
+  };
+
+  // Recalcula el diff y empuja los eventos nuevos. Para el filtro "Mi jugador" pide el
+  // "0 se explica" (none) de ese jugador. forPlayerId NO altera goles/reorder/impactos.
+  // `centerActive` decide si el feed (que vive DENTRO del centro) es visible: la cronologia
+  // es la pelicula de la definicion simultanea, asi que se muestra cuando el centro lo esta.
+  // El diff (prevChangeSnapshot) SIEMPRE avanza para no perder la linea base entre snapshots.
+  const updateFeed = (snapshot, centerActive) => {
+    if (!feed) {
+      prevChangeSnapshot = snapshot;
+      return;
+    }
+    const myId = feedSelectedPlayer();
+    const events = buildChangeEvents({
+      prev: prevChangeSnapshot,
+      curr: snapshot,
+      players,
+      fixture: matches,
+      teamLabels,
+      playerLabels,
+      forPlayerId: myId,
+    });
+    // Solo acumulamos/mostramos en contexto de definicion (cero regresion sin centro).
+    if (centerActive && events.length) pushEvents(events);
+    feed.dataset.active = centerActive && feedItems.length > 0 ? "true" : "false";
+    if (!centerActive) renderQueue();
+    prevChangeSnapshot = snapshot;
+  };
+
   const recomputeCenter = (snapshot) => {
     if (!center) return;
     const official = snapshot?.officialResults ?? [];
@@ -464,6 +667,10 @@ import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
     const now = Date.now();
     const activeWindow = resolveActiveWindow({ fixture: matches, official, live, now });
     const activeGroupId = resolveActiveGroupId(activeWindow);
+
+    // F8: la cronologia se arma por diff de snapshots reusando este unico recompute. Sin
+    // grupo en definicion el centro (y el feed anidado) queda oculto -> cero regresion.
+    updateFeed(buildChangeSnapshot({ official, live, activeWindow }), Boolean(activeGroupId));
 
     if (!activeGroupId) {
       center.dataset.active = "false";
@@ -507,6 +714,41 @@ import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
   section.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
+
+    // F8: filtros Todos / Mi jugador.
+    const filterBtn = target.closest("[data-wcf-filter]");
+    if (filterBtn && feed && feed.contains(filterBtn)) {
+      const value = filterBtn.dataset.wcfFilter === "mine" ? "mine" : "all";
+      feed.dataset.filter = value;
+      feed.querySelectorAll("[data-wcf-filter]").forEach((btn) => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.wcfFilter === value));
+      });
+      renderFeed();
+      return;
+    }
+
+    // F8: cola "N cambios nuevos" -> ir al tope y marcar leidos.
+    const queueBtn = target.closest("[data-wcf-queue]");
+    if (queueBtn && feed && feed.contains(queueBtn)) {
+      const list = feed.querySelector("[data-wcf-list]");
+      if (list) list.scrollTop = 0;
+      unreadCount = 0;
+      renderQueue();
+      return;
+    }
+
+    // F8: expandir/colapsar el resumen "N jugadores afectados".
+    const moreBtn = target.closest("[data-wcf-more]");
+    if (moreBtn && feed && feed.contains(moreBtn)) {
+      const sublist = moreBtn.parentElement?.querySelector("[data-wcf-sublist]");
+      if (sublist) {
+        const open = sublist.hasAttribute("hidden");
+        if (open) sublist.removeAttribute("hidden");
+        else sublist.setAttribute("hidden", "");
+        moreBtn.setAttribute("aria-expanded", String(open));
+      }
+      return;
+    }
 
     // Capa 2: plegar/desplegar el detalle de 4 variables.
     const toggle = target.closest("[data-impact-toggle]");
