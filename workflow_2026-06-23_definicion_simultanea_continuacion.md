@@ -23,9 +23,15 @@ Proyecto: Polla Mundialera SECPLAN 2026 (Astro estatico + CSS Modules + JS por s
 
 ---
 
-# PARTE A - ESTADO ACTUAL (HECHO, 2026-06-22): fundacion F0-F5
+# PARTE A - ESTADO ACTUAL (HECHO, 2026-06-22): fundacion F0-F5 + desempate FIFA 2026
 
-Todo esto YA esta en el repo, con tests (77/77) y build limpio. Es la base reusable.
+Todo esto YA esta en el repo, con tests (82/82) y build limpio. Es la base reusable.
+COMMITEADO en `44846b1` (main, SIN push), junto con la correccion del desempate de grupos
+al criterio FIFA 2026 (head-to-head PRIMERO; fuente unica `compareRows`/`rankGroupRows` en
+`predicciones.standings.js`; el clasificado del carton se DERIVA bajo 2026; Humberto Grupo
+D paso de 2o paraguay a usa). Ver `workflow_2026-06-22_desempate_grupos_fifa_2026.md`. Ese
+desempate es PREREQUISITO de F6/F7/F9/F11: el 1o/2o (y los bonos +1/+3) ya salen del orden
+correcto.
 
 ## A.1 Decision de arquitectura ya tomada
 
