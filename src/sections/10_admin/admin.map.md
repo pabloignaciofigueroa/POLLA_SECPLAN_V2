@@ -282,3 +282,16 @@ Esta fase reemplaza como estado vigente el storage local descrito en Fases 12-13
 - Las tablas son publicas solo para SELECT; las escrituras pasan por RPC.
 - Migracion y runbook: `supabase/migrations/20260608170000_polla_live_realtime.sql`
   y `supabase/README.md`.
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+El panel de cierre F11 (`groupClosePreview.js`: `groupsReadyToClose`/`bonusPreviewFor`/
+`canOfferClose`/`closuresByGroupId`) queda cubierto por `scripts/simulate-group-definition.mjs`
+(`npm run sim:group`): cierre (closure `final` -> bonos en estado `final`), idempotencia
+(re-cierre/version++ -> mismas keys, sin duplicar), reapertura (vuelve a `provisional` sin doble
+conteo) y `closureStale` (closure congelada a/b pero un resultado corregido a c -> `stale=true`).
+CLAVE: la sim NO llama la RPC real ni toca Supabase; el efecto del cierre se modela con un OBJETO
+closure pasado a `closuresByGroup` (mini-mock `fakeCloseGroup`/`fakeReopenGroup` upsert+version++).
+El guardrail `MULTI_LIVE_WRITE_ENABLED` sigue `false`; la sim modela el efecto del multi-marcador
+(Stage 2) sin escritura. Aplicar las migraciones remotas (`apply_group_closure.sql` +
+`apply_polla_live_match_multi.sql`) sigue PENDIENTE del operador (ventana sin partido, backup).

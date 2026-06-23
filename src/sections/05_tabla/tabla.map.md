@@ -246,3 +246,12 @@ Esta fase reemplaza como estado vigente el transporte local descrito en Fase 12.
 - Mobile (<=720px): ranking = lista compacta de una linea por jugador
   (38px | 1fr | 48px | 52px | 44px), header unico en el thead de RankingTable,
   sin labels por fila (td::before eliminado), min-height 3.5rem por fila.
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+El ranking vivo explicable (F7) consume `buildPointLedger.byPlayer[id]` (oficial / proyectado /
+lineas por origen). `scripts/simulate-group-definition.mjs` (`npm run sim:group`) ejercita ese
+libro de punta a punta: reconciliacion oficial = Sum de lineas `final` / proyectado = Sum
+`final`+`provisional`, caso contradictorio (gana el partido +1 pero pierde el 2o clasificado -3 =
+neto -2 con desglose por origen) y dos grupos solapados que SUMAN ambos al ranking general. Sin
+tocar produccion ni Supabase (el cierre se modela con un objeto closure).

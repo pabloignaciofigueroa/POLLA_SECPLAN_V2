@@ -60,11 +60,34 @@ Estado remoto (2026-06-23): migracion `polla_live_match_multi` SIGUE SIN aplicar
 (PENDIENTE del operador); el multi-write esta implementado pero bloqueado por
 `MULTI_LIVE_WRITE_ENABLED=false` en el codigo commiteado.
 
+2026-06-23 F13 = SIMULACION INTEGRAL + cierre de docs de la Fase 3. Script
+`scripts/simulate-group-definition.mjs` (alias `npm run sim:group`): mete goles uno a uno
+sobre un universo sintetico determinista (grupos A/B, jugadores y predicciones a mano) y corre
+la jornada de definicion REUSANDO las MISMAS libs que la app (NO reimplementa puntaje, desempate,
+gating ni cierre): `resolveActiveWindow`/`resolveEffectiveResults`, `computeGroupSituation`/
+`isGroupDefinitionStarted`/`getGroupFinalMatches`, `calculateGroupStandings`/`compareRows`/
+`getAutomaticQualified`, `buildPointLedger`, `buildGroupBonuses`, `calculatePointsForPrediction`,
+`buildScoreRaceTimeline`, y los builders admin `groupsReadyToClose`/`bonusPreviewFor`/
+`closuresByGroupId`. Verifica con `node:assert/strict` (117 asserts): A bloqueo->definicion
+(gatillo por final de 3a fecha), B desempate 2026 (head-to-head PRIMERO + mini-tabla), C libro
+(oficial=Sum final / proyectado=Sum final+provisional), D contradictorio (+1 partido / -3
+clasificado = -2), E pending_close (no se cierra solo), F cierre idempotente (closure simulada
+con OBJETO, NO RPC real; re-cierre sin duplicar), G reapertura sin doble conteo + `closureStale`,
+H historico determinista (distinto orden de finalizacion -> mismo grafico), y los 4 bordes (goles
+casi simultaneos, 0 neto por compensacion +3/-3, lone wolf <-> exacto compartido, 2 grupos
+solapados / 4 vivos aislados). NO toca Supabase ni llama RPC: el cierre se modela con un objeto
+closure pasado a `closuresByGroup`. Determinista (timestamps fijos; bloquea `Math.random`/
+`Date.now` durante la corrida); dos corridas dan salida byte-igual. Sale 0 si todo verde, !=0 si
+un assert falla. NO entra a `npm test` (no es `*.test.mjs`): es el test ejecutable de regresion
+de la jornada (la suite sigue en 135).
+
 Estado de commits (2026-06-22): fundacion F0-F5 + desempate 2026 = commiteados en
-`44846b1` (sin push). PENDIENTE de aplicar en remoto: migraciones
-`polla_live_match_multi` + `group_closure` (ventana SIN partido vivo; ver
+`44846b1` (sin push). F6-F12 + F11 + Stage2 commiteados en `edfa366`..`89182b1` (sin push).
+F13 (esta sim + cierre de docs) en el commit de esta jornada. PENDIENTE de aplicar en remoto:
+migraciones `polla_live_match_multi` + `group_closure` (ventana SIN partido vivo; ver
 `supabase/remote/apply_*.sql`). El multi-write sigue bloqueado por
-`MULTI_LIVE_WRITE_ENABLED=false` hasta migrar consumidores.
+`MULTI_LIVE_WRITE_ENABLED=false` hasta aplicar el SQL y migrar/flipear (DOS pasos manuales
+remotos acoplados del operador).
 
 ## Indice rapido: quiero cambiar X
 

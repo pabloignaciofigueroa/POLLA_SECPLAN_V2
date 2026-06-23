@@ -289,3 +289,12 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 
 - LockOrbVisual: orbe SVG -> `15-lock-data-center-purple` (hero central bloqueado, holder 1:1, no tapa copy/progreso).
 - UnlockBenefitCard: iconos SVG -> `07-icon-card-players-blue` / `icon-circle-ranking-podium-blue` / `icon-circle-trend-up-green`; chips a tinte claro.
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+La pestana de clasificacion por grupo (F9, `buildGroupBonuses.byGroup`) y el grafico Carrera de
+Puntaje DETERMINISTA (F12, `buildScoreRaceTimeline`) quedan cubiertos por
+`scripts/simulate-group-definition.mjs` (`npm run sim:group`): bonos +1/+3 gateados/provisionales,
+y el historico que da el MISMO `matches`/`clusters`/acumulados bajo distinto orden de
+finalizacion de los 2 finales (barajado x20 -> firma identica). La sim REUSA estos builders
+(no reimplementa puntaje); no toca produccion ni Supabase.

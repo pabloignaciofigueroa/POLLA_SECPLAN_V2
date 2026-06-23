@@ -116,3 +116,12 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 
 - DayAgendaPanel: chip `DIA` -> `icon-circle-calendar-blue`.
 - Filas/flags/escudos reales (render dinamico) NO se tocan; lista sigue de fixture.json.
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+La tabla de grupo de `/fixture` usa el mismo motor de standings/desempate 2026 que el resto
+(`calculateGroupStandings` -> `rankGroupRows`). `scripts/simulate-group-definition.mjs`
+(`npm run sim:group`) verifica que el orden cronologico de partidos (`buildMatchSequence`:
+`dateUtc -> matchNumber -> matchId`) y los standings son ESTABLES ante distinto orden de llegada
+de resultados (borde "dos goles casi simultaneos"). Los dos finales de 3a fecha del grupo se
+derivan de `getGroupFinalMatches` (los 2 de mayor `dateUtc`). No toca produccion ni Supabase.

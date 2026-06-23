@@ -114,3 +114,12 @@ Admin genera y revoca códigos desde `/admin`. El jugador descarga un JSON
 corregido, pero el dataset no cambia automáticamente: Admin debe reemplazar el
 archivo anterior, ejecutar `npm run predictions:build` y publicar. Mantener
 ambos archivos hace fallar la importación por jugador duplicado.
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+El motor de desempate 2026 de `predicciones.standings.js` (`compareRows`/`rankGroupRows`/
+`calculateGroupStandings`/`getAutomaticQualified`) queda cubierto de punta a punta por
+`scripts/simulate-group-definition.mjs` (`npm run sim:group`): caso testigo head-to-head
+(A mejor DG total pero B gano el mano a mano -> B 1o), mini-tabla transitiva de 3 empatados y
+determinismo (barajar la entrada -> mismo orden). La sim REUSA este motor (no lo reimplementa);
+si la sim y la app difieren, es bug del motor, no de la sim. No toca produccion ni Supabase.

@@ -98,7 +98,20 @@ planos oficial/provisional; idempotencia de cierre/bonos; `fixture.json` intacto
 
 ---
 
-# PARTE B - POR HACER (orden de ejecucion)
+# PARTE B - ESTADO (orden de ejecucion)
+
+> ESTADO 2026-06-23 (cierre F13): la Fase 3 esta IMPLEMENTADA EN CODIGO y commiteada en `main`
+> (SIN push). Stage 1 (lectura multi) + F6 (centro de definicion) + F7 (ranking vivo) + F8
+> (cronologia "Que cambio") + F9 (clasificacion por grupo) + F10 (barra personal mobile) + F12
+> (grafico determinista) + F11 (admin cierre/reapertura idempotente + `closureStale`) + Stage 2
+> (control multi-marcador detras del guardrail) + F13 (simulacion integral + cierre de docs).
+> Suite 135 verde, build 11 paginas, sim `npm run sim:group` 117 asserts verdes.
+>
+> PENDIENTE (NO codigo: PASOS MANUALES REMOTOS del operador, acoplados, en ventana SIN partido
+> vivo + backup): (1) PASO 0 - aplicar `supabase/remote/apply_polla_live_match_multi.sql` y
+> `apply_group_closure.sql`; (2) recien entonces flipear `MULTI_LIVE_WRITE_ENABLED=true` y
+> desplegar (Stage 2 real). Hasta eso, el multi-write sigue bloqueado por el guardrail (`false`)
+> y F11 (cierre) responde PGRST202 si la RPC no esta aplicada (no es bug del cliente).
 
 Principio: data/seam -> consumidores -> UI -> navegacion. Cada fase: tests verdes + build
 limpio. El detalle copy-paste esta en el runbook de comandas.
@@ -232,17 +245,29 @@ NO por el segundo en que se apreto finalizar; el vivo puede mostrarse en orden d
 Archivos: `lib/statistics/buildScoreRaceTimeline.js` (ya ordena por `dateUtc` via
 `buildMatchSequence`; verificar/ajustar el caso de finalizaciones simultaneas). Tests.
 
-## F13 - Cierre integral + simulacion
+## F13 - Cierre integral + simulacion  [HECHO 2026-06-23]
 
-Crear `scripts/simulate-group-definition.mjs` (comanda seccion 9): grupo ficticio completo
-sin tocar produccion - inyectar goles uno por uno, verificar standings/desempate, 1o/2o
-provisional, libro por jugador (partido + clasificacion), caso contradictorio, pending_close
-con un solo finalizado, cierre admin (provisionales -> oficiales sin duplicar), re-cierre
-idempotente, reapertura/correccion, y estabilidad del historico bajo distinto orden de
-finalizacion. Casos borde: dos goles casi simultaneos, jugador con 0 neto por compensacion,
-Lone Wolf que aparece/desaparece, dos grupos solapados (4 vivos).
-Cierre de docs (mismo commit): mapa principal + `*.map.md` (05,06,07,09,10) + este workflow
-+ gotchas durables nuevos a la skill. Push solo cuando el usuario lo pida.
+HECHO. `scripts/simulate-group-definition.mjs` (alias `npm run sim:group`): universo sintetico
+determinista, mete goles uno por uno y corre la jornada sobre las MISMAS libs que la app (no
+reimplementa puntaje/desempate/gating/cierre). 117 asserts (`node:assert/strict`), sale 0 si
+verde. Cubre: A bloqueo->definicion (gatillo por final de 3a fecha), B desempate 2026
+(head-to-head primero + mini-tabla), C libro (oficial=Sum final / proyectado=Sum
+final+provisional), D contradictorio (+1 partido / -3 clasificado = -2), E pending_close (no se
+cierra solo), F cierre idempotente (closure simulada con OBJETO, re-cierre sin duplicar), G
+reapertura sin doble conteo + `closureStale`, H historico determinista (barajar el orden de
+finalizacion -> mismo grafico), y los 4 bordes (goles casi simultaneos, 0 neto por compensacion
++3/-3, lone wolf <-> exacto compartido, 2 grupos solapados / 4 vivos aislados). NO toca Supabase
+ni llama RPC (el cierre se modela con un objeto closure en `closuresByGroup`); determinista
+(bloquea `Math.random`/`Date.now`). NO es `*.test.mjs` -> `npm test` sigue en 135.
+
+Cierre de docs HECHO en el mismo commit: `mapa_sitio_trabajo_secciones_final.md` (entrada F13 +
+estado de commits/remoto) + `*.map.md` (04,05,06,07,09,10) + este workflow + `gotchas.md` (gotcha
+durable de la sim, seccion 10).
+
+PENDIENTE conocido (proxima comanda / operador): los DOS pasos manuales remotos del PASO 0
+(aplicar `apply_polla_live_match_multi.sql` + `apply_group_closure.sql`) y, recien despues,
+flipear `MULTI_LIVE_WRITE_ENABLED=true` (Stage 2 real). La sim modela el efecto; el dia real
+necesita la escritura. Push solo cuando el usuario lo pida.
 
 ---
 

@@ -208,3 +208,12 @@ Ruta publica: `site/public/assets/polla-mundialera/`. Regla: el holder manda; `<
 
 - PredictionDeadlineNotice: glifo `INFO` -> `01-stopwatch-countdown-gold-blue`.
 - VersusCenter: rayo SVG -> `asset-ball-energy-swoosh` (energia decorativa centrada tras el VS, holder `.vs-block`).
+
+## Fase 3 (DEFINICION SIMULTANEA) - F13 simulacion integral (2026-06-23)
+
+El centro de definicion (F6) y la barra personal (F10) cuelgan de `resolveActiveWindow` +
+`computeGroupSituation` + `buildPointLedger`. `scripts/simulate-group-definition.mjs`
+(`npm run sim:group`) cubre el gatillo del bono (BLOQUEADO con solo fechas 1-2 -> EN DEFINICION
+al abrir UN final de 3a fecha, solo ese grupo), `pending_close` con un solo final finalizado (no
+se cierra solo) y los 4 bordes (goles casi simultaneos, neto 0, lone wolf, 2 grupos / 4 vivos).
+La sim REUSA las libs (no reimplementa); no toca produccion ni Supabase.

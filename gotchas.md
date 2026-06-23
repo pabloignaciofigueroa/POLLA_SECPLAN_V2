@@ -282,3 +282,24 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
   registrar su carpeta publica y el data/manifest que lo referencia.
 - Docs commiteados en ASCII-safe (sin tildes ni enie) para que los greps de cierre
   queden limpios y no haya problemas de encoding.
+- Simulacion de jornada (F13, `scripts/simulate-group-definition.mjs`, alias
+  `npm run sim:group`): es el test EJECUTABLE de regresion de la Fase 3, NO un `*.test.mjs`
+  (por eso `npm test` sigue en 135 y la sim corre aparte). Reglas durables:
+  - REUSO ESTRICTO: la sim consume las MISMAS libs que la app (puntaje, desempate, gating,
+    cierre). NUNCA reimplementa. Si la sim y la app difieren, el bug esta en la LIB, no en la
+    sim: arreglar la lib (sin cambiar su semantica), no la expectativa.
+  - NO toca Supabase ni llama RPC. El efecto de "cerrar un grupo" se modela con un OBJETO
+    closure `{groupId,state,officialFirstTeam,officialSecondTeam,officialStandings,version}`
+    pasado a `closuresByGroup` (mini-mock `fakeCloseGroup`/`fakeReopenGroup`). El flag
+    `MULTI_LIVE_WRITE_ENABLED` NO se toca (sigue `false`).
+  - DETERMINISMO: timestamps fijos del escenario; la sim BLOQUEA `Math.random`/`Date.now`
+    durante la corrida (un lib que los use sin querer revienta). Dos corridas -> salida
+    byte-igual; sale 0 si verde, !=0 si un assert falla.
+  - Forma de los marcadores en la sim: un final LIVE tiene que tener score > 0 (o `now >=`
+    kickoff) para que `resolveLiveMatchPhase` lo gatee como `live` (un 0-0 sin hora queda
+    `pending`). `official` usa `homeScore`, `live` usa `homeTeamScore` (ambas formas las
+    tolera el seam, pero hay que ser consistente al construir el escenario).
+  - Calibrar bordes contra el motor, no a ojo: p.ej. el "0 neto" exige que el +X del partido
+    iguale el -X del grupo; un exacto de UN solo jugador es lone_wolf (+5), no tendencia
+    (+1) ni exacto compartido (+3) -> hay que meter un segundo jugador con la misma
+    prediccion para forzar el +3. Probar el delta con un script chico antes de fijar el assert.
