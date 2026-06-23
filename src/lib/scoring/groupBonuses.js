@@ -9,7 +9,7 @@
 // Solo se emiten bonos para grupos que ya empezaron (o estan final): un grupo sin
 // jugar no genera puntos proyectados sobre standings vacios.
 
-import { computeGroupSituation, GROUP_STATE } from "../fixture/groupState.js";
+import { computeGroupSituation, GROUP_STATE, isGroupDefinitionStarted } from "../fixture/groupState.js";
 
 /** @typedef {import('./types').GroupBonusLine} GroupBonusLine */
 /** @typedef {import('./types').PointLedgerLine} PointLedgerLine */
@@ -101,8 +101,10 @@ export function buildGroupBonuses({
   for (const group of groups) {
     const closure = closuresByGroup[group.id] ?? null;
     const situation = computeGroupSituation(group.id, { group, fixture, official, live, closure });
-    const started = situation.finishedCount + situation.liveCount > 0;
-    if (!started && situation.state !== GROUP_STATE.FINAL) continue; // grupo no empezado: sin bonos aun
+    // Gatillo correcto (F6): el bono se activa cuando >=1 FINAL de 3a fecha esta live/oficial,
+    // NO con cualquier partido de fechas 1-2. Fuente unica isGroupDefinitionStarted (fundacion).
+    const started = isGroupDefinitionStarted(group.id, { group, fixture, official, live });
+    if (!started && situation.state !== GROUP_STATE.FINAL) continue; // grupo no en definicion: BLOQUEADO, sin bonos
 
     const mode = situation.state === GROUP_STATE.FINAL ? "final" : "projected";
     const groupLines = [];

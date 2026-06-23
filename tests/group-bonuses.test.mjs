@@ -6,18 +6,34 @@ import { buildGroupBonuses, GROUP_BONUS } from "../src/lib/scoring/groupBonuses.
 const team = (id) => ({ id, name: id.toUpperCase(), shortCode: id.toUpperCase() });
 const GROUP_A = { id: "A", label: "Grupo A", teams: ["a", "b", "c", "d"].map(team) };
 const GROUP_B = { id: "B", label: "Grupo B", teams: ["e", "f", "g", "h"].map(team) };
-const mt = (id, groupId, home, away) => ({ id, groupId, homeTeam: { id: home }, awayTeam: { id: away } });
+
+// Fechas reales para que los DOS finales de 3a fecha sean inequivocos (mayor dateUtc).
+// Finales del grupo A = a3 (a vs d) + a4 (b vs c); del grupo B = b3 + b4.
+const D1 = "2026-06-11T18:00:00Z";
+const D2 = "2026-06-15T18:00:00Z";
+const D3 = "2026-06-19T18:00:00Z"; // 3a fecha (finales)
+const mt = (id, groupId, home, away, dateUtc) => ({
+  id,
+  groupId,
+  dateUtc,
+  homeTeam: { id: home },
+  awayTeam: { id: away },
+});
 const FIXTURE = {
   matches: [
-    mt("a1", "A", "a", "b"), mt("a2", "A", "a", "c"), mt("a3", "A", "a", "d"),
-    mt("a4", "A", "b", "c"), mt("a5", "A", "b", "d"), mt("a6", "A", "c", "d"),
-    mt("b1", "B", "e", "f"), mt("b2", "B", "e", "g"), mt("b3", "B", "e", "h"),
-    mt("b4", "B", "f", "g"), mt("b5", "B", "f", "h"), mt("b6", "B", "g", "h"),
+    mt("a1", "A", "a", "b", D1), mt("a6", "A", "c", "d", D1), // fecha 1
+    mt("a2", "A", "a", "c", D2), mt("a5", "A", "b", "d", D2), // fecha 2
+    mt("a3", "A", "a", "d", D3), mt("a4", "A", "b", "c", D3), // fecha 3 (finales)
+    mt("b1", "B", "e", "f", D1), mt("b6", "B", "g", "h", D1),
+    mt("b2", "B", "e", "g", D2), mt("b5", "B", "f", "h", D2),
+    mt("b3", "B", "e", "h", D3), mt("b4", "B", "f", "g", D3),
   ],
 };
 const r = (matchId, h, a) => ({ matchId, homeScore: h, awayScore: a });
-// Grupo A oficial: a 1o, b 2o.
+// Grupo A oficial completo: a 1o, b 2o.
 const OFFICIAL_A = [r("a1", 1, 0), r("a2", 1, 0), r("a3", 1, 0), r("a4", 1, 0), r("a5", 1, 0), r("a6", 1, 0)];
+// Solo fechas 1 y 2 oficiales (ningun final iniciado): el grupo sigue BLOQUEADO.
+const OFFICIAL_A_PHASES_1_2 = [r("a1", 1, 0), r("a6", 1, 0), r("a2", 1, 0), r("a5", 1, 0)];
 
 const PLAYERS = [{ id: "p1" }, { id: "p2" }, { id: "p3" }];
 const QUALIFIED = [
@@ -80,19 +96,32 @@ test("jugador sin prediccion de clasificado -> group_miss, sin crash", () => {
   assert.equal(p3FirstRich.predictedTeamId, null);
 })
 
-test("projected: grupo en definicion -> estado provisional, groupState in_definition", () => {
+test("projected: 1 FINAL en vivo -> estado provisional, groupState in_definition", () => {
   const { lines } = buildGroupBonuses({
     players: PLAYERS,
     qualifiedPredictions: QUALIFIED,
     groups: [GROUP_A],
     fixture: FIXTURE,
     official: [],
-    live: [r("a1", 1, 0), r("a2", 1, 0)], // a lidera en vivo
+    // a3 (a vs d) y a4 (b vs c) son los FINALES; con a 1o y b 2o provisional.
+    live: [r("a3", 1, 0), r("a4", 1, 0)],
   });
   const p1First = lineFor(lines, "p1", "first");
   assert.equal(p1First.estado, "provisional");
   assert.equal(p1First.groupState, "in_definition");
   assert.equal(p1First.regla, "group_first"); // a va 1o provisional y p1 predijo a
+});
+
+test("BLOQUEADO: fechas 1-2 jugadas pero ningun final -> sin lineas", () => {
+  const { byGroup, lines } = buildGroupBonuses({
+    players: PLAYERS,
+    qualifiedPredictions: QUALIFIED,
+    groups: [GROUP_A],
+    fixture: FIXTURE,
+    official: OFFICIAL_A_PHASES_1_2, // a1,a6,a2,a5 oficiales; a3/a4 (finales) pendientes
+  });
+  assert.equal(byGroup.A, undefined, "grupo con solo fechas 1-2 -> BLOQUEADO, sin bonos");
+  assert.equal(lines.length, 0);
 });
 
 test("grupo no empezado no genera lineas", () => {

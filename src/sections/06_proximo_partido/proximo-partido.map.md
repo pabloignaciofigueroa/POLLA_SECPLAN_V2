@@ -3,6 +3,34 @@
 ## Estado
 wireframe-implemented
 
+## F6 - Centro de definicion de grupo (2026-06-22, SOLO LECTURA)
+
+Capa nueva que aparece en /proximo-partido SOLO cuando un grupo entra a su ventana final
+(>=1 de sus DOS finales de 3a fecha EN VIVO). En modo normal NO se ve (cero regresion).
+Piezas nuevas (SSR esqueleto + el client las rellena por data-attributes):
+
+- `GroupDefinitionCenter.astro`: shell oculto por defecto (`data-active="false"`), 4 slots
+  (`data-gdc-header/boards/standings/impact`). El client lo activa.
+- `LiveMatchMini.astro` (x2): los dos finales del grupo; marcador + estado por `data-phase`
+  (EN VIVO rojo / OFICIAL morado / POR INICIAR gris).
+- `LiveGroupStandings.astro`: tabla viva (4 filas) con 1o/2o (insignia) + chip
+  `provisional`; NUNCA "oficial" mientras esta en vivo.
+- `YourImpactCard.astro`: Capa 1 (cifra proyectada protagonista + delta `+N EN VIVO`) y
+  Capa 2 plegable (matriz de 4 variables Final 1 / Final 2 / 1o / 2o), cerrada por defecto.
+
+Las 3 capas: Capa 1 (un vistazo) visible en definicion; Capa 2 (un toque) detras del boton
+"Ver como lo sumo"; Capa 3 (los 13 jugadores) es F7, no va aqui.
+
+Gatillo (regla clave): el bono de grupo (1o +1 / 2o +3) esta BLOQUEADO hasta que >=1 final
+de 3a fecha esta live/oficial; entonces el grupo (y solo ese) pasa a EN DEFINICION
+(provisional). Fuente unica de la fundacion: `isGroupDefinitionStarted` en
+`lib/fixture/groupState.js`. El client reusa el UNICO `subscribeLiveData` y todo el calculo
+sale de las libs F0-F5 (`resolveActiveWindow`, `computeGroupSituation`, `buildPointLedger`):
+CERO formula de puntaje en la UI (solo mapea `regla` -> etiqueta/color). Payload SSR
+ampliado con `groups`/`players`/`predictions`/`qualifiedPredictions`. Detalle de testeo y
+casos (BLOQUEADO vs EN DEFINICION) en `comandas_F6_centro_definicion_modif/12_testeo_simulacion.md`;
+test del gatillo en `tests/group-definition-started.test.mjs`.
+
 ## Pulso coral - REMOVIDO 2026-06-13
 
 - El `CommunityMatchPulse` ("Pronóstico coral") que incorporaba el partido

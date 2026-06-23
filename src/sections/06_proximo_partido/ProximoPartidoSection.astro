@@ -5,10 +5,13 @@ import FeaturedMatchLayout from "./FeaturedMatchLayout.astro";
 import MatchReadingPanel from "./MatchReadingPanel.astro";
 import MatchContextPanel from "./MatchContextPanel.astro";
 import NextActionPanel from "./NextActionPanel.astro";
+import GroupDefinitionCenter from "./GroupDefinitionCenter.astro";
 import fixtureData from "../../data/fixture.json";
 import teamsData from "../../data/teams.json";
 import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
 import predictionsData from "../../data/predictions.json";
+import playersData from "../../data/players.json";
+import groupsData from "../../data/groups.json";
 import { getRelevantMatches } from "./proximo-partido.logic";
 import { getStadiumAsset } from "../../lib/stadiums/getStadiumAsset";
 
@@ -89,6 +92,11 @@ const clientPayload = {
   confirmedPlayerIds: predictionsData.submissions.map(
     (submission) => submission.playerId
   ),
+  // F6 Centro de definicion: datos para gatillo + libro contable (solo lectura).
+  groups: groupsData,
+  players: playersData.map((player) => ({ id: player.id, name: player.name })),
+  predictions: predictionsData.predictions,
+  qualifiedPredictions: predictionsData.qualifiedPredictions,
 };
 ---
 
@@ -109,6 +117,8 @@ const clientPayload = {
       awayInfo={teamById.get(primaryMatch.awayTeam.id)}
       h2hInfo={h2hInfo}
     />
+
+    <GroupDefinitionCenter />
 
     <div class={styles.detailsGrid} data-animate="fade-up" style="--i:1">
       <MatchReadingPanel h2hInfo={h2hInfo} />

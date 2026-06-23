@@ -1,0 +1,165 @@
+---
+// Marcador compacto de UN final de 3a fecha dentro del Centro de definicion (F6 paso C).
+// Presentacional: el SSR pinta el esqueleto y el client (proximo-partido.client.js)
+// rellena equipos/marcador/estado por data-attributes. Estado por data-phase:
+//   live -> rojo pulso | official -> morado | pending -> gris (POR INICIAR).
+interface Props {
+  finalLabel: string;
+}
+const { finalLabel } = Astro.props;
+---
+
+<article class="lmm" data-live-match-mini data-phase="pending">
+  <header class="lmm-head">
+    <span class="lmm-final" data-lmm-final>{finalLabel}</span>
+    <span class="lmm-status" data-lmm-status>POR INICIAR</span>
+  </header>
+  <div class="lmm-body">
+    <div class="lmm-team">
+      <span class="lmm-flag" data-lmm-flag="home" aria-hidden="true"></span>
+      <span class="lmm-code" data-lmm-code="home">—</span>
+    </div>
+    <div class="lmm-score">
+      <span class="lmm-num" data-lmm-score="home">–</span>
+      <span class="lmm-sep">:</span>
+      <span class="lmm-num" data-lmm-score="away">–</span>
+    </div>
+    <div class="lmm-team lmm-team--away">
+      <span class="lmm-code" data-lmm-code="away">—</span>
+      <span class="lmm-flag" data-lmm-flag="away" aria-hidden="true"></span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .lmm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--pm-radius-md);
+    background: rgba(8, 14, 38, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .lmm-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .lmm-final {
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--pm-text-soft);
+  }
+
+  .lmm-status {
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 0.12rem 0.4rem;
+    border-radius: var(--pm-radius-pill);
+    text-transform: uppercase;
+    color: var(--pm-text-muted);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .lmm-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .lmm-team {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .lmm-team--away {
+    justify-content: flex-end;
+  }
+
+  .lmm-flag {
+    display: inline-flex;
+    width: 1.5rem;
+    height: 1.1rem;
+    border-radius: 3px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .lmm-code {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--pm-white);
+  }
+
+  .lmm-score {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    font-family: var(--font-score);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lmm-num {
+    font-size: 1.3rem;
+    color: var(--pm-white);
+    min-width: 1ch;
+    text-align: center;
+  }
+
+  .lmm-sep {
+    font-size: 1rem;
+    color: var(--pm-text-soft);
+  }
+
+  /* Estados */
+  .lmm[data-phase="live"] {
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+  }
+  .lmm[data-phase="live"] .lmm-status {
+    color: var(--pm-white);
+    background: var(--pm-red-500, #ef4444);
+    animation: lmm-pulse 1.4s ease-in-out infinite;
+  }
+
+  .lmm[data-phase="official"] {
+    border-color: rgba(139, 92, 246, 0.45);
+  }
+  .lmm[data-phase="official"] .lmm-status {
+    color: var(--pm-white);
+    background: var(--pm-purple-600, #7c3aed);
+  }
+
+  .lmm[data-phase="pending"] {
+    opacity: 0.72;
+  }
+  .lmm[data-phase="pending"] .lmm-num {
+    color: var(--pm-text-muted);
+  }
+
+  @keyframes lmm-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lmm[data-phase="live"] .lmm-status {
+      animation: none;
+    }
+  }
+</style>

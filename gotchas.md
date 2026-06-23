@@ -87,6 +87,17 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
 - Clasificados (primero +1, segundo +3) son una liquidacion SEPARADA del puntaje de
   partido. No sumarlos como si fueran el mismo calculo; cada bono debe ser una linea
   con su origen, y en vivo va rotulado como proyectado hasta el cierre del grupo.
+- Gatillo del bono de grupo (F6): el bono 1o/2o se activa SOLO cuando >=1 de los DOS
+  finales de 3a fecha del grupo esta live u oficial (o el grupo esta `final`), NO con
+  cualquier partido de fechas 1-2. Antes el grupo va BLOQUEADO (sin bonos), no provisional.
+  Fuente unica `isGroupDefinitionStarted` (+ `getGroupFinalMatches`) en `groupState.js`;
+  `buildGroupBonuses` la usa para gatear (antes gateaba por `finishedCount+liveCount>0`, que
+  activaba bonos con fechas 1-2). `computeGroupSituation` expone `definitionStarted`. F6/F7/F9
+  lo heredan; no re-gatear en cada consumidor.
+  - Forma del marcador: `isGroupDefinitionStarted` normaliza el payload a `*TeamScore` antes
+    de `resolveLiveMatchPhase`, porque el live ya gateado por F1 viaja como `*Score` (el
+    `gatedLive` que arma `buildPointLedger`). Sin esa normalizacion, el gating por la ruta del
+    ledger no veria marcador y el bono quedaria en 0 con un final EN VIVO.
 - Dos planos que NUNCA se mezclan: total oficial = suma de lineas `final`; total
   proyectado = suma de `final` + `provisional` (`anulado` aporta 0). El total nunca se
   guarda: se reconstruye desde el libro (`buildPointLedger`). Lo provisional jamas entra

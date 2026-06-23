@@ -9,6 +9,7 @@
 
 import { buildMergedGroupStandings } from "./groupStandings.js";
 import { resolveFirstSecond } from "./groupTiebreakers.js";
+import { resolveLiveMatchPhase } from "../liveMatch/liveMatchPhase.js";
 
 /** @typedef {import('../scoring/types').GroupSituation} GroupSituation */
 /** @typedef {import('../scoring/types').GroupClosure} GroupClosure */
@@ -22,6 +23,61 @@ export const GROUP_STATE = Object.freeze({
 });
 
 const toMatches = (fixture) => (Array.isArray(fixture) ? fixture : fixture?.matches ?? []);
+
+// Normaliza un payload de marcador a la forma *TeamScore que lee resolveLiveMatchPhase.
+// Tolera AMBAS formas: el payload crudo del seam (homeTeamScore/awayTeamScore) y el ya
+// gateado por F1 que viaja como homeScore/awayScore (p.ej. el `gatedLive` que arma
+// buildPointLedger). Sin esto, el gating por la ruta del ledger no veria marcador.
+function toPhaseInput(payload) {
+  if (!payload) return null;
+  const home = payload.homeTeamScore ?? payload.homeScore;
+  const away = payload.awayTeamScore ?? payload.awayScore;
+  return { ...payload, homeTeamScore: home, awayTeamScore: away };
+}
+
+/**
+ * Los DOS finales de 3a fecha de un grupo = los 2 partidos con mayor dateUtc (la pareja
+ * simultanea). Pura. (Addendum F6: el gatillo del bono se ancla a estos dos.)
+ * @param {string} groupId
+ * @param {{ group?:object, fixture:any }} input
+ * @returns {object[]} hasta 2 matches del fixture
+ */
+export function getGroupFinalMatches(groupId, { group, fixture }) {
+  const matches = toMatches(fixture).filter((m) => m.groupId === groupId);
+  return [...matches]
+    .sort((a, b) => Date.parse(b.dateUtc ?? 0) - Date.parse(a.dateUtc ?? 0))
+    .slice(0, 2);
+}
+
+/**
+ * La ventana de definicion del grupo "empezo" si >=1 de sus DOS finales esta en vivo o ya
+ * es oficial. Basta UNO (el segundo entra segundos despues por accion humana). Esta es la
+ * FUENTE UNICA del gatillo del bono de grupo (1o +1 / 2o +3): F6/F7/F9 la heredan; un grupo
+ * con solo fechas 1 y 2 jugadas queda BLOQUEADO (sin bonos). El gating de fase sigue siendo
+ * resolveLiveMatchPhase (no se re-implementa); aqui solo se normaliza la forma del marcador.
+ * @param {string} groupId
+ * @param {{ group?:object, fixture:any, official?:object[], live?:object[], now?:number }} input
+ * @returns {boolean}
+ */
+export function isGroupDefinitionStarted(
+  groupId,
+  { group, fixture, official = [], live = [], now = Date.now() }
+) {
+  const finals = getGroupFinalMatches(groupId, { group, fixture });
+  return finals.some((m) => {
+    const hasOfficial = (official ?? []).some((r) => r?.matchId === m.id);
+    if (hasOfficial) return true;
+    const payload = (live ?? []).find((l) => l?.matchId === m.id) ?? null;
+    return (
+      resolveLiveMatchPhase({
+        liveMatch: toPhaseInput(payload),
+        fixtureMatch: m,
+        officialResults: official,
+        now,
+      }) === "live"
+    );
+  });
+}
 
 /**
  * Estado del grupo (pura). El cierre validado manda; si no, lo derivan los conteos.
@@ -107,5 +163,8 @@ export function computeGroupSituation(groupId, { group, fixture, official = [], 
     totalMatches: merged.totalMatches,
     isProvisional: state !== GROUP_STATE.FINAL,
     closureStale: isClosureStale(groupId, { group, fixture: matches, official, live, closure }),
+    // BLOQUEADO (false y state!==final) vs EN DEFINICION / DEFINITIVO: lo decide el gatillo
+    // por final de 3a fecha, no por fechas 1-2. Aditivo; no altera el resto del situation.
+    definitionStarted: isGroupDefinitionStarted(groupId, { group, fixture: matches, official, live }),
   };
 }

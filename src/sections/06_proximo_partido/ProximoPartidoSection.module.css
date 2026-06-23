@@ -31,6 +31,12 @@
   gap: clamp(0.45rem, 0.9vw, 0.7rem);
 }
 
+/* F6: el Centro de definicion solo aparece cuando el client lo activa (>=1 final EN VIVO).
+   En modo normal queda oculto y /proximo-partido se ve exactamente igual que hoy. */
+.contentShell :global([data-group-definition-center][data-active="false"]) {
+  display: none;
+}
+
 .detailsGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(15rem, 0.46fr);
