@@ -3,6 +3,59 @@
 ## Estado
 supabase-admin-active
 
+## F11 - Cierre de grupo + reversion (2026-06-23, PRIMER consumidor que ESCRIBE)
+
+Panel `GroupClosePanel.astro` (montado en `AdminSection.astro` despues de
+`MatchProgressPanel`, dentro de `[data-admin-protected]`). Para cada grupo en
+PENDING_CLOSE / FINAL / REOPENED el admin ve la tabla final, el 1o/2o, el preview
+de bonos y los botones de cierre/reapertura. Sin grupos por cerrar el panel queda
+oculto (cero regresion: /admin identico a hoy).
+
+- Shell SSR oculto; el cuerpo lo pinta el client por innerHTML, por eso el CSS va
+  `<style is:global>` anclado a `[data-group-close]` (gotcha 1: el scope de Astro no
+  aplica al DOM creado en runtime). Misma forma que `MatchProgressPanel`.
+- Logica de UI en `admin.client.js` -> `initGroupClosePanel(section, payload)`: devuelve
+  un `render(snapshot)` que el dueno del snapshot invoca en cada emit. NO abre un
+  `subscribeLiveData` propio: `initOfficialResultsKpi` (el UNICO subscribe del KPI) ahora
+  reenvia el snapshot al panel (`onSnapshot`). Un solo dueno del dataset.
+- Datos SOLO LECTURA (biblia) via payload SSR `clientPayload.groupClose`: `groups`,
+  `fixtureMatches` (slim), `players` (id/name), `qualifiedPredictions`.
+- CERO formula nueva en la UI: estado/1o/2o/standings/closureStale de
+  `computeGroupSituation`; bonos de `buildGroupBonuses.byGroup`. La logica pura de
+  deteccion (que grupos mostrar), preview de bonos e idempotencia-UI (cuando ofrecer
+  cerrar/reabrir) vive en `src/lib/admin/groupClosePreview.js` (testeable offline).
+
+### Acciones (RPC; escritura solo por RPC security definer con sesion admin)
+- "VALIDAR Y CERRAR" -> `confirmDialog` (doble paso inline, nunca alert/confirm/prompt)
+  -> `closeGroup(groupId, first, second, standings)` (RPC `polla_close_group`). Upsert
+  por group_id, version++: dos clics NO duplican. En FINAL coherente el boton NO se ofrece
+  (idempotencia UI); en FINAL stale se ofrece "Recerrar (corregido)".
+- "REABRIR" (destructivo, solo en FINAL) -> campo de texto de MOTIVO en el markup (NO
+  `prompt`) + `confirmDialog` -> `reopenGroup(groupId, reason)` (RPC `polla_reopen_group`).
+  state reopened, version++; los bonos vuelven a provisional sin doble conteo.
+- `closureStale`: en cada snapshot, para FINAL, si `situation.closureStale` es true (1o/2o
+  congelado != recomputado, o un partido del grupo dejo de ser oficial) -> banner rojo
+  "Grupo cerrado desactualizado: reabrir y recalcular" + se resalta REABRIR. No pasa en
+  silencio.
+- Errores inline (`closeErrorMessage`): P0001/sesion vencida -> "reingresa la clave";
+  PGRST202 -> "falta aplicar el SQL de cierre (operador)".
+
+### Backend (NO se toca en esta comanda)
+- Tabla `polla_group_closure` + RPC `polla_close_group`/`polla_reopen_group` ya en el
+  repo: `supabase/migrations/20260622120100_group_closure.sql` y
+  `supabase/remote/apply_group_closure.sql` (en paridad; NO editados, estaban correctos).
+- `MULTI_LIVE_WRITE_ENABLED` NO se toca (es Stage 2; F11 usa RPC de cierre aparte).
+- PASO MANUAL PENDIENTE del operador humano: aplicar `apply_group_closure.sql` en
+  Supabase remoto en ventana SIN partido vivo, con backup (no hay service key en el repo).
+  Verificar por REST con anon key: RPC con token dummy -> P0001 (no PGRST202);
+  `polla_group_closure?select=*` responde array.
+
+### Tests
+- `tests/group-close-preview.test.mjs` (offline, sin RPC real): deteccion de estados,
+  preview de bonos, cierre idempotente (version++ sin duplicar), canOfferClose/Reopen,
+  closureStale fuerza recerrar/reabrir, reapertura sin doble conteo. La verificacion de
+  que la RPC valida sesion (P0001) es chequeo MANUAL del operador (requiere remoto).
+
 ## Status explicito del marcador vivo - 2026-06-12
 
 - `buildState(targetMatch, home, away, targetStatus = "live")` en

@@ -13,9 +13,11 @@ import BackupExportPanel from "./BackupExportPanel.astro";
 import LocalCleanupPanel from "./LocalCleanupPanel.astro";
 import ActivityLogPanel from "./ActivityLogPanel.astro";
 import MatchProgressPanel from "./MatchProgressPanel.astro";
+import GroupClosePanel from "./GroupClosePanel.astro";
 
 import playersData from "../../data/players.json";
 import fixtureData from "../../data/fixture.json";
+import groupsData from "../../data/groups.json";
 import adminDashboardData from "../../data/admin-dashboard.json";
 import predictionsData from "../../data/predictions.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
@@ -73,11 +75,33 @@ const liveMatches = fixtureData.matches.map((match) => ({
 // Partido inicial resuelto en server (anti-CLS). El client re-resuelve en runtime.
 const initialLiveMatch = resolveCurrentMatch(liveMatches) ?? liveMatches[0];
 
+// Datos para el panel de cierre de grupo (F11). SOLO LECTURA (biblia): el panel arma la
+// situacion del grupo y el preview de bonos con las libs de la fundacion (no recalcula).
+// Se pasa una vista slim para no inflar el bundle SSR.
+const groupClosePayload = {
+  groups: (groupsData as any[]).map((g) => ({
+    id: g.id,
+    label: g.label,
+    teams: g.teams.map((t: any) => ({ id: t.id, name: t.name, shortCode: t.shortCode })),
+    matchIds: g.matchIds,
+  })),
+  fixtureMatches: fixtureData.matches.map((match) => ({
+    id: match.id,
+    groupId: match.groupId,
+    dateUtc: match.dateUtc,
+    homeTeam: { id: match.homeTeam.id, name: match.homeTeam.name, shortCode: match.homeTeam.shortCode },
+    awayTeam: { id: match.awayTeam.id, name: match.awayTeam.name, shortCode: match.awayTeam.shortCode },
+  })),
+  players: (playersData as AdminPlayer[]).map((p) => ({ id: p.id, name: p.name })),
+  qualifiedPredictions: predictionsData.qualifiedPredictions ?? [],
+};
+
 const clientPayload = {
   source: adminDashboardData.source,
   resetStateUrl,
   dangerousActions: ["danger-clear-cache", "danger-recalculate"],
   liveMatches,
+  groupClose: groupClosePayload,
 };
 ---
 
@@ -124,6 +148,8 @@ const clientPayload = {
       </p>
 
       <MatchProgressPanel />
+
+      <GroupClosePanel />
 
       <div class={styles.managementGrid} data-animate="fade-up">
         <SystemStatusPanel system={dashboard.system} />

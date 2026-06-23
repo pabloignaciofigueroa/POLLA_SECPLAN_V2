@@ -226,6 +226,24 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
   vez de Supabase, no datos faltantes.
 - El gate de `/admin` renderiza bloqueo por defecto; el dashboard se habilita solo con
   sesion admin remota valida. Logout no existe: la sesion expira por tiempo (2h).
+- Cierre de grupo (F11) en /admin: el panel `GroupClosePanel` ESCRIBE (RPC `closeGroup`/
+  `reopenGroup`), distinto del resto de F6-F12 que es solo lectura.
+  - Idempotencia en DOS planos: (1) la RPC `polla_close_group` hace upsert por `group_id`
+    con `version++` (dos clics no duplican); (2) en la UI no se OFRECE "VALIDAR Y CERRAR"
+    para un grupo FINAL coherente (recerrar solo subiria la version sin cambiar nada). En
+    FINAL `closureStale` SI se ofrece "Recerrar (corregido)". Logica en
+    `lib/admin/groupClosePreview.js` (`canOfferClose`), no en el markup.
+  - El panel NO abre un `subscribeLiveData` propio: cuelga del UNICO subscribe del KPI de
+    admin (`initOfficialResultsKpi` reenvia el snapshot via `onSnapshot`). Abrir un segundo
+    canal romperia el invariante de un solo dueno del dataset.
+  - CERO formula nueva en la UI: estado/1o/2o/standings/closureStale de
+    `computeGroupSituation`; bonos de `buildGroupBonuses.byGroup` (mismo gate
+    `isGroupDefinitionStarted`). El panel solo cuenta del libro de bonos; no recalcula puntaje.
+  - El motivo de REABRIR es un `<input type=text>` en el markup, NO `prompt` (acciones
+    criticas con `confirmDialog` de doble paso; nunca alert/confirm/prompt).
+  - El SQL (`polla_group_closure` + RPC) vive en el repo pero APLICARLO en remoto es PASO
+    MANUAL del operador (ventana sin partido, backup; sin service key en el repo). Si la RPC
+    responde PGRST202 es que falta aplicar la migracion (no es bug del cliente).
 
 ## 9. Cards compartidas y borrado seguro
 

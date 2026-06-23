@@ -1,0 +1,295 @@
+---
+// F11 - Panel de cierre de grupo (DEFINICION SIMULTANEA). El admin ve, para cada grupo
+// cuyos dos finales terminaron, "GRUPO X - LISTO PARA CERRAR" con la tabla final, el
+// 1o/2o y el preview de bonos, y un boton "VALIDAR Y CERRAR" (confirmacion inline de
+// doble paso). Si despues se corrige un resultado, el banner closureStale fuerza REABRIR.
+//
+// SSR = solo el cascaron. El cuerpo lo pinta admin.client.js (initGroupClosePanel) en
+// runtime desde el snapshot de subscribeLiveData (mismo dueno; sin segundo canal). Por
+// eso el CSS va is:global anclado a [data-group-close]: el DOM nace por innerHTML y no
+// recibe el scope de Astro (gotcha 1). Aparece oculto y se revela solo si hay grupos en
+// PENDING_CLOSE / FINAL / REOPENED -> CERO regresion sin grupos por cerrar.
+---
+
+<section
+  class="group-close"
+  data-group-close
+  data-animate="fade-up"
+  aria-labelledby="group-close-title"
+  hidden
+>
+  <header class="gc-head">
+    <div>
+      <span class="gc-eyebrow">CIERRE DE GRUPO</span>
+      <h2 id="group-close-title">Definicion oficial de grupos</h2>
+      <p class="gc-sub">
+        Cuando los dos finales de un grupo terminan, valida la clasificacion (1o y 2o) para
+        consolidar los bonos. El cierre es reversible y no duplica.
+      </p>
+    </div>
+    <p class="gc-feedback" data-group-close-feedback role="status" aria-live="polite"></p>
+  </header>
+
+  <div class="gc-body" data-group-close-body>
+    <p class="gc-loading">Cargando estado de los grupos...</p>
+  </div>
+</section>
+
+<style is:global>
+  [data-group-close] {
+    margin-top: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
+    border-radius: var(--pm-radius-lg, 16px);
+    background: var(--pm-white, #fff);
+  }
+  [data-group-close] .gc-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+  }
+  [data-group-close] .gc-eyebrow {
+    color: var(--pm-blue-700, #1f5fa6);
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+  [data-group-close] h2 {
+    margin: 0.1rem 0;
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: var(--pm-blue-900, #0b2545);
+  }
+  [data-group-close] .gc-sub {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+  [data-group-close] .gc-feedback {
+    margin: 0;
+    min-height: 1rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--pm-green-700, #1f7a52);
+  }
+
+  [data-group-close] .gc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 0.8rem;
+  }
+
+  /* Tarjeta por grupo */
+  [data-group-close] .gc-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.8rem 0.85rem;
+    border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
+    border-radius: 0.7rem;
+    background: var(--pm-panel-soft, #f5f8fc);
+  }
+  [data-group-close] .gc-card[data-state="final"] {
+    border-color: var(--pm-mint-500, #21d99a);
+    box-shadow: 0 0 0 1px var(--pm-mint-500, #21d99a) inset;
+  }
+  [data-group-close] .gc-card[data-stale="true"] {
+    border-color: var(--pm-pink-600, #d6246e);
+    box-shadow: 0 0 0 1px var(--pm-pink-600, #d6246e) inset;
+  }
+  [data-group-close] .gc-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  [data-group-close] .gc-card-head h3 {
+    margin: 0;
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: var(--pm-blue-900, #0b2545);
+  }
+  [data-group-close] .gc-badge {
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.54rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  [data-group-close] .gc-badge[data-state="pending_close"] { background: var(--pm-blue-100, #e3effb); color: var(--pm-blue-700, #1f5fa6); }
+  [data-group-close] .gc-badge[data-state="final"] { background: var(--pm-state-finished-bg, #e7f6ec); color: var(--pm-state-finished-text, #1f7a52); }
+  [data-group-close] .gc-badge[data-state="reopened"] { background: var(--pm-state-live-bg, #ffe1e6); color: var(--pm-state-live-text, #c81e3a); }
+
+  /* Banner de closure desactualizada */
+  [data-group-close] .gc-stale {
+    display: flex;
+    gap: 0.4rem;
+    align-items: flex-start;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--pm-pink-600, #d6246e);
+    border-radius: 0.5rem;
+    background: var(--pm-state-live-bg, #ffe1e6);
+    color: var(--pm-state-live-text, #c81e3a);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  /* Tabla final */
+  [data-group-close] table { width: 100%; border-collapse: collapse; }
+  [data-group-close] th, [data-group-close] td {
+    padding: 0.22rem 0.35rem;
+    font-size: 0.7rem;
+    text-align: right;
+    border-bottom: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.12));
+    font-variant-numeric: tabular-nums;
+  }
+  [data-group-close] th:first-child,
+  [data-group-close] td:first-child { text-align: left; }
+  [data-group-close] th:nth-child(2),
+  [data-group-close] td:nth-child(2) { text-align: left; }
+  [data-group-close] th {
+    font-family: var(--font-display, sans-serif);
+    font-weight: 900;
+    color: var(--pm-blue-700, #1f5fa6);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.54rem;
+  }
+  [data-group-close] td.gc-team { font-weight: 800; color: var(--pm-blue-900, #0b2545); }
+  [data-group-close] .gc-pos {
+    display: inline-block;
+    margin-left: 0.3rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.5rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  [data-group-close] .gc-pos[data-pos="1"] { background: var(--pm-mint-500, #21d99a); color: #06251a; }
+  [data-group-close] .gc-pos[data-pos="2"] { background: var(--pm-blue-500, #2f72d6); color: #fff; }
+
+  /* Preview de bonos */
+  [data-group-close] .gc-bonus {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+  [data-group-close] .gc-bonus .gc-chip {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
+    border-radius: 0.5rem;
+    background: var(--pm-white, #fff);
+  }
+  [data-group-close] .gc-bonus .gc-chip span {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+  [data-group-close] .gc-bonus .gc-chip strong {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.05rem;
+    font-weight: 950;
+    color: var(--pm-blue-900, #0b2545);
+    font-variant-numeric: tabular-nums;
+  }
+  [data-group-close] .gc-bonus-total {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+  [data-group-close] .gc-provisional {
+    margin: 0;
+    font-size: 0.64rem;
+    font-style: italic;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+
+  /* Acciones */
+  [data-group-close] .gc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
+  }
+  [data-group-close] .gc-actions button {
+    min-height: 2.2rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--pm-radius-sm, 10px);
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.68rem;
+    font-weight: 950;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  [data-group-close] .gc-btn-close {
+    border: 1px solid var(--pm-mint-500, #21d99a);
+    background: linear-gradient(135deg, var(--pm-mint-500, #21d99a), var(--pm-cyan-500, #18ddf2));
+    color: #06251a;
+  }
+  [data-group-close] .gc-btn-reopen {
+    border: 1px solid var(--pm-pink-600, #d6246e);
+    background: var(--pm-white, #fff);
+    color: var(--pm-pink-600, #d6246e);
+  }
+  [data-group-close] .gc-btn-reopen[data-highlight="true"] {
+    background: var(--pm-pink-600, #d6246e);
+    color: #fff;
+  }
+  [data-group-close] .gc-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+  [data-group-close] .gc-actions button:focus-visible { outline: none; box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(24, 221, 242, 0.6)); }
+
+  /* Editor de motivo de reapertura (campo de texto, NO prompt nativo) */
+  [data-group-close] .gc-reason {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px dashed var(--pm-pink-600, #d6246e);
+    border-radius: 0.5rem;
+  }
+  [data-group-close] .gc-reason label {
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--pm-pink-600, #d6246e);
+  }
+  [data-group-close] .gc-reason input {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
+    border-radius: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--pm-blue-900, #0b2545);
+  }
+  [data-group-close] .gc-final-line {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--pm-green-700, #1f7a52);
+  }
+  [data-group-close] .gc-empty, [data-group-close] .gc-loading {
+    margin: 0;
+    padding: 0.8rem 0;
+    font-size: 0.78rem;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+</style>

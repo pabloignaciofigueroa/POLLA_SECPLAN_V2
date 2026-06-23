@@ -1,9 +1,11 @@
 import {
   clearAdminSession,
+  closeGroup,
   finalizeOfficialResult,
   hasValidAdminSession,
   readLiveMatchState,
   readOfficialResults,
+  reopenGroup,
   resolveCurrentMatch,
   saveLiveMatchState,
   subscribeLiveData,
@@ -14,6 +16,14 @@ import {
   listPredictionEditAccess,
   revokePredictionEditAccess,
 } from "../../lib/predictions/predictionEditAccess.js";
+import {
+  bonusPreviewFor,
+  canOfferClose,
+  canOfferReopen,
+  groupsReadyToClose,
+  isClosureStaleSituation,
+} from "../../lib/admin/groupClosePreview.js";
+import { GROUP_STATE } from "../../lib/fixture/groupState.js";
 import { confirmDialog } from "./adminConfirm.js";
 
 (async () => {
@@ -81,7 +91,9 @@ import { confirmDialog } from "./adminConfirm.js";
   };
 
   await initLiveScoreControl(section, payload, setFeedback);
-  initOfficialResultsKpi(section, payload);
+  // Un solo dueno del snapshot para KPI + panel de cierre (una sola suscripcion).
+  const renderGroupClose = initGroupClosePanel(section, payload);
+  initOfficialResultsKpi(section, payload, renderGroupClose);
   await initPredictionEditAccess(section, setFeedback);
 
   section.querySelectorAll("[data-admin-tab]").forEach((tab) => {
@@ -142,7 +154,7 @@ import { confirmDialog } from "./adminConfirm.js";
   });
 })();
 
-function initOfficialResultsKpi(section, payload) {
+function initOfficialResultsKpi(section, payload, onSnapshot = null) {
   const totalMatches =
     (Array.isArray(payload.liveMatches) && payload.liveMatches.length) || 72;
   const kpiValue = section.querySelector(
@@ -163,9 +175,13 @@ function initOfficialResultsKpi(section, payload) {
     if (panelPending) panelPending.textContent = String(totalMatches - loaded);
   };
 
-  // El snapshot inicial llega con el primer emit; FINALIZAR PARTIDO y los
-  // cambios Realtime re-disparan el callback, dejando el KPI siempre vivo.
-  subscribeLiveData(({ officialResults }) => paint(officialResults));
+  // El snapshot inicial llega con el primer emit; FINALIZAR PARTIDO, el cierre/reapertura
+  // de grupo (GROUP_CLOSURES_EVENT) y los cambios Realtime re-disparan el callback. Este
+  // es el UNICO subscribeLiveData del KPI + el panel de cierre (un solo dueno del dataset).
+  subscribeLiveData((snapshot) => {
+    paint(snapshot?.officialResults ?? []);
+    if (typeof onSnapshot === "function") onSnapshot(snapshot);
+  });
 }
 
 async function initPredictionEditAccess(section, setFeedback) {
@@ -504,4 +520,302 @@ async function initLiveScoreControl(section, payload, setFeedback) {
 function toScore(value) {
   const n = Math.trunc(Number(value));
   return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+// ── F11: panel de cierre de grupo ──────────────────────────────────────────────
+// Devuelve render(snapshot): el dueno del snapshot (initOfficialResultsKpi) lo invoca
+// en cada emit. Lee la situacion del grupo con las libs de la fundacion (CERO formula
+// nueva); el cierre/reapertura van por RPC (closeGroup/reopenGroup). Confirmaciones
+// inline de doble paso con confirmDialog (nunca alert/confirm/prompt).
+function initGroupClosePanel(section, payload) {
+  const panel = section.querySelector("[data-group-close]");
+  if (!panel) return () => {};
+  const body = panel.querySelector("[data-group-close-body]");
+  const feedback = panel.querySelector("[data-group-close-feedback]");
+  if (!body) return () => {};
+
+  const cfg = payload.groupClose || {};
+  const groups = Array.isArray(cfg.groups) ? cfg.groups : [];
+  const fixture = Array.isArray(cfg.fixtureMatches) ? cfg.fixtureMatches : [];
+  const players = Array.isArray(cfg.players) ? cfg.players : [];
+  const qualifiedPredictions = Array.isArray(cfg.qualifiedPredictions)
+    ? cfg.qualifiedPredictions
+    : [];
+
+  if (groups.length === 0) return () => {};
+
+  const setFeedback = (msg) => {
+    if (feedback) feedback.textContent = msg;
+  };
+  const escapeHtml = (v) =>
+    String(v ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  // Estado de la UI que NO viene del snapshot: que grupo tiene el editor de motivo abierto.
+  const ui = { reasonOpenFor: null, pending: new Set() };
+  let snapshot = { officialResults: [], liveMatches: [], groupClosures: [] };
+
+  const STATE_LABEL = {
+    [GROUP_STATE.PENDING_CLOSE]: "Listo para cerrar",
+    [GROUP_STATE.FINAL]: "Definitivo",
+    [GROUP_STATE.REOPENED]: "Reabierto",
+  };
+
+  const teamName = (group, teamId) => {
+    const t = (group.teams || []).find((x) => x.id === teamId);
+    return t ? t.name : teamId ?? "—";
+  };
+
+  const renderStandings = (group, situation) => {
+    const rows = Array.isArray(situation.standings) ? situation.standings : [];
+    if (rows.length === 0) return "";
+    const tr = rows
+      .map((row) => {
+        const id = row.teamId ?? row.id;
+        const pos = id === situation.first ? 1 : id === situation.second ? 2 : 0;
+        const tag = pos
+          ? `<span class="gc-pos" data-pos="${pos}">${pos === 1 ? "1o" : "2o"}</span>`
+          : "";
+        const name = row.name ?? teamName(group, id);
+        const gd = Number(row.goalDifference ?? 0);
+        return `<tr>
+          <td class="gc-team">${escapeHtml(name)}${tag}</td>
+          <td>${escapeHtml(row.shortCode ?? "")}</td>
+          <td>${Number(row.played ?? 0)}</td>
+          <td>${gd > 0 ? "+" : ""}${gd}</td>
+          <td><strong>${Number(row.points ?? 0)}</strong></td>
+        </tr>`;
+      })
+      .join("");
+    return `<table>
+      <thead><tr><th>Equipo</th><th>Cod</th><th>PJ</th><th>DG</th><th>Pts</th></tr></thead>
+      <tbody>${tr}</tbody>
+    </table>`;
+  };
+
+  const renderBonusPreview = (group, situation) => {
+    const preview = bonusPreviewFor(group, {
+      players,
+      qualifiedPredictions,
+      groups,
+      fixture,
+      snapshot,
+    });
+    const provisionalNote =
+      situation.state === GROUP_STATE.FINAL && !situation.closureStale
+        ? "Bonos consolidados (oficiales)."
+        : "Preview (aun provisional): se consolidan al cerrar.";
+    return `
+      <div class="gc-bonus">
+        <div class="gc-chip">
+          <span>Aciertos 1o (+${preview.firstValue})</span>
+          <strong>${preview.firstHits}</strong>
+        </div>
+        <div class="gc-chip">
+          <span>Aciertos 2o (+${preview.secondValue})</span>
+          <strong>${preview.secondHits}</strong>
+        </div>
+      </div>
+      <p class="gc-bonus-total">Puntos de clasificacion a consolidar: <strong>${preview.totalPoints}</strong> (${preview.firstPoints} por 1o + ${preview.secondPoints} por 2o).</p>
+      <p class="gc-provisional">${escapeHtml(provisionalNote)}</p>`;
+  };
+
+  const renderCard = (group, situation) => {
+    const stale = isClosureStaleSituation(situation);
+    const offerClose = canOfferClose(situation);
+    const offerReopen = canOfferReopen(situation);
+    const reasonOpen = ui.reasonOpenFor === group.id;
+    const busy = ui.pending.has(group.id);
+
+    const staleBanner = stale
+      ? `<div class="gc-stale" role="alert">
+           <span aria-hidden="true">!</span>
+           <span>Grupo cerrado desactualizado: un resultado se corrigio y ya no coincide con el cierre. Hay que reabrir y recalcular.</span>
+         </div>`
+      : "";
+
+    const firstName = teamName(group, situation.first);
+    const secondName = teamName(group, situation.second);
+    const finalLine =
+      situation.state === GROUP_STATE.FINAL && !stale
+        ? `<p class="gc-final-line">Oficial: 1o ${escapeHtml(firstName)} · 2o ${escapeHtml(secondName)}.</p>`
+        : "";
+
+    let closeBtn = "";
+    if (offerClose) {
+      const label = situation.state === GROUP_STATE.FINAL ? "Recerrar (corregido)" : "Validar y cerrar";
+      closeBtn = `<button type="button" class="gc-btn-close" data-gc-close="${escapeHtml(group.id)}" ${busy ? "disabled" : ""}>${label}</button>`;
+    }
+    let reopenBtn = "";
+    if (offerReopen) {
+      reopenBtn = `<button type="button" class="gc-btn-reopen" data-gc-reopen="${escapeHtml(group.id)}" data-highlight="${stale ? "true" : "false"}" ${busy ? "disabled" : ""}>Reabrir</button>`;
+    }
+
+    const reasonEditor = reasonOpen
+      ? `<div class="gc-reason">
+           <label for="gc-reason-${escapeHtml(group.id)}">Motivo de la reapertura</label>
+           <input id="gc-reason-${escapeHtml(group.id)}" type="text" data-gc-reason-input="${escapeHtml(group.id)}" maxlength="160" placeholder="Ej. se corrigio el marcador del segundo final" />
+           <div class="gc-actions">
+             <button type="button" class="gc-btn-reopen" data-highlight="true" data-gc-reopen-confirm="${escapeHtml(group.id)}" ${busy ? "disabled" : ""}>Confirmar reapertura</button>
+             <button type="button" class="gc-btn-reopen" data-gc-reopen-cancel="${escapeHtml(group.id)}">Cancelar</button>
+           </div>
+         </div>`
+      : "";
+
+    return `
+      <article class="gc-card" data-state="${situation.state}" data-stale="${stale ? "true" : "false"}">
+        <div class="gc-card-head">
+          <h3>Grupo ${escapeHtml(group.id)}</h3>
+          <span class="gc-badge" data-state="${situation.state}">${STATE_LABEL[situation.state] ?? situation.state}</span>
+        </div>
+        ${staleBanner}
+        ${renderStandings(group, situation)}
+        ${renderBonusPreview(group, situation)}
+        ${finalLine}
+        <div class="gc-actions">
+          ${closeBtn}
+          ${reopenBtn}
+        </div>
+        ${reasonEditor}
+      </article>`;
+  };
+
+  const render = (nextSnapshot) => {
+    if (nextSnapshot) {
+      snapshot = {
+        officialResults: nextSnapshot.officialResults ?? [],
+        liveMatches: nextSnapshot.liveMatches ?? [],
+        groupClosures: nextSnapshot.groupClosures ?? [],
+      };
+    }
+    const relevant = groupsReadyToClose(groups, { fixture, snapshot });
+    if (relevant.length === 0) {
+      // CERO regresion: sin grupos por cerrar, el panel no se muestra.
+      panel.hidden = true;
+      body.innerHTML = "";
+      return;
+    }
+    panel.hidden = false;
+    body.innerHTML = `<div class="gc-grid">${relevant
+      .map(({ group, situation }) => renderCard(group, situation))
+      .join("")}</div>`;
+  };
+
+  const groupById = new Map(groups.map((g) => [g.id, g]));
+  const situationOf = (groupId) => {
+    const group = groupById.get(groupId);
+    if (!group) return null;
+    return groupsReadyToClose([group], { fixture, snapshot })[0]?.situation ?? null;
+  };
+
+  // ── Acciones (delegacion de eventos) ──────────────────────────────────────
+  body.addEventListener("click", async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const closeBtn = target.closest("[data-gc-close]");
+    if (closeBtn) {
+      const groupId = closeBtn.getAttribute("data-gc-close");
+      const group = groupById.get(groupId);
+      const situation = situationOf(groupId);
+      if (!group || !situation) return;
+      const firstName = teamName(group, situation.first);
+      const secondName = teamName(group, situation.second);
+      const ok = await confirmDialog({
+        title: `Cerrar Grupo ${groupId}`,
+        message: `Vas a oficializar la clasificacion del Grupo ${groupId}: 1o ${firstName} y 2o ${secondName}. Esto consolida los bonos de clasificacion. Es reversible. ¿Confirmas?`,
+        confirmLabel: "Si, validar y cerrar",
+        cancelLabel: "Cancelar",
+        tone: "info",
+      });
+      if (!ok) {
+        setFeedback("Cierre cancelado. No se consolido nada.");
+        return;
+      }
+      ui.pending.add(groupId);
+      render();
+      try {
+        await closeGroup(groupId, situation.first, situation.second, situation.standings);
+        setFeedback(`Grupo ${groupId} cerrado: 1o ${firstName}, 2o ${secondName}. Bonos consolidados.`);
+        // GROUP_CLOSURES_EVENT re-dispara el subscribe -> re-render con la nueva closure.
+      } catch (error) {
+        setFeedback(closeErrorMessage(error));
+      } finally {
+        ui.pending.delete(groupId);
+        render();
+      }
+      return;
+    }
+
+    const reopenBtn = target.closest("[data-gc-reopen]");
+    if (reopenBtn) {
+      ui.reasonOpenFor = reopenBtn.getAttribute("data-gc-reopen");
+      render();
+      const input = body.querySelector(`[data-gc-reason-input="${ui.reasonOpenFor}"]`);
+      input?.focus();
+      return;
+    }
+
+    const reopenCancel = target.closest("[data-gc-reopen-cancel]");
+    if (reopenCancel) {
+      ui.reasonOpenFor = null;
+      render();
+      setFeedback("Reapertura cancelada.");
+      return;
+    }
+
+    const reopenConfirm = target.closest("[data-gc-reopen-confirm]");
+    if (reopenConfirm) {
+      const groupId = reopenConfirm.getAttribute("data-gc-reopen-confirm");
+      const group = groupById.get(groupId);
+      if (!group) return;
+      const input = body.querySelector(`[data-gc-reason-input="${groupId}"]`);
+      const reason = (input?.value || "").trim();
+      const ok = await confirmDialog({
+        title: `Reabrir Grupo ${groupId}`,
+        message: `Vas a reabrir el Grupo ${groupId}. El 1o/2o oficial deja de ser definitivo y los bonos vuelven a provisional hasta que lo cierres de nuevo. ¿Confirmas?`,
+        confirmLabel: "Si, reabrir",
+        cancelLabel: "Cancelar",
+        tone: "danger",
+      });
+      if (!ok) {
+        setFeedback("Reapertura cancelada.");
+        return;
+      }
+      ui.pending.add(groupId);
+      ui.reasonOpenFor = null;
+      render();
+      try {
+        await reopenGroup(groupId, reason || null);
+        setFeedback(`Grupo ${groupId} reabierto${reason ? ` (motivo: ${reason})` : ""}. Recalcula en vivo sin duplicar.`);
+      } catch (error) {
+        setFeedback(closeErrorMessage(error));
+      } finally {
+        ui.pending.delete(groupId);
+        render();
+      }
+      return;
+    }
+  });
+
+  return render;
+}
+
+// Traduce los errores de las RPC de cierre a un mensaje claro inline (no alert).
+function closeErrorMessage(error) {
+  const msg = String(error?.message ?? "");
+  if (msg.includes("PGRST202")) {
+    return "Falta aplicar el SQL de cierre en Supabase (operador). No se pudo cerrar.";
+  }
+  if (
+    msg.includes("invalid_or_expired_admin_session") ||
+    msg.includes("expiro") ||
+    msg.includes("P0001")
+  ) {
+    return "Sesion de administrador vencida. Reingresa la clave admin.";
+  }
+  return msg || "No fue posible completar la operacion de cierre.";
 }
