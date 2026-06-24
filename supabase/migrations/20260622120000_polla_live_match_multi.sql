@@ -70,6 +70,12 @@ end$$;
 
 alter table public.polla_live_match alter column match_id set not null;
 
+-- Fix 2026-06-24 (aplicado en remoto via hotfix; aqui para repo == DB): la PK vieja era `id`;
+-- al dropear la PK, Postgres NO le quita el NOT NULL a `id`, y la RPC inserta sin `id` (columna
+-- ya vestigial). Sin esto, la 2a/N-esima fila multi (INSERT nuevo por match_id, sin on-conflict)
+-- viola el NOT NULL: 'null value in column "id" ... violates not-null constraint'. Idempotente.
+alter table public.polla_live_match alter column id drop not null;
+
 do $$
 begin
   if not exists (

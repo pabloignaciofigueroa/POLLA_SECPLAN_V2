@@ -17,6 +17,9 @@
 --        rollback;
 --      y confirmar que corre sin error; luego re-ejecutar de verdad (sin rollback).
 --   5. Es idempotente: re-ejecutarlo no rompe nada.
+--   6. FIX 2026-06-24 incorporado: 'alter column id drop not null'. La version original NO lo
+--      tenia y la 2a fila multi fallaba ('null value in column "id" ... not-null constraint').
+--      Se aplico en remoto via hotfix el 2026-06-24; esta linea deja repo == DB para un re-apply.
 --
 -- Requiere: rol owner del SQL Editor. Depende de public.polla_assert_admin
 -- (migracion 20260608170000, ya aplicada).
@@ -85,6 +88,12 @@ begin
 end$$;
 
 alter table public.polla_live_match alter column match_id set not null;
+
+-- Fix 2026-06-24 (aplicado en remoto via hotfix; aqui para repo == DB): la PK vieja era `id`;
+-- al dropear la PK, Postgres NO le quita el NOT NULL a `id`, y la RPC inserta sin `id` (columna
+-- ya vestigial). Sin esto, la 2a/N-esima fila multi (INSERT nuevo por match_id, sin on-conflict)
+-- viola el NOT NULL: 'null value in column "id" ... violates not-null constraint'. Idempotente.
+alter table public.polla_live_match alter column id drop not null;
 
 do $$
 begin
