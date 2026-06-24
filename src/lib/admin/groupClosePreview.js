@@ -106,9 +106,42 @@ export function groupsReadyToClose(groups = [], { fixture, snapshot }) {
 }
 
 /**
- * Grupos "en juego" (EN DEFINICION / PENDING_CLOSE / FINAL / REOPENED) para el desglose en
- * vivo de "quien suma" en el admin. Mismo shape que groupsReadyToClose pero incluye ademas los
- * grupos con finales en curso, para ver el desglose mientras el marcador cambia.
+ * El groupId del grupo de definicion ACTUAL = el grupo del PROXIMO partido NO finalizado, SOLO
+ * si ese partido es uno de los FINALES de 3a fecha de su grupo. Mismo criterio que el control
+ * dual (resolveCurrentMatch ancla en el proximo partido del fixture), pero puro: permite que el
+ * panel avance al grupo actual aunque aun NO tenga fila en polla_live_match. Devuelve null en
+ * fechas 1-2 (el proximo partido no es un final) o al terminar la fase de grupos -> el panel se
+ * mantiene oculto cuando no hay grupo en definicion, igual que el control de marcadores.
+ * @param {any} fixture
+ * @param {object[]} [official]  payloads de polla_official_results
+ * @returns {string|null}
+ */
+export function currentDefinitionGroupId(fixture, official = []) {
+  const officialIds = new Set((official ?? []).map((r) => r?.matchId).filter(Boolean));
+  const matches = Array.isArray(fixture) ? fixture : fixture?.matches ?? [];
+  // Proximo partido NO finalizado (mas temprano por dateUtc, desempate matchNumber).
+  let next = null;
+  for (const m of matches) {
+    if (officialIds.has(m.id)) continue;
+    if (!next) {
+      next = m;
+      continue;
+    }
+    const tm = Date.parse(m.dateUtc ?? "") || 0;
+    const tn = Date.parse(next.dateUtc ?? "") || 0;
+    if (tm < tn || (tm === tn && (m.matchNumber ?? 0) < (next.matchNumber ?? 0))) next = m;
+  }
+  if (!next) return null;
+  // Solo cuenta como "definicion de grupo" si el proximo partido es un FINAL (3a fecha).
+  const isFinal = getGroupFinalMatches(next.groupId, { fixture }).some((m) => m.id === next.id);
+  return isFinal ? next.groupId : null;
+}
+
+/**
+ * Grupos "en juego" para el panel, ORDENADOS: el grupo de definicion ACTUAL primero, luego los
+ * activos / con accion pendiente, luego los cerrados coherentes. Incluye el grupo actual aunque
+ * NO tenga fila live aun (para que el panel avance como el control de marcadores), ademas de los
+ * de cierre y los que ya tienen un final tocado.
  * @param {object[]} groups
  * @param {{ fixture:any, snapshot:object }} ctx
  * @returns {{ group:object, situation:object }[]}
@@ -116,14 +149,13 @@ export function groupsReadyToClose(groups = [], { fixture, snapshot }) {
 export function groupsInPlay(groups = [], { fixture, snapshot }) {
   const liveMatches = snapshot?.liveMatches ?? [];
   const official = snapshot?.officialResults ?? [];
+  const currentDef = currentDefinitionGroupId(fixture, official);
+  const groupIndex = new Map(groups.map((g, i) => [g.id, i]));
   const out = [];
   for (const group of groups) {
     const situation = situationFor(group, { fixture, snapshot });
 
-    // "Proximo a definirse": el admin ya PREPARO/juega un final de 3a fecha del grupo (hay una
-    // fila preparada/viva/oficial para alguno de sus dos finales), aunque la definicion aun no
-    // sume. Permite mostrar las predicciones del grupo CON GUION antes de que arranque, para
-    // corroborar. En dias normales (ningun final tocado) no se gatilla -> sin regresion.
+    // "Proximo a definirse": hay una fila preparada/viva/oficial para alguno de sus dos finales.
     const finalIds = new Set(getGroupFinalMatches(group.id, { group, fixture }).map((m) => m.id));
     const hasFinalRow =
       liveMatches.some((p) => p?.matchId && finalIds.has(p.matchId)) ||
@@ -133,11 +165,34 @@ export function groupsInPlay(groups = [], { fixture, snapshot }) {
     // EN DEFINICION solo si la definicion REALMENTE empezo (no por un marcador de fechas 1-2).
     const inDefinition =
       situation.state === GROUP_STATE.IN_DEFINITION && situation.definitionStarted;
+    // El grupo ACTUAL a definirse (proximo par del fixture) aparece aunque AUN no tenga fila, para
+    // que el panel AVANCE como el control de marcadores (muestra las predicciones con guion).
+    const isCurrentDefinition = group.id === currentDef;
 
-    if (inCloseState || inDefinition || hasFinalRow) {
+    if (inCloseState || inDefinition || hasFinalRow || isCurrentDefinition) {
       out.push({ group, situation });
     }
   }
+
+  // Orden: el grupo actual primero (rango 0), luego activos/accion-pendiente (rango 1), luego los
+  // cerrados coherentes (rango 2). Dentro de cada rango se conserva el orden de `groups`.
+  const rankOf = ({ group, situation }) => {
+    if (group.id === currentDef) return 0;
+    if (
+      situation.state === GROUP_STATE.IN_DEFINITION ||
+      situation.state === GROUP_STATE.PENDING_CLOSE ||
+      situation.state === GROUP_STATE.REOPENED ||
+      (situation.state === GROUP_STATE.FINAL && situation.closureStale)
+    ) {
+      return 1;
+    }
+    return 2;
+  };
+  out.sort(
+    (a, b) =>
+      rankOf(a) - rankOf(b) ||
+      (groupIndex.get(a.group.id) ?? 0) - (groupIndex.get(b.group.id) ?? 0)
+  );
   return out;
 }
 

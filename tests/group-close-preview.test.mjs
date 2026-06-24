@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   groupsReadyToClose,
   groupsInPlay,
+  currentDefinitionGroupId,
   scorerRowsFor,
   situationFor,
   bonusPreviewFor,
@@ -107,6 +108,44 @@ test("groupsInPlay: EN DEFINICION (un final en vivo, sin oficiales) aparece; gro
   assert.equal(inPlay.length, 1);
   assert.equal(inPlay[0].group.id, "A");
   assert.equal(inPlay[0].situation.state, GROUP_STATE.IN_DEFINITION);
+});
+
+// B fechas 1-2 (los 4 partidos no-final de B): asi el proximo no-final de B es un FINAL.
+const OFFICIAL_B_PHASES_1_2 = [r("b1", 1, 0), r("b6", 1, 0), r("b2", 1, 0), r("b5", 1, 0)];
+
+test("currentDefinitionGroupId: A cerrado + B fechas 1-2 -> el proximo no-final es un FINAL de B -> B", () => {
+  assert.equal(currentDefinitionGroupId(FIXTURE, [...OFFICIAL_A, ...OFFICIAL_B_PHASES_1_2]), "B");
+});
+
+test("currentDefinitionGroupId: en fechas 1-2 (el proximo partido NO es final) -> null (panel oculto)", () => {
+  assert.equal(currentDefinitionGroupId(FIXTURE, []), null);
+});
+
+test("currentDefinitionGroupId: todos los partidos oficiales -> null (fin de fase de grupos)", () => {
+  const allB = [...OFFICIAL_B_PHASES_1_2, r("b3", 1, 0), r("b4", 1, 0)];
+  assert.equal(currentDefinitionGroupId(FIXTURE, [...OFFICIAL_A, ...allB]), null);
+});
+
+test("groupsInPlay: el grupo ACTUAL (sin fila live) aparece y va PRIMERO; el cerrado queda despues", () => {
+  const inPlay = groupsInPlay([GROUP_A, GROUP_B], {
+    fixture: FIXTURE,
+    snapshot: snap({
+      // A cerrado; B con fechas 1-2 jugadas y finales por jugar (= grupo actual, sin fila live).
+      officialResults: [...OFFICIAL_A, ...OFFICIAL_B_PHASES_1_2],
+      groupClosures: [
+        { groupId: "A", state: "final", officialFirstTeam: "a", officialSecondTeam: "b", version: 1 },
+      ],
+    }),
+  });
+  const ids = inPlay.map((x) => x.group.id);
+  assert.ok(ids.includes("B"), "el grupo actual B aparece aunque no tenga fila live ni oficial");
+  assert.equal(ids[0], "B", "el grupo actual va PRIMERO");
+  assert.ok(ids.includes("A"), "el grupo cerrado A sigue disponible (abajo)");
+  assert.equal(
+    inPlay.find((x) => x.group.id === "A").situation.state,
+    GROUP_STATE.FINAL,
+    "A cerrado coherente queda despues del actual (rango 2)"
+  );
 });
 
 test("scorerRowsFor: desglose por jugador (quien suma +1/+3), ordenado por puntos desc", () => {

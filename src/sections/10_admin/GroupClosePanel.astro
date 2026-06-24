@@ -25,7 +25,8 @@
       <p class="gc-sub">
         Por cada grupo en definicion ves EN VIVO quien suma el bono (1o +1 / 2o +3) jugador por
         jugador, y se actualiza al cambiar el marcador. Cuando los dos finales terminan, valida
-        la clasificacion para consolidarlo (reversible, no duplica).
+        la clasificacion para consolidarlo (reversible, no duplica). El grupo en definicion va
+        arriba; los ya cerrados quedan abajo (scroll) por si hay que reabrir alguno.
       </p>
     </div>
     <p class="gc-feedback" data-group-close-feedback role="status" aria-live="polite"></p>
@@ -79,11 +80,16 @@
     color: var(--pm-green-700, #1f7a52);
   }
 
-  /* Un grupo por fila, a lo ancho (apaisado como "Avance de partidos"). */
+  /* Un grupo por fila, a lo ancho (apaisado como "Avance de partidos"). El grupo ACTUAL va
+     primero; los cerrados quedan abajo dentro de un contenedor con scroll, para que con 12
+     grupos no crezca la pagina (espejo de la lista de "Avance de partidos"). */
   [data-group-close] .gc-grid {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    max-height: min(52rem, 78vh);
+    overflow-y: auto;
+    padding-right: 0.3rem;
   }
 
   /* Tarjeta por grupo: resumen a la izquierda (angosto) + "quien suma" a la derecha (ancho),
