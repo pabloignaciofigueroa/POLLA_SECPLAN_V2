@@ -486,15 +486,17 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
   // Construye el snapshot derivado que consume el motor de diff. effectiveByMatch cubre
   // TODOS los partidos efectivos (para narrar goles de cualquier partido vivo); situations
   // SOLO lleva grupos EN DEFINICION (gate heredado): nunca eventos de 1o/2o de bloqueados.
-  const buildChangeSnapshot = ({ official, live, activeWindow }) => {
+  const buildChangeSnapshot = ({ official, live, activeWindow, closuresByGroup = {} }) => {
     const { byMatch: effectiveByMatch } = resolveEffectiveResults({ official, window: activeWindow });
     const ledger = buildPointLedger({
       players, predictions, qualifiedPredictions, groups,
-      fixture: matches, official, live, window: activeWindow, now: Date.now(),
+      fixture: matches, official, live, window: activeWindow, closuresByGroup, now: Date.now(),
     });
     const situations = {};
     for (const group of groups) {
-      const sit = computeGroupSituation(group.id, { group, fixture: matches, official, live });
+      const sit = computeGroupSituation(group.id, {
+        group, fixture: matches, official, live, closure: closuresByGroup[group.id] ?? null,
+      });
       // Solo grupos EN DEFINICION (o ya final): los bloqueados no narran 1o/2o.
       if (sit.definitionStarted !== false || sit.state === "final") situations[group.id] = sit;
     }
@@ -811,13 +813,19 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     if (!center) return;
     const official = snapshot?.officialResults ?? [];
     const live = extractLive(snapshot);
+    // Cierres de grupo: SIN esto, un grupo ya cerrado quedaria con bonos 'provisional' (en vivo)
+    // en vez de consolidados. computeGroupSituation/buildGroupBonuses los marcan 'final'.
+    const closuresByGroup = {};
+    for (const closure of snapshot?.groupClosures ?? []) {
+      if (closure?.groupId) closuresByGroup[closure.groupId] = closure;
+    }
     const now = Date.now();
     const activeWindow = resolveActiveWindow({ fixture: matches, official, live, now });
     const activeGroupId = resolveActiveGroupId(activeWindow);
 
     // F8: la cronologia se arma por diff de snapshots reusando este unico recompute. Sin
     // grupo en definicion el centro (y el feed anidado) queda oculto -> cero regresion.
-    updateFeed(buildChangeSnapshot({ official, live, activeWindow }), Boolean(activeGroupId));
+    updateFeed(buildChangeSnapshot({ official, live, activeWindow, closuresByGroup }), Boolean(activeGroupId));
 
     if (!activeGroupId) {
       center.dataset.active = "false";
@@ -835,7 +843,9 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     const { byMatch: effByMatch } = resolveEffectiveResults({ official, window: activeWindow });
     renderBoards(finals, effByMatch);
 
-    const sit = computeGroupSituation(activeGroupId, { group, fixture: matches, official, live });
+    const sit = computeGroupSituation(activeGroupId, {
+      group, fixture: matches, official, live, closure: closuresByGroup[activeGroupId] ?? null,
+    });
     if (sit.definitionStarted === false && sit.state !== "final") {
       // Defensa: sin definicion no se pinta la tabla viva (no deberia ocurrir en F6).
       center.dataset.active = "false";
@@ -853,6 +863,7 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
       official,
       live,
       window: activeWindow,
+      closuresByGroup,
       now,
     });
     const selectedId = readSelectedPlayerId();

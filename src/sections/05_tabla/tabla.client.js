@@ -727,6 +727,7 @@ import { resolveDisplayWindow, windowImpactForPlayer } from "../../lib/tabla/res
       fixture: matches,
       official: detailState.official,
       live: detailState.live,
+      closure: detailState.closuresByGroup?.[groupId] ?? null,
     });
     detailState.sitCache.set(groupId, sit);
     return sit;
@@ -866,6 +867,13 @@ import { resolveDisplayWindow, windowImpactForPlayer } from "../../lib/tabla/res
       : liveMatch
         ? [liveMatch]
         : [];
+    // Cierres de grupo del snapshot (groupId -> closure). SIN esto, los bonos 1o/2o de un grupo
+    // ya CERRADO quedan como 'provisional' y aparecen "EN VIVO" en vez de consolidarse en el
+    // total oficial. Con el cierre, buildGroupBonuses los marca 'final'.
+    const closuresByGroup = {};
+    for (const closure of snapshot.groupClosures ?? []) {
+      if (closure?.groupId) closuresByGroup[closure.groupId] = closure;
+    }
     const now = Date.now();
 
     // F1 es el unico que gatea fase y mapea *TeamScore->*Score, para TODOS los vivos.
@@ -917,6 +925,7 @@ import { resolveDisplayWindow, windowImpactForPlayer } from "../../lib/tabla/res
       official: officialResults,
       live: liveMatches,
       window: win,
+      closuresByGroup,
       now,
     });
     // Estado para la formula expandible (Nivel 2): se lee al abrir una fila.
@@ -927,6 +936,7 @@ import { resolveDisplayWindow, windowImpactForPlayer } from "../../lib/tabla/res
       live: liveMatches,
       effByMatch: byMatch,
       sitCache: new Map(),
+      closuresByGroup,
     };
     const ledgerFor = (id) => ledger.byPlayer[id] ?? { official: 0, projected: 0, lines: [] };
     rows = rows.map((row) => {
