@@ -14,9 +14,9 @@ import {
   validateAdminSession,
 } from "../../lib/liveMatch/liveMatchState.js";
 import {
-  buildLiveControlModels,
   buildLiveScorePayload,
   buildFinalizeResult,
+  resolveAdminControlWindow,
 } from "../../lib/liveMatch/liveMultiControl.js";
 import {
   createPredictionEditCode,
@@ -27,8 +27,10 @@ import {
   bonusPreviewFor,
   canOfferClose,
   canOfferReopen,
-  groupsReadyToClose,
+  groupsInPlay,
   isClosureStaleSituation,
+  scorerRowsFor,
+  situationFor,
 } from "../../lib/admin/groupClosePreview.js";
 import { GROUP_STATE } from "../../lib/fixture/groupState.js";
 import { confirmDialog } from "./adminConfirm.js";
@@ -97,12 +99,14 @@ import { confirmDialog } from "./adminConfirm.js";
     }
   };
 
-  await initLiveScoreControl(section, payload, setFeedback);
+  const liveSingleApi = await initLiveScoreControl(section, payload, setFeedback);
   // Un solo dueno del snapshot para KPI + panel de cierre + control multi (UNA sola
   // suscripcion). El subscribe del KPI reenvia cada snapshot a ambos consumidores;
   // ninguno abre un segundo canal (invariante: un solo dueno del dataset por pagina).
+  // El control multi recibe la API del single para ocultarlo/refrescarlo cuando entra/sale
+  // la definicion simultanea (evita dos controles del mismo partido escribiendo a la vez).
   const renderGroupClose = initGroupClosePanel(section, payload);
-  const renderMultiLive = initMultiLiveControls(section, payload, setFeedback);
+  const renderMultiLive = initMultiLiveControls(section, payload, setFeedback, liveSingleApi);
   initOfficialResultsKpi(section, payload, (snapshot) => {
     renderGroupClose(snapshot);
     renderMultiLive(snapshot);
@@ -349,10 +353,11 @@ async function initPredictionEditAccess(section, setFeedback) {
 
 async function initLiveScoreControl(section, payload, setFeedback) {
   const control = section.querySelector("[data-live-score-control]");
-  if (!control) return;
+  const noopApi = { setHidden() {}, async refresh() {} };
+  if (!control) return noopApi;
 
   const matches = Array.isArray(payload.liveMatches) ? payload.liveMatches : [];
-  if (matches.length === 0) return;
+  if (matches.length === 0) return noopApi;
 
   const els = {
     homeName: control.querySelector("[data-live-home-name]"),
@@ -528,6 +533,29 @@ async function initLiveScoreControl(section, payload, setFeedback) {
   });
 
   render();
+
+  const setHidden = (hidden) => {
+    control.hidden = Boolean(hidden);
+    // El atributo `hidden` solo NO basta: .live-control trae `display:flex`, que le gana al
+    // UA [hidden]{display:none}. Forzamos el display inline (gana a la clase) y lo limpiamos
+    // al mostrar (la clase recupera su flex). Sin esto quedan DOS controles de SUI-CAN.
+    control.style.display = hidden ? "none" : "";
+  };
+  // Re-resolver el partido actual sin recargar: p.ej. al salir de la definicion simultanea,
+  // el dual ya finalizo los 2 finales del grupo y el "actual" ya no es el que se resolvio al
+  // cargar. Re-lee oficiales y reposiciona el control single.
+  const refresh = async () => {
+    try {
+      officialResults = await readOfficialResults();
+    } catch {}
+    match = nextOpenMatch(officialResults);
+    homeScore = 0;
+    awayScore = 0;
+    if (els.updateBtn) els.updateBtn.dataset.saved = "false";
+    render();
+  };
+
+  return { setHidden, refresh };
 }
 
 function toScore(value) {
@@ -572,6 +600,8 @@ function initGroupClosePanel(section, payload) {
   let snapshot = { officialResults: [], liveMatches: [], groupClosures: [] };
 
   const STATE_LABEL = {
+    [GROUP_STATE.PENDING]: "Por jugar",
+    [GROUP_STATE.IN_DEFINITION]: "En definicion",
     [GROUP_STATE.PENDING_CLOSE]: "Listo para cerrar",
     [GROUP_STATE.FINAL]: "Definitivo",
     [GROUP_STATE.REOPENED]: "Reabierto",
@@ -580,6 +610,53 @@ function initGroupClosePanel(section, payload) {
   const teamName = (group, teamId) => {
     const t = (group.teams || []).find((x) => x.id === teamId);
     return t ? t.name : teamId ?? "—";
+  };
+
+  const playerName = (id) => {
+    const p = players.find((x) => x.id === id);
+    return p ? p.name : id ?? "—";
+  };
+
+  // Desglose POR JUGADOR de quien suma el bono del grupo (en vivo): nombre, su pick de 1o/2o
+  // (verde + el valor si acerto el equipo que va 1o/2o ahora) y su subtotal. Fuente unica
+  // scorerRowsFor -> buildGroupBonuses (CERO formula nueva); se re-pinta en cada snapshot.
+  const renderScorers = (group) => {
+    const { rows, started, firstValue, secondValue } = scorerRowsFor(group, {
+      players,
+      qualifiedPredictions,
+      groups,
+      fixture,
+      snapshot,
+    });
+    if (rows.length === 0) return "";
+    // Antes de empezar: solo la prediccion (sin +valor). En vivo/final: verde + el valor si acerto.
+    const pickCell = (teamId, hit, value) => {
+      const name = teamId ? teamName(group, teamId) : "—";
+      if (!started) return `<span class="gc-pick">${escapeHtml(name)}</span>`;
+      return `<span class="gc-pick${hit ? " is-hit" : ""}">${escapeHtml(name)}${hit ? ` +${value}` : ""}</span>`;
+    };
+    const sumCell = (points) => (!started ? "—" : points > 0 ? "+" + points : "0");
+    const rowsHtml = rows
+      .map(
+        (row) => `<tr>
+          <td class="gc-scorer-name">${escapeHtml(playerName(row.playerId))}</td>
+          <td>${pickCell(row.firstTeamId, row.firstHit, firstValue)}</td>
+          <td>${pickCell(row.secondTeamId, row.secondHit, secondValue)}</td>
+          <td class="gc-scorer-sum">${sumCell(row.points)}</td>
+        </tr>`
+      )
+      .join("");
+    const note = started
+      ? ""
+      : `<p class="gc-scorers-note">Aun no empieza la definicion: se muestran las predicciones; nadie suma todavia (guion).</p>`;
+    return `<div class="gc-scorers">
+        <p class="gc-scorers-title">Quien suma en el grupo${started ? " (en vivo)" : " — predicciones"}</p>
+        ${note}
+        <table>
+          <thead><tr><th>Jugador</th><th>1o (+${firstValue})</th><th>2o (+${secondValue})</th><th>Suma</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>`;
   };
 
   const renderStandings = (group, situation) => {
@@ -680,19 +757,24 @@ function initGroupClosePanel(section, payload) {
 
     return `
       <article class="gc-card" data-state="${situation.state}" data-stale="${stale ? "true" : "false"}">
-        <div class="gc-card-head">
-          <h3>Grupo ${escapeHtml(group.id)}</h3>
-          <span class="gc-badge" data-state="${situation.state}">${STATE_LABEL[situation.state] ?? situation.state}</span>
+        <div class="gc-card-main">
+          <div class="gc-card-head">
+            <h3>Grupo ${escapeHtml(group.id)}</h3>
+            <span class="gc-badge" data-state="${situation.state}">${STATE_LABEL[situation.state] ?? situation.state}</span>
+          </div>
+          ${staleBanner}
+          ${renderStandings(group, situation)}
+          ${renderBonusPreview(group, situation)}
+          ${finalLine}
+          <div class="gc-actions">
+            ${closeBtn}
+            ${reopenBtn}
+          </div>
+          ${reasonEditor}
         </div>
-        ${staleBanner}
-        ${renderStandings(group, situation)}
-        ${renderBonusPreview(group, situation)}
-        ${finalLine}
-        <div class="gc-actions">
-          ${closeBtn}
-          ${reopenBtn}
+        <div class="gc-card-side">
+          ${renderScorers(group)}
         </div>
-        ${reasonEditor}
       </article>`;
   };
 
@@ -704,9 +786,10 @@ function initGroupClosePanel(section, payload) {
         groupClosures: nextSnapshot.groupClosures ?? [],
       };
     }
-    const relevant = groupsReadyToClose(groups, { fixture, snapshot });
+    // "En juego" = EN DEFINICION (finales en curso, para ver el desglose en vivo) + estados de
+    // cierre. Sin grupos en juego el panel queda oculto (cero regresion).
+    const relevant = groupsInPlay(groups, { fixture, snapshot });
     if (relevant.length === 0) {
-      // CERO regresion: sin grupos por cerrar, el panel no se muestra.
       panel.hidden = true;
       body.innerHTML = "";
       return;
@@ -721,7 +804,7 @@ function initGroupClosePanel(section, payload) {
   const situationOf = (groupId) => {
     const group = groupById.get(groupId);
     if (!group) return null;
-    return groupsReadyToClose([group], { fixture, snapshot })[0]?.situation ?? null;
+    return situationFor(group, { fixture, snapshot });
   };
 
   // ── Acciones (delegacion de eventos) ──────────────────────────────────────
@@ -819,16 +902,17 @@ function initGroupClosePanel(section, payload) {
 
 // ── Stage 2: control MULTI-marcador (DEFINICION SIMULTANEA) ─────────────────────
 // Devuelve render(snapshot): el dueno del snapshot (initOfficialResultsKpi) lo invoca en
-// cada emit. NO abre subscribeLiveData propio (un solo dueno del dataset). En la fecha
-// final, cuando hay >=2 finales del grupo vivos a la vez, muestra DOS controles lado a
-// lado; cada uno escribe por su matchId (setLiveScore), limpia su fila (clearLiveScore) y
-// finaliza su partido (finalizeOfficialResult) SIN tocar el otro. Con N=1 el panel queda
-// oculto: el flujo diario sigue por el MiniLiveScoreControl single (byte-igual).
+// cada emit. NO abre subscribeLiveData propio (un solo dueno del dataset). Cuando el partido
+// actual tiene un PAR simultaneo (los 2 finales de la 3a fecha del mismo grupo, misma hora),
+// muestra DOS controles lado a lado RESUELTOS DESDE EL FIXTURE (no solo lo ya vivo): permite
+// ARRANCAR cada partido desde cero ("Iniciar en vivo"), actualizarlo (setLiveScore por
+// matchId), limpiarlo (clearLiveScore) y finalizarlo (finalizeOfficialResult) SIN tocar el
+// otro. Mientras el dual esta activo, OCULTA el control single del hero (mismo partido =
+// SUI-CAN) para que no haya dos controles escribiendo a la vez. Con un solo partido en la
+// ventana, el panel queda oculto y el single del hero sigue mandando (N=1 byte-igual).
 //
-// La escritura multi va detras de MULTI_LIVE_WRITE_ENABLED (guardrail). Hasta que el
-// operador aplique la migracion multi-fila en remoto Y suba el flag (paso manual acoplado),
-// Actualizar/Finalizar muestran el error de guardrail inline; no rompe el N=1 diario.
-function initMultiLiveControls(section, payload, setFeedback) {
+// La escritura multi va detras de MULTI_LIVE_WRITE_ENABLED (guardrail, ya en true en prod).
+function initMultiLiveControls(section, payload, setFeedback, singleApi = null) {
   const panel = section.querySelector("[data-live-controls]");
   if (!panel) return () => {};
   const body = panel.querySelector("[data-live-controls-body]");
@@ -855,6 +939,7 @@ function initMultiLiveControls(section, payload, setFeedback) {
   const edits = new Map(); // matchId -> { home, away }
   const pending = new Set(); // matchId con accion en curso
   let controls = [];
+  let wasSimultaneous = false; // para refrescar el single al salir de la definicion simultanea
 
   const editFor = (control) => {
     if (!edits.has(control.matchId)) {
@@ -864,13 +949,15 @@ function initMultiLiveControls(section, payload, setFeedback) {
   };
 
   const renderCard = (control) => {
-    const live = control.editable;
+    const editable = control.editable; // live o ready (preparable)
+    const isLive = control.phase === "live";
+    const isReady = control.phase === "ready";
     const edit = editFor(control);
     const busy = pending.has(control.matchId);
-    const stateLabel = live ? "EN VIVO" : "OFICIAL";
+    const stateLabel = isLive ? "EN VIVO" : isReady ? "POR INICIAR" : "OFICIAL";
     const tag = `P${control.displayNumber}`;
-    const home = live ? edit.home : control.homeScore;
-    const away = live ? edit.away : control.awayScore;
+    const home = editable ? edit.home : control.homeScore;
+    const away = editable ? edit.away : control.awayScore;
 
     const stepper = (side, value) => `
       <div class="lc-stepper">
@@ -883,20 +970,20 @@ function initMultiLiveControls(section, payload, setFeedback) {
       <div class="lc-board">
         <div class="lc-team">
           <span class="lc-team-name">${escapeHtml(control.homeTeam.shortCode || control.homeTeam.name)}</span>
-          ${live ? stepper("home", home) : `<span class="lc-score">${home}</span>`}
+          ${editable ? stepper("home", home) : `<span class="lc-score">${home}</span>`}
         </div>
         <span class="lc-versus" aria-hidden="true">—</span>
         <div class="lc-team">
           <span class="lc-team-name">${escapeHtml(control.awayTeam.shortCode || control.awayTeam.name)}</span>
-          ${live ? stepper("away", away) : `<span class="lc-score">${away}</span>`}
+          ${editable ? stepper("away", away) : `<span class="lc-score">${away}</span>`}
         </div>
       </div>`;
 
-    const actions = live
+    const actions = editable
       ? `<div class="lc-actions">
-           <button type="button" class="lc-update" data-lc-update="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Actualizar</button>
+           <button type="button" class="lc-update" data-lc-update="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>${isReady ? "Iniciar en vivo" : "Actualizar"}</button>
            <button type="button" class="lc-finalize" data-lc-finalize="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Finalizar</button>
-           <button type="button" class="lc-clear" data-lc-clear="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Quitar</button>
+           ${isLive ? `<button type="button" class="lc-clear" data-lc-clear="${escapeHtml(control.matchId)}" ${busy ? "disabled" : ""}>Quitar</button>` : ""}
          </div>`
       : `<p class="lc-official-note">Ya oficializado. Se administra desde "Avance de partidos".</p>`;
 
@@ -914,7 +1001,8 @@ function initMultiLiveControls(section, payload, setFeedback) {
 
   const render = (snapshot) => {
     const snap = snapshot ?? { liveMatches: [], officialResults: [] };
-    const model = buildLiveControlModels({
+    // Resuelve el PAR simultaneo desde el FIXTURE (no solo lo ya vivo) -> permite bootstrap.
+    const model = resolveAdminControlWindow({
       fixture,
       liveMatches: snap.liveMatches ?? [],
       officialResults: snap.officialResults ?? [],
@@ -922,29 +1010,39 @@ function initMultiLiveControls(section, payload, setFeedback) {
     controls = model.controls;
     const controlById = new Map(controls.map((c) => [c.matchId, c]));
 
-    // Sincronizar el estado local de edicion con los marcadores live entrantes: drop de
-    // los que ya no son live; semilla de los nuevos (sin pisar una edicion en curso del
-    // admin que ya difiere del valor remoto).
+    // Sincronizar el estado local de edicion con la ventana entrante: drop de los que ya no
+    // son editables (p.ej. recien oficializados); los nuevos se siembran al pintar (editFor),
+    // sin pisar una edicion en curso del admin.
     for (const matchId of Array.from(edits.keys())) {
       const c = controlById.get(matchId);
       if (!c || !c.editable) edits.delete(matchId);
     }
 
-    // CERO regresion / N=1 byte-igual: el panel SOLO aparece con >=2 marcadores vivos a la
-    // vez (definicion simultanea). Con 0 o 1 vivo queda oculto; el flujo diario lo maneja
-    // el control single de siempre.
-    if (model.liveCount < 2) {
+    // CERO regresion / N=1 byte-igual: el panel SOLO aparece cuando el partido actual tiene un
+    // PAR simultaneo (mismo grupo + misma hora). Con un solo partido en la ventana queda
+    // oculto y el control single del hero sigue mandando.
+    if (!model.simultaneous) {
       panel.hidden = true;
       body.innerHTML = "";
+      singleApi?.setHidden(false);
+      // Si venia de estar activo (los 2 finales ya se finalizaron), reposiciona el single al
+      // partido actual real sin recargar.
+      if (wasSimultaneous) singleApi?.refresh();
+      wasSimultaneous = false;
       return;
     }
+
+    // Definicion simultanea activa: el dual manda; oculta el single del hero para que NO haya
+    // dos controles del mismo partido (SUI-CAN) escribiendo a la vez.
+    singleApi?.setHidden(true);
+    wasSimultaneous = true;
     panel.hidden = false;
 
     const groupIds = Object.keys(model.byGroup);
     body.innerHTML = groupIds
       .map((groupId) => {
         const cards = model.byGroup[groupId].map(renderCard).join("");
-        const label = groupIds.length > 1 ? `<p class="lc-group-label">Grupo ${escapeHtml(groupId)}</p>` : "";
+        const label = `<p class="lc-group-label">Grupo ${escapeHtml(groupId)} · definicion simultanea</p>`;
         return `<div class="lc-group">${label}<div class="lc-grid">${cards}</div></div>`;
       })
       .join("");

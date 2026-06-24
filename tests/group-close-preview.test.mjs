@@ -3,12 +3,16 @@ import test from "node:test";
 
 import {
   groupsReadyToClose,
+  groupsInPlay,
+  scorerRowsFor,
+  situationFor,
   bonusPreviewFor,
   canOfferClose,
   canOfferReopen,
   isClosureStaleSituation,
   closuresByGroupId,
   CLOSE_PANEL_STATES,
+  IN_PLAY_STATES,
 } from "../src/lib/admin/groupClosePreview.js";
 import { GROUP_STATE } from "../src/lib/fixture/groupState.js";
 import { dedupeClosuresByVersion } from "../src/lib/liveMatch/liveMatchState.js";
@@ -83,6 +87,99 @@ test("CLOSE_PANEL_STATES no incluye IN_DEFINITION ni PENDING", () => {
   assert.ok(CLOSE_PANEL_STATES.includes(GROUP_STATE.REOPENED));
   assert.ok(!CLOSE_PANEL_STATES.includes(GROUP_STATE.IN_DEFINITION));
   assert.ok(!CLOSE_PANEL_STATES.includes(GROUP_STATE.PENDING));
+});
+
+test("IN_PLAY_STATES incluye IN_DEFINITION + los de cierre (para el desglose en vivo)", () => {
+  assert.ok(IN_PLAY_STATES.includes(GROUP_STATE.IN_DEFINITION));
+  assert.ok(IN_PLAY_STATES.includes(GROUP_STATE.PENDING_CLOSE));
+  assert.ok(IN_PLAY_STATES.includes(GROUP_STATE.FINAL));
+  assert.ok(IN_PLAY_STATES.includes(GROUP_STATE.REOPENED));
+  assert.ok(!IN_PLAY_STATES.includes(GROUP_STATE.PENDING));
+});
+
+test("groupsInPlay: EN DEFINICION (un final en vivo, sin oficiales) aparece; groupsReadyToClose NO", () => {
+  const ctx = {
+    fixture: FIXTURE,
+    snapshot: snap({ liveMatches: [{ matchId: "a3", homeTeamScore: 1, awayTeamScore: 0 }] }),
+  };
+  assert.equal(groupsReadyToClose([GROUP_A], ctx).length, 0, "EN DEFINICION no es estado de cierre");
+  const inPlay = groupsInPlay([GROUP_A], ctx);
+  assert.equal(inPlay.length, 1);
+  assert.equal(inPlay[0].group.id, "A");
+  assert.equal(inPlay[0].situation.state, GROUP_STATE.IN_DEFINITION);
+});
+
+test("scorerRowsFor: desglose por jugador (quien suma +1/+3), ordenado por puntos desc", () => {
+  const { rows, firstValue, secondValue } = scorerRowsFor(GROUP_A, {
+    players: PLAYERS,
+    qualifiedPredictions: QUALIFIED,
+    groups: [GROUP_A],
+    fixture: FIXTURE,
+    snapshot: snap({
+      officialResults: OFFICIAL_A,
+      groupClosures: [{ groupId: "A", state: "final", officialFirstTeam: "a", officialSecondTeam: "b", version: 1 }],
+    }),
+  });
+  assert.equal(firstValue, 1);
+  assert.equal(secondValue, 3);
+  assert.equal(rows.length, 3, "una fila por jugador (incluye al que no predijo el grupo)");
+  assert.deepEqual(rows.map((r) => r.playerId), ["p1", "p2", "p3"], "orden por puntos desc");
+
+  const [p1, p2, p3] = rows;
+  assert.equal(p1.firstTeamId, "a");
+  assert.equal(p1.firstHit, true);
+  assert.equal(p1.secondTeamId, "b");
+  assert.equal(p1.secondHit, true);
+  assert.equal(p1.points, 4, "p1 acierta 1o(+1) y 2o(+3)");
+
+  assert.equal(p2.firstHit, true, "p2 acierta 1o=a (+1)");
+  assert.equal(p2.secondHit, false, "p2 fallo el 2o (predijo c)");
+  assert.equal(p2.points, 1);
+
+  assert.equal(p3.firstTeamId, null, "p3 no predijo el grupo");
+  assert.equal(p3.secondTeamId, null);
+  assert.equal(p3.points, 0);
+});
+
+test("scorerRowsFor: ANTES de empezar muestra las predicciones con started=false (UI pinta guion)", () => {
+  // Solo fechas 1-2 oficiales (ningun final jugado): el bono no cuenta aun.
+  const { rows, started } = scorerRowsFor(GROUP_A, {
+    players: PLAYERS,
+    qualifiedPredictions: QUALIFIED,
+    groups: [GROUP_A],
+    fixture: FIXTURE,
+    snapshot: snap({ officialResults: OFFICIAL_A_PHASES_1_2 }),
+  });
+  assert.equal(started, false, "sin final jugado -> la UI muestra guion, nadie suma");
+  assert.equal(rows.length, 3, "igual lista a los 3 jugadores con sus picks (para corroborar)");
+  const p1 = rows.find((x) => x.playerId === "p1");
+  assert.equal(p1.firstTeamId, "a", "se ve la prediccion del 1o aunque no sume");
+  assert.equal(p1.secondTeamId, "b");
+  assert.equal(p1.firstHit, false);
+  assert.equal(p1.points, 0, "nadie suma todavia");
+});
+
+test("gateo: un 0-0 PREPARADO (antes de la hora) NO infla la tabla del grupo (Error real)", () => {
+  const FUT = new Date(Date.now() + 3 * 3600_000).toISOString(); // 3h en el futuro
+  const G = { id: "C", teams: ["w", "x", "y", "z"].map(team) };
+  const FX = {
+    matches: [
+      mt("c1", "C", "w", "x", D1), mt("c6", "C", "y", "z", D1),
+      mt("c2", "C", "w", "y", D2), mt("c5", "C", "x", "z", D2),
+      mt("c3", "C", "w", "z", FUT), mt("c4", "C", "x", "y", FUT), // finales a futuro
+    ],
+  };
+  const official = [r("c1", 1, 0), r("c6", 1, 0), r("c2", 1, 0), r("c5", 1, 0)]; // fechas 1-2
+  const sit = situationFor(G, {
+    fixture: FX,
+    snapshot: snap({
+      officialResults: official,
+      liveMatches: [{ matchId: "c3", homeTeamScore: 0, awayTeamScore: 0, status: "pending" }],
+    }),
+  });
+  const w = sit.standings.find((s) => (s.teamId ?? s.id) === "w");
+  assert.equal(w.played, 2, "w jugo 2 (fechas 1-2); el 0-0 preparado NO suma un PJ fantasma");
+  assert.equal(sit.state, GROUP_STATE.PENDING, "sin final realmente vivo: PENDING (no PENDING_CLOSE)");
 });
 
 // ── 2. Preview de bonos (CERO formula nueva: cuenta del libro) ───────────────

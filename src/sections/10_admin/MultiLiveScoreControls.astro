@@ -32,8 +32,8 @@
       <span class="lc-eyebrow">DEFINICION SIMULTANEA</span>
       <h2 id="live-controls-title">Marcadores en vivo (par del grupo)</h2>
       <p class="lc-sub">
-        Los dos finales del grupo se juegan a la vez. Cada control administra SU partido por
-        separado: actualizar y finalizar uno no afecta al otro.
+        Los dos finales del grupo se juegan a la vez. Pon cada uno en vivo con "Iniciar en
+        vivo" y administralo por separado: actualizar y finalizar uno no afecta al otro.
       </p>
     </div>
     <p class="lc-feedback" data-live-controls-feedback role="status" aria-live="polite"></p>
@@ -122,6 +122,11 @@
     border-color: var(--pm-border-soft, rgba(7, 26, 53, 0.18));
     background: var(--pm-panel-soft, #f5f8fc);
   }
+  /* "POR INICIAR": preparable (aun no en vivo) -> azul, sin glow de vivo. */
+  [data-live-controls] .lc-card[data-phase="ready"] {
+    border-color: var(--pm-blue-500, #2f72d6);
+    background: linear-gradient(135deg, var(--pm-white, #fff), var(--pm-blue-50, #eef5fe));
+  }
 
   [data-live-controls] .lc-card-head {
     display: flex;
@@ -138,6 +143,10 @@
   [data-live-controls] .lc-card[data-phase="official"] .lc-dot {
     background: var(--pm-text-soft, #4a5a72);
     box-shadow: none;
+  }
+  [data-live-controls] .lc-card[data-phase="ready"] .lc-dot {
+    background: var(--pm-blue-500, #2f72d6);
+    box-shadow: 0 0 8px var(--pm-blue-500, #2f72d6);
   }
   [data-live-controls] .lc-tag {
     padding: 0.1rem 0.4rem;
@@ -158,6 +167,7 @@
     text-transform: uppercase;
   }
   [data-live-controls] .lc-card[data-phase="live"] .lc-state { color: var(--pm-green-700, #1f7a52); }
+  [data-live-controls] .lc-card[data-phase="ready"] .lc-state { color: var(--pm-blue-700, #1f5fa6); }
   [data-live-controls] .lc-card[data-phase="official"] .lc-state { color: var(--pm-text-soft, #4a5a72); }
 
   [data-live-controls] .lc-board {

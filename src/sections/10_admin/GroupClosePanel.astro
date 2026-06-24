@@ -20,11 +20,12 @@
 >
   <header class="gc-head">
     <div>
-      <span class="gc-eyebrow">CIERRE DE GRUPO</span>
+      <span class="gc-eyebrow">CIERRE DE GRUPO · QUIEN SUMA</span>
       <h2 id="group-close-title">Definicion oficial de grupos</h2>
       <p class="gc-sub">
-        Cuando los dos finales de un grupo terminan, valida la clasificacion (1o y 2o) para
-        consolidar los bonos. El cierre es reversible y no duplica.
+        Por cada grupo en definicion ves EN VIVO quien suma el bono (1o +1 / 2o +3) jugador por
+        jugador, y se actualiza al cambiar el marcador. Cuando los dos finales terminan, valida
+        la clasificacion para consolidarlo (reversible, no duplica).
       </p>
     </div>
     <p class="gc-feedback" data-group-close-feedback role="status" aria-live="polite"></p>
@@ -78,22 +79,34 @@
     color: var(--pm-green-700, #1f7a52);
   }
 
+  /* Un grupo por fila, a lo ancho (apaisado como "Avance de partidos"). */
   [data-group-close] .gc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 0.8rem;
   }
 
-  /* Tarjeta por grupo */
+  /* Tarjeta por grupo: resumen a la izquierda (angosto) + "quien suma" a la derecha (ancho),
+     igual que el detalle de "Avance de partidos". En mobile se apila. */
   [data-group-close] .gc-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+    display: grid;
+    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    gap: 0.6rem 1.1rem;
     padding: 0.8rem 0.85rem;
     border: 1px solid var(--pm-border-soft, rgba(7, 26, 53, 0.18));
     border-radius: 0.7rem;
     background: var(--pm-panel-soft, #f5f8fc);
   }
+  @media (max-width: 820px) {
+    [data-group-close] .gc-card { grid-template-columns: 1fr; }
+  }
+  [data-group-close] .gc-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  [data-group-close] .gc-card-side { min-width: 0; }
   [data-group-close] .gc-card[data-state="final"] {
     border-color: var(--pm-mint-500, #21d99a);
     box-shadow: 0 0 0 1px var(--pm-mint-500, #21d99a) inset;
@@ -125,6 +138,8 @@
     text-transform: uppercase;
     white-space: nowrap;
   }
+  [data-group-close] .gc-badge[data-state="pending"] { background: #eef2f8; color: #4a5a72; }
+  [data-group-close] .gc-badge[data-state="in_definition"] { background: #fff3e0; color: #b26a00; }
   [data-group-close] .gc-badge[data-state="pending_close"] { background: var(--pm-blue-100, #e3effb); color: var(--pm-blue-700, #1f5fa6); }
   [data-group-close] .gc-badge[data-state="final"] { background: var(--pm-state-finished-bg, #e7f6ec); color: var(--pm-state-finished-text, #1f7a52); }
   [data-group-close] .gc-badge[data-state="reopened"] { background: var(--pm-state-live-bg, #ffe1e6); color: var(--pm-state-live-text, #c81e3a); }
@@ -292,4 +307,31 @@
     font-size: 0.78rem;
     color: var(--pm-text-soft, #4a5a72);
   }
+
+  /* Desglose POR JUGADOR (quien suma en vivo). Sobrescribe la alineacion derecha por defecto
+     de la tabla de standings: aqui nombre + picks van a la izquierda y solo la suma a la derecha. */
+  [data-group-close] .gc-scorers { margin-top: 0.2rem; }
+  [data-group-close] .gc-scorers-note {
+    margin: 0 0 0.35rem;
+    font-size: 0.64rem;
+    font-style: italic;
+    color: var(--pm-text-soft, #4a5a72);
+  }
+  [data-group-close] .gc-scorers-title {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pm-blue-700, #1f5fa6);
+  }
+  [data-group-close] .gc-scorers th,
+  [data-group-close] .gc-scorers td { text-align: left; }
+  [data-group-close] .gc-scorers th:last-child,
+  [data-group-close] .gc-scorers td.gc-scorer-sum { text-align: right; }
+  [data-group-close] .gc-scorers td.gc-scorer-name { font-weight: 800; color: var(--pm-blue-900, #0b2545); }
+  [data-group-close] .gc-scorers td.gc-scorer-sum { font-weight: 900; font-variant-numeric: tabular-nums; }
+  [data-group-close] .gc-scorers .gc-pick { color: var(--pm-text-soft, #4a5a72); }
+  [data-group-close] .gc-scorers .gc-pick.is-hit { color: var(--pm-green-700, #1f7a52); font-weight: 800; }
 </style>

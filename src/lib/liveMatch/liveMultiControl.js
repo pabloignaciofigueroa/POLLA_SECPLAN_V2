@@ -9,6 +9,7 @@
 // *TeamScore->*Score). NO reimplementa el gating de fase.
 
 import { resolveActiveWindow } from "./activeWindow.js";
+import { resolveCurrentMatch } from "./liveMatchState.js";
 
 const fixtureMatchById = (fixture) => {
   const matches = Array.isArray(fixture) ? fixture : fixture?.matches ?? [];
@@ -139,4 +140,119 @@ export function buildFinalizeResult(control, { homeScore, awayScore } = {}) {
 function clampScore(value) {
   const n = Math.trunc(Number(value));
   return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+const readControlScores = (payload) => {
+  const home = Number(payload?.homeScore ?? payload?.homeTeamScore);
+  const away = Number(payload?.awayScore ?? payload?.awayTeamScore);
+  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) return null;
+  return { home, away };
+};
+
+/**
+ * Ventana de control del ADMIN para DEFINICION SIMULTANEA (bootstrap).
+ *
+ * A diferencia de buildLiveControlModels (que SOLO ve lo que YA esta vivo y por eso no puede
+ * ARRANCAR el segundo partido), esta resuelve el PAR SIMULTANEO ACTUAL desde el FIXTURE: el
+ * partido "actual" (misma definicion que el control single del hero, via resolveCurrentMatch,
+ * para que dual y single NUNCA divergan) + sus hermanos del mismo grupo a la misma hora (los
+ * dos finales de la 3a fecha). Permite poner en vivo ambos desde cero.
+ *
+ * NO toca resolveActiveWindow (el scoring publico sigue contando SOLO lo vivo y gateado).
+ *
+ * controls[].phase:
+ *   - "live"     status live -> editable, puntua (en vivo).
+ *   - "ready"    preparable (aun no en vivo) -> editable, parte en 0 (o el marcador preparado).
+ *   - "official" finalizado -> read-only (contexto del par).
+ *
+ * @param {object} input
+ * @param {{matches:object[]}|object[]} input.fixture
+ * @param {object[]} [input.officialResults]
+ * @param {object[]} [input.liveMatches]
+ * @param {number}   [input.now]
+ * @returns {{ simultaneous:boolean, controls:object[], byGroup:Record<string,object[]>,
+ *            currentMatchId:string|null, liveCount:number }}
+ */
+export function resolveAdminControlWindow({
+  fixture,
+  officialResults = [],
+  liveMatches = [],
+  now = Date.now(),
+}) {
+  const matches = Array.isArray(fixture) ? fixture : fixture?.matches ?? [];
+  const officialById = new Map();
+  for (const r of officialResults) if (r?.matchId) officialById.set(r.matchId, r);
+  const liveById = new Map();
+  for (const p of liveMatches) if (p?.matchId) liveById.set(p.matchId, p);
+
+  // "Partido actual" = el mismo que resuelve el hero single, pero ignorando los ya
+  // finalizados (para avanzar al siguiente par cuando un grupo se termina).
+  const nonFinal = matches.filter((m) => !officialById.has(m.id));
+  // Prefiere un partido EN VIVO (status live, no finalizado): mantiene el dual ANCLADO a su
+  // par hasta que ambos finalicen, aunque el partido se alargue mas alla de la ventana de
+  // reloj (LIVE_WINDOW_MS) que usa resolveCurrentMatch. Solo si no hay ninguno vivo cae al
+  // "actual" por reloj (misma definicion que el control single del hero).
+  const liveNonFinal = nonFinal
+    .filter((m) => String(liveById.get(m.id)?.status) === "live")
+    .sort(
+      (a, b) =>
+        (Date.parse(a.dateUtc ?? "") || 0) - (Date.parse(b.dateUtc ?? "") || 0) ||
+        (a.matchNumber ?? 0) - (b.matchNumber ?? 0)
+    );
+  const current = liveNonFinal[0] ?? resolveCurrentMatch(nonFinal, now);
+  if (!current) {
+    return { simultaneous: false, controls: [], byGroup: {}, currentMatchId: null, liveCount: 0 };
+  }
+
+  // Par simultaneo = mismo grupo + misma hora de inicio (los 2 finales). Incluye al current;
+  // si su hermano ya es oficial entra read-only para dar el contexto del par.
+  const pair = matches
+    .filter((m) => m.groupId === current.groupId && m.dateUtc === current.dateUtc)
+    .sort(
+      (a, b) =>
+        Date.parse(a.dateUtc ?? "") - Date.parse(b.dateUtc ?? "") ||
+        (a.matchNumber ?? 0) - (b.matchNumber ?? 0)
+    );
+
+  const controls = pair.map((m) =>
+    buildAdminControl(m, officialById.get(m.id), liveById.get(m.id))
+  );
+
+  const byGroup = {};
+  for (const c of controls) (byGroup[c.groupId] ??= []).push(c);
+
+  return {
+    simultaneous: pair.length >= 2,
+    controls,
+    byGroup,
+    currentMatchId: current.id,
+    liveCount: controls.filter((c) => c.phase === "live").length,
+  };
+}
+
+function buildAdminControl(fixtureMatch, official, live) {
+  let phase = "ready";
+  let scores = { home: 0, away: 0 };
+  if (official) {
+    phase = "official";
+    scores = readControlScores(official) ?? scores;
+  } else if (live) {
+    const liveScores = readControlScores(live);
+    // status "live" puntua; cualquier otro (p.ej. "pending" preparado) es preparable.
+    phase = String(live.status) === "live" ? "live" : "ready";
+    scores = liveScores ?? scores;
+  }
+  return {
+    matchId: fixtureMatch.id,
+    groupId: fixtureMatch.groupId,
+    matchNumber: fixtureMatch.matchNumber ?? 0,
+    displayNumber: fixtureMatch.displayNumber ?? fixtureMatch.matchNumber ?? 0,
+    dateUtc: fixtureMatch.dateUtc ?? null,
+    phase,
+    editable: phase !== "official",
+    homeScore: scores.home,
+    awayScore: scores.away,
+    homeTeam: teamSlim(fixtureMatch.homeTeam),
+    awayTeam: teamSlim(fixtureMatch.awayTeam),
+  };
 }

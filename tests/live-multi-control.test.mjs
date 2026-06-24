@@ -33,9 +33,12 @@ const {
   readLiveMatches,
   MULTI_LIVE_WRITE_ENABLED,
 } = await import("../src/lib/liveMatch/liveMatchState.js");
-const { buildLiveControlModels, buildLiveScorePayload, buildFinalizeResult } = await import(
-  "../src/lib/liveMatch/liveMultiControl.js"
-);
+const {
+  buildLiveControlModels,
+  buildLiveScorePayload,
+  buildFinalizeResult,
+  resolveAdminControlWindow,
+} = await import("../src/lib/liveMatch/liveMultiControl.js");
 
 const resetStore = () => store.clear();
 
@@ -215,14 +218,84 @@ test("N=1: saveLiveMatchState (wrapper) deja UNA fila; el control multi queda oc
 
 // ── 5) GUARDRAIL A3 sigue firme con la logica multi en juego ─────────────────────────────
 
-test("GUARDRAIL A3 (re-afirmado): sin override, setLiveScore/clearLiveScore lanzan; flag false", async () => {
-  assert.equal(MULTI_LIVE_WRITE_ENABLED, false);
+test("GUARDRAIL A3 (mecanismo): allowMultiWrite:false SIEMPRE bloquea, sin importar el flag global", async () => {
+  // El flag global ya esta en true (go-live 2026-06-24, definicion simultanea en prod). El
+  // guardrail sigue verificable por override explicito por-llamada -> rollback de emergencia.
   await assert.rejects(
-    () => setLiveScore(livePayload("match-071", 1, 0)),
+    () => setLiveScore(livePayload("match-071", 1, 0), { allowMultiWrite: false }),
     /deshabilitado|MULTI_LIVE_WRITE_ENABLED/
   );
   await assert.rejects(
-    () => clearLiveScore("match-071"),
+    () => clearLiveScore("match-071", { allowMultiWrite: false }),
     /deshabilitado|MULTI_LIVE_WRITE_ENABLED/
   );
+});
+
+// ── 6) resolveAdminControlWindow: bootstrap del PAR simultaneo desde el FIXTURE ───────────
+
+test("resolveAdminControlWindow: par simultaneo sin nada vivo -> simultaneo, 2 controles READY", () => {
+  const model = resolveAdminControlWindow({ fixture: FIXTURE });
+  assert.equal(model.simultaneous, true);
+  assert.equal(model.controls.length, 2);
+  assert.ok(model.controls.every((c) => c.phase === "ready"), "ambos preparables (bootstrap)");
+  assert.ok(model.controls.every((c) => c.editable));
+  assert.equal(model.liveCount, 0);
+  assert.deepEqual(
+    model.controls.map((c) => c.matchId),
+    ["match-071", "match-072"],
+    "orden cronologico (el primero a la izquierda)"
+  );
+});
+
+test("resolveAdminControlWindow: uno vivo + uno por iniciar -> 2 controles (live + ready)", () => {
+  const model = resolveAdminControlWindow({
+    fixture: FIXTURE,
+    liveMatches: [livePayload("match-071", 1, 0)],
+  });
+  assert.equal(model.simultaneous, true);
+  assert.equal(model.liveCount, 1);
+  const byId = new Map(model.controls.map((c) => [c.matchId, c]));
+  assert.equal(byId.get("match-071").phase, "live");
+  assert.equal(byId.get("match-071").homeScore, 1);
+  assert.equal(byId.get("match-072").phase, "ready");
+});
+
+test("resolveAdminControlWindow: hermano oficial entra read-only junto al vivo", () => {
+  const model = resolveAdminControlWindow({
+    fixture: FIXTURE,
+    liveMatches: [livePayload("match-071", 2, 1)],
+    officialResults: [{ matchId: "match-072", homeScore: 3, awayScore: 0 }],
+  });
+  assert.equal(model.simultaneous, true);
+  const byId = new Map(model.controls.map((c) => [c.matchId, c]));
+  assert.equal(byId.get("match-072").phase, "official");
+  assert.equal(byId.get("match-072").editable, false);
+  assert.equal(byId.get("match-072").homeScore, 3);
+});
+
+test("resolveAdminControlWindow: con los 2 finales oficiales avanza al siguiente (NO simultaneo)", () => {
+  const model = resolveAdminControlWindow({
+    fixture: FIXTURE,
+    officialResults: [
+      { matchId: "match-071", homeScore: 1, awayScore: 0 },
+      { matchId: "match-072", homeScore: 0, awayScore: 2 },
+    ],
+  });
+  assert.equal(model.simultaneous, false, "el par del grupo B (futuro) tiene 1 -> N=1");
+  assert.equal(model.controls.length, 1);
+  assert.equal(model.controls[0].matchId, "match-073");
+});
+
+test("resolveAdminControlWindow: status 'pending' (preparado) cuenta como READY, no live", () => {
+  const prepared = {
+    matchId: "match-071",
+    homeTeamScore: 0,
+    awayTeamScore: 0,
+    status: "pending",
+    updatedAt: new Date().toISOString(),
+  };
+  const model = resolveAdminControlWindow({ fixture: FIXTURE, liveMatches: [prepared] });
+  const byId = new Map(model.controls.map((c) => [c.matchId, c]));
+  assert.equal(byId.get("match-071").phase, "ready");
+  assert.equal(model.liveCount, 0);
 });

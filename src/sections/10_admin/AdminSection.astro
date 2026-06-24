@@ -143,6 +143,11 @@ const clientPayload = {
         </div>
       </div>
 
+      <!-- Definicion simultanea: cuando el partido actual tiene su par del grupo a la misma
+           hora, este panel (oculto por defecto) muestra los DOS controles lado a lado justo
+           debajo del hero y oculta el control single de arriba. -->
+      <MultiLiveScoreControls />
+
       <AdminKpiGrid kpis={dashboard.kpis} />
 
       <p class={styles.feedbackBar} data-admin-feedback role="status" aria-live="polite">
@@ -150,8 +155,6 @@ const clientPayload = {
       </p>
 
       <MatchProgressPanel />
-
-      <MultiLiveScoreControls />
 
       <GroupClosePanel />
 

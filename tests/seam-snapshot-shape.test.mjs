@@ -59,11 +59,15 @@ test("readLiveSnapshot emite el shape aditivo { liveMatch, liveMatches, official
   assert.ok(Array.isArray(snapshot.groupClosures), "groupClosures[] nuevo");
 });
 
-test("GUARDRAIL A3: multi-write deshabilitado por defecto", async () => {
-  assert.equal(MULTI_LIVE_WRITE_ENABLED, false);
+test("GUARDRAIL A3: multi-write bloqueable por override explicito (flag global ya en true)", async () => {
+  // El flag global esta en true (go-live 2026-06-24). El guardrail por-llamada sigue activo:
+  // allowMultiWrite:false bloquea -> sirve de rollback de emergencia sin redeploy.
   await assert.rejects(
-    () => setLiveScore({ matchId: "m1", homeTeamScore: 1, awayTeamScore: 0 }),
+    () => setLiveScore({ matchId: "m1", homeTeamScore: 1, awayTeamScore: 0 }, { allowMultiWrite: false }),
     /deshabilitado|MULTI_LIVE_WRITE_ENABLED/
   );
-  await assert.rejects(() => clearLiveScore("m1"), /deshabilitado|MULTI_LIVE_WRITE_ENABLED/);
+  await assert.rejects(
+    () => clearLiveScore("m1", { allowMultiWrite: false }),
+    /deshabilitado|MULTI_LIVE_WRITE_ENABLED/
+  );
 });

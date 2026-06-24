@@ -83,6 +83,13 @@ const { match } = Astro.props;
     box-shadow: 0 12px 30px rgba(33, 217, 154, 0.22);
   }
 
+  /* El atributo `hidden` debe ganarle al display:flex de arriba (sin esta regla, el UA
+     [hidden]{display:none} pierde por origen autor). Lo usa el control dual de definicion
+     simultanea para ocultar este single y evitar que dos controles escriban el mismo match. */
+  .live-control[hidden] {
+    display: none;
+  }
+
   .head {
     display: flex;
     align-items: center;
