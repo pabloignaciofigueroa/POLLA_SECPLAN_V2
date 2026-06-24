@@ -1,7 +1,35 @@
 # 05_tabla — Mapa técnico
 
 ## Estado
-supabase-realtime-active + tri-estado-formalizado + ranking-vivo-explicable (F7)
+supabase-realtime-active + tri-estado-formalizado + ranking-vivo-explicable (F7) + definicion-simultanea-display
+
+## Definicion simultanea en /tabla (2026-06-24, Estado C/D, SOLO LECTURA)
+
+Cuando el partido actual tiene su PAR del grupo a la misma hora (dos finales de 3a fecha), /tabla
+pasa a MODO DUAL. El ranking (izquierda) NO cambia: ya contaba todos los vivos (F7). Lo nuevo es
+presentacional y se nutre de las MISMAS libs (cero formula nueva):
+
+- `lib/tabla/resolveDisplayWindow.js` (puro, NUEVO): dado fixture+official+live+anchorMatchId,
+  devuelve los partidos a la MISMA `dateUtc` que el actual, agrupados por `groupId`, con `phase`
+  (official/live/pending via `resolveLiveMatchPhase`). `isSimultaneous = >=2`. Tests:
+  `tests/tabla-display-window.test.mjs` (7 casos: pending/live/official, kickoff, N>2 multi-grupo).
+- `tabla.client.js` `recompute`: `displayWindow = resolveDisplayWindow({anchorMatchId: displayMatchId})`.
+  `toggleSimultaneousMode(isSimultaneous)` oculta/revela hero normal (`[data-tabla-hero-normal]`) vs
+  `SimultaneousWindow` y panel normal (`[data-tabla-preds-normal]`) vs `SimultaneousPredictions`. Con
+  N<=1 -> simul oculto, todo byte-igual.
+- `SimultaneousWindow.astro`: hero dual (titulo | cards de los partidos | clasificacion viva del
+  grupo). Cards por `data-phase` (live coral / pending amarillo EN ESPERA / official verde FINAL).
+  La clasificacion sale de `computeGroupSituation` con el live GATEADO por fase (un 0-0 PREPARADO no
+  infla PJ/puntos). Chip PROVISIONAL / LISTO PARA CERRAR / DEFINITIVO segun `situation.state`.
+- `SimultaneousPredictions.astro`: matriz por jugador (Jugador | Partido A | Partido B |
+  Clasificados | Pts en vivo). "Pts en vivo" = `buildPointLedger.byPlayer[id]` delta
+  (proyectado-oficial) con desglose `A +x · B +y · CLAS +z` (lines por origen/evento). La PRECISION
+  agregada se OMITE en este modo (fallback de la comanda: no promediar % entre dos partidos).
+- Cascarones `hidden` por defecto, CSS `<style is:global>` anclado a `[data-simul-window]`/
+  `[data-simul-preds]` (nodos en runtime), paleta CLARA de /tabla (no la oscura de 06). Un solo
+  `subscribeLiveData`. Cross-highlight de la matriz por delegacion. Soporta 1..N grupos (byGroup;
+  la matriz usa el grupo ancla para A/B). PENDIENTE: QA visual en 5 resoluciones (sin navegador
+  headless aqui) y, opcional, precision por-partido A/B.
 
 ## F7 - Ranking vivo explicable (2026-06-23, SOLO LECTURA)
 

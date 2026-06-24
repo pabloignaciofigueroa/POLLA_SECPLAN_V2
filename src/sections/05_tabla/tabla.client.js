@@ -3,6 +3,7 @@ import { resolveLiveMatchPhase } from "../../lib/liveMatch/liveMatchPhase.js";
 import { resolveActiveWindow, resolveEffectiveResults } from "../../lib/liveMatch/activeWindow.js";
 import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
 import { computeGroupSituation } from "../../lib/fixture/groupState.js";
+import { resolveDisplayWindow, windowImpactForPlayer } from "../../lib/tabla/resolveDisplayWindow.js";
 
 (async () => {
   const section = document.querySelector('[data-section="tabla"]');
@@ -365,6 +366,203 @@ import { computeGroupSituation } from "../../lib/fixture/groupState.js";
       list.append(rowNode);
     });
   };
+
+  // ── DEFINICION SIMULTANEA en /tabla (Estado C/D, SOLO LECTURA) ──────────────────
+  // Cuando dos (o mas) finales del mismo grupo se juegan a la misma hora, el hero pasa a modo
+  // dual (cards de los partidos + clasificacion viva del grupo) y el panel derecho a una matriz
+  // por jugador (Partido A/B + clasificados + Pts en vivo). Se nutre de las MISMAS libs que el
+  // ranking: resolveDisplayWindow (presentar), computeGroupSituation (tabla del grupo),
+  // buildPointLedger (impacto). Cero formula nueva. N<=1 -> oculto; manda el hero/panel de hoy.
+  const heroNormal = section.querySelector("[data-tabla-hero-normal]");
+  const simulWindow = section.querySelector("[data-simul-window]");
+  const predsNormal = section.querySelector("[data-tabla-preds-normal]");
+  const simulPreds = section.querySelector("[data-simul-preds]");
+  const simulContent = section.querySelector("[data-simul-content]");
+  const simulPredsList = section.querySelector("[data-sp-list]");
+
+  const setHighlightAll = (playerId, on) => {
+    if (!playerId) return;
+    section
+      .querySelectorAll(`[data-player-id="${playerId}"]`)
+      .forEach((node) => node.classList.toggle("is-cross-highlight", on));
+  };
+
+  const STATE_CHIP = {
+    in_definition: "PROVISIONAL",
+    pending_close: "LISTO PARA CERRAR",
+    final: "DEFINITIVO",
+    reopened: "PROVISIONAL",
+    pending: "PROVISIONAL",
+  };
+  const phaseStatus = (phase) => (phase === "live" ? "EN VIVO" : phase === "official" ? "FINAL" : "EN ESPERA");
+
+  // Gatea los vivos a fase "live" (NO contar un 0-0 preparado antes de la hora) antes de pasar
+  // a computeGroupSituation para la tabla del grupo: misma proteccion que el sitio publico.
+  const gateLiveForGroup = (liveMatches, officialResults, now) =>
+    (liveMatches ?? []).filter((p) => {
+      if (!p?.matchId) return false;
+      const fm = matchById.get(p.matchId);
+      if (!fm) return false;
+      return (
+        resolveLiveMatchPhase({
+          liveMatch: { ...p, homeTeamScore: p.homeTeamScore ?? p.homeScore, awayTeamScore: p.awayTeamScore ?? p.awayScore },
+          fixtureMatch: fm,
+          officialResults,
+          now,
+        }) === "live"
+      );
+    });
+
+  const swFlag = (team) => `/assets/flags/${team?.id}.svg`;
+  const swCode = (team) => esc(team?.shortCode ?? codeOf(team?.id));
+
+  const swCardHtml = (dm, idx) => {
+    const home = dm.homeScore == null ? "–" : dm.homeScore;
+    const away = dm.awayScore == null ? "–" : dm.awayScore;
+    return `<article class="sw-card" data-phase="${esc(dm.phase)}" data-match-id="${esc(dm.matchId)}">
+        <header class="sw-card-head"><span class="sw-card-label">Partido ${String.fromCharCode(65 + idx)}</span><span class="sw-card-status">${phaseStatus(dm.phase)}</span></header>
+        <div class="sw-board">
+          <div class="sw-team"><span class="sw-flag"><img src="${esc(swFlag(dm.homeTeam))}" alt="" width="160" height="120" loading="lazy" decoding="async"></span><span class="sw-code">${swCode(dm.homeTeam)}</span></div>
+          <div class="sw-score"><span class="sw-num">${home}</span><span class="sw-sep">:</span><span class="sw-num">${away}</span></div>
+          <div class="sw-team sw-team--away"><span class="sw-code">${swCode(dm.awayTeam)}</span><span class="sw-flag"><img src="${esc(swFlag(dm.awayTeam))}" alt="" width="160" height="120" loading="lazy" decoding="async"></span></div>
+        </div>
+        <p class="sw-stadium">${esc(dm.location || "")}</p>
+      </article>`;
+  };
+
+  const swStandingsHtml = (groupId, gatedLive, officialResults) => {
+    const group = groupById.get(groupId);
+    if (!group) return "";
+    const sit = computeGroupSituation(groupId, { group, fixture: matches, official: officialResults, live: gatedLive });
+    const standings = Array.isArray(sit.standings) ? sit.standings : [];
+    const body = standings
+      .map((r, i) => {
+        const id = r.teamId ?? r.id;
+        const qualify = id === sit.first ? "first" : id === sit.second ? "second" : "out";
+        const badge = qualify === "first" ? "1º" : qualify === "second" ? "2º" : "";
+        const name = r.name ?? teamById.get(id)?.name ?? id ?? "—";
+        const dg = Number(r.goalDifference ?? 0);
+        return `<tr class="sw-st-row" data-qualify="${qualify}">
+            <td class="sw-st-pos">${i + 1}<span class="sw-st-badge">${badge}</span></td>
+            <td class="sw-st-team">${esc(name)}</td>
+            <td>${Number(r.played ?? 0)}</td>
+            <td>${dg > 0 ? "+" : ""}${dg}</td>
+            <td class="sw-st-pts">${Number(r.points ?? 0)}</td>
+          </tr>`;
+      })
+      .join("");
+    return `<section class="sw-standings">
+        <header class="sw-st-head"><span class="sw-st-group">Grupo ${esc(groupId)}</span><span class="sw-st-chip" data-state="${esc(sit.state)}">${esc(STATE_CHIP[sit.state] ?? "PROVISIONAL")}</span></header>
+        <table class="sw-st-table"><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>DG</th><th>PTS</th></tr></thead><tbody>${body}</tbody></table>
+      </section>`;
+  };
+
+  const renderSimultaneousWindow = (dw, gatedLive, officialResults) => {
+    if (!simulContent) return;
+    simulContent.innerHTML = dw.groupIds
+      .map((groupId) => {
+        const groupMatches = dw.byGroup[groupId] ?? [];
+        const cards = groupMatches.map((dm, idx) => swCardHtml(dm, idx)).join("");
+        return `<div class="sw-group"><div class="sw-matches" data-count="${groupMatches.length}">${cards}</div>${swStandingsHtml(groupId, gatedLive, officialResults)}</div>`;
+      })
+      .join("");
+    const label = section.querySelector("[data-simul-window-label]");
+    if (label) {
+      const anyLive = dw.matches.some((m) => m.phase === "live");
+      const allOfficial = dw.matches.every((m) => m.phase === "official");
+      const grp = dw.groupIds.length === 1 ? `Grupo ${dw.groupIds[0]}` : `${dw.groupIds.length} grupos`;
+      const state = allOfficial ? "RESULTADO PARCIAL" : anyLive ? "EN VIVO" : "EN ESPERA";
+      label.textContent = `${grp} · ${state} · dos partidos a la vez`;
+    }
+  };
+
+  const renderSimultaneousMatrix = (dw, predictions, ledger) => {
+    if (!simulPredsList) return;
+    const anchorMatches = dw.byGroup[dw.anchorGroupId] ?? dw.matches.slice(0, 2);
+    const matchA = anchorMatches[0] ?? null;
+    const matchB = anchorMatches[1] ?? null;
+    const la = section.querySelector("[data-sp-label-a]");
+    const lb = section.querySelector("[data-sp-label-b]");
+    if (la) la.textContent = matchA ? `A · ${swCode(matchA.homeTeam)}-${swCode(matchA.awayTeam)}` : "Partido A";
+    if (lb) lb.textContent = matchB ? `B · ${swCode(matchB.homeTeam)}-${swCode(matchB.awayTeam)}` : "Partido B";
+
+    const predBy = new Map(predictions.map((p) => [`${p.playerId}:${p.matchId}`, p]));
+    const predCell = (pid, matchId) => {
+      const p = matchId ? predBy.get(`${pid}:${matchId}`) : null;
+      const has = p && Number.isInteger(p.homeScore) && Number.isInteger(p.awayScore);
+      return `<span class="sp-chip" data-empty="${has ? "false" : "true"}">${has ? `${p.homeScore}-${p.awayScore}` : "—"}</span>`;
+    };
+    const grp = dw.anchorGroupId;
+    const qpBy = new Map();
+    for (const q of qualifiedPredictions) {
+      if (q.groupId !== grp) continue;
+      qpBy.set(`${q.playerId}:${q.position}`, q.teamId);
+    }
+
+    const rows = players
+      .map((player) => {
+        const pid = player.id;
+        const me = ledger.byPlayer[pid] ?? { official: 0, projected: 0, lines: [] };
+        // "Pts en vivo" = impacto PROVISIONAL de ESTA ventana (no el total del jugador): solo lo
+        // provisional de los partidos del par + el bono provisional del grupo ancla. Asi el
+        // headline cuadra EXACTO con el desglose A/B/CLAS (lo banqueado oficial no es "vivo").
+        const impact = windowImpactForPlayer(me.lines ?? [], {
+          matchAId: matchA?.matchId,
+          matchBId: matchB?.matchId,
+          groupId: grp,
+        });
+        const c1 = codeOf(qpBy.get(`${pid}:1`));
+        const c2 = codeOf(qpBy.get(`${pid}:2`));
+        return {
+          pid,
+          name: player.name,
+          avatar: avatarById.get(pid) ?? "",
+          delta: impact.total,
+          aPts: impact.a,
+          bPts: impact.b,
+          clasPts: impact.clas,
+          c1,
+          c2,
+        };
+      })
+      .sort((a, b) => b.delta - a.delta || a.name.localeCompare(b.name));
+
+    simulPredsList.innerHTML = rows
+      .map((r) => {
+        const trend = r.delta > 0 ? "up" : r.delta < 0 ? "down" : "flat";
+        return `<article class="sp-row" data-player-prediction-row data-player-id="${esc(r.pid)}">
+            <div class="sp-player"><span class="sp-avatar"><img src="${esc(r.avatar)}" alt="" width="120" height="120" loading="lazy" decoding="async"></span><strong class="sp-name">${esc(r.name)}</strong></div>
+            ${predCell(r.pid, matchA?.matchId)}
+            ${predCell(r.pid, matchB?.matchId)}
+            <span class="sp-clasif" title="1o ${esc(r.c1)} / 2o ${esc(r.c2)}">${esc(r.c1)} / ${esc(r.c2)}</span>
+            <div class="sp-live" data-trend="${trend}"><strong class="sp-live-num">${fmtSigned(r.delta)}</strong><small class="sp-live-break">A ${fmtSigned(r.aPts)} · B ${fmtSigned(r.bPts)} · CLAS ${fmtSigned(r.clasPts)}</small></div>
+          </article>`;
+      })
+      .join("");
+  };
+
+  const toggleSimultaneousMode = (on) => {
+    if (heroNormal) heroNormal.hidden = on;
+    if (simulWindow) simulWindow.hidden = !on;
+    if (predsNormal) predsNormal.hidden = on;
+    if (simulPreds) simulPreds.hidden = !on;
+  };
+
+  // Cross-highlight de la matriz (nodos en runtime): delegacion en el contenedor.
+  if (simulPredsList) {
+    const over = (e) => {
+      const r = e.target instanceof Element ? e.target.closest("[data-player-id]") : null;
+      if (r) setHighlightAll(r.dataset.playerId, true);
+    };
+    const out = (e) => {
+      const r = e.target instanceof Element ? e.target.closest("[data-player-id]") : null;
+      if (r) setHighlightAll(r.dataset.playerId, false);
+    };
+    simulPredsList.addEventListener("mouseover", over);
+    simulPredsList.addEventListener("mouseout", out);
+    simulPredsList.addEventListener("focusin", over);
+    simulPredsList.addEventListener("focusout", out);
+  }
 
   // ── Pipeline marcador en vivo -> tabla ──────────────────────────────────
   // La tabla SSR ya sale calculada con predictions.json. Solo recalculamos
@@ -776,14 +974,31 @@ import { computeGroupSituation } from "../../lib/fixture/groupState.js";
     }
 
     const displayMatchId = legacyLiveActive ? legacyLive.matchId : pendingMatch?.id ?? currentMatchId;
-    renderAccuracy(calculateAccuracy(predictions, displayMatchId, effectiveResults));
 
-    if (legacyLiveActive) {
-      updateLiveMatchCard(liveMatch, matchById.get(legacyLive.matchId), { isLive: true });
-      updateNextMatchCard(legacyLive.matchId, officialResults);
-    } else if (pendingMatch) {
-      updateLiveMatchCard(liveMatch, pendingMatch, { isLive: false });
-      updateNextMatchCardDirect(pendingMatch);
+    // DEFINICION SIMULTANEA: si el partido actual tiene su par del grupo a la misma hora, el
+    // hero pasa a modo dual + la matriz de predicciones. Con N<=1 el flujo de siempre.
+    const displayWindow = resolveDisplayWindow({
+      fixture: matches,
+      official: officialResults,
+      live: liveMatches,
+      anchorMatchId: displayMatchId,
+      now,
+    });
+    toggleSimultaneousMode(displayWindow.isSimultaneous);
+
+    if (displayWindow.isSimultaneous) {
+      const gatedLive = gateLiveForGroup(liveMatches, officialResults, now);
+      renderSimultaneousWindow(displayWindow, gatedLive, officialResults);
+      renderSimultaneousMatrix(displayWindow, predictions, ledger);
+    } else {
+      renderAccuracy(calculateAccuracy(predictions, displayMatchId, effectiveResults));
+      if (legacyLiveActive) {
+        updateLiveMatchCard(liveMatch, matchById.get(legacyLive.matchId), { isLive: true });
+        updateNextMatchCard(legacyLive.matchId, officialResults);
+      } else if (pendingMatch) {
+        updateLiveMatchCard(liveMatch, pendingMatch, { isLive: false });
+        updateNextMatchCardDirect(pendingMatch);
+      }
     }
   };
 

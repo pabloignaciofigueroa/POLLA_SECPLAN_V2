@@ -1,6 +1,8 @@
 ---
 import styles from "./TablaSection.module.css";
 import TablaHero from "./TablaHero.astro";
+import SimultaneousWindow from "./SimultaneousWindow.astro";
+import SimultaneousPredictions from "./SimultaneousPredictions.astro";
 import PodiumStrip from "./PodiumStrip.astro";
 import RankingTable from "./RankingTable.astro";
 import PlayerPredictionsPanel from "./PlayerPredictionsPanel.astro";
@@ -59,7 +61,11 @@ const clientPayload = {
 
 <section class={styles.tablaSection} id="tabla" data-section="tabla">
   <div class={styles.contentShell}>
-    <TablaHero match={displayMatch} result={currentResult} />
+    {/* Hero normal (N<=1). En ventana simultanea el cliente lo oculta y revela SimultaneousWindow. */}
+    <div data-tabla-hero-normal>
+      <TablaHero match={displayMatch} result={currentResult} />
+    </div>
+    <SimultaneousWindow />
 
     <div class={styles.dashboardGrid}>
       <div class={styles.rankingArea}>
@@ -68,8 +74,12 @@ const clientPayload = {
       </div>
 
       <aside class={styles.liveArea} data-animate="fade-up" style="--i:2">
-        <PlayerPredictionsPanel rows={accuracyRows} />
-        <NextMatchCard match={nextMatch} />
+        {/* Panel normal (N<=1). En ventana simultanea el cliente lo oculta y revela la matriz. */}
+        <div data-tabla-preds-normal>
+          <PlayerPredictionsPanel rows={accuracyRows} />
+          <NextMatchCard match={nextMatch} />
+        </div>
+        <SimultaneousPredictions />
       </aside>
     </div>
   </div>
