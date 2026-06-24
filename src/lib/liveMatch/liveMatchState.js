@@ -22,7 +22,7 @@ export const ADMIN_SESSION_EXPIRES_KEY = "polla:adminSessionExpiresAt";
 // dos vivos a la vez subcontarian el ranking publico. Hasta entonces el admin sigue
 // escribiendo UN vivo via saveLiveMatchState (wrapper singleton). Flip a true recien
 // cuando los consumidores esten migrados (Stage 1/2).
-export const MULTI_LIVE_WRITE_ENABLED = false;
+export const MULTI_LIVE_WRITE_ENABLED = true;
 
 const LIVE_WINDOW_MS = 2 * 60 * 60 * 1000;
 const LIVE_TABLE = "polla_live_match";
