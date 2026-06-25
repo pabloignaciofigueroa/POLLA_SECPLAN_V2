@@ -572,7 +572,7 @@ export function createScoreRace({ section }) {
   };
 
   // ── Update público ──────────────────────────────────────────────────────
-  const update = ({ dataset, liveSnapshot, remoteLoaded = false } = {}) => {
+  const update = ({ dataset, liveSnapshot, remoteLoaded = false, groupBonusByMatch = {} } = {}) => {
     if (!dataset || !Array.isArray(dataset.predictions)) return;
     const merged = mergeOfficials(liveSnapshot?.officialResults, remoteLoaded);
     const officials = normalizeOfficials(merged);
@@ -581,6 +581,9 @@ export function createScoreRace({ section }) {
     const signature = JSON.stringify({
       o: officials.map((r) => `${r.matchId}:${r.homeScore}-${r.awayScore}`).sort(),
       l: lives.map((r) => `${r.matchId}:${r.homeScore}-${r.awayScore}`).sort(),
+      // Los bonos de grupo (1o/2o) cambian con cierres/correcciones aunque los marcadores no:
+      // entran al memo para re-dibujar cuando un grupo se cierra o se corrige.
+      g: groupBonusByMatch,
     });
     if (signature === state.signature && state.timeline) return; // memo
     state.signature = signature;
@@ -591,6 +594,7 @@ export function createScoreRace({ section }) {
       fixture: fixtureData,
       officialResults: officials,
       liveMatches: lives,
+      groupBonusByMatch,
     });
     state.narrative = buildScoreRaceNarrative(state.timeline);
 

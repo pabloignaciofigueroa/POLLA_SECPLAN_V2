@@ -67,6 +67,12 @@ export function buildScoreRaceTimeline({
   // se mantiene por compatibilidad y se trata como un arreglo de uno.
   liveMatches = null,
   liveMatchState = null,
+  // DEFINICION SIMULTANEA: bono de clasificacion de grupo por jugador, ubicado en el partido de
+  // DECISION del grupo (el ultimo de sus 2 finales presente en el timeline). Forma:
+  // { [matchId]: { [playerId]: puntos } }. El acumulado del jugador sube por el bono a partir de
+  // ese partido, igual que en la TABLA -> el total final cuadra (antes el grafico sumaba SOLO el
+  // puntaje de partido). Cero formula nueva: los puntos salen de buildGroupBonuses (mismo que la tabla).
+  groupBonusByMatch = {},
 } = {}) {
   const fixtureMatches = Array.isArray(fixture) ? fixture : (fixture?.matches ?? []);
   const matchesById = new Map(fixtureMatches.map((m) => [m.id, m]));
@@ -172,6 +178,9 @@ export function buildScoreRaceTimeline({
         all
       );
       cumulative += scored.points;
+      // Bono de clasificacion de grupo: se suma en el partido de DECISION del grupo (el acumulado
+      // lo arrastra desde ahi). Asi el total coincide con la TABLA y la carrera "salta" en ese partido.
+      cumulative += groupBonusByMatch[mt.matchId]?.[pl.id] ?? 0;
       const predictionLabel =
         prediction && prediction.homeScore != null && prediction.awayScore != null
           ? `${prediction.homeScore}-${prediction.awayScore}`

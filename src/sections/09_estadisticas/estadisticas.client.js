@@ -11,6 +11,7 @@ import { buildGroupBonuses } from "../../lib/scoring/groupBonuses.js";
 import {
   computeGroupSituation,
   isGroupDefinitionStarted,
+  getGroupFinalMatches,
   GROUP_STATE,
 } from "../../lib/fixture/groupState.js";
 import { resolveActiveWindow } from "../../lib/liveMatch/activeWindow.js";
@@ -812,6 +813,62 @@ import { createScoreRace } from "./score-race.client.js";
     return map;
   };
 
+  // Carrera de Puntaje: bono de clasificacion de grupo por jugador, ubicado en el partido de
+  // DECISION del grupo (el ultimo de sus 2 finales presente en el timeline = oficial o vivo). Reusa
+  // buildGroupBonuses (mismo bono que la TABLA) -> el grafico cuadra con la tabla. Cero formula nueva.
+  // Forma: { [matchId]: { [playerId]: puntos } }.
+  const computeGroupBonusByMatch = (snapshot) => {
+    const officialResults = snapshot?.officialResults ?? [];
+    const liveMatches = Array.isArray(snapshot?.liveMatches)
+      ? snapshot.liveMatches
+      : snapshot?.liveMatch
+        ? [snapshot.liveMatch]
+        : [];
+    const closuresByGroup = closuresByGroupFrom(snapshot ?? {});
+    const win = resolveActiveWindow({
+      fixture: fixture.matches,
+      official: officialResults,
+      live: liveMatches,
+      now: Date.now(),
+    });
+    const gatedLive = win.matches
+      .filter((m) => m.phase === "live")
+      .map((m) => ({ matchId: m.matchId, homeScore: m.homeScore, awayScore: m.awayScore }));
+    const { byGroup } = buildGroupBonuses({
+      players,
+      qualifiedPredictions,
+      groups,
+      fixture: fixture.matches,
+      official: officialResults,
+      live: gatedLive,
+      closuresByGroup,
+    });
+    // Partidos presentes en el timeline del grafico = oficiales + vivos gateados.
+    const inTimeline = new Set(
+      [...officialResults.map((r) => r?.matchId), ...gatedLive.map((m) => m.matchId)].filter(Boolean)
+    );
+    const stableOrder = (a, b) =>
+      (Date.parse(a.dateUtc ?? "") || 0) - (Date.parse(b.dateUtc ?? "") || 0) ||
+      (a.matchNumber ?? 0) - (b.matchNumber ?? 0) ||
+      String(a.id).localeCompare(String(b.id));
+    const out = {};
+    for (const groupId of Object.keys(byGroup)) {
+      const lines = byGroup[groupId] ?? [];
+      if (lines.length === 0) continue;
+      const finals = getGroupFinalMatches(groupId, { group: groupById.get(groupId), fixture: fixture.matches })
+        .filter((m) => inTimeline.has(m.id))
+        .sort(stableOrder);
+      const decision = finals[finals.length - 1]; // el final mas reciente presente = el de decision
+      if (!decision) continue;
+      const bucket = (out[decision.id] ??= {});
+      for (const line of lines) {
+        if (!line?.playerId) continue;
+        bucket[line.playerId] = (bucket[line.playerId] ?? 0) + (Number(line.puntos) || 0);
+      }
+    }
+    return out;
+  };
+
   // Modelo del panel para UN jugador: 12 grupos con estado y, si aplica, los
   // bonos por linea (de buildGroupBonuses.byGroup). Replica el patron F7: F1
   // (resolveActiveWindow) es el unico que gatea fase y mapea *TeamScore->*Score;
@@ -1062,7 +1119,12 @@ import { createScoreRace } from "./score-race.client.js";
       if (!scoreRace) scoreRace = createScoreRace({ section });
       // Primer paint: el baseline commiteado pinta los partidos cerrados al
       // instante (remoteLoaded:false). El snapshot remoto llega luego y manda.
-      scoreRace.update({ dataset: state.dataset, liveSnapshot: state.liveSnapshot, remoteLoaded: false });
+      scoreRace.update({
+        dataset: state.dataset,
+        liveSnapshot: state.liveSnapshot,
+        remoteLoaded: false,
+        groupBonusByMatch: computeGroupBonusByMatch(state.liveSnapshot),
+      });
       setStatus(
         `${state.analysis.confirmedCards} cartones comparados · ${state.dataset.predictions.length} pronósticos oficiales`
       );
@@ -1170,7 +1232,12 @@ import { createScoreRace } from "./score-race.client.js";
       if (state.analysis) {
         renderMatches();
         // El snapshot remoto es autoritativo: des-finalizar saca el partido.
-        scoreRace?.update({ dataset: state.dataset, liveSnapshot, remoteLoaded: true });
+        scoreRace?.update({
+          dataset: state.dataset,
+          liveSnapshot,
+          remoteLoaded: true,
+          groupBonusByMatch: computeGroupBonusByMatch(liveSnapshot),
+        });
       }
       // F9: re-pintar Clasificacion si su pestana esta activa. Memo por firma
       // (oficiales + live + closures + jugador) para no re-pintar sin cambios.

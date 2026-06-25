@@ -68,6 +68,34 @@ test("puntaje respeta 5/3/1/0 (lone wolf, exacto compartido, tendencia, miss)", 
   assert.equal(b.totals[2].hitType, "lone_wolf");
 });
 
+test("groupBonusByMatch: el bono de grupo se suma en el partido de DECISION y cuadra el total", () => {
+  const base = byId(buildScoreRaceTimeline({ players, predictions, fixture, officialResults }), "a").totals;
+  const baseTotal = base[base.length - 1].cumulativePoints;
+
+  // Grupo A decide en match-003 (su final presente en el timeline); "a" suma +4 (1o +1 + 2o +3).
+  const groupBonusByMatch = { "match-003": { a: 4 } };
+  const a = byId(
+    buildScoreRaceTimeline({ players, predictions, fixture, officialResults, groupBonusByMatch }),
+    "a"
+  ).totals;
+
+  // Antes del partido de decision el acumulado NO cambia vs base.
+  assert.equal(a[0].cumulativePoints, base[0].cumulativePoints);
+  assert.equal(a[1].cumulativePoints, base[1].cumulativePoints);
+  // Desde el partido de decision el acumulado sube +4 y arrastra al total.
+  assert.equal(a[2].cumulativePoints, base[2].cumulativePoints + 4);
+  assert.equal(a[a.length - 1].cumulativePoints, baseTotal + 4);
+  // pointsEarned (puntaje de partido) NO cambia: el bono va al acumulado.
+  assert.equal(a[2].pointsEarned, base[2].pointsEarned);
+});
+
+test("groupBonusByMatch vacio (default) -> identico a hoy (cero regresion)", () => {
+  const cum = (tl) => tl.players.map((p) => p.totals.map((t) => t.cumulativePoints));
+  const base = buildScoreRaceTimeline({ players, predictions, fixture, officialResults });
+  const withEmpty = buildScoreRaceTimeline({ players, predictions, fixture, officialResults, groupBonusByMatch: {} });
+  assert.deepEqual(cum(withEmpty), cum(base));
+});
+
 test("el acumulado nunca baja", () => {
   const tl = buildScoreRaceTimeline({ players, predictions, fixture, officialResults });
   for (const p of tl.players) {
