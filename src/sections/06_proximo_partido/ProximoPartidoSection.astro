@@ -2,6 +2,7 @@
 import styles from "./ProximoPartidoSection.module.css";
 import MatchHeroHeader from "./MatchHeroHeader.astro";
 import FeaturedMatchLayout from "./FeaturedMatchLayout.astro";
+import FeaturedPairLayout from "./FeaturedPairLayout.astro";
 import MatchReadingPanel from "./MatchReadingPanel.astro";
 import MatchContextPanel from "./MatchContextPanel.astro";
 import NextActionPanel from "./NextActionPanel.astro";
@@ -118,6 +119,9 @@ const clientPayload = {
       awayInfo={teamById.get(primaryMatch.awayTeam.id)}
       h2hInfo={h2hInfo}
     />
+    {/* Hero PAR simultaneo: oculto por defecto; el cliente lo muestra y oculta el single cuando
+        lo que viene son los dos finales del grupo a la misma hora. */}
+    <FeaturedPairLayout />
 
     <GroupDefinitionCenter />
 

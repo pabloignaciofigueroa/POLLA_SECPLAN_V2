@@ -4,6 +4,7 @@ import { resolveActiveWindow, resolveEffectiveResults } from "../../lib/liveMatc
 import { getGroupFinalMatches, computeGroupSituation } from "../../lib/fixture/groupState.js";
 import { buildPointLedger } from "../../lib/scoring/buildPointLedger.js";
 import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChangeEvents.js";
+import { resolveDisplayWindow } from "../../lib/tabla/resolveDisplayWindow.js";
 
 (() => {
   const section = document.querySelector('[data-section="proximo-partido"]');
@@ -178,9 +179,91 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     if (label) label.textContent = h2hInfo.uiLabel ?? "Primer enfrentamiento";
   };
 
+  // ── Hero PAR simultaneo (DEFINICION SIMULTANEA, presentacional) ──────────────────
+  // Cuando el proximo partido tiene su par del grupo a la MISMA hora, el hero muestra los DOS
+  // partidos APILADOS (locales izq, visitas der, VS+cuenta regresiva compartidos al centro). Reuso
+  // de resolveDisplayWindow (cero formula nueva). Con un solo proximo partido = single de siempre.
+  let heroMode = "single";
+  const featuredSingle = section.querySelector("[data-featured-single]");
+  const featuredPair = section.querySelector("[data-featured-pair]");
+  const escHtml = (v) =>
+    String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const teamCardHtml = (team) => {
+    const conf = teamById.get(team.id)?.confederation ?? "";
+    return `<article class="fp-card" data-team-id="${escHtml(team.id)}">
+        <span class="fp-flag"><img src="/assets/flags/${escHtml(team.id)}.svg" alt="Bandera ${escHtml(team.name)}" loading="lazy" decoding="async" width="220" height="160"></span>
+        <span class="fp-id"><span class="fp-name">${escHtml(team.name)}</span><span class="fp-conf">${escHtml(conf)}</span></span>
+        <span class="fp-crest"><img src="/assets/crests/thumbs/${escHtml(team.id)}.webp" alt="" loading="lazy" decoding="async" width="96" height="96"></span>
+      </article>`;
+  };
+
+  const toggleHeroPair = (on) => {
+    if (featuredSingle) {
+      featuredSingle.hidden = on;
+      featuredSingle.style.display = on ? "none" : "";
+    }
+    if (featuredPair) {
+      featuredPair.hidden = !on;
+      featuredPair.style.display = on ? "" : "none";
+    }
+  };
+
+  const renderMatchPair = (win, relevant) => {
+    const primary = relevant.primaryMatch;
+    heroMode = "pair";
+    toggleHeroPair(true);
+    section.dataset.displayMode = relevant.displayMode;
+    section.dataset.primaryMatchId = primary.id;
+    section.dataset.primaryGroupId = primary.groupId;
+
+    const setText = (sel, val) => {
+      const node = section.querySelector(sel);
+      if (node) node.textContent = val;
+    };
+    const metaStrip = section.querySelector("[data-match-meta-strip]");
+    if (metaStrip) metaStrip.dataset.displayMode = relevant.displayMode;
+    // Meta compartido (mismo grupo / fecha / hora) + los dos estadios + lead de PAR.
+    setText("[data-meta-stage]", `${primary.stage.replace(" - fecha 1", "")} · ${primary.groupLabel}`);
+    setText("[data-meta-date]", formatDate(primary));
+    setText("[data-meta-time]", formatTime(primary));
+    setText("[data-meta-location]", [...new Set(win.matches.map((m) => m.location).filter(Boolean))].join(" · "));
+    setText("[data-hero-lead]", "Dos partidos a la vez. El grupo se define. Todo en juego.");
+
+    const homeWrap = section.querySelector("[data-pair-home]");
+    const awayWrap = section.querySelector("[data-pair-away]");
+    if (homeWrap) homeWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.homeTeam)).join("");
+    if (awayWrap) awayWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.awayTeam)).join("");
+
+    // Paneles de detalle + CTA: se mantienen para el partido PRIMARIO del par (frescos, no stale
+    // al avanzar de par). El grupo es el mismo para ambos finales del par.
+    const predictionCta = section.querySelector("[data-prediction-cta]");
+    if (predictionCta) predictionCta.dataset.predictionGroup = primary.groupId;
+    const actionCopy = section.querySelector("[data-action-copy]");
+    if (actionCopy) actionCopy.textContent = `Grupo ${primary.groupId}: dos partidos del grupo, listos para pronosticar.`;
+    const h2hInfo = getH2h(primary);
+    renderReading(h2hInfo);
+    renderContext(primary);
+    updateStadiumMedia(primary);
+
+    startCountdown(primary.dateUtc, relevant.displayMode, "[data-pair-countdown]");
+  };
+
   const renderMatch = (relevant) => {
     const match = relevant.primaryMatch;
     if (!match) return;
+
+    // PAR simultaneo: si el proximo tiene su par del grupo a la misma hora -> hero dual apilado.
+    const pairWin = resolveDisplayWindow({ fixture: matches, anchorMatchId: match.id, now: Date.now() });
+    if (pairWin.isSimultaneous) {
+      renderMatchPair(pairWin, relevant);
+      return;
+    }
+    heroMode = "single";
+    toggleHeroPair(false);
+    const leadEl = section.querySelector("[data-hero-lead]");
+    if (leadEl) leadEl.textContent = "Un duelo clave. Dos selecciones. Todo en juego.";
+
     const h2hInfo = getH2h(match);
     section.dataset.displayMode = relevant.displayMode;
     section.dataset.primaryMatchId = match.id;
@@ -212,8 +295,8 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
 
   let countdownTimer = null;
 
-  const startCountdown = (dateUtc, displayMode) => {
-    const el = section.querySelector("[data-countdown]");
+  const startCountdown = (dateUtc, displayMode, selector = "[data-countdown]") => {
+    const el = section.querySelector(selector);
     if (!el) return;
     // Un solo interval vivo: re-renderizar no debe acumular timers.
     if (countdownTimer) window.clearInterval(countdownTimer);
@@ -979,7 +1062,12 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
     const primaryMatch = relevant.primaryMatch;
     if (!primaryMatch) return;
     if (section.dataset.primaryMatchId === primaryMatch.id) {
-      startCountdown(primaryMatch.dateUtc, relevant.displayMode);
+      // Mismo partido: solo avanza la cuenta regresiva activa (single o par).
+      startCountdown(
+        primaryMatch.dateUtc,
+        relevant.displayMode,
+        heroMode === "pair" ? "[data-pair-countdown]" : "[data-countdown]"
+      );
     } else {
       renderMatch(relevant);
     }
@@ -987,6 +1075,9 @@ import { buildChangeEvents, deriveRanking } from "../../lib/statistics/buildChan
 
   // Un solo dueno del dataset/subscripcion: el mismo snapshot alimenta el "proximo
   // partido" y el Centro de definicion. No abrir un segundo subscribeLiveData.
+  // El SSR pinta el hero single; limpiamos el ancla para forzar el primer render del cliente y
+  // que detecte el modo PAR en la carga (si el proximo partido es un par simultaneo).
+  section.dataset.primaryMatchId = "";
   recompute([]);
   recomputeCenter({});
   subscribeLiveData((snapshot) => {

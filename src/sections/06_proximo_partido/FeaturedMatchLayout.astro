@@ -23,7 +23,7 @@ interface Props {
 const { match, homeInfo, awayInfo, h2hInfo = null } = Astro.props;
 ---
 
-<section class="featured-match-layout" aria-label="Selecciones enfrentadas">
+<section class="featured-match-layout" data-featured-single aria-label="Selecciones enfrentadas">
   <TeamMatchCard team={match.homeTeam} teamInfo={homeInfo} side="home" />
   <VersusCenter h2hInfo={h2hInfo} />
   <TeamMatchCard team={match.awayTeam} teamInfo={awayInfo} side="away" />
