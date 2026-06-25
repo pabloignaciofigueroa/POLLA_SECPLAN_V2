@@ -6,7 +6,7 @@ cazados en vivo). Documentos hermanos: `workflow_2026-06-22_definicion_simultane
 F0-F5), `workflow_2026-06-23_definicion_simultanea_continuacion.md` (plan F6-F13 + Stage1/2 +
 PASO 0). Mapa vivo: `mapa_sitio_trabajo_secciones_final.md`.
 
-> ESTADO FINAL 2026-06-24: TODO EN PRODUCCION y pusheado (HEAD `d74e826`). Suite 158 verde, build
+> ESTADO FINAL 2026-06-24: TODO EN PRODUCCION y pusheado (HEAD `30bcfa9`). Suite 158 verde, build
 > 11 paginas, `npm run sim:group` 117 asserts. `MULTI_LIVE_WRITE_ENABLED=true`. Las 2 migraciones
 > remotas + el hotfix del `id` aplicados y verificados. Quedo PENDIENTE solo QA visual del usuario.
 
@@ -20,6 +20,9 @@ PASO 0). Mapa vivo: `mapa_sitio_trabajo_secciones_final.md`.
 | `ad05d24` | fix(sql): liberar `polla_live_match.id` (NOT NULL huerfano) en las 2 migraciones (repo == DB) |
 | `160a3ce` | fix(admin): el panel "quien suma/cierre" AVANZA al grupo actual + contenedor con scroll |
 | `d74e826` | fix(scoring): consolidar bonos de grupo cerrado en /tabla y /proximo-partido (closuresByGroup) |
+| `963b4ce` | docs: workflow 2026-06-24 (este archivo) + mapa actualizado |
+| `a180b8c` | feat(proximo-partido): hero del PAR simultaneo apilado (informativo) |
+| `30bcfa9` | style(proximo-partido): cards del par estilo TeamMatchCard + ocultar paneles de detalle en modo par |
 
 ## 1. PUESTA EN PRODUCCION (PASO 0 + Stage 2 real) — con GPT paso a paso + Claude el flip
 
@@ -94,7 +97,15 @@ oculta el single (`toggleHeroPair` con `style.display` inline), copy/meta/estadi
 regresiva compartida (`startCountdown(.., "[data-pair-countdown]")`). Con un solo partido = single de
 siempre (byte-igual); se fuerza el primer render limpiando `dataset.primaryMatchId` para detectar el
 par en load. Hooks nuevos `data-featured-single` (FeaturedMatchLayout) y `data-hero-lead`
-(MatchHeroHeader). Revisado adversarialmente (4 dimensiones, 0 bugs). Verificacion VISUAL pendiente.
+(MatchHeroHeader). Revisado adversarialmente (4 dimensiones, 0 bugs).
+
+AJUSTE VISUAL a la referencia (`30bcfa9`): las cards del par reusan el LOOK de `TeamMatchCard`
+(bandera grande aspect 3/2, nombre + escudo `crest-badge`, confederacion, link "Ver en Equipos";
+el CSS de `.team-card` se copio a `FeaturedPairLayout.astro` is:global anclado a `[data-featured-pair]`
+porque las cards nacen en runtime). Y en modo PAR se OCULTAN los paneles de detalle de abajo
+(historial/contexto+estadio/carton) via `[data-details-grid]` + `toggleHeroPair` (`style.display`):
+el hero del par llena el espacio. En single se restauran (cero regresion). Pusheado; QA visual del
+usuario pendiente.
 
 ## 3. BUGS cazados EN VIVO + fix (gotchas durables)
 

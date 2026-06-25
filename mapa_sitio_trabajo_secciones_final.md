@@ -4,7 +4,7 @@ Fecha de actualizacion: 2026-06-24
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
-## DEFINICION SIMULTANEA — EN PRODUCCION 2026-06-24 (HEAD `d74e826`)
+## DEFINICION SIMULTANEA — EN PRODUCCION 2026-06-24 (HEAD `30bcfa9`)
 
 La jornada real con DOS partidos del mismo grupo a la misma hora YA esta EN PRODUCCION. Detalle
 completo (go-live + UI + bugs en vivo) en `workflow_2026-06-24_definicion_simultanea_produccion.md`.
@@ -18,9 +18,11 @@ Resumen:
   `currentDefinitionGroupId`): desglose por jugador, avanza al grupo actual + scroll (`080188d`/`160a3ce`).
 - /tabla modo DUAL simultaneo (`SimultaneousWindow`/`SimultaneousPredictions` + `resolveDisplayWindow`/
   `windowImpactForPlayer`, `3926a81`).
-- /proximo-partido HERO del PAR simultaneo (informativo): `FeaturedPairLayout.astro` (cascaron oculto)
-  + `proximo-partido.client.js::renderMatchPair`/`toggleHeroPair` reusando `resolveDisplayWindow`
-  (locales izq, visitas der, VS+cuenta regresiva compartida; con 1 partido = single de siempre).
+- /proximo-partido HERO del PAR simultaneo (informativo, `a180b8c`/`30bcfa9`): `FeaturedPairLayout.astro`
+  (cascaron oculto) + `proximo-partido.client.js::renderMatchPair`/`toggleHeroPair` reusando
+  `resolveDisplayWindow` (locales izq, visitas der, VS+cuenta regresiva compartida; con 1 partido =
+  single de siempre). Cards = look de `TeamMatchCard` (bandera grande + "Ver en Equipos"); en modo PAR
+  se ocultan los paneles de detalle de abajo (`[data-details-grid]`) -> el hero del par llena el espacio.
 - GOTCHA: todo consumidor de `buildPointLedger`/`buildGroupBonuses`/`computeGroupSituation` DEBE pasar
   `closuresByGroup` (del snapshot.groupClosures) o un grupo cerrado queda con bonos "EN VIVO" en vez de
   consolidados; faltaba en /tabla y /proximo-partido (`d74e826`). Suite 158 verde, build 11, sim 117.
