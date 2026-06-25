@@ -186,15 +186,26 @@ import { resolveDisplayWindow } from "../../lib/tabla/resolveDisplayWindow.js";
   let heroMode = "single";
   const featuredSingle = section.querySelector("[data-featured-single]");
   const featuredPair = section.querySelector("[data-featured-pair]");
+  const detailsGrid = section.querySelector("[data-details-grid]");
   const escHtml = (v) =>
     String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  const teamCardHtml = (team) => {
-    const conf = teamById.get(team.id)?.confederation ?? "";
-    return `<article class="fp-card" data-team-id="${escHtml(team.id)}">
-        <span class="fp-flag"><img src="/assets/flags/${escHtml(team.id)}.svg" alt="Bandera ${escHtml(team.name)}" loading="lazy" decoding="async" width="220" height="160"></span>
-        <span class="fp-id"><span class="fp-name">${escHtml(team.name)}</span><span class="fp-conf">${escHtml(conf)}</span></span>
-        <span class="fp-crest"><img src="/assets/crests/thumbs/${escHtml(team.id)}.webp" alt="" loading="lazy" decoding="async" width="96" height="96"></span>
+  // Mismo markup/look que TeamMatchCard (bandera grande, nombre+escudo, confederacion, "Ver en
+  // Equipos"); el CSS vive en FeaturedPairLayout.astro (is:global anclado a [data-featured-pair]).
+  const teamCardHtml = (team, side) => {
+    const conf = teamById.get(team.id)?.confederation ?? "CONF";
+    return `<article class="team-card" data-team-card="${side}" data-team-id="${escHtml(team.id)}">
+        <div class="team-head">
+          <span class="team-flag" aria-hidden="true"><img src="/assets/flags/${escHtml(team.id)}.svg" alt="Bandera ${escHtml(team.name)}" loading="lazy" decoding="async" width="220" height="147"></span>
+          <div class="team-identity">
+            <div class="name-row">
+              <h2>${escHtml(team.name)}</h2>
+              <span class="crest-badge" aria-hidden="true"><img src="/assets/crests/thumbs/${escHtml(team.id)}.webp" alt="" loading="lazy" decoding="async" width="96" height="96"></span>
+            </div>
+            <p>${escHtml(conf)}</p>
+          </div>
+        </div>
+        <a class="team-link" href="/equipos"><span class="arrow" aria-hidden="true">→</span><span>Ver en Equipos</span></a>
       </article>`;
   };
 
@@ -207,6 +218,9 @@ import { resolveDisplayWindow } from "../../lib/tabla/resolveDisplayWindow.js";
       featuredPair.hidden = !on;
       featuredPair.style.display = on ? "" : "none";
     }
+    // En modo PAR el hero del par llena el espacio: ocultar los paneles de abajo
+    // (historial/contexto/estadio/carton), como la referencia. En single se restauran.
+    if (detailsGrid) detailsGrid.style.display = on ? "none" : "";
   };
 
   const renderMatchPair = (win, relevant) => {
@@ -232,19 +246,8 @@ import { resolveDisplayWindow } from "../../lib/tabla/resolveDisplayWindow.js";
 
     const homeWrap = section.querySelector("[data-pair-home]");
     const awayWrap = section.querySelector("[data-pair-away]");
-    if (homeWrap) homeWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.homeTeam)).join("");
-    if (awayWrap) awayWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.awayTeam)).join("");
-
-    // Paneles de detalle + CTA: se mantienen para el partido PRIMARIO del par (frescos, no stale
-    // al avanzar de par). El grupo es el mismo para ambos finales del par.
-    const predictionCta = section.querySelector("[data-prediction-cta]");
-    if (predictionCta) predictionCta.dataset.predictionGroup = primary.groupId;
-    const actionCopy = section.querySelector("[data-action-copy]");
-    if (actionCopy) actionCopy.textContent = `Grupo ${primary.groupId}: dos partidos del grupo, listos para pronosticar.`;
-    const h2hInfo = getH2h(primary);
-    renderReading(h2hInfo);
-    renderContext(primary);
-    updateStadiumMedia(primary);
+    if (homeWrap) homeWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.homeTeam, "home")).join("");
+    if (awayWrap) awayWrap.innerHTML = win.matches.map((m) => teamCardHtml(m.awayTeam, "away")).join("");
 
     startCountdown(primary.dateUtc, relevant.displayMode, "[data-pair-countdown]");
   };
