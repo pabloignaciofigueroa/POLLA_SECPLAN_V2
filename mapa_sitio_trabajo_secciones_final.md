@@ -1,13 +1,39 @@
 # Mapa operativo de arquitectura del sitio - Polla Mundialera SECPLAN 2026
 
-Fecha de actualizacion: 2026-06-23
+Fecha de actualizacion: 2026-06-24
 Estado del documento: mapa vivo principal del proyecto
 Stack: Astro estatico, CSS Modules, JS cliente por seccion, JSON versionado y Supabase Realtime
 
+## DEFINICION SIMULTANEA — EN PRODUCCION 2026-06-24 (HEAD `d74e826`)
+
+La jornada real con DOS partidos del mismo grupo a la misma hora YA esta EN PRODUCCION. Detalle
+completo (go-live + UI + bugs en vivo) en `workflow_2026-06-24_definicion_simultanea_produccion.md`.
+Resumen:
+- `MULTI_LIVE_WRITE_ENABLED=true` (`5a372fb`). Migraciones remotas `polla_live_match_multi` +
+  `group_closure` APLICADAS + verificadas; hotfix `id drop not null` aplicado (la PK vieja dejaba el
+  `id` NOT NULL y la 2a fila multi fallaba; repo sincronizado en `ad05d24`).
+- ADMIN control DUAL de marcadores (bootstrap, `liveMultiControl.js::resolveAdminControlWindow`):
+  resuelve el par desde el FIXTURE, "Iniciar en vivo", oculta el single, finalizar uno no toca el
+  otro (`080188d`). ADMIN "Quien suma por grupo" (`groupClosePreview.js::scorerRowsFor`/`groupsInPlay`/
+  `currentDefinitionGroupId`): desglose por jugador, avanza al grupo actual + scroll (`080188d`/`160a3ce`).
+- /tabla modo DUAL simultaneo (`SimultaneousWindow`/`SimultaneousPredictions` + `resolveDisplayWindow`/
+  `windowImpactForPlayer`, `3926a81`).
+- /proximo-partido HERO del PAR simultaneo (informativo): `FeaturedPairLayout.astro` (cascaron oculto)
+  + `proximo-partido.client.js::renderMatchPair`/`toggleHeroPair` reusando `resolveDisplayWindow`
+  (locales izq, visitas der, VS+cuenta regresiva compartida; con 1 partido = single de siempre).
+- GOTCHA: todo consumidor de `buildPointLedger`/`buildGroupBonuses`/`computeGroupSituation` DEBE pasar
+  `closuresByGroup` (del snapshot.groupClosures) o un grupo cerrado queda con bonos "EN VIVO" en vez de
+  consolidados; faltaba en /tabla y /proximo-partido (`d74e826`). Suite 158 verde, build 11, sim 117.
+
 Este archivo sirve para ubicar rapido donde cambiar cada cosa. Los `*.map.md`
 dentro de cada seccion quedan como mapas secundarios mas especificos. Las
-jornadas grandes de cambios quedan registradas en `workflow_*.md`. Ultimas (ambas en el
-commit `44846b1`, en `main`, SIN push):
+jornadas grandes de cambios quedan registradas en `workflow_*.md`. Ultimas:
+
+- `workflow_2026-06-24_definicion_simultanea_produccion.md` = PUESTA EN PRODUCCION + UI nueva (control
+  dual, quien suma, /tabla dual) + fixes en vivo (id NOT NULL, ocultar single, avance del panel,
+  consolidacion de bonos).
+- F6-F13 + Stage1/2 (consumidores + UI) pusheados (`9add0c6..73a7c9e` -> `5a372fb` -> `d74e826`).
+- Fundacion F0-F5 + desempate FIFA 2026 (commit `44846b1`):
 
 - `workflow_2026-06-22_desempate_grupos_fifa_2026.md` = desempate de grupos al criterio
   FIFA 2026 (head-to-head primero); fuente unica `compareRows`/`rankGroupRows`.
