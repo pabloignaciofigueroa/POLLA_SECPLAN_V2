@@ -73,7 +73,7 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
       // Habilitar carga solo si ambos lados son concretos.
       const enterable = Boolean(r.codeA) && Boolean(r.codeB);
       row.querySelectorAll("[data-adm-score]").forEach((inp) => (inp.disabled = !enterable));
-      row.querySelectorAll("[data-adm-winner]").forEach((b) => (b.disabled = !enterable));
+      row.querySelectorAll("[data-adm-winner], [data-adm-step], [data-adm-update], [data-adm-finish]").forEach((b) => (b.disabled = !enterable));
     });
   };
 
@@ -91,29 +91,38 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
   });
 
   // --- resultados ---
+  // Edición con steppers (−/+) o tipeo = borrador local (NO se persiste hasta ACTUALIZAR/FINALIZAR).
+  // ACTUALIZAR -> guarda EN VIVO (no avanza ni suma). FINALIZAR -> confirma + guarda FINAL (avanza + suma).
   section.querySelectorAll("[data-adm-match]").forEach((row) => {
     const id = row.getAttribute("data-adm-match");
     const homeInput = row.querySelector('[data-adm-score="home"]');
     const awayInput = row.querySelector('[data-adm-score="away"]');
     const winButtons = Array.from(row.querySelectorAll("[data-adm-winner]"));
-
-    const stateBtn = row.querySelector("[data-adm-state]");
+    const stepButtons = Array.from(row.querySelectorAll("[data-adm-step]"));
+    const updateBtn = row.querySelector("[data-adm-update]");
+    const finishBtn = row.querySelector("[data-adm-finish]");
 
     const stored = results[id];
     if (stored) {
       if (homeInput && stored.homeScore != null) homeInput.value = String(stored.homeScore);
       if (awayInput && stored.awayScore != null) awayInput.value = String(stored.awayScore);
+      row.dataset.draftWinner = stored.winner ?? "";
       reflectWinnerButtons(row, stored.winner ?? null);
       reflectState(row, stored);
     }
 
-    const sync = () => {
+    const markDirty = (on) => { if (updateBtn) updateBtn.dataset.dirty = on ? "true" : "false"; };
+
+    // Persiste el marcador actual con el estado dado (live/final) y propaga a /tabla, /fixture, etc.
+    const commit = (status) => {
       const h = toScore(homeInput ? homeInput.value : null);
       const a = toScore(awayInput ? awayInput.value : null);
       if (h === null && a === null) {
         delete results[id];
+        row.dataset.draftWinner = "";
         reflectWinnerButtons(row, null);
         reflectState(row, null);
+        markDirty(false);
         persist();
         renderLabels();
         return;
@@ -122,48 +131,57 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
       cur.homeScore = h;
       cur.awayScore = a;
       if (h !== null && a !== null && !isTie(h, a)) cur.winner = h > a ? "home" : "away";
-      // Editar un marcador lo deja EN VIVO (no avanza ni puntúa) hasta que se finalice.
-      if (cur.status !== "final") cur.status = "live";
+      else cur.winner = row.dataset.draftWinner || null;
+      cur.status = status;
       results[id] = cur;
       reflectWinnerButtons(row, cur.winner ?? null);
       reflectState(row, cur);
+      markDirty(false);
       persist();
       renderLabels();
     };
 
-    if (homeInput) homeInput.addEventListener("input", sync);
-    if (awayInput) awayInput.addEventListener("input", sync);
-
-    // Toggle EN VIVO ⟷ FINALIZADO (al finalizar, el ganador avanza el cuadro y suma puntos).
-    if (stateBtn) {
-      stateBtn.addEventListener("click", () => {
-        const cur = results[id];
-        if (!cur || (cur.homeScore == null && cur.awayScore == null)) return;
-        cur.status = cur.status === "final" ? "live" : "final";
-        results[id] = cur;
-        reflectState(row, cur);
-        persist();
-        renderLabels();
+    // Steppers −/+ (clamp a >= 0) y tipeo: editan el borrador y marcan "sin guardar".
+    const bump = (input, delta) => {
+      if (!input || input.disabled) return;
+      const cur = toScore(input.value);
+      input.value = String(Math.max(0, (cur === null ? 0 : cur) + delta));
+      markDirty(true);
+    };
+    stepButtons.forEach((b) => {
+      b.addEventListener("click", () => {
+        if (b.disabled) return;
+        bump(b.getAttribute("data-adm-step") === "home" ? homeInput : awayInput, Number(b.getAttribute("data-dir")) || 0);
       });
-    }
+    });
+    if (homeInput) homeInput.addEventListener("input", () => markDirty(true));
+    if (awayInput) awayInput.addEventListener("input", () => markDirty(true));
 
     winButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.disabled) return;
-        const cur = results[id] ?? { matchId: id, homeScore: toScore(homeInput?.value), awayScore: toScore(awayInput?.value), winner: null };
-        const clicked = btn.getAttribute("data-adm-winner");
-        // Si hay ganador por marcador, no se puede elegir al perdedor.
-        if (cur.homeScore !== null && cur.awayScore !== null && !isTie(cur.homeScore, cur.awayScore)) {
-          cur.winner = cur.homeScore > cur.awayScore ? "home" : "away";
-        } else {
-          cur.winner = clicked;
-        }
-        results[id] = cur;
-        reflectWinnerButtons(row, cur.winner);
-        persist();
-        renderLabels();
+        const h = toScore(homeInput ? homeInput.value : null);
+        const a = toScore(awayInput ? awayInput.value : null);
+        const w = h !== null && a !== null && !isTie(h, a) ? (h > a ? "home" : "away") : btn.getAttribute("data-adm-winner");
+        row.dataset.draftWinner = w || "";
+        reflectWinnerButtons(row, w);
+        markDirty(true);
       });
     });
+
+    if (updateBtn) updateBtn.addEventListener("click", () => commit("live"));
+    if (finishBtn) {
+      finishBtn.addEventListener("click", () => {
+        const h = toScore(homeInput ? homeInput.value : null);
+        const a = toScore(awayInput ? awayInput.value : null);
+        if (h === null || a === null) { window.alert("Cargá el marcador completo antes de finalizar."); return; }
+        const home = row.querySelector('[data-adm-name="home"]')?.textContent ?? "Local";
+        const away = row.querySelector('[data-adm-name="away"]')?.textContent ?? "Visita";
+        const ok = window.confirm(`¿Finalizar ${home} ${h} - ${a} ${away}?\n\nAvanza el ganador en el cuadro y suma los puntos. Cierra el marcador.`);
+        if (!ok) return;
+        commit("final");
+      });
+    }
   });
 
   // --- limpiar ---
@@ -175,7 +193,13 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
       writeLocalKnockout({ slotAssignments: {}, results: {} });
       section.querySelectorAll("[data-adm-assign]").forEach((s) => (s.value = ""));
       section.querySelectorAll('[data-adm-score]').forEach((i) => (i.value = ""));
-      section.querySelectorAll("[data-adm-match]").forEach((row) => { reflectWinnerButtons(row, null); reflectState(row, null); });
+      section.querySelectorAll("[data-adm-match]").forEach((row) => {
+        reflectWinnerButtons(row, null);
+        reflectState(row, null);
+        row.dataset.draftWinner = "";
+        const u = row.querySelector("[data-adm-update]");
+        if (u) u.dataset.dirty = "false";
+      });
       renderLabels();
     });
   }

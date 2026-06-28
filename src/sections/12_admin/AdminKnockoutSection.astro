@@ -83,14 +83,26 @@ const clientPayload = {
               <div class="adm-match" data-adm-match={m.id}>
                 <span class="adm-match-id">{m.id}</span>
                 <span class="adm-team" data-adm-name="home">—</span>
-                <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="home" aria-label={`Goles local ${m.id}`} />
+                <span class="adm-stepper">
+                  <button type="button" class="adm-step" data-adm-step="home" data-dir="-1" aria-label={`Menos gol local ${m.id}`}>−</button>
+                  <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="home" aria-label={`Goles local ${m.id}`} />
+                  <button type="button" class="adm-step" data-adm-step="home" data-dir="1" aria-label={`Más gol local ${m.id}`}>+</button>
+                </span>
                 <span class="adm-vs">-</span>
-                <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="away" aria-label={`Goles visita ${m.id}`} />
+                <span class="adm-stepper">
+                  <button type="button" class="adm-step" data-adm-step="away" data-dir="-1" aria-label={`Menos gol visita ${m.id}`}>−</button>
+                  <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="away" aria-label={`Goles visita ${m.id}`} />
+                  <button type="button" class="adm-step" data-adm-step="away" data-dir="1" aria-label={`Más gol visita ${m.id}`}>+</button>
+                </span>
                 <span class="adm-team adm-team-away" data-adm-name="away">—</span>
                 <span class="adm-adv">
                   <button type="button" class="adm-adv-btn" data-adm-winner="home" aria-pressed="false"><span data-adm-pick="home">LOC</span></button>
                   <button type="button" class="adm-adv-btn" data-adm-winner="away" aria-pressed="false"><span data-adm-pick="away">VIS</span></button>
-                  <button type="button" class="adm-state" data-adm-state hidden>En vivo</button>
+                </span>
+                <span class="adm-actions">
+                  <button type="button" class="adm-update" data-adm-update>Actualizar</button>
+                  <button type="button" class="adm-finish" data-adm-finish>Finalizar</button>
+                  <span class="adm-state" data-adm-state hidden>En vivo</span>
                 </span>
               </div>
             ))}
@@ -155,11 +167,27 @@ const clientPayload = {
   .adm-round { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.6rem; }
   .adm-round-title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-purple-700, #6d28d9); }
   .adm-matches { display: flex; flex-direction: column; gap: 0.35rem; }
-  .adm-match { display: grid; grid-template-columns: 3rem minmax(0, 1fr) 3rem auto 3rem minmax(0, 1fr) auto; align-items: center; gap: 0.4rem; padding: 0.3rem 0.5rem; border: 1px solid var(--pm-border-soft); border-radius: var(--pm-radius-sm); background: var(--pm-white); }
+  .adm-match { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--pm-border-soft); border-radius: var(--pm-radius-sm); background: var(--pm-white); }
   .adm-match[data-played="true"] { border-color: var(--pm-state-completed-border, #16a34a); }
-  .adm-match-id { font-family: var(--font-display); font-weight: 900; font-size: 0.7rem; color: var(--pm-blue-700); }
-  .adm-team { min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--pm-blue-900); }
-  .adm-team-away { text-align: right; }
+  .adm-match-id { flex: 0 0 2.4rem; font-family: var(--font-display); font-weight: 900; font-size: 0.7rem; color: var(--pm-blue-700); }
+  .adm-team { flex: 1 1 5rem; min-width: 3.5rem; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--pm-blue-900); text-align: right; }
+  .adm-team-away { text-align: left; }
+  /* Stepper de marcador: −  [input]  + */
+  .adm-stepper { display: inline-flex; align-items: center; gap: 0.2rem; flex: 0 0 auto; }
+  .adm-step { width: 1.55rem; height: 2.1rem; display: grid; place-items: center; border: 1px solid var(--pm-border-blue); border-radius: var(--pm-radius-sm); background: var(--pm-white); color: var(--pm-blue-700); font-family: var(--font-display); font-weight: 900; font-size: 1.05rem; line-height: 1; cursor: pointer; }
+  .adm-step:hover:not(:disabled) { border-color: var(--pm-cyan-500); background: color-mix(in srgb, var(--pm-cyan-500) 12%, #fff); }
+  .adm-step:active:not(:disabled) { transform: scale(0.94); }
+  .adm-step:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* Acciones: Actualizar (cian; resalta si hay cambios sin guardar) + Finalizar (verde) + estado. */
+  .adm-actions { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+  .adm-update, .adm-finish { padding: 0.34rem 0.75rem; border-radius: var(--pm-radius-pill); border: 2px solid; font-family: var(--font-display); font-weight: 900; font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: transform var(--pm-transition-fast), box-shadow var(--pm-transition-fast), background var(--pm-transition-fast); }
+  .adm-update { border-color: var(--pm-cyan-600); background: var(--pm-white); color: var(--pm-cyan-700, #0e7490); }
+  .adm-update[data-dirty="true"] { background: var(--pm-yellow-400, #fbbf24); border-color: var(--pm-yellow-600, #d97706); color: var(--pm-blue-950, #06122a); box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.3); }
+  .adm-finish { border-color: var(--pm-green-600, #16a34a); background: var(--pm-green-500, #22c55e); color: #fff; }
+  .adm-finish:hover:not(:disabled) { filter: brightness(1.06); }
+  .adm-update:active:not(:disabled), .adm-finish:active:not(:disabled) { transform: scale(0.97); }
+  .adm-update:disabled, .adm-finish:disabled { opacity: 0.45; cursor: not-allowed; }
+  .adm-update:focus-visible, .adm-finish:focus-visible, .adm-step:focus-visible { outline: none; box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(18, 109, 255, 0.4)); }
   .adm-score { width: 2.8rem; height: 2.2rem; text-align: center; font-family: var(--font-score); font-size: 1.05rem; font-weight: 800; }
   .adm-vs { text-align: center; color: var(--pm-text-soft); font-weight: 800; }
   .adm-adv { display: inline-flex; gap: 0.25rem; }
@@ -179,7 +207,7 @@ const clientPayload = {
   .adm-clear:focus-visible, .adm-adv-btn:focus-visible, .adm-assign select:focus-visible, .adm-score:focus-visible { outline: none; box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(18,109,255,0.4)); }
   @media (prefers-reduced-motion: reduce) { .adm-adv-btn, .adm-clear { transition: none; } }
   @media (max-width: 720px) {
-    .adm-match { grid-template-columns: 2.4rem 1fr auto 1fr; grid-auto-rows: auto; }
-    .adm-adv { grid-column: 1 / -1; justify-content: center; }
+    .adm-match { justify-content: center; }
+    .adm-team { flex-basis: 4rem; }
   }
 </style>
