@@ -4,7 +4,10 @@
 // desbloqueada vive en sessionStorage (no localStorage): al cerrar el navegador, se re-bloquea.
 // Nota: es un candado de UI para uso local, no seguridad server-side.
 const KEY = "polla:adminUnlocked";
-const EXPECTED = String(import.meta.env.PUBLIC_ADMIN_PASSWORD_HASH || "").trim().toLowerCase();
+// Hash por defecto = "secplan2026" (solo el HASH, nunca la clave plana). Para una clave propia,
+// definí PUBLIC_ADMIN_PASSWORD_HASH en .env.local y sobrescribe a este default.
+const FALLBACK_HASH = "094e9794cfe794eae7a37bf62e97d850c668818b43f9ad281394bb26c3ab3c13";
+const EXPECTED = (String(import.meta.env.PUBLIC_ADMIN_PASSWORD_HASH || "").trim().toLowerCase()) || FALLBACK_HASH;
 
 (() => {
   const section = document.querySelector('[data-section="admin"]');
