@@ -1,30 +1,45 @@
 ---
+// Seccion 08_equipos — ALBUM de los 32 CLASIFICADOS a dieciseisavos, AGRUPADOS POR CRUCE.
+// Polla de ELIMINATORIAS: ya no hay fase de grupos ni 48 selecciones. Resuelve los 16avos
+// (R32) a equipos reales (slotAssignments) y muestra cada cruce con sus dos equipos. 100% local.
 import styles from "./EquiposSection.module.css";
 import EquiposHero from "./EquiposHero.astro";
-import TeamCard from "./TeamCard.astro";
-import TeamDetailModal from "./TeamDetailModal.astro";
-import ConfederationStrip from "./ConfederationStrip.astro";
+import TeamFlag from "../../components/ui/TeamFlag.astro";
 
 import teamsData from "../../data/teams.json";
-import equiposInfoData from "../../data/equipos-info.json";
+import knockoutData from "../../data/knockout-matches.json";
+import seed from "../../data/knockout-results.json";
+import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
+import { resolveBracket } from "../../lib/knockout/bracket.js";
 
-import {
-  buildInfoIndex,
-  enrichTeams,
-  groupByConfederation,
-  uniqueConfederations,
-} from "./equipos.logic";
-import type { BaseTeam, EquipoBundle } from "./equipos.logic";
+const teamByCode = new Map((teamsData as any[]).map((t) => [t.shortCode, t]));
+const teamsByCode = buildTeamsByCode(
+  (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag })),
+);
+const resolved = resolveBracket((knockoutData as any).matches, {
+  assignments: (seed as any).slotAssignments ?? {},
+  results: (seed as any).results ?? [],
+  teamsByCode,
+});
 
-// Polla de ELIMINATORIAS: ya no hay fase de grupos. El álbum se ordena por confederación.
-const baseTeams = teamsData as BaseTeam[];
-const bundle = equiposInfoData as EquipoBundle;
-const infoIndex = buildInfoIndex(bundle);
-const enriched = enrichTeams(baseTeams, infoIndex);
-const byConfederation = groupByConfederation(enriched);
-const confederations = uniqueConfederations(baseTeams);
-
-const clientPayload = { teams: enriched };
+const MESES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+const fmtDate = (d?: string, t?: string) => {
+  if (!d) return "";
+  const [, m, dd] = d.split("-").map(Number);
+  return `${String(dd).padStart(2, "0")} ${MESES[(m ?? 1) - 1] ?? ""}${t ? ` · ${t}` : ""}`;
+};
+const view = (code: string | null) => {
+  const t = code ? teamByCode.get(code) : null;
+  return t ? { name: t.name, shortCode: t.shortCode, flag: t.flag, confederation: t.confederation } : null;
+};
+const cruces = resolved
+  .filter((r) => r.match.round === "R32")
+  .map((r) => ({
+    id: r.match.id,
+    when: fmtDate(r.match.dateCL, r.match.timeCL),
+    home: view(r.codeA),
+    away: view(r.codeB),
+  }));
 ---
 
 <section class={styles.equiposSection} id="equipos" data-section="equipos">
@@ -33,83 +48,70 @@ const clientPayload = { teams: enriched };
       <EquiposHero />
     </div>
 
-    <div class="conf-album">
-      {byConfederation.map((bucket) => (
-        <section class="conf-section">
-          <header class="conf-header">
-            <h2 class="conf-title">{bucket.label}</h2>
-            <span class="conf-count">{bucket.teams.length} selecciones</span>
+    <div class="cruce-album">
+      {cruces.map((cruce) => (
+        <article class="cruce-card">
+          <header class="cruce-head">
+            <span class="cruce-id">{cruce.id}</span>
+            <span class="cruce-phase">16avos</span>
+            {cruce.when ? <span class="cruce-when">{cruce.when}</span> : null}
           </header>
-          <div class="team-grid">
-            {bucket.teams.map((team) => <TeamCard team={team} />)}
+          <div class="cruce-teams">
+            {[cruce.home, cruce.away].map((team, i) => (
+              <div class:list={["cruce-team", i === 1 ? "cruce-team--away" : ""]}>
+                <span class="cruce-flag">
+                  {team?.flag ? <TeamFlag team={team} size="md" /> : <span class="cruce-flag-ph" aria-hidden="true">?</span>}
+                </span>
+                <span class="cruce-team-info">
+                  <span class="cruce-team-name">{team?.name ?? "Por definir"}</span>
+                  <span class="cruce-team-conf">{team?.confederation ?? ""}</span>
+                </span>
+              </div>
+            ))}
+            <span class="cruce-vs" aria-hidden="true">VS</span>
           </div>
-        </section>
+        </article>
       ))}
     </div>
-
-    <ConfederationStrip confederations={confederations} />
   </div>
-
-  <TeamDetailModal />
-
-  <script type="application/json" data-equipos-payload set:html={JSON.stringify(clientPayload)} />
-  <script>
-    import "./equipos.client.js";
-  </script>
 </section>
 
 <style>
-  .conf-album {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1.2rem, 2.6vw, 2rem);
-  }
-  .conf-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    min-width: 0;
-  }
-  .conf-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.7rem;
-    flex-wrap: wrap;
-    padding: 0.34rem 0.72rem;
-    border-radius: 0.55rem;
-    background: linear-gradient(135deg, var(--pm-blue-700, #1a3a8a), var(--pm-blue-900, #06122a));
-    color: var(--pm-white);
-  }
-  .conf-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1rem, 1.6vw, 1.3rem);
-    font-weight: 950;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-  .conf-count {
-    font-family: var(--font-display);
-    font-size: 0.62rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    opacity: 0.9;
-    text-transform: uppercase;
-  }
-  .team-grid {
+  .cruce-album {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(0.55rem, 1vw, 0.78rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.7rem, 1.6vw, 1.1rem);
   }
-  @media (max-width: 1080px) {
-    .team-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .cruce-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--pm-radius-md);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92));
+    border: 1px solid var(--pm-border-soft);
+    box-shadow: var(--pm-shadow-soft);
   }
-  @media (max-width: 560px) {
-    .team-grid {
-      grid-template-columns: 1fr;
-    }
+  .cruce-head { display: flex; align-items: center; gap: 0.5rem; }
+  .cruce-id { font-family: var(--font-display); font-weight: 950; font-size: 0.82rem; color: var(--pm-blue-700); }
+  .cruce-phase { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pm-orange-600); }
+  .cruce-when { margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 0.58rem; color: var(--pm-text-soft); }
+  .cruce-teams { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center; }
+  .cruce-team { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+  .cruce-team--away { flex-direction: row-reverse; text-align: right; }
+  .cruce-flag :global(.team-flag) { width: 2rem; height: 2rem; }
+  .cruce-flag-ph { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); color: var(--pm-blue-700); font-family: var(--font-display); font-weight: 900; flex: 0 0 auto; }
+  .cruce-team-info { display: flex; flex-direction: column; min-width: 0; }
+  .cruce-team-name { font-family: var(--font-display); font-weight: 900; font-size: 0.82rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cruce-team-conf { font-family: var(--font-display); font-weight: 700; font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-text-soft); }
+  .cruce-vs {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    font-family: var(--font-display); font-weight: 950; font-size: 0.62rem; color: #fff;
+    background: linear-gradient(135deg, var(--pm-blue-600), var(--pm-orange-500));
+    padding: 0.1rem 0.36rem; border-radius: 999px; border: 1.5px solid #fff;
+    box-shadow: 0 2px 6px rgba(7, 23, 53, 0.28);
+  }
+  @media (max-width: 760px) {
+    .cruce-album { grid-template-columns: 1fr; }
   }
 </style>

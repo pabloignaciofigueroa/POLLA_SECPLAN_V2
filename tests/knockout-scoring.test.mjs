@@ -57,10 +57,10 @@ test("scorePodium: acierto exacto por puesto", () => {
   const actual = { champion: "RSA", runnerUp: "MAR", third: "NED", fourth: "CAN" };
   const full = scorePodium(actual, actual);
   assert.equal(full.points, PODIUM_POINTS.champion + PODIUM_POINTS.runnerUp + PODIUM_POINTS.third + PODIUM_POINTS.fourth);
-  assert.equal(full.points, 11);
+  assert.equal(full.points, 17);
 
   const partial = scorePodium({ champion: "RSA", runnerUp: "BRA", third: "X", fourth: "Y" }, actual);
-  assert.equal(partial.points, 5);
+  assert.equal(partial.points, 8);
 
   const none = scorePodium({}, actual);
   assert.equal(none.points, 0);
@@ -75,16 +75,16 @@ test("buildKnockoutLeaderboard: ordena por total y deriva posicion", () => {
   const results = [{ matchId: "P73", homeScore: 2, awayScore: 1, winner: "home" }];
   const actualPodium = { champion: "RSA", runnerUp: "MAR", third: "NED", fourth: "CAN" };
   const podiumByPlayer = {
-    ana: { champion: "RSA", runnerUp: "MAR", third: "NED", fourth: "CAN" }, // +11
+    ana: { champion: "RSA", runnerUp: "MAR", third: "NED", fourth: "CAN" }, // +17
     ben: {},
   };
 
   const rows = buildKnockoutLeaderboard({ players, predictionsByPlayer, podiumByPlayer, results, actualPodium });
   assert.equal(rows[0].playerId, "ana");
   assert.equal(rows[0].position, 1);
-  assert.equal(rows[0].total, 3 + 11);
+  assert.equal(rows[0].total, 3 + 17);
   assert.equal(rows[0].matchPoints, 3);
-  assert.equal(rows[0].podiumPoints, 11);
+  assert.equal(rows[0].podiumPoints, 17);
   assert.equal(rows[1].playerId, "ben");
   assert.equal(rows[1].total, 3);
 });

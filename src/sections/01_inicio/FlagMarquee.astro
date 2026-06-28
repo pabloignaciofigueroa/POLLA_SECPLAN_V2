@@ -1,9 +1,17 @@
 ---
 import teams from "../../data/teams.json";
+import knockoutTeams from "../../data/knockout-teams.json";
 import TeamChip from "./TeamChip.astro";
+
+// Polla de ELIMINATORIAS: solo los 32 clasificados a dieciseisavos (orden = knockout-teams).
+const byCode = new Map((teams as any[]).map((t) => [t.shortCode, t]));
+const qualified = (knockoutTeams.slots as any[])
+  .filter((s) => s.concrete)
+  .map((s) => byCode.get(s.code))
+  .filter(Boolean);
 ---
 
-<aside class="marquee" data-section="flag-marquee" aria-label="48 selecciones del Mundial 2026">
+<aside class="marquee" data-section="flag-marquee" aria-label="32 clasificados a dieciseisavos">
   <div class="summary">
     <span class="icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -14,22 +22,22 @@ import TeamChip from "./TeamChip.astro";
       </svg>
     </span>
     <div class="summary-text">
-      <span class="summary-label">Participan</span>
-      <span class="summary-value">48 SELECCIONES</span>
+      <span class="summary-label">Clasificados</span>
+      <span class="summary-value">32 SELECCIONES</span>
     </div>
   </div>
 
   <div class="viewport">
     <div class="track">
-      {teams.map((team) => <TeamChip team={team} />)}
-      {teams.map((team) => <TeamChip team={team} ariaHidden />)}
+      {qualified.map((team) => <TeamChip team={team} />)}
+      {qualified.map((team) => <TeamChip team={team} ariaHidden />)}
     </div>
   </div>
 
   <div class="phase-status">
-    <span>Fase de grupos</span>
+    <span>Dieciseisavos</span>
     <span class="dot" aria-hidden="true">·</span>
-    <span>72 partidos</span>
+    <span>16 cruces</span>
   </div>
 </aside>
 

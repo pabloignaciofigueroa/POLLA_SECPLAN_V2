@@ -13,10 +13,7 @@ const clientEntries = [
     section: "src/sections/07_fixture/FixtureSection.astro",
     client: "./fixture.bracket.client.js",
   },
-  {
-    section: "src/sections/08_equipos/EquiposSection.astro",
-    client: "./equipos.client.js",
-  },
+  // 08_equipos: álbum estático de 32 clasificados por cruce (sin cliente).
   {
     section: "src/sections/11_podio/PodioSection.astro",
     client: "./podio.client.js",

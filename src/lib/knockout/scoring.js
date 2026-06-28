@@ -8,11 +8,12 @@
 // Reusa calculatePointsForPrediction (fuente unica del 5/3/1/0 de marcador) y solo
 // reemplaza la "tendencia" por el "clasificado correcto" (semantica de eliminacion directa).
 //
-// Podio: +5 campeon / +3 subcampeon / +2 tercero / +1 cuarto, por acierto EXACTO de puesto.
+// Podio: +8 campeon / +5 subcampeon / +3 tercero / +1 cuarto, por acierto EXACTO de puesto.
 import { calculatePointsForPrediction } from "../liveMatch/liveScoring.js";
 import { normalizeResults, resultWinnerSide } from "./bracket.js";
 
-export const PODIUM_POINTS = { champion: 5, runnerUp: 3, third: 2, fourth: 1 };
+// Puntaje de podio mundial (debe cuadrar con /reglas y la leyenda de /tabla): +8/+5/+3/+1.
+export const PODIUM_POINTS = { champion: 8, runnerUp: 5, third: 3, fourth: 1 };
 
 /**
  * Puntua un cruce para una prediccion.
