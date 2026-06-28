@@ -12,7 +12,6 @@
 
 import { calculatePointsForPrediction } from "../liveMatch/liveScoring.js";
 import { resolveActiveWindow, resolveEffectiveResults } from "../liveMatch/activeWindow.js";
-import { buildGroupBonuses } from "./groupBonuses.js";
 
 /** @typedef {import('./types').PointLedgerLine} PointLedgerLine */
 
@@ -75,10 +74,6 @@ export function buildPointLedger({
   const matches = toMatches(fixture);
   const activeWindow = window ?? resolveActiveWindow({ fixture: matches, official, live, now });
   const { byMatch } = resolveEffectiveResults({ official, window: activeWindow });
-  // Live YA gateado (lo unico que F4/F2 pueden consumir sin re-decidir fase).
-  const gatedLive = activeWindow.matches
-    .filter((match) => match.phase === "live")
-    .map((match) => ({ matchId: match.matchId, homeScore: match.homeScore, awayScore: match.awayScore }));
 
   const invalid = invalidatedKeys instanceof Set ? invalidatedKeys : new Set(invalidatedKeys ?? []);
 
@@ -127,19 +122,9 @@ export function buildPointLedger({
     }
   }
 
-  // --- Lineas de GRUPO (clasificados, F4) con live gateado ---
-  const { lines: groupLines } = buildGroupBonuses({
-    players,
-    qualifiedPredictions,
-    groups,
-    fixture: matches,
-    official,
-    live: gatedLive,
-    closuresByGroup,
-  });
-  for (const line of groupLines) {
-    pushWithInvalidation(lines, line, invalid);
-  }
+  // NOTA (V2 eliminatorias): las lineas de bono de GRUPO (clasificados 1o/2o) fueron
+  // eliminadas junto con la fase de grupos. El puntaje de eliminatorias (partido + podio)
+  // se definira en la fase B reusando calculatePointsForPrediction.
 
   // --- Agregacion (totales reconstruidos) ---
   const byPlayer = {};

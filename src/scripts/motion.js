@@ -22,8 +22,6 @@ const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const MOMENTS = {
   inicio: () => import("./moments/inicio.js"),
   jugador: () => import("./moments/jugador.js"),
-  "proximo-partido": () => import("./moments/proximo.js"),
-  estadisticas: () => import("./moments/estadisticas.js"),
 };
 /* Tabla NO usa momento de carga (su entrada es CSS). GSAP/Flip se importa de
    forma diferida dentro de tabla.client.js solo cuando hay reordenamiento. */

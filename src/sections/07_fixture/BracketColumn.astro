@@ -1,0 +1,60 @@
+---
+import BracketMatchCard from "./BracketMatchCard.astro";
+import type { KnockoutMatch, ResolvedSlot } from "../../lib/knockout/model";
+
+interface Item {
+  match: KnockoutMatch;
+  slotA: ResolvedSlot;
+  slotB: ResolvedSlot;
+  predictionEnabled?: boolean;
+}
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  items: Item[];
+  mode?: "view" | "capture";
+  variant?: "card" | "node";
+  showProgress?: boolean;
+}
+
+const { title, subtitle, items = [], mode = "view", variant = "card", showProgress = false } = Astro.props as Props;
+const predictableCount = items.filter((it) => it.predictionEnabled === true).length;
+---
+
+<section class="bracket-area" aria-label={title}>
+  <header class="bracket-head">
+    <h2 class="bracket-title">{title}</h2>
+    {showProgress ? (
+      <p class="bracket-progress"><span data-progress>0</span>/<span data-progress-total>{predictableCount}</span> pronosticados</p>
+    ) : subtitle ? (
+      <p class="bracket-progress">{subtitle}</p>
+    ) : null}
+  </header>
+
+  <div class="bracket-grid" data-round={items[0]?.match.round}>
+    {items.map((it) => (
+      <BracketMatchCard
+        match={it.match}
+        slotA={it.slotA}
+        slotB={it.slotB}
+        mode={mode}
+        variant={variant}
+        predictionEnabled={it.predictionEnabled}
+      />
+    ))}
+  </div>
+</section>
+
+<style>
+  .bracket-area { display: flex; flex-direction: column; gap: var(--space-md); width: 100%; }
+  .bracket-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm); flex-wrap: wrap; }
+  .bracket-title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(1.05rem, 1.8vw, 1.5rem); letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-blue-900); }
+  .bracket-progress { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pm-blue-700); }
+  .bracket-progress [data-progress], .bracket-progress [data-progress-total] { font-family: var(--font-score); font-variant-numeric: tabular-nums; color: var(--pm-cyan-600); }
+  .bracket-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.6rem, 1.2vw, 1rem); }
+  .bracket-grid[data-round="SF"] { grid-template-columns: repeat(2, minmax(0, 18rem)); }
+  .bracket-grid[data-round="3P"], .bracket-grid[data-round="F"] { grid-template-columns: minmax(0, 22rem); }
+  @media (max-width: 1100px) { .bracket-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .bracket-grid { grid-template-columns: 1fr; } }
+</style>

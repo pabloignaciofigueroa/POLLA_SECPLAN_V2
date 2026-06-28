@@ -1,3 +1,5 @@
+// Álbum de equipos (polla de eliminatorias: SIN fase de grupos). Solo favoritos + ficha modal.
+// 100% local. La agrupación por confederación es estática (SSR); aquí no hay filtro de grupo.
 (() => {
   const section = document.querySelector('[data-section="equipos"]');
   if (!section) return;
@@ -8,9 +10,6 @@
   const teamById = new Map(teams.map((t) => [t.id, t]));
 
   const FAV_KEY = "polla:favoriteTeams";
-  const reducedMotion = window.matchMedia
-    ? window.matchMedia("(prefers-reduced-motion: reduce)")
-    : { matches: false };
 
   const readFavorites = () => {
     try {
@@ -25,9 +24,7 @@
   const writeFavorites = (list) => {
     try {
       window.localStorage.setItem(FAV_KEY, JSON.stringify(list));
-    } catch {
-      // Storage no disponible — operación silenciosa.
-    }
+    } catch {}
   };
 
   let favorites = new Set(readFavorites());
@@ -37,39 +34,6 @@
       const id = button.getAttribute("data-favorite-toggle");
       const isFav = id ? favorites.has(id) : false;
       button.setAttribute("aria-pressed", isFav ? "true" : "false");
-    });
-  };
-
-  // ─────────── Group filter ───────────
-
-  const setActiveGroup = (groupId, animate = false) => {
-    section.dataset.activeGroup = groupId;
-    section.querySelectorAll("[data-group-chip]").forEach((chip) => {
-      const isActive = chip.getAttribute("data-group-chip") === groupId;
-      chip.dataset.active = isActive ? "true" : "false";
-      chip.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-    section.querySelectorAll("[data-group-section]").forEach((groupSection) => {
-      const id = groupSection.getAttribute("data-group-section");
-      groupSection.hidden = id !== groupId;
-    });
-    // Replay de entrada solo en interacción del usuario (no en la carga inicial).
-    if (animate && !reducedMotion.matches) {
-      const shown = section.querySelector(`[data-group-section="${groupId}"]`);
-      if (shown) {
-        shown.classList.remove("is-swap-in");
-        void shown.offsetWidth; // reflow para re-disparar
-        shown.classList.add("is-swap-in");
-      }
-    }
-  };
-
-  const scrollToGroup = (groupId) => {
-    const target = section.querySelector(`[data-group-section="${groupId}"]`);
-    if (!target || typeof target.scrollIntoView !== "function") return;
-    target.scrollIntoView({
-      behavior: reducedMotion.matches ? "auto" : "smooth",
-      block: "start",
     });
   };
 
@@ -135,7 +99,8 @@
     modal.querySelector("[data-modal-confederation]").textContent = team.confederation;
     modal.querySelector("[data-modal-name]").textContent = team.name;
     modal.querySelector("[data-modal-title]").textContent = info?.titulo ?? "Ficha pendiente";
-    modal.querySelector("[data-modal-group]").textContent = `Grupo ${team.group}`;
+    // Polla de eliminatorias: ya no hay grupo. Mostramos la confederación.
+    modal.querySelector("[data-modal-group]").textContent = team.confederation;
     modal.querySelector("[data-modal-category]").textContent = info?.categoria_fuente ?? "—";
 
     fillPills("[data-modal-formations]", info?.formaciones ?? []);
@@ -179,32 +144,12 @@
     const el = event.target instanceof Element ? event.target : null;
     if (!el) return;
 
-    const chip = el.closest("[data-group-chip]");
-    if (chip && section.contains(chip)) {
-      const id = chip.getAttribute("data-group-chip");
-      if (id) setActiveGroup(id, true);
-      return;
-    }
-
-    const groupJump = el.closest("[data-group-jump]");
-    if (groupJump && section.contains(groupJump)) {
-      const id = groupJump.getAttribute("data-group-jump");
-      if (id) {
-        setActiveGroup(id, true);
-        scrollToGroup(id);
-      }
-      return;
-    }
-
     const fav = el.closest("[data-favorite-toggle]");
     if (fav && section.contains(fav)) {
       const id = fav.getAttribute("data-favorite-toggle");
       if (!id) return;
-      if (favorites.has(id)) {
-        favorites.delete(id);
-      } else {
-        favorites.add(id);
-      }
+      if (favorites.has(id)) favorites.delete(id);
+      else favorites.add(id);
       writeFavorites([...favorites]);
       applyFavorites();
       return;
@@ -224,18 +169,15 @@
     }
   });
 
-  // Click on backdrop closes the dialog (target is the <dialog> itself).
   if (modal) {
     modal.addEventListener("click", (event) => {
       if (event.target === modal) closeModal();
     });
     modal.addEventListener("cancel", (event) => {
-      // Allow default ESC behaviour but ensure cleanup.
       event.preventDefault();
       closeModal();
     });
   }
 
   applyFavorites();
-  setActiveGroup(section.dataset.activeGroup || "A");
 })();

@@ -1,229 +1,129 @@
 ---
-import styles from "./EstadisticasSection.module.css";
-import StatsHeroLocked from "./StatsHeroLocked.astro";
-import UnlockBenefitsPanel from "./UnlockBenefitsPanel.astro";
-import UnlockedBanner from "./UnlockedBanner.astro";
-import LockedPreviewPanel from "./LockedPreviewPanel.astro";
-import AntiCopyNotice from "./AntiCopyNotice.astro";
-import StatsDashboard from "./StatsDashboard.astro";
-import MissingPlayerIdentityModal from "./MissingPlayerIdentityModal.astro";
-import DataArenaHero from "./DataArenaHero.astro";
-import FeaturedCard from "./FeaturedCard.astro";
-import CardDeck from "./CardDeck.astro";
-import ArenaHighlightsPanel from "./ArenaHighlightsPanel.astro";
-import ArenaDuelsPanel from "./ArenaDuelsPanel.astro";
-
-import { TOTAL_PREDICTIONS } from "./estadisticas.logic";
-import type { ProgressSnapshot } from "./estadisticas.logic";
-import predictionsData from "../../data/predictions.json";
-import fixtureData from "../../data/fixture.json";
-import groupsData from "../../data/groups.json";
-import teamsData from "../../data/teams.json";
+// Seccion 09_estadisticas — "DATA ARENA" arcade. 100% local. Tu resumen (stat cards) +
+// consenso de la oficina como barras de votacion por cruce. Hooks data-es-* preservados.
 import playersData from "../../data/players.json";
-import { getPlayerStatCards } from "../../lib/statistics/statCards";
-import {
-  getArenaDuels,
-  getArenaHighlights,
-  getArenaUniverseSize,
-} from "../../lib/statistics/dataArenaBase";
-import { buildCommunityAnalysis } from "../../lib/statistics/communityStatistics.js";
+import knockoutData from "../../data/knockout-matches.json";
+import teamsData from "../../data/teams.json";
+import seed from "../../data/knockout-results.json";
+import submissionsData from "../../data/knockout-predictions.json";
 
-const initialSnapshot: ProgressSnapshot = {
-  completed: 0,
-  total: TOTAL_PREDICTIONS,
-  percent: 0,
-  state: "locked",
-};
-
-// ── Data Arena: fichas jugables ya resueltas (contrato editorial). ──
-const statCards = getPlayerStatCards();
-
-// Base agregada del corte canonico (13): highlights y duelos ya calculados.
-const arenaHighlights = getArenaHighlights();
-const arenaDuels = getArenaDuels();
-const arenaUniverseSize = getArenaUniverseSize();
-
-// Carta del dia (legendaria); rotacion determinista por dia de build.
-const legendaryPairs = statCards.flatMap((card) =>
-  card.cards.filter((sub) => sub.rarity === "legendaria").map((sub) => ({ card, sub }))
-);
-const dayIndex = Math.floor(Date.now() / 86_400_000);
-const featured =
-  legendaryPairs.length > 0
-    ? legendaryPairs[dayIndex % legendaryPairs.length]
-    : statCards[0]?.primaryCard
-      ? { card: statCards[0], sub: statCards[0].primaryCard }
-      : null;
-
-// ── Pulso de oficina: derivado del analisis coral, no inventado. ──
-const analysis: any = buildCommunityAnalysis({
-  dataset: predictionsData,
-  matches: fixtureData.matches,
-  groups: groupsData,
-  teams: teamsData,
-  players: playersData,
-});
-const totalCards = analysis.confirmedCards || 1;
-const pct = (n: number) => Math.round((n / totalCards) * 100);
-const pulses: any[] = analysis.matchPulses ?? [];
-
-const dividedPulses = pulses.filter((p) => p.consensusLevel === "divided");
-const hotPulse =
-  [...(dividedPulses.length ? dividedPulses : pulses)].sort(
-    (a, b) => a.topAgreement - b.topAgreement
-  )[0] ?? null;
-const consensusCopy: Record<string, string> = {
-  unanimous: "Unánime",
-  strong: "Consenso fuerte",
-  open: "Abierto",
-  divided: "Oficina dividida",
-};
-const hotMatch = hotPulse
-  ? {
-      homeName: hotPulse.homeTeam.name,
-      awayName: hotPulse.awayTeam.name,
-      groupId: hotPulse.groupId,
-      consensusLabel: consensusCopy[hotPulse.consensusLevel] ?? "Abierto",
-      homePct: pct(hotPulse.outcomes.home),
-      drawPct: pct(hotPulse.outcomes.draw),
-      awayPct: pct(hotPulse.outcomes.away),
-    }
-  : null;
-
-const officePulse =
-  [...pulses].sort(
-    (a, b) => (b.exactScores?.[0]?.count ?? 0) - (a.exactScores?.[0]?.count ?? 0)
-  )[0] ?? null;
-const officeScore =
-  officePulse && officePulse.exactScores?.[0]
-    ? {
-        homeName: officePulse.homeTeam.name,
-        awayName: officePulse.awayTeam.name,
-        groupId: officePulse.groupId,
-        score: officePulse.exactScores[0].score,
-        count: officePulse.exactScores[0].count,
-      }
-    : null;
-
+const players = (playersData as any[]).map((p) => ({ id: p.id, name: p.name }));
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
 const clientPayload = {
-  totalPredictions: TOTAL_PREDICTIONS,
-  targetRoute: "/predicciones",
-  datasetUrl: "/data/community-predictions.json",
-  confirmedCards: predictionsData.confirmedCards,
-  expectedPlayers: predictionsData.expectedPlayers,
-  confirmedPlayerIds: predictionsData.submissions.map(
-    (submission) => submission.playerId
-  ),
+  players,
+  matches: (knockoutData as any).matches,
+  teams: teamsLite,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
+  submissions: (submissionsData as any).submissions ?? [],
 };
 ---
 
-<section
-  class={styles.estadisticasSection}
-  id="estadisticas"
-  data-section="estadisticas"
-  data-state={initialSnapshot.state}
->
-  <div class={styles.contentShell}>
-    <UnlockedBanner />
+<section class="es" id="estadisticas" data-section="estadisticas">
+  <div class="es-shell">
+    <header class="es-hero" data-animate="fade-up" style="--i:0">
+      <p class="es-eyebrow">eliminatorias · data arena</p>
+      <h1 class="es-title">Data <span class="es-title-accent">Arena</span></h1>
+      <p class="es-sub" data-es-cartones>Aún sin cartones cargados.</p>
+    </header>
 
-    <div data-locked-content>
-      <StatsHeroLocked
-        snapshot={initialSnapshot}
-        confirmedCards={predictionsData.confirmedCards}
-        expectedPlayers={predictionsData.expectedPlayers}
-      />
-
-      <UnlockBenefitsPanel />
-
-      <LockedPreviewPanel />
-
-      <AntiCopyNotice />
+    <div class="es-profile" data-stagger>
+      <article class="es-stat es-stat--blue" data-animate="pop-in" style="--i:1">
+        <span class="es-stat-ic">🎯</span>
+        <span class="es-stat-num" data-es-predicted>0</span>
+        <span class="es-stat-label">Cruces pronosticados</span>
+      </article>
+      <article class="es-stat es-stat--purple" data-animate="pop-in" style="--i:2">
+        <span class="es-stat-ic">🏆</span>
+        <span class="es-stat-num" data-es-podium>0/4</span>
+        <span class="es-stat-label">Podio definido</span>
+      </article>
+      <article class="es-stat es-stat--gold" data-animate="pop-in" style="--i:3">
+        <span class="es-stat-ic">⚡</span>
+        <span class="es-stat-num" data-es-points>0</span>
+        <span class="es-stat-label">Tus puntos</span>
+      </article>
     </div>
 
-    {/* 1 — Lo mas importante: explorador detallado (sube al tope) */}
-    <div class="detail-intro" data-unlock-reveal hidden>
-      <h3>Explorador detallado</h3>
-      <p>Perfil, comunidad, partidos y clasificados: la data completa, cuando quieras bucear.</p>
-    </div>
-
-    <StatsDashboard
-      confirmedCards={predictionsData.confirmedCards}
-      expectedPlayers={predictionsData.expectedPlayers}
-    />
-
-    {/* 2 — Highlights + duelos del universo (se mantiene en el medio) */}
-    <div class="arena-universe" data-unlock-reveal hidden>
-      <ArenaHighlightsPanel categories={arenaHighlights} universeSize={arenaUniverseSize} />
-      <ArenaDuelsPanel
-        mostSimilar={arenaDuels.mostSimilar}
-        biggestRivalries={arenaDuels.biggestRivalries}
-      />
-    </div>
-
-    {/* 3 — Cartas jugables (bajan al fondo). Conserva data-data-arena para el flip. */}
-    <div class="data-arena" data-data-arena data-unlock-reveal hidden>
-      <DataArenaHero confirmedCards={predictionsData.confirmedCards} />
-      {featured && (
-        <FeaturedCard
-          card={featured.card}
-          subCard={featured.sub}
-          hotMatch={hotMatch}
-          officeScore={officeScore}
-        />
-      )}
-      <CardDeck title="Mazo Jugadores" label="Jugadores" cards={statCards} />
-    </div>
+    <section class="es-arena">
+      <h2 class="es-arena-title">Consenso de la oficina</h2>
+      <ul class="es-vote-list" data-es-consensus>
+        <li class="es-vote-empty">El consenso aparece cuando hay cartones cargados y cruces con ambos equipos definidos.</li>
+      </ul>
+    </section>
   </div>
-
-  <MissingPlayerIdentityModal />
 
   <script type="application/json" data-estadisticas-payload set:html={JSON.stringify(clientPayload)} />
   <script>
-    import "./estadisticas.client.js";
-    import "./data-arena.client.js";
+    import "./estadisticas.knockout.client.js";
   </script>
 </section>
 
 <style>
-  .data-arena,
-  .arena-universe {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.85rem, 2vw, 1.4rem);
+  .es {
+    --section-accent: var(--pm-sec-estadisticas-a);
+    --section-accent-2: var(--pm-sec-estadisticas-b);
+    position: relative;
+    min-height: calc(100svh - var(--layout-header-height));
+    padding: clamp(1.2rem, 3vw, 2.4rem);
+    background-image: image-set(
+      url("/assets/backgrounds/avif/09_estadisticas_background.avif") type("image/avif"),
+      url("/assets/backgrounds/webp/09_estadisticas_background.webp") type("image/webp"));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--pm-text-main);
+    font-family: var(--font-ui);
   }
-
-  .data-arena[hidden],
-  .arena-universe[hidden] {
-    display: none;
+  .es-shell { max-width: 50rem; margin-inline: auto; display: flex; flex-direction: column; gap: clamp(1.1rem, 2.6vw, 1.7rem); }
+  .es-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  .es-eyebrow {
+    margin: 0; padding: 0.3rem 0.95rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--section-accent) 18%, var(--pm-white));
+    border: 1px solid color-mix(in srgb, var(--section-accent) 42%, var(--pm-white));
+    color: var(--pm-text-main); font-family: var(--font-display); font-weight: 900;
+    font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
   }
-
-  /* Bloques secundarios bajo el dashboard: separador superior punteado.
-     El dashboard manda arriba; universo y cartas quedan delimitados debajo. */
-  .arena-universe,
-  .data-arena {
-    margin-top: clamp(0.85rem, 2vw, 1.4rem);
-    padding-top: 0.9rem;
-    border-top: 1px dashed color-mix(in srgb, var(--pm-blue-700) 28%, transparent);
+  .es-title { margin: 0; font-family: var(--font-display); font-weight: 950; font-size: clamp(2rem, 5vw, 3.4rem); text-transform: uppercase; line-height: 0.95; color: var(--pm-blue-900); }
+  .es-title-accent {
+    background: linear-gradient(100deg, var(--pm-sec-estadisticas-a), var(--pm-sec-estadisticas-b));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
+  .es-sub { margin: 0; color: var(--pm-blue-900); font-size: 0.86rem; font-weight: 700; }
 
-  /* La intro del explorador ahora abre la vista desbloqueada: sin separador. */
-  .detail-intro[hidden] {
-    display: none;
+  /* ===== STAT CARDS ===== */
+  .es-profile { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
+  .es-stat {
+    display: flex; flex-direction: column; gap: 0.2rem; padding: clamp(0.9rem, 2.4vw, 1.3rem) clamp(0.8rem, 2vw, 1.1rem);
+    border-radius: var(--pm-radius-lg); color: #fff; box-shadow: var(--pm-shadow-card); position: relative; overflow: hidden;
   }
+  .es-stat--blue { background: linear-gradient(135deg, var(--pm-blue-600), var(--pm-cyan-500)); }
+  .es-stat--purple { background: linear-gradient(135deg, var(--pm-purple-600), var(--pm-magenta-500)); }
+  .es-stat--gold { background: linear-gradient(135deg, var(--pm-orange-500), var(--pm-yellow-500)); color: #3a2700; }
+  .es-stat-ic { font-size: 1.7rem; line-height: 1; }
+  .es-stat-num { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1; }
+  .es-stat-label { font-family: var(--font-display); font-weight: 800; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.95; }
 
-  .detail-intro h3 {
-    margin: 0;
-    color: var(--pm-blue-900);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 950;
-    text-transform: uppercase;
-  }
+  /* ===== CONSENSO (barras de votación) ===== */
+  .es-arena { display: flex; flex-direction: column; gap: 0.6rem; }
+  .es-arena-title { margin: 0; font-family: var(--font-display); font-weight: 950; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-blue-900); }
+  .es-vote-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  /* OJO: los <li> del consenso los inyecta el cliente (innerHTML) -> sin scope de Astro.
+     Por eso estas reglas van :global, si no, no aplican a lo inyectado. */
+  :global(.es-vote) { padding: 0.6rem 0.85rem; border-radius: var(--pm-radius-md); background: var(--pm-white); box-shadow: var(--pm-shadow-soft); display: flex; flex-direction: column; gap: 0.45rem; }
+  :global(.es-vote-head) { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-weight: 900; font-size: 0.92rem; }
+  :global(.es-vote-team) { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--pm-blue-700); min-width: 0; }
+  :global(.es-vote-team--away) { justify-content: flex-end; color: var(--pm-red-500); }
+  :global(.es-vote-team img) { width: 1.5rem; height: 1.5rem; border-radius: 999px; object-fit: cover; flex: 0 0 auto; }
+  :global(.es-vote-id) { font-family: var(--font-display); font-weight: 800; font-size: 0.6rem; color: var(--pm-text-soft); }
+  :global(.es-vote-bar) { display: flex; height: 1.6rem; border-radius: 999px; overflow: hidden; background: var(--pm-ice); font-family: var(--font-score); font-weight: 800; font-size: 0.82rem; color: #fff; }
+  :global(.es-vote-fill) { display: flex; align-items: center; min-width: 1.6rem; box-sizing: border-box; }
+  :global(.es-vote-fill--home) { background: linear-gradient(90deg, var(--pm-blue-600), var(--pm-cyan-500)); justify-content: flex-start; padding-left: 0.55rem; }
+  :global(.es-vote-fill--away) { background: linear-gradient(90deg, var(--pm-orange-500), var(--pm-red-500)); justify-content: flex-end; padding-right: 0.55rem; }
+  :global(.es-vote-meta) { display: flex; justify-content: space-between; gap: 0.5rem; font-family: var(--font-display); font-weight: 700; font-size: 0.68rem; color: var(--pm-text-soft); }
+  :global(.es-vote-empty) { color: var(--pm-text-soft); font-weight: 600; padding: 0.6rem; }
 
-  .detail-intro p {
-    margin: 0.15rem 0 0;
-    color: var(--pm-blue-700);
-    font-size: 0.74rem;
-    font-weight: 700;
+  @media (max-width: 520px) {
+    .es-profile { grid-template-columns: 1fr; }
   }
 </style>

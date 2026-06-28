@@ -1,43 +1,16 @@
-import {
-  getAdminSessionToken,
-  hasValidAdminSession,
-} from "../liveMatch/liveMatchState.js";
+import { hasValidAdminSession } from "../liveMatch/liveMatchState.js";
 import {
   PREDICTION_CORRECTION_DRAFTS_KEY,
   PREDICTION_EDIT_SESSION_KEY,
   isEditSessionLocallyValid,
 } from "./predictionAccess.js";
-import {
-  getSupabaseClient,
-  isSupabaseConfigured,
-} from "../supabase/supabaseClient.js";
+
+// ── MODO SEGURIDAD TOTAL ──────────────────────────────────────────────────────
+// Sin import ni llamadas a Supabase. La edicion de cartones por CODIGO era una
+// funcion server-side (RPC): queda DESHABILITADA en modo local. Los borradores de
+// correccion siguen siendo 100% locales (localStorage).
 
 const EDIT_SESSION_EVENT = "polla:prediction-edit-session-updated";
-
-function requireSupabase() {
-  const client = getSupabaseClient();
-  if (!client) throw new Error("Supabase no esta configurado en este despliegue.");
-  return client;
-}
-
-function normalizeError(error, fallback) {
-  const message = String(error?.message ?? "");
-  if (message.includes("invalid_or_expired_admin_session")) {
-    return new Error("La sesion de administrador expiro. Ingresa nuevamente.");
-  }
-  if (message.includes("invalid_or_expired_edit_code")) {
-    return new Error("El codigo es incorrecto, ya fue utilizado o expiro.");
-  }
-  if (message.includes("invalid_or_expired_edit_session")) {
-    return new Error("La autorizacion de edicion expiro o fue revocada.");
-  }
-  if (error?.code === "PGRST202" || message.includes("Could not find the function")) {
-    return new Error(
-      "Funciones de edicion no instaladas en Supabase. Aplicar supabase/remote/apply_prediction_edit_access.sql en el SQL Editor."
-    );
-  }
-  return new Error(message || fallback);
-}
 
 function safeRead(storage, key) {
   try {
@@ -66,7 +39,8 @@ function emitSessionChange(session) {
 }
 
 export function isPredictionEditRemoteEnabled() {
-  return isSupabaseConfigured();
+  // MODO SEGURIDAD TOTAL: nunca hay backend remoto.
+  return false;
 }
 
 export function getPredictionEditSession() {
@@ -139,24 +113,10 @@ export function clearPredictionCorrectionDrafts(playerId) {
 }
 
 export async function redeemPredictionEditCode(playerId, code) {
-  const client = requireSupabase();
-  const normalizedCode = String(code ?? "").trim().toUpperCase();
-  const { data, error } = await client.rpc("polla_redeem_prediction_edit_code", {
-    p_player_id: String(playerId ?? ""),
-    p_code: normalizedCode,
-  });
-
-  if (error || !data?.token || !data?.expiresAt) {
-    throw normalizeError(error, "No fue posible canjear el codigo.");
-  }
-
-  const session = {
-    token: String(data.token),
-    playerId: String(data.playerId ?? playerId),
-    expiresAt: String(data.expiresAt),
-  };
-  savePredictionEditSession(session);
-  return session;
+  // MODO SEGURIDAD TOTAL: el canje de codigos era server-side (RPC). Deshabilitado en local.
+  throw new Error(
+    "Modo local: la edicion de cartones por codigo esta deshabilitada en esta copia."
+  );
 }
 
 export async function validatePredictionEditSession(playerId) {
@@ -165,70 +125,34 @@ export async function validatePredictionEditSession(playerId) {
     clearPredictionEditSession();
     return false;
   }
-  if (!isPredictionEditRemoteEnabled()) {
-    clearPredictionEditSession();
-    return false;
-  }
-
-  try {
-    const client = requireSupabase();
-    const { data, error } = await client.rpc(
-      "polla_prediction_edit_session_is_valid",
-      {
-        p_player_id: playerId,
-        p_token: session.token,
-      }
-    );
-    if (error || data !== true) {
-      clearPredictionEditSession();
-      return false;
-    }
-    return true;
-  } catch {
-    clearPredictionEditSession();
-    return false;
-  }
+  // MODO SEGURIDAD TOTAL: sin validacion remota -> no se considera valida.
+  clearPredictionEditSession();
+  return false;
 }
 
 export async function createPredictionEditCode(playerId) {
   if (!hasValidAdminSession()) {
     throw new Error("La sesion de administrador expiro. Ingresa nuevamente.");
   }
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_create_prediction_edit_code", {
-    p_token: getAdminSessionToken(),
-    p_player_id: playerId,
-  });
-  if (error || !data?.code) {
-    throw normalizeError(error, "No fue posible generar el codigo.");
-  }
-  return data;
+  // MODO SEGURIDAD TOTAL: la generacion de codigos era server-side (RPC). Deshabilitada en local.
+  throw new Error(
+    "Modo local: la generacion de codigos de edicion esta deshabilitada en esta copia."
+  );
 }
 
 export async function revokePredictionEditAccess(playerId) {
   if (!hasValidAdminSession()) {
     throw new Error("La sesion de administrador expiro. Ingresa nuevamente.");
   }
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_revoke_prediction_edit_access", {
-    p_token: getAdminSessionToken(),
-    p_player_id: playerId,
-  });
-  if (error) throw normalizeError(error, "No fue posible revocar el acceso.");
-  return data;
+  // MODO SEGURIDAD TOTAL: la revocacion era server-side (RPC). Deshabilitada en local.
+  throw new Error(
+    "Modo local: la revocacion de acceso esta deshabilitada en esta copia."
+  );
 }
 
 export async function listPredictionEditAccess() {
-  if (!hasValidAdminSession()) return { codes: [], sessions: [] };
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_list_prediction_edit_access", {
-    p_token: getAdminSessionToken(),
-  });
-  if (error) throw normalizeError(error, "No fue posible leer las autorizaciones.");
-  return {
-    codes: Array.isArray(data?.codes) ? data.codes : [],
-    sessions: Array.isArray(data?.sessions) ? data.sessions : [],
-  };
+  // MODO SEGURIDAD TOTAL: sin backend -> no hay codigos ni sesiones remotas.
+  return { codes: [], sessions: [] };
 }
 
 export function subscribePredictionEditSession(callback) {

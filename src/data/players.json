@@ -89,5 +89,26 @@
     "avatar": "/assets/players/tanke.webp",
     "avatarThumb": "/assets/players/thumbs/tanke.webp",
     "status": "available"
+  },
+  {
+    "id": "antonio",
+    "name": "Antonio",
+    "avatar": null,
+    "avatarThumb": null,
+    "status": "available"
+  },
+  {
+    "id": "martin",
+    "name": "Martín",
+    "avatar": null,
+    "avatarThumb": null,
+    "status": "available"
+  },
+  {
+    "id": "ale",
+    "name": "Ale",
+    "avatar": null,
+    "avatarThumb": null,
+    "status": "available"
   }
 ]

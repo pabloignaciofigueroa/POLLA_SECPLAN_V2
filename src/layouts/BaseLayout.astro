@@ -12,12 +12,15 @@ interface Props {
   title?: string;
   description?: string;
   backgroundPreloadHref?: string;
+  /** Páginas de pantalla única (sin scroll): ocultan el footer para que el body quepa en el viewport. */
+  hideFooter?: boolean;
 }
 
 const {
   title = "Polla SECPLAN 2026",
   description = "Polla Mundialera SECPLAN 2026 - Clean V2 Alpha 01",
   backgroundPreloadHref,
+  hideFooter = false,
 } = Astro.props;
 ---
 
@@ -55,7 +58,7 @@ const {
     <main>
       <slot />
     </main>
-    <Footer />
+    {!hideFooter && <Footer />}
     <script>
       import "../scripts/motion.js";
     </script>

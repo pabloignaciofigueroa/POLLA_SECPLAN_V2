@@ -1,0 +1,357 @@
+---
+import TeamFlag from "../../components/ui/TeamFlag.astro";
+import ScoreInput from "../04_predicciones/ScoreInput.astro";
+import type { KnockoutMatch, ResolvedSlot } from "../../lib/knockout/model";
+
+interface Props {
+  match: KnockoutMatch;
+  slotA: ResolvedSlot;
+  slotB: ResolvedSlot;
+  /** "view" = solo lectura (/fixture); "capture" = editable (/predicciones). */
+  mode?: "view" | "capture";
+  /** "card" = tarjeta completa; "node" = nodo compacto para el árbol del bracket. */
+  variant?: "card" | "node";
+  /** Predecible AHORA (resolución SSR/seed). El cliente lo recalcula con resultados vivos. */
+  predictionEnabled?: boolean;
+  /** Base para numerar los slots del cuadro (arcade): home = seedNum+1, away = seedNum+2. Solo R32. */
+  seedNum?: number;
+}
+
+const { match, slotA, slotB, mode = "view", variant = "card", predictionEnabled, seedNum } = Astro.props as Props;
+const isCapture = mode === "capture";
+// Predecible inicial: lo explícito, o (en captura) el flag del match.
+const predEnabled = predictionEnabled ?? (isCapture && match.predictionEnabled === true);
+const isLocked = match.status === "locked";
+
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+function fmtDate(dateCL?: string, timeCL?: string) {
+  if (!dateCL) return "";
+  const [, m, d] = dateCL.split("-").map(Number);
+  const mes = MESES[(m ?? 1) - 1] ?? "";
+  const dd = String(d ?? "").padStart(2, "0");
+  return `${dd} ${mes}${timeCL ? ` · ${timeCL}` : ""}`;
+}
+const dateLabel = fmtDate(match.dateCL, match.timeCL);
+const pillText = isCapture ? (predEnabled ? "Por jugar" : "Bloqueado") : isLocked ? "Bloqueado" : "Por jugar";
+const lockNote = match.round === "R32" ? "Se habilita al definirse ambos equipos" : "Se define con los resultados";
+
+const teamA = { name: slotA.name, shortCode: slotA.shortCode, flag: slotA.flag ?? undefined };
+const teamB = { name: slotB.name, shortCode: slotB.shortCode, flag: slotB.flag ?? undefined };
+---
+
+<article
+  class="ko-card"
+  data-ko-match={match.id}
+  data-ko-mode={mode}
+  data-ko-variant={variant}
+  data-ko-round={match.round}
+  data-ko-editable={isCapture && predEnabled ? "true" : "false"}
+  data-status="empty"
+  data-locked={!predEnabled && !isCapture ? "true" : undefined}
+>
+  <header class="ko-card-head">
+    <span class="ko-card-num">
+      <span class="ko-card-id">{match.id}</span>
+      {dateLabel ? <span class="ko-card-date">{dateLabel}</span> : null}
+    </span>
+    <span class="ko-card-pill" data-ko-status-pill>{pillText}</span>
+  </header>
+
+  <div class="ko-card-body">
+    <div class="ko-row" data-slot="home">
+      {seedNum != null ? <span class="ko-team-num" aria-hidden="true">{seedNum + 1}</span> : null}
+      <span class="ko-flag" data-ko-flag="home">
+        {slotA.concrete ? <TeamFlag team={teamA} size="md" /> : <span class="ko-flag-ph" aria-hidden="true">?</span>}
+      </span>
+      <span class="ko-team-name" data-ko-name="home" data-concrete={slotA.concrete ? "true" : "false"}>{slotA.name}</span>
+      {isCapture ? (
+        <ScoreInput side="home" label={`Goles ${slotA.name}`} />
+      ) : (
+        <span class="ko-score-ro" data-ko-score="home">—</span>
+      )}
+    </div>
+    <div class="ko-row" data-slot="away">
+      {seedNum != null ? <span class="ko-team-num" aria-hidden="true">{seedNum + 2}</span> : null}
+      <span class="ko-flag" data-ko-flag="away">
+        {slotB.concrete ? <TeamFlag team={teamB} size="md" /> : <span class="ko-flag-ph" aria-hidden="true">?</span>}
+      </span>
+      <span class="ko-team-name" data-ko-name="away" data-concrete={slotB.concrete ? "true" : "false"}>{slotB.name}</span>
+      {isCapture ? (
+        <ScoreInput side="away" label={`Goles ${slotB.name}`} />
+      ) : (
+        <span class="ko-score-ro" data-ko-score="away">—</span>
+      )}
+    </div>
+  </div>
+
+  {isCapture ? (
+    <div class="ko-advance" role="group" aria-label="Quién avanza">
+      <span class="ko-advance-label">Avanza</span>
+      <button type="button" class="ko-advance-btn" data-advance-pick="home" aria-pressed="false">
+        <span data-ko-pick="home">{slotA.shortCode || "LOC"}</span>
+      </button>
+      <button type="button" class="ko-advance-btn" data-advance-pick="away" aria-pressed="false">
+        <span data-ko-pick="away">{slotB.shortCode || "VIS"}</span>
+      </button>
+    </div>
+  ) : (
+    <p class="ko-advance-ro">
+      <span class="ko-advance-label">Avanza</span>
+      <span data-ko-advance>—</span>
+      <span class="ko-lock-note" data-ko-locknote>{!predEnabled ? `· ${lockNote}` : ""}</span>
+    </p>
+  )}
+</article>
+
+<style>
+  .ko-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: 1px solid var(--pm-border-soft);
+    border-radius: var(--pm-radius-md);
+    background: var(--pm-panel-soft, #f8fbff);
+    box-shadow: var(--pm-shadow-soft);
+    transition: border-color var(--pm-transition-fast), box-shadow var(--pm-transition-fast), opacity var(--pm-transition-fast);
+  }
+  .ko-card[data-locked="true"] { background: var(--pm-panel-muted, #eef2f8); opacity: 0.92; }
+  /* Captura bloqueada (no predecible aún): inputs apagados visualmente. */
+  .ko-card[data-ko-mode="capture"][data-ko-editable="false"] { background: var(--pm-panel-muted, #eef2f8); }
+  .ko-card[data-ko-mode="capture"][data-ko-editable="false"] .ko-advance { opacity: 0.5; pointer-events: none; }
+  .ko-card[data-status="complete"] { border-color: var(--pm-state-completed-border, #16a34a); box-shadow: var(--pm-shadow-cyan); }
+  /* Premium captura: profundidad al pasar/enfocar una carta editable. */
+  .ko-card[data-ko-mode="capture"] { transition: border-color var(--pm-transition-fast), box-shadow var(--pm-transition-fast), transform var(--pm-transition-fast), opacity var(--pm-transition-fast); }
+  .ko-card[data-ko-mode="capture"][data-ko-editable="true"]:hover,
+  .ko-card[data-ko-mode="capture"][data-ko-editable="true"]:focus-within { border-color: var(--pm-cyan-500); box-shadow: var(--pm-shadow-cyan); transform: translateY(-2px); }
+  /* Color por estado SOLO en captura (/predicciones); la variante node de la llave no se toca. */
+  .ko-card[data-ko-mode="capture"] {
+    border-left: 5px solid var(--pm-cyan-500);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--pm-cyan-500) 13%, var(--pm-white)), var(--pm-white) 56%);
+  }
+  .ko-card[data-ko-mode="capture"][data-ko-editable="false"] {
+    border-left-color: var(--pm-purple-500);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--pm-purple-500) 15%, var(--pm-white)), var(--pm-white) 56%);
+  }
+  .ko-card[data-ko-mode="capture"][data-status="complete"] {
+    border-left-color: var(--pm-green-500);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--pm-green-500) 15%, var(--pm-white)), var(--pm-white) 56%);
+  }
+
+  /* ===== Captura COMPACTA (/predicciones): meter los 16 cruces en primera vista (4x4) ===== */
+  .ko-card[data-ko-mode="capture"] { padding: 0.4rem 0.55rem; gap: 0.22rem; border-left-width: 4px; }
+  .ko-card[data-ko-mode="capture"] .ko-card-head { gap: 0.4rem; }
+  .ko-card[data-ko-mode="capture"] .ko-card-num { font-size: 0.6rem; }
+  .ko-card[data-ko-mode="capture"] .ko-card-date { display: none; }
+  .ko-card[data-ko-mode="capture"] .ko-card-pill { font-size: 0.52rem; padding: 0.1rem 0.4rem; }
+  .ko-card[data-ko-mode="capture"] .ko-card-body { gap: 0.18rem; }
+  .ko-card[data-ko-mode="capture"] .ko-row { gap: 0.4rem; }
+  .ko-card[data-ko-mode="capture"] .ko-flag :global(.team-flag) { width: 1.4rem; height: 1.4rem; }
+  .ko-card[data-ko-mode="capture"] .ko-flag-ph { width: 1.4rem; height: 1.4rem; font-size: 0.7rem; }
+  .ko-card[data-ko-mode="capture"] .ko-team-name { font-size: 0.78rem; }
+  .ko-card[data-ko-mode="capture"] :global([data-score-input]) { width: 2.4rem; height: 2rem; font-size: 1.05rem; }
+  .ko-card[data-ko-mode="capture"] .ko-advance { gap: 0.3rem; margin-top: 0.05rem; }
+  .ko-card[data-ko-mode="capture"] .ko-advance-label { font-size: 0.52rem; margin-right: 0; }
+  .ko-card[data-ko-mode="capture"] .ko-advance-btn { padding: 0.14rem 0.5rem; font-size: 0.62rem; }
+
+  /* Resaltado del ganador (modo view) */
+  .ko-card .ko-row[data-winner="true"] .ko-team-name { color: var(--pm-green-700, #15803d); font-weight: 900; }
+
+  .ko-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+  .ko-card-num { display: inline-flex; align-items: baseline; gap: 0.32rem; font-family: var(--font-display); font-weight: 900; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-blue-700); }
+  .ko-card-id { color: var(--pm-blue-700); }
+  .ko-card-date { color: var(--pm-text-soft); font-weight: 800; }
+  .ko-card-pill { display: inline-flex; align-items: center; gap: 0.25rem; font-family: var(--font-display); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.18rem 0.55rem; border-radius: var(--pm-radius-pill); border: 1px solid var(--pm-border-soft); background: var(--pm-white); color: var(--pm-text-soft); }
+  .ko-card[data-locked="true"] .ko-card-pill,
+  .ko-card[data-ko-mode="capture"][data-ko-editable="false"] .ko-card-pill { color: var(--pm-purple-700, #6d28d9); background: var(--pm-purple-100, #f1ecff); border-color: var(--pm-purple-300, #c9b8ff); }
+  .ko-card[data-status="complete"] .ko-card-pill { color: var(--pm-green-700); background: var(--pm-green-100); border-color: var(--pm-state-completed-border, #16a34a); }
+
+  .ko-card-body { display: flex; flex-direction: column; gap: var(--space-xs); }
+  .ko-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-sm); }
+  .ko-flag { display: inline-flex; }
+  .ko-flag-ph { display: inline-grid; place-items: center; width: 1.85rem; height: 1.85rem; border-radius: 999px; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); color: var(--pm-blue-700, #1a3a8a); border: 1px dashed var(--pm-border-soft); font-family: var(--font-display); font-weight: 900; font-size: 0.8rem; flex: 0 0 auto; }
+  .ko-team-name { min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.01em; color: var(--pm-text-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ko-team-name[data-concrete="false"] { font-weight: 700; font-size: 0.78rem; text-transform: none; letter-spacing: 0; color: var(--pm-text-soft); }
+  .ko-score-ro { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-size: 1.2rem; font-weight: 800; color: var(--pm-blue-800); min-width: 1.6rem; text-align: center; }
+
+  .ko-advance, .ko-advance-ro { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; margin: 0; }
+  .ko-advance-label { font-family: var(--font-display); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pm-text-soft); margin-right: 0.1rem; }
+  .ko-advance-ro [data-ko-advance] { font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: var(--pm-blue-800); }
+  .ko-lock-note { font-family: var(--font-ui, var(--font-display)); font-size: 0.64rem; font-weight: 600; color: var(--pm-text-soft); text-transform: none; letter-spacing: 0; }
+  .ko-advance-btn { font-family: var(--font-display); font-weight: 800; font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.28rem 0.7rem; border: 2px solid var(--pm-border-blue); border-radius: var(--pm-radius-pill); background: var(--pm-white); color: var(--pm-blue-800); cursor: pointer; transition: border-color var(--pm-transition-fast), background var(--pm-transition-fast), color var(--pm-transition-fast); }
+  .ko-advance-btn:hover { border-color: var(--pm-cyan-500); }
+  .ko-advance-btn:focus-visible { outline: none; box-shadow: var(--pm-focus-ring); }
+  .ko-advance-btn[data-active="true"] { color: var(--pm-blue-900); background: var(--pm-cyan-500); border-color: var(--pm-cyan-600); }
+  .ko-advance-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ===== Variante "node": nodo compacto para el árbol del bracket (modo view) ===== */
+  /* Mantiene TODOS los hooks de hidratación en el DOM; solo oculta visualmente lo que no aplica. */
+  /* TODO dimensiona con calc(... * var(--ko-rs)) — escala de ronda heredada de .ko-round. */
+  .ko-card[data-ko-variant="node"] {
+    position: relative;
+    overflow: hidden;
+    gap: calc(0.28rem * var(--ko-rs, 1));
+    padding: calc(0.4rem * var(--ko-rs, 1)) calc(0.52rem * var(--ko-rs, 1));
+    border-radius: var(--pm-radius-md);
+    min-height: calc(var(--ko-node-h, 3.7rem) * var(--ko-rs, 1));
+    justify-content: center;
+    /* Profundidad de cromo/sticker: sombra dura + elevación + glow. */
+    box-shadow:
+      0 5px 0 rgba(7, 23, 53, 0.08),
+      0 12px 22px rgba(0, 91, 255, 0.14),
+      0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    transition: transform var(--pm-transition-fast), box-shadow var(--pm-transition-fast);
+  }
+  /* Brillo cromado/foil: streak especular diagonal + bordes de color (cian -> dorado). */
+  .ko-card[data-ko-variant="node"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      linear-gradient(118deg, transparent 0 40%, rgba(255, 255, 255, 0.5) 47%, transparent 55%),
+      linear-gradient(90deg, rgba(24, 221, 242, 0.16), transparent 40%, rgba(255, 210, 31, 0.13));
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .ko-card[data-ko-variant="node"]:hover {
+    transform: translateY(-2px) scale(1.012);
+    box-shadow:
+      0 8px 0 rgba(7, 23, 53, 0.1),
+      0 16px 30px rgba(0, 91, 255, 0.22),
+      0 0 22px rgba(24, 221, 242, 0.26);
+  }
+  .ko-card[data-ko-variant="node"] .ko-card-body,
+  .ko-card[data-ko-variant="node"] .ko-card-head { position: relative; z-index: 1; }
+  .ko-card[data-ko-variant="node"] .ko-score-ro,
+  .ko-card[data-ko-variant="node"] .ko-advance-ro { display: none; }
+  /* Número de slot (1-16) tipo HUD: chip neón al inicio de cada fila R32. */
+  .ko-team-num {
+    display: inline-grid;
+    place-items: center;
+    width: calc(1.25rem * var(--ko-rs, 1));
+    height: calc(1.25rem * var(--ko-rs, 1));
+    border-radius: 6px;
+    font-family: var(--font-score, var(--font-display));
+    font-variant-numeric: tabular-nums;
+    font-weight: 900;
+    font-size: calc(0.6rem * var(--ko-rs, 1));
+    color: #fff;
+    background: linear-gradient(180deg, #2a8bff, #0a47a8);
+    box-shadow: 0 2px 0 rgba(7, 23, 53, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 10px rgba(24, 221, 242, 0.55);
+    text-shadow: 0 1px 1px rgba(7, 23, 53, 0.5);
+    flex: 0 0 auto;
+  }
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-row { grid-template-columns: auto auto 1fr; }
+  /* En la LLAVE: fuera el código de partido y el pill de estado ("info fome").
+     Solo queda una fecha minúscula y muteada (como la referencia de transmisión). */
+  .ko-card[data-ko-variant="node"] .ko-card-head { gap: calc(0.4rem * var(--ko-rs, 1)); justify-content: center; }
+  .ko-card[data-ko-variant="node"] .ko-card-id,
+  .ko-card[data-ko-variant="node"] .ko-card-pill { display: none; }
+  .ko-card[data-ko-variant="node"] .ko-card-num { font-size: calc(0.55rem * var(--ko-rs, 1)); letter-spacing: 0.08em; }
+  .ko-card[data-ko-variant="node"] .ko-card-date { color: var(--pm-text-soft); opacity: 0.82; }
+  /* Sin fecha → header vacío: colapsa para no robar alto (la Final/3P pueden no tenerla). */
+  .ko-card[data-ko-variant="node"] .ko-card-head:not(:has(.ko-card-date)) { display: none; }
+  .ko-card[data-ko-variant="node"] .ko-card-body { gap: calc(0.2rem * var(--ko-rs, 1)); }
+  .ko-card[data-ko-variant="node"] .ko-row { grid-template-columns: auto 1fr; gap: calc(0.45rem * var(--ko-rs, 1)); }
+  .ko-card[data-ko-variant="node"] .ko-team-name { font-size: calc(0.82rem * var(--ko-rs, 1)); }
+  .ko-card[data-ko-variant="node"] .ko-team-name[data-concrete="false"] { font-size: calc(0.7rem * var(--ko-rs, 1)); }
+  /* Rondas internas SIN equipo aún: fuera el "Ganador P77" (info fome). En su lugar, una barra
+     "en espera" limpia que se llena sola cuando el cruce de abajo resuelve. Los 16avos (R32) NO:
+     ahí los placeholders de grupo ("2º Grupo K") sí informan y son parte del show. */
+  .ko-card[data-ko-variant="node"]:not([data-ko-round="R32"]) .ko-team-name[data-concrete="false"] {
+    font-size: 0;
+    line-height: 0;
+  }
+  .ko-card[data-ko-variant="node"]:not([data-ko-round="R32"]) .ko-team-name[data-concrete="false"]::before {
+    content: "";
+    display: block;
+    width: calc(2.8rem * var(--ko-rs, 1));
+    max-width: 100%;
+    height: calc(0.34rem * var(--ko-rs, 1));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ko-accent, var(--pm-cyan-500)) 34%, #e6edf7);
+    opacity: 0.75;
+  }
+  /* Banderas y placeholder escalan con la ronda. */
+  .ko-card[data-ko-variant="node"] .ko-flag :global(.team-flag) {
+    width: calc(1.85rem * var(--ko-rs, 1));
+    height: calc(1.85rem * var(--ko-rs, 1));
+  }
+  .ko-card[data-ko-variant="node"] .ko-flag-ph {
+    width: calc(1.85rem * var(--ko-rs, 1));
+    height: calc(1.85rem * var(--ko-rs, 1));
+    font-size: calc(0.8rem * var(--ko-rs, 1));
+  }
+  /* Realce del ganador más fuerte en el árbol (fondo + acento). */
+  .ko-card[data-ko-variant="node"] .ko-row[data-winner="true"] {
+    background: var(--pm-green-100, #dcfce7);
+    border-radius: var(--pm-radius-xs);
+    margin: -0.1rem -0.3rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  /* ===== Rondas internas (R16/QF/SF): identidad de color por ronda (cian -> azul -> violeta).
+     Mata el "páramo gris" del centro: cada nodo lleva el acento de su ronda (--ko-accent). ===== */
+  .ko-card[data-ko-variant="node"]:not([data-ko-round="R32"]):not([data-ko-round="F"]):not([data-ko-round="3P"]) {
+    border: 2px solid color-mix(in srgb, var(--ko-accent, var(--pm-cyan-500)) 48%, #fff);
+    border-top: 4px solid var(--ko-accent, var(--pm-cyan-500));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--ko-accent, var(--pm-cyan-500)) 20%, #fff), var(--pm-white) 74%);
+  }
+  .ko-card[data-ko-variant="node"]:not([data-ko-round="R32"]) .ko-flag-ph {
+    background: color-mix(in srgb, var(--ko-accent, var(--pm-cyan-500)) 16%, #fff);
+    border-color: color-mix(in srgb, var(--ko-accent, var(--pm-cyan-500)) 55%, #fff);
+    border-style: solid;
+    color: color-mix(in srgb, var(--ko-accent, var(--pm-blue-700)) 65%, #1a3a8a);
+  }
+  .ko-card[data-ko-variant="node"]:not([data-ko-round="R32"]) .ko-card-num { color: color-mix(in srgb, var(--ko-accent, var(--pm-blue-700)) 60%, var(--pm-blue-800)); }
+
+  /* ===== R32 "HERO": 16avos en grande, vibrante y arcade (es la única ronda con equipos reales). ===== */
+  /* Marco con gradiente (padding-box/border-box) conservando esquinas redondeadas + glow. */
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] {
+    border: 2.5px solid transparent;
+    border-radius: var(--pm-radius-md);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--pm-cyan-500) 12%, #fff), #fff 46%) padding-box,
+      linear-gradient(135deg, var(--pm-cyan-500), var(--pm-blue-600) 52%, var(--pm-orange-500)) border-box;
+    box-shadow:
+      0 7px 0 rgba(7, 23, 53, 0.12),
+      0 16px 30px rgba(18, 109, 255, 0.24),
+      inset 0 2px 0 rgba(255, 255, 255, 0.7);
+  }
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-card-num { color: var(--pm-blue-800); font-weight: 900; }
+  /* Nombre grande pero a 2 líneas (sin recortar países largos: "Costa de Marfil", "Estados Unidos"). */
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-team-name {
+    font-weight: 950;
+    color: var(--pm-text-strong);
+    font-size: calc(0.72rem * var(--ko-rs, 1));
+    white-space: normal;
+    line-height: 1.05;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: clip;
+    /* Cortar SOLO en espacios (nada de "ARGENTIN A" / "MARRUECO S"); con la tarjeta más ancha entran. */
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+  }
+  /* Choque local/visita (eco del VS de Próximo): home azul, away naranja; respeta el verde de ganador. */
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-row[data-slot="home"]:not([data-winner="true"]) {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--pm-blue-500) 36%, #fff), color-mix(in srgb, var(--pm-blue-500) 8%, #fff) 70%, transparent 96%);
+    border-radius: var(--pm-radius-xs); margin: 0 -0.25rem; padding: 0.16rem 0.25rem;
+  }
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-row[data-slot="away"]:not([data-winner="true"]) {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--pm-orange-500) 36%, #fff), color-mix(in srgb, var(--pm-orange-500) 8%, #fff) 70%, transparent 96%);
+    border-radius: var(--pm-radius-xs); margin: 0 -0.25rem; padding: 0.16rem 0.25rem;
+  }
+  .ko-card[data-ko-variant="node"][data-ko-round="R32"] .ko-flag :global(.team-flag) {
+    border: 2px solid #fff;
+    box-shadow: 0 2px 9px rgba(7, 23, 53, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ko-card, .ko-advance-btn { transition-duration: 0.01ms; }
+  }
+</style>

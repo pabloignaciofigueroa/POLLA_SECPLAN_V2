@@ -3,6 +3,43 @@
 ## Estado
 wireframe-implemented
 
+## DISEÑO HARD — LLAVE arcade (2026-06-28)
+
+Rediseño **solo visual** de la LLAVE a pantalla de torneo arcade (videojuego deportivo). NO toca
+lógica, topología, `winnerTo`, `bracketSlot`, datos ni hooks; `/predicciones` y `/podio` intactos.
+
+- **Stage** (`FixtureSection.astro` + `.module.css`): clase `fixtureArcadeStage` con atmósfera 100% CSS
+  — `arcadeAtmosphere` > `stadiumGlow` (reflectores), `speedLines` (energía lateral enmascarada),
+  `confettiLayer` (~18 puntos en bordes/arriba, centro despejado), `fieldGlow` (piso cian/verde).
+  Fondo = gradiente luminoso (sin negro dominante, sin imagen-screenshot). Tokens locales `--llave-*`.
+  Franja `bottomHud` inferior (microcopy "Vive la pasión · SECPLAN 2026 · Tu pronóstico hace historia").
+- **Round labels** (`BracketTree.astro`): tabs **HUD hexagonales** (`clip-path`), azul neón; R32 dorada.
+- **Centro ceremonial**: halo grande tras la copa (`ko-trophy-stage::before`), copa con `ko-trophy-pulse`
+  (leve, off en reduced-motion), placa **GRAN FINAL** dorada 3D, **¡CAMPEÓN!** (degradé oro grande),
+  placa **TERCER PUESTO** morada.
+- **Conectores**: cian neón con `drop-shadow` glow; camino del campeón dorado (`ko-conn--win`),
+  perdedor morado punteado (`ko-conn--lose`). NO cambia el algoritmo de medición (solo color/clase CSS).
+- **Cards cromo/sticker** (`BracketMatchCard.astro`, scoped a `[data-ko-variant="node"]` — captura intacta):
+  sombra dura `0 5-7px 0` + glow + `::before` sheen + hover físico. **Números de slot 1-16** por lado
+  (prop `seedNum`: home=seedNum+1, away=seedNum+2; chip neón; grid R32 `auto auto 1fr`).
+- **fit()** (`bracket-tree.client.js`): reserva el alto de `[data-bottom-hud]` en `availH` para que el
+  bracket completo quepa sin tapar el HUD (sigue HEIGHT-bound; márgenes laterales ~0 en desktop).
+- Hooks preservados: `data-ko-match/flag/name/score/advance/status-pill/locknote`, `data-knockout-readonly`,
+  `data-ko-node/side/winnerto/loserto`, `.ko-row[data-slot]`, `data-concrete`. Estado-cero R16+ intacto.
+
+## Rediseño LLAVE — árbol espejo (2026-06-27)
+`/fixture` ahora renderiza un **bracket espejo** (R32 izq + R32 der → Final central + 3er puesto)
+en desktop, que **colapsa a columnas** en móvil (<1080px).
+- `lib/knockout/bracketTree.js` (`buildBracketTree`) deriva la topología LEFT/CENTER/RIGHT
+  SOLO desde `winnerTo` (post-orden por `bracketSlot`). Test: `tests/bracket-tree.test.mjs`.
+- `BracketTree.astro` arma el layout (flex anidado) + capa SVG de conectores; `bracket-tree.client.js`
+  mide los nodos (offsetLeft/Top), dibuja los elbows y **ajusta el árbol al ancho** (transform scale).
+- Los nodos son `BracketMatchCard variant="node"` (compacto, solo lectura) — **conserva todos los
+  hooks** (`data-ko-match/flag/name/score/advance/status-pill`), así `fixture.bracket.client.js`
+  sigue hidratando equipos/ganadores/desbloqueo sin cambios.
+- Centro: Final (P104) con trofeo `assets/copa/trophy-worldcup-main.webp` + glow dorado; 3er puesto (P103).
+- Estado-cero respetado: R16+ como "Ganador P##"; nunca se pre-hornean ganadores.
+
 ## Consenso en la lista - 2026-06-09 (coral removido 2026-06-13)
 
 - La lista de partidos muestra el nivel de CONSENSO (Unánime/Consenso fuerte/

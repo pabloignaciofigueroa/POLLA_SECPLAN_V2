@@ -20,32 +20,17 @@ const { links } = Astro.props;
   </summary>
   <nav class="overlay" aria-label="Navegación móvil">
     <ul>
-      {links.map((link) => {
-        const isAdminLink = link.href === "/admin";
-        return (
+      {links.map((link) => (
         <li>
           <a
             href={link.href}
             aria-current={link.isActive ? "page" : undefined}
-            data-admin-access-trigger={isAdminLink ? true : undefined}
-            data-astro-prefetch={isAdminLink ? undefined : "viewport"}
+            data-astro-prefetch="viewport"
           >
-            {isAdminLink ? (
-              <>
-                <span class="admin-lock" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
-                  </svg>
-                </span>
-                <span>Admin</span>
-              </>
-            ) : (
-              link.label
-            )}
+            {link.label}
           </a>
         </li>
-        );
-      })}
+      ))}
     </ul>
   </nav>
 </details>

@@ -1,0 +1,226 @@
+---
+// Seccion 13_tabla — TABLA DINÁMICA DE JUGADORES. 100% local.
+// IZQ: ranking (escalera) puntuado contra resultados vivos del admin (pre-torneo: 0 pts / "--").
+// DER: cruce activo/próximo + predicciones de cada jugador para ese cruce (guiones si faltan).
+// Hooks: data-tabla-row/cell/body/note (ranking) + data-tabla-cruce*/pred* (panel derecho).
+import playersData from "../../data/players.json";
+import knockoutData from "../../data/knockout-matches.json";
+import teamsData from "../../data/teams.json";
+import seed from "../../data/knockout-results.json";
+import submissionsData from "../../data/knockout-predictions.json";
+
+const players = (playersData as any[]).map((p) => ({ id: p.id, name: p.name, avatar: p.avatar }));
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
+const clientPayload = {
+  players,
+  matches: (knockoutData as any).matches,
+  teams: teamsLite,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
+  submissions: (submissionsData as any).submissions ?? [],
+};
+---
+
+<section class="tk" id="tabla" data-section="tabla">
+  <div class="tk-shell">
+    <header class="tk-hero" data-animate="fade-up" style="--i:0">
+      <div class="tk-hero-main">
+        <p class="tk-eyebrow">eliminatorias · tabla dinámica</p>
+        <h1 class="tk-title">Tabla de <span class="tk-title-accent">jugadores</span></h1>
+      </div>
+      <span class="tk-status" data-tabla-note>Torneo no iniciado</span>
+    </header>
+
+    <div class="tk-grid">
+      <!-- ===== IZQ: RANKING ===== -->
+      <section class="tk-col tk-col--rank" aria-label="Ranking de jugadores">
+        <h2 class="tk-col-title">Ranking <span data-tabla-count>{players.length}</span></h2>
+        <ol class="tk-ladder" data-tabla-body data-started="false" data-stagger>
+          {players.map((p, i) => (
+            <li class="tk-card" data-tabla-row={p.id} data-leader="false" data-change="same" data-animate="fade-up" style={`--i:${Math.min(i + 1, 8)}`}>
+              <span class="tk-rank" data-cell="pos">{i + 1}</span>
+              <span class="tk-move" data-tabla-move aria-hidden="true"></span>
+              <span class="tk-avatar">{p.avatar ? <img src={p.avatar} alt="" width="40" height="40" loading="lazy" /> : null}</span>
+              <div class="tk-id">
+                <span class="tk-name">{p.name}</span>
+                <span class="tk-break"><b data-cell="match">0</b> cruces · <b data-cell="podium">0</b> podio</span>
+              </div>
+              <span class="tk-pts"><b data-cell="total">0</b><small>pts</small></span>
+            </li>
+          ))}
+        </ol>
+        <p class="tk-legend">Exacto <b>+5/+3</b> · Tendencia <b>+1</b> · Podio <b>+8/+5/+3/+1</b></p>
+      </section>
+
+      <!-- ===== DER: CRUCE + PREDICCIONES ===== -->
+      <section class="tk-col tk-col--cruce" aria-label="Cruce y predicciones">
+        <h2 class="tk-col-title">Cruce en juego / próximo</h2>
+        <div class="tk-cruce" data-tabla-cruce>
+          <span class="tk-cruce-when" data-tabla-cruce-when>Por definir</span>
+          <div class="tk-cruce-vs">
+            <span class="tk-cruce-team" data-tabla-cruce-home>—</span>
+            <span class="tk-cruce-score" data-tabla-cruce-score>– : –</span>
+            <span class="tk-cruce-team tk-cruce-team--away" data-tabla-cruce-away>—</span>
+          </div>
+          <span class="tk-cruce-state" data-tabla-cruce-state>Por jugar</span>
+        </div>
+
+        <h2 class="tk-col-title tk-col-title--preds">Predicciones jugadores</h2>
+        <div class="tk-preds-head" aria-hidden="true">
+          <span>Jugador</span><span>Marcador</span><span>Avanza</span><span>Pts</span>
+        </div>
+        <ul class="tk-preds" data-tabla-preds>
+          {players.map((p) => (
+            <li class="tk-pred-row" data-tabla-pred={p.id}>
+              <span class="tk-pred-name">{p.name}</span>
+              <span class="tk-pred-marker">
+                <span class="tk-pred-flag" data-pred-flag data-empty="true" aria-hidden="true"></span>
+                <span class="tk-pred-score" data-pred-score>– : –</span>
+              </span>
+              <span class="tk-pred-adv" data-pred-adv>–</span>
+              <span class="tk-pred-pts" data-pred-pts>–</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <script type="application/json" data-tabla-payload set:html={JSON.stringify(clientPayload)} />
+  <script>
+    import "./tabla.knockout.client.js";
+  </script>
+</section>
+
+<style>
+  .tk {
+    --section-accent: var(--pm-sec-tabla-a);
+    --section-accent-2: var(--pm-sec-tabla-b);
+    position: relative;
+    min-height: calc(100svh - var(--layout-header-height));
+    padding: clamp(0.7rem, 1.6vw, 1.3rem);
+    background-image: image-set(
+      url("/assets/backgrounds/avif/05_tabla_background.avif") type("image/avif"),
+      url("/assets/backgrounds/webp/05_tabla_background.webp") type("image/webp"));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--pm-text-main);
+    font-family: var(--font-ui);
+  }
+  .tk-shell { width: min(100% - 1rem, 78rem); margin-inline: auto; display: flex; flex-direction: column; gap: clamp(0.5rem, 1vw, 0.85rem); }
+
+  .tk-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .tk-hero-main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .tk-eyebrow {
+    margin: 0; padding: 0.26rem 0.85rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--section-accent) 18%, var(--pm-white));
+    border: 1px solid color-mix(in srgb, var(--section-accent) 42%, var(--pm-white));
+    color: var(--pm-text-main); font-family: var(--font-display); font-weight: 900;
+    font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .tk-title { margin: 0; font-family: var(--font-display); font-weight: 950; font-size: clamp(1.5rem, 3.4vw, 2.5rem); text-transform: uppercase; line-height: 0.95; color: var(--pm-blue-900); }
+  .tk-title-accent { background: linear-gradient(100deg, var(--pm-sec-tabla-a), var(--pm-sec-tabla-b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tk-status {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.66rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--pm-blue-800);
+    padding: 0.3rem 0.75rem; border-radius: 999px; background: rgba(255, 255, 255, 0.78);
+    border: 1px solid var(--pm-border-soft);
+  }
+
+  /* ===== Grid 2 columnas ===== */
+  .tk-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(0.6rem, 1.4vw, 1.1rem); align-items: start; }
+  .tk-col { min-width: 0; display: flex; flex-direction: column; gap: 0.45rem; min-height: 0; }
+  .tk-col-title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pm-blue-900); }
+  .tk-col-title--preds { margin-top: 0.3rem; }
+  .tk-col-title span { color: var(--pm-cyan-600); }
+
+  /* ===== ESCALERA (ranking) ===== */
+  .tk-ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+  .tk-card {
+    display: grid;
+    grid-template-columns: 2.1rem 0.8rem auto minmax(0, 1fr) auto;
+    align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.7rem; border-radius: var(--pm-radius-md);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--section-accent) 14%, var(--pm-white)), var(--pm-white) 62%);
+    box-shadow: inset 4px 0 0 var(--section-accent), var(--pm-shadow-soft);
+  }
+  .tk-rank {
+    font-family: var(--font-score); font-weight: 800; font-size: 0.9rem; color: #fff; text-align: center;
+    width: 1.7rem; height: 1.7rem; display: grid; place-items: center; margin-inline: auto; border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-cyan-500));
+    box-shadow: 0 3px 8px rgba(18, 109, 255, 0.32);
+  }
+  .tk-move { font-size: 0.7rem; text-align: center; line-height: 1; }
+  .tk-card[data-change="up"] .tk-move::before { content: "▲"; color: var(--pm-green-500); }
+  .tk-card[data-change="down"] .tk-move::before { content: "▼"; color: var(--pm-red-500); }
+  .tk-avatar { width: 2.1rem; height: 2.1rem; border-radius: 999px; overflow: hidden; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); display: inline-grid; place-items: center; flex: 0 0 auto; border: 2px solid var(--pm-cyan-400, #46f1ff); }
+  .tk-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .tk-id { display: flex; flex-direction: column; gap: 0.02rem; min-width: 0; }
+  .tk-name { font-family: var(--font-display); font-weight: 900; font-size: 0.92rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tk-break { font-family: var(--font-display); font-weight: 700; font-size: 0.58rem; letter-spacing: 0.02em; color: var(--pm-text-soft); }
+  .tk-break b { color: var(--pm-blue-600); }
+  .tk-pts { display: flex; flex-direction: column; align-items: flex-end; line-height: 0.85; }
+  .tk-pts b { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.3rem; color: var(--pm-blue-600); }
+  .tk-pts small { font-family: var(--font-display); font-weight: 800; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pm-text-soft); }
+  .tk-legend { margin: 0.1rem 0 0; font-family: var(--font-display); font-weight: 700; font-size: 0.62rem; letter-spacing: 0.02em; color: var(--pm-text-soft); }
+  .tk-legend b { color: var(--pm-blue-700); }
+
+  .tk-ladder[data-started="true"] .tk-card:nth-child(1) { border: 2px solid var(--pm-rank-gold); box-shadow: inset 4px 0 0 var(--pm-rank-gold), var(--pm-shadow-yellow); }
+  .tk-ladder[data-started="true"] .tk-card:nth-child(1) .tk-rank { background: linear-gradient(135deg, #ffe27a, var(--pm-rank-gold)); color: #5a3b00; }
+  .tk-ladder[data-started="true"] .tk-card:nth-child(1) .tk-pts b { color: var(--pm-gold-700); }
+  .tk-ladder[data-started="true"] .tk-card:nth-child(2) .tk-rank { background: linear-gradient(135deg, #eef3fb, var(--pm-rank-silver)); color: #2a3b57; }
+  .tk-ladder[data-started="true"] .tk-card:nth-child(3) .tk-rank { background: linear-gradient(135deg, #e2a86b, var(--pm-rank-bronze)); color: #4a2400; }
+
+  /* ===== Cruce ===== */
+  .tk-cruce {
+    display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+    padding: 0.7rem 0.9rem; border-radius: var(--pm-radius-md);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--pm-blue-500) 16%, #fff), var(--pm-white) 60%);
+    border: 1px solid color-mix(in srgb, var(--pm-blue-500) 30%, var(--pm-border-soft));
+    box-shadow: var(--pm-shadow-soft);
+  }
+  .tk-cruce-when { font-family: var(--font-display); font-weight: 800; font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-blue-700); }
+  .tk-cruce-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; width: 100%; }
+  .tk-cruce-team { font-family: var(--font-display); font-weight: 900; font-size: 0.92rem; text-transform: uppercase; color: var(--pm-blue-900); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tk-cruce-team--away { text-align: left; }
+  .tk-cruce-score { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.15rem; color: var(--pm-blue-700); padding: 0.1rem 0.5rem; border-radius: 8px; background: rgba(255, 255, 255, 0.8); }
+  .tk-cruce-state {
+    font-family: var(--font-display); font-weight: 900; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.18rem 0.7rem; border-radius: 999px; color: var(--pm-blue-800);
+    background: var(--pm-white); border: 1px solid var(--pm-border-soft);
+  }
+  .tk-cruce[data-state="live"] .tk-cruce-state { color: #fff; background: var(--pm-red-500); border-color: var(--pm-red-500); }
+  .tk-cruce[data-state="done"] .tk-cruce-state { color: var(--pm-green-700); background: var(--pm-green-100); border-color: var(--pm-state-completed-border, #16a34a); }
+
+  /* ===== Predicciones jugadores ===== */
+  .tk-preds-head, .tk-pred-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto 2.6rem 2rem; align-items: center; gap: 0.4rem;
+    padding: 0.26rem 0.6rem;
+  }
+  .tk-preds-head { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-text-soft); }
+  .tk-preds-head span:not(:first-child), .tk-pred-row > span:not(:first-child) { text-align: center; }
+  .tk-preds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.18rem; }
+  .tk-pred-row { border-radius: var(--pm-radius-sm); background: rgba(255, 255, 255, 0.72); border: 1px solid var(--pm-border-soft); }
+  .tk-pred-name { font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tk-pred-marker { display: inline-flex; align-items: center; justify-content: center; gap: 0.32rem; }
+  .tk-pred-flag { width: 1rem; height: 1rem; border-radius: 999px; background-size: cover; background-position: center; background-repeat: no-repeat; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(7, 23, 53, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.5); }
+  .tk-pred-flag[data-empty="true"] { display: none; }
+  .tk-pred-score { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.84rem; color: var(--pm-blue-700); }
+  .tk-pred-adv { font-family: var(--font-display); font-weight: 800; font-size: 0.68rem; color: var(--pm-cyan-700, #0e7490); }
+  .tk-pred-pts { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.82rem; color: var(--pm-text-soft); }
+  .tk-pred-row[data-pts-pos="true"] .tk-pred-pts { color: var(--pm-green-600, #16a34a); }
+
+  /* Desktop/tablet: la sección vive en el viewport; cada columna scrollea interno. */
+  @media (min-width: 768px) {
+    .tk { height: calc(100svh - var(--layout-header-height)); max-height: calc(100svh - var(--layout-header-height)); overflow: hidden; }
+    .tk-shell { height: 100%; max-height: 100%; overflow: hidden; }
+    .tk-grid { flex: 1; min-height: 0; }
+    .tk-col { height: 100%; }
+    .tk-ladder, .tk-preds { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.2rem; }
+  }
+
+  @media (max-width: 760px) {
+    .tk-grid { grid-template-columns: 1fr; }
+  }
+</style>

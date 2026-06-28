@@ -1,6 +1,5 @@
 ---
 import MobileMenu from "./MobileMenu.astro";
-import AdminAccessModal from "./AdminAccessModal.astro";
 
 const normalizePath = (path: string) => {
   if (path === "/") return "/";
@@ -9,14 +8,16 @@ const normalizePath = (path: string) => {
 
 const currentPath = normalizePath(Astro.url.pathname);
 
+// Polla de ELIMINATORIAS — todas las secciones activas.
 const links = [
   { href: "/", label: "Inicio" },
   { href: "/reglas", label: "Reglas" },
   { href: "/jugador", label: "Jugador" },
   { href: "/predicciones", label: "Predicciones" },
+  { href: "/podio", label: "Podio" },
+  { href: "/proximo-partido", label: "Próximo" },
   { href: "/tabla", label: "Tabla" },
-  { href: "/proximo-partido", label: "Próximo Partido" },
-  { href: "/fixture", label: "Fixture" },
+  { href: "/fixture", label: "Llave" },
   { href: "/equipos", label: "Equipos" },
   { href: "/estadisticas", label: "Estadísticas" },
   { href: "/admin", label: "Admin" },
@@ -31,42 +32,22 @@ const links = [
 
   <nav class="nav-desktop" aria-label="Navegación principal">
     <ul>
-      {links.map((link) => {
-        const isAdminLink = link.href === "/admin";
-        return (
+      {links.map((link) => (
         <li>
           <a
             href={link.href}
             aria-current={link.isActive ? "page" : undefined}
-            data-admin-access-trigger={isAdminLink ? true : undefined}
-            data-astro-prefetch={isAdminLink ? undefined : "viewport"}
+            data-astro-prefetch="viewport"
           >
-            {isAdminLink ? (
-              <>
-                <span class="admin-lock" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2 0h6V8a3 3 0 0 0-6 0v2Zm3 4a1.4 1.4 0 0 0-.8 2.55V18h1.6v-1.45A1.4 1.4 0 0 0 12 14Z" />
-                  </svg>
-                </span>
-                <span>Admin</span>
-              </>
-            ) : (
-              link.label
-            )}
+            {link.label}
           </a>
         </li>
-        );
-      })}
+      ))}
     </ul>
   </nav>
 
   <MobileMenu links={links} />
 </header>
-
-<AdminAccessModal />
-<script>
-  import "./admin-access.client.js";
-</script>
 
 <style>
   .header {
@@ -98,9 +79,13 @@ const links = [
 
   .nav-desktop ul {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--space-sm);
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .nav-desktop ul::-webkit-scrollbar { display: none; }
 
   .nav-desktop a {
     display: inline-flex;
@@ -155,6 +140,12 @@ const links = [
 
   .nav-desktop a[aria-current="page"]:focus-visible {
     box-shadow: 0 0 18px var(--pm-gold-glow), var(--pm-focus-ring-yellow);
+  }
+
+  /* Tablet: encoge la nav para que los 11 links quepan en UNA fila (header de alto estable). */
+  @media (max-width: 1180px) {
+    .nav-desktop a { font-size: 0.74rem; padding: var(--space-xs) 0.5rem; letter-spacing: 0.03em; }
+    .nav-desktop ul { gap: 0.3rem; }
   }
 
   @media (max-width: 900px) {

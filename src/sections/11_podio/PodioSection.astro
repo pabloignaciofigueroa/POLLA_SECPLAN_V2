@@ -1,0 +1,265 @@
+---
+// Seccion 11_podio — PREDICCION DE PODIO (campeon / subcampeon / 3o / 4o). 100% local.
+// Se elige entre los 32 clasificados a dieciseisavos (incluye placeholders 1x/2x/3xxxxx).
+// Guarda en polla:podiumPredictions por jugador. Sin red.
+import TeamFlag from "../../components/ui/TeamFlag.astro";
+import knockoutTeams from "../../data/knockout-teams.json";
+import teamsData from "../../data/teams.json";
+import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
+import { PODIUM_LABELS } from "../../lib/knockout/podium.js";
+
+const teamsByCode = buildTeamsByCode(teamsData as any[]);
+const slots = (knockoutTeams.slots as any[]).map((s) => {
+  const team = s.concrete ? teamsByCode.get(s.code) : null;
+  return {
+    code: s.code,
+    name: s.name,
+    concrete: Boolean(s.concrete),
+    flag: team?.flag ?? null,
+    shortCode: team?.shortCode ?? s.code,
+  };
+});
+
+const SPOTS = [
+  { key: "champion", label: PODIUM_LABELS.champion, medal: "🥇" },
+  { key: "runnerUp", label: PODIUM_LABELS.runnerUp, medal: "🥈" },
+  { key: "third", label: PODIUM_LABELS.third, medal: "🥉" },
+  { key: "fourth", label: PODIUM_LABELS.fourth, medal: "4️⃣" },
+];
+
+const clientPayload = { slots };
+---
+
+<section class="podio-section" id="podio" data-section="podio">
+  <div class="podio-shell">
+    <header class="podio-hero" data-animate="fade-up">
+      <p class="podio-eyebrow">etapa 2 / eliminatorias</p>
+      <h1 class="podio-title">Tu podio</h1>
+      <p class="podio-subtitle">
+        Elige campeón, subcampeón, tercer y cuarto lugar entre los 32 clasificados a
+        dieciseisavos. No repitas equipos. Puedes elegir incluso plazas aún por definir.
+      </p>
+      <p class="podio-identity" data-podium-identity hidden></p>
+    </header>
+
+    <div class="podio-grid">
+      {SPOTS.map((spot) => (
+        <article class="podio-card" data-podium-card={spot.key}>
+          <header class="podio-card-head">
+            <span class="podio-medal" aria-hidden="true">{spot.medal}</span>
+            <h2 class="podio-card-label">{spot.label}</h2>
+          </header>
+          <div class="podio-pick">
+            <span class="podio-flag" data-podium-preview={spot.key} aria-hidden="true"></span>
+            <label class="podio-select-label">
+              <span class="sr-only">{spot.label}</span>
+              <select data-podium-spot={spot.key}>
+                <option value="">— Elegir equipo —</option>
+                {slots.map((s) => (
+                  <option value={s.code}>{s.name}{s.concrete ? "" : " (por definir)"}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="podio-actionbar">
+      <p class="podio-status" data-podium-status aria-live="polite">Podio 0/4.</p>
+      <a class="podio-link" href="/predicciones">← Volver a mis dieciseisavos</a>
+    </div>
+  </div>
+
+  <script type="application/json" data-podium-payload set:html={JSON.stringify(clientPayload)} />
+  <script>
+    import "./podio.client.js";
+  </script>
+</section>
+
+<style>
+  .podio-section {
+    position: relative;
+    min-height: calc(100svh - var(--layout-header-height));
+    padding: clamp(1.4rem, 3vw, 2.6rem);
+    background:
+      radial-gradient(80% 55% at 50% -8%, rgba(255, 210, 31, 0.3), transparent 60%),
+      radial-gradient(70% 50% at 102% 102%, rgba(124, 53, 255, 0.18), transparent 60%),
+      radial-gradient(60% 45% at -5% 100%, rgba(24, 200, 255, 0.18), transparent 60%),
+      linear-gradient(160deg, #eef4ff, #f6f8fb);
+    color: var(--pm-text-main);
+    font-family: var(--font-ui);
+  }
+  .podio-shell {
+    max-width: 60rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.2rem, 3vw, 2rem);
+  }
+  .podio-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  .podio-eyebrow {
+    margin: 0;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 241, 214, 0.96), rgba(255, 228, 232, 0.9));
+    color: var(--pm-orange-600);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .podio-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 950;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    background: linear-gradient(100deg, var(--pm-orange-500), var(--pm-yellow-600) 55%, var(--pm-gold-700));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .podio-subtitle {
+    margin: 0;
+    max-width: 54ch;
+    color: var(--pm-blue-900);
+    font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+    font-weight: 600;
+  }
+  .podio-identity {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--pm-cyan-700, #0e7490);
+  }
+  .podio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.8rem, 1.6vw, 1.2rem);
+  }
+  .podio-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: none;
+    border-radius: var(--pm-radius-lg);
+    box-shadow: var(--pm-shadow-card);
+    position: relative;
+  }
+  .podio-card[data-podium-card="champion"] { background: linear-gradient(135deg, #ffe27a, #ffc400); }
+  .podio-card[data-podium-card="runnerUp"] { background: linear-gradient(135deg, #cdd7e8, #94a2bd); }
+  .podio-card[data-podium-card="third"] { background: linear-gradient(135deg, #e3a86c, #b87333); }
+  .podio-card[data-podium-card="fourth"] { background: linear-gradient(135deg, #46a0ff, #126dff); }
+  .podio-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .podio-medal {
+    font-size: 1.7rem;
+    filter: drop-shadow(0 2px 4px rgba(7, 23, 53, 0.25));
+  }
+  .podio-card-label {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pm-blue-900);
+  }
+  .podio-card[data-podium-card="champion"] .podio-card-label { color: #3a2700; }
+  .podio-card[data-podium-card="runnerUp"] .podio-card-label,
+  .podio-card[data-podium-card="third"] .podio-card-label,
+  .podio-card[data-podium-card="fourth"] .podio-card-label { color: #fff; text-shadow: 0 1px 4px rgba(7, 23, 53, 0.3); }
+  .podio-pick {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .podio-flag {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 2px 8px rgba(7, 23, 53, 0.18);
+    flex: 0 0 auto;
+  }
+  .podio-flag img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .podio-select-label {
+    display: block;
+    min-width: 0;
+  }
+  select[data-podium-spot] {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border: 2px solid var(--pm-border-blue);
+    border-radius: var(--pm-radius-sm);
+    background: var(--pm-white);
+    color: var(--pm-blue-900);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+  select[data-podium-spot]:focus-visible {
+    outline: none;
+    border-color: var(--pm-cyan-500);
+    box-shadow: var(--pm-focus-ring);
+  }
+  .podio-card[data-filled="true"] {
+    box-shadow: 0 0 0 3px var(--pm-mint-500), var(--pm-shadow-card);
+  }
+  .podio-actionbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--pm-border-soft);
+  }
+  .podio-status {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.86rem;
+    color: var(--pm-blue-800);
+  }
+  .podio-status[data-error="true"] {
+    color: var(--pm-state-error-soft-text, #b91c1c);
+  }
+  .podio-link {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.84rem;
+    color: var(--pm-cyan-600);
+    text-decoration: underline;
+  }
+  @media (max-width: 620px) {
+    .podio-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

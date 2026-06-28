@@ -50,6 +50,17 @@
   gap: clamp(0.65rem, 1.15vw, 0.9rem);
 }
 
+/* Desktop/tablet: la sección vive dentro del viewport (sin scroll del body). */
+@media (min-width: 768px) {
+  .contentShell {
+    height: calc(100svh - var(--layout-header-height));
+    max-height: calc(100svh - var(--layout-header-height));
+    min-height: 0;
+    overflow: hidden;
+    justify-content: center;
+  }
+}
+
 .bottomLayout {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.9fr);

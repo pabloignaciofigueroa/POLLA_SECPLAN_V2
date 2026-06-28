@@ -1,0 +1,300 @@
+---
+// Seccion 06_proximo_partido — "VS SCREEN" arcade del proximo cruce. 100% local.
+// SSR pinta el proximo cruce (seed); el cliente lo re-resuelve en vivo (admin), countdown,
+// tu pronostico y resultados recientes. Hooks data-px-* preservados para la hidratacion.
+import knockoutData from "../../data/knockout-matches.json";
+import teamsData from "../../data/teams.json";
+import seed from "../../data/knockout-results.json";
+import { sortBySlot } from "../../lib/knockout/model";
+import type { KnockoutMatch } from "../../lib/knockout/model";
+import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
+import { resolveBracket } from "../../lib/knockout/bracket.js";
+import { findNextMatch } from "../../lib/knockout/schedule.js";
+
+const teamsByCode = buildTeamsByCode(teamsData as any[]);
+const allMatches = sortBySlot(knockoutData.matches as KnockoutMatch[]);
+const resolved = resolveBracket(allMatches, {
+  assignments: (seed as any).slotAssignments ?? {},
+  results: (seed as any).results ?? [],
+  teamsByCode,
+});
+const next = findNextMatch(resolved);
+
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
+const clientPayload = {
+  matches: allMatches,
+  teams: teamsLite,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
+};
+
+const MES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+function fmtWhen(m?: KnockoutMatch | null) {
+  if (!m?.dateCL) return "Por definir";
+  const [, mo, d] = m.dateCL.split("-").map(Number);
+  return `${d} ${MES[(mo ?? 1) - 1] ?? ""} · ${m.timeCL ?? ""} hrs`;
+}
+const a = next?.slotA;
+const b = next?.slotB;
+---
+
+<section class="px" id="proximo" data-section="proximo">
+  <div class="px-shell">
+    <!-- BANNER -->
+    <header class="px-banner">
+      <p class="px-eyebrow" data-animate="fade-down" style="--i:0">⚔ Próximo cruce</p>
+      <h1 class="px-round" data-px-round data-animate="fade-up" style="--i:1">{next?.match.roundLabel ?? "Eliminatorias"}</h1>
+      <div class="px-when" data-animate="fade-up" style="--i:2">
+        <span class="px-date" data-px-date>{fmtWhen(next?.match)}</span>
+        <span class="px-count" data-px-countdown></span>
+      </div>
+    </header>
+
+    <!-- VS ARENA (clash) -->
+    <div class="px-versus" data-px-versus hidden={!next}>
+      <div
+        class="px-team px-team--home"
+        data-px-team="home"
+        data-has-flag={a?.concrete && a.flag ? "true" : "false"}
+        data-animate="slide-left"
+        style={`--i:1${a?.concrete && a.flag ? `;--px-flag:url("${a.flag}")` : ""}`}
+      >
+        <span class="px-team-name" data-px-name="home">{a?.name ?? "—"}</span>
+        <span class="px-team-tag">LOCAL</span>
+      </div>
+
+      <div class="px-vs" data-animate="pop-in" style="--i:2"><span class="px-vs-text">VS</span></div>
+
+      <div
+        class="px-team px-team--away"
+        data-px-team="away"
+        data-has-flag={b?.concrete && b.flag ? "true" : "false"}
+        data-animate="slide-right"
+        style={`--i:1${b?.concrete && b.flag ? `;--px-flag:url("${b.flag}")` : ""}`}
+      >
+        <span class="px-team-name" data-px-name="away">{b?.name ?? "—"}</span>
+        <span class="px-team-tag">VISITA</span>
+      </div>
+    </div>
+
+    <p class="px-empty" data-px-empty hidden={!!next}>No hay cruces con ambos equipos definidos por ahora.</p>
+
+    <!-- STAKE + PICK -->
+    <p class="px-stake" data-px-stake data-animate="fade-up" style="--i:3"></p>
+    <div class="px-yourpick" data-px-yourpick></div>
+
+    <!-- RECIENTES -->
+    <section class="px-recent">
+      <h2 class="px-recent-title">Resultados recientes</h2>
+      <ul class="px-recent-list" data-px-recent>
+        <li class="px-recent-empty">Aún sin resultados cargados.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script type="application/json" data-proximo-payload set:html={JSON.stringify(clientPayload)} />
+  <script>
+    import "./proximo.knockout.client.js";
+  </script>
+</section>
+
+<style>
+  .px {
+    --section-accent: var(--pm-sec-partido-a);
+    --section-accent-2: var(--pm-sec-partido-b);
+    position: relative;
+    isolation: isolate;
+    min-height: calc(100svh - var(--layout-header-height));
+    padding: clamp(1.2rem, 3vw, 2.6rem);
+    background-image: image-set(
+      url("/assets/backgrounds/avif/06_proximo_partido_background.avif") type("image/avif"),
+      url("/assets/backgrounds/webp/06_proximo_partido_background.webp") type("image/webp"));
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--pm-text-main);
+    font-family: var(--font-ui);
+  }
+  /* halo de energía para dramatizar la arena */
+  .px::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(55% 45% at 22% 32%, rgba(18, 109, 255, 0.22), transparent 62%),
+      radial-gradient(55% 45% at 80% 70%, rgba(255, 64, 88, 0.20), transparent 62%);
+  }
+  .px-shell {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 60rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.7rem, 1.6vw, 1.15rem);
+  }
+  /* Desktop/tablet: la arena vive centrada dentro del viewport (sin scroll del body). */
+  @media (min-width: 768px) {
+    .px {
+      height: calc(100svh - var(--layout-header-height));
+      max-height: calc(100svh - var(--layout-header-height));
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+
+  /* ===== BANNER ===== */
+  .px-banner { display: flex; flex-direction: column; align-items: center; gap: 0.55rem; text-align: center; }
+  .px-eyebrow {
+    margin: 0; padding: 0.3rem 1rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--section-accent) 18%, var(--pm-white));
+    border: 1px solid color-mix(in srgb, var(--section-accent) 42%, var(--pm-white));
+    color: var(--pm-text-main);
+    font-family: var(--font-display); font-weight: 900; font-size: 0.74rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .px-round {
+    margin: 0; font-family: var(--font-display); font-weight: 950; line-height: 0.95;
+    font-size: clamp(1.9rem, 5.6vw, 3.6rem); text-transform: uppercase; letter-spacing: -0.01em;
+    background: linear-gradient(100deg, var(--pm-orange-500), var(--pm-red-500) 55%, var(--pm-purple-500));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .px-when { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+  .px-date {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.86rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--pm-blue-900);
+    padding: 0.32rem 0.8rem; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72); border: 1px solid var(--pm-border-soft);
+  }
+  .px-count {
+    font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 700;
+    font-size: clamp(1rem, 2.4vw, 1.5rem); color: var(--pm-white);
+    padding: 0.3rem 0.9rem; border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-blue-700), var(--pm-blue-900));
+    box-shadow: var(--pm-shadow-blue); min-width: 6rem; text-align: center;
+  }
+  .px-count:empty { display: none; }
+
+  /* ===== VS ARENA ===== */
+  .px-versus {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: var(--pm-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--pm-shadow-card-strong);
+  }
+  .px-versus[hidden] { display: none; }
+  .px-team {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    gap: 0.15rem;
+    padding: clamp(0.8rem, 2.4vw, 1.3rem) clamp(0.9rem, 3vw, 1.6rem) clamp(0.9rem, 2.4vw, 1.4rem);
+    min-height: clamp(9.5rem, 18vw, 14rem);
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  /* La BANDERA (--px-flag) es la masa del panel: full-bleed, bajo un velo de color del equipo
+     y un degradado oscuro abajo para que el nombre se lea. Sin bandera -> degradado base (placeholder). */
+  .px-team--home {
+    background-image:
+      linear-gradient(to top, rgba(4, 16, 38, 0.88) 5%, rgba(4, 16, 38, 0.16) 34%, transparent 52%),
+      linear-gradient(135deg, rgba(18, 109, 255, 0.32), rgba(24, 221, 242, 0.05) 48%, transparent 72%),
+      var(--px-flag, none),
+      linear-gradient(135deg, var(--pm-blue-600), var(--pm-cyan-500));
+    clip-path: polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0 100%);
+  }
+  .px-team--away {
+    background-image:
+      linear-gradient(to top, rgba(4, 16, 38, 0.88) 5%, rgba(4, 16, 38, 0.16) 34%, transparent 52%),
+      linear-gradient(225deg, rgba(255, 64, 88, 0.34), rgba(255, 138, 0, 0.06) 48%, transparent 72%),
+      var(--px-flag, none),
+      linear-gradient(225deg, var(--pm-red-500), var(--pm-orange-500));
+    clip-path: polygon(3rem 0, 100% 0, 100% 100%, 0 100%);
+  }
+  /* Sin equipo definido: marca "?" sutil sobre la masa de color. */
+  .px-team[data-has-flag="false"]::before {
+    content: "?";
+    position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%);
+    font-family: var(--font-display); font-weight: 950; font-size: clamp(2.5rem, 7vw, 4.5rem);
+    color: rgba(255, 255, 255, 0.45);
+  }
+  .px-team-name {
+    font-family: var(--font-display); font-weight: 950;
+    font-size: clamp(1.15rem, 3vw, 2.1rem); line-height: 0.98; text-transform: uppercase;
+    color: #fff; text-shadow: 0 2px 12px rgba(7, 23, 53, 0.4); text-align: center;
+    max-width: 100%;
+  }
+  .px-team-tag {
+    font-family: var(--font-display); font-weight: 800; font-size: 0.64rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.85);
+  }
+  .px-vs {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+    width: clamp(4rem, 9vw, 6.4rem); height: clamp(4rem, 9vw, 6.4rem);
+    display: grid; place-items: center; border-radius: 999px;
+    background: linear-gradient(135deg, var(--pm-yellow-400), var(--pm-orange-500));
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.9), 0 0 42px rgba(255, 138, 0, 0.65);
+  }
+  .px-vs-text {
+    font-family: var(--font-display); font-style: italic; font-weight: 950;
+    font-size: clamp(1.5rem, 4vw, 2.8rem); color: #fff;
+    text-shadow: 0 2px 6px rgba(7, 23, 53, 0.35);
+  }
+  .px-empty { margin: 0; text-align: center; color: var(--pm-blue-900); font-weight: 700; padding: 2rem; }
+  .px-empty[hidden] { display: none; }
+
+  /* ===== STAKE + PICK ===== */
+  .px-stake {
+    margin: 0; text-align: center;
+    font-family: var(--font-display); font-weight: 900; font-size: clamp(0.82rem, 1.6vw, 1rem);
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--pm-blue-900);
+    padding: 0.6rem 1rem; border-radius: var(--pm-radius-md);
+    background: linear-gradient(90deg, transparent, rgba(255, 210, 31, 0.28), transparent);
+  }
+  .px-stake:empty { display: none; }
+  .px-yourpick {
+    align-self: center; font-family: var(--font-display); font-weight: 800; font-size: 0.92rem;
+    color: var(--pm-blue-900); text-align: center; min-height: 1.2rem;
+    padding: 0.4rem 0.9rem; border-radius: 999px; background: rgba(255, 255, 255, 0.7);
+  }
+  .px-yourpick:empty { display: none; }
+  .px-yourpick strong { color: var(--pm-cyan-700, #0e7490); }
+  .px-yourpick a { color: var(--pm-cyan-700, #0e7490); font-weight: 900; text-decoration: underline; }
+
+  /* ===== RECIENTES (placas) ===== */
+  .px-recent { display: flex; flex-direction: column; gap: 0.7rem; }
+  .px-recent-title {
+    margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 1rem;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-blue-900);
+  }
+  .px-recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.55rem; }
+  /* Las placas de recientes las inyecta el cliente (innerHTML) -> :global para que apliquen. */
+  :global(.px-recent-card) {
+    display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.8rem;
+    border-radius: var(--pm-radius-md); background: var(--pm-white);
+    box-shadow: var(--pm-shadow-soft); border-left: 4px solid var(--pm-mint-500);
+  }
+  :global(.px-recent-id) { font-family: var(--font-display); font-weight: 900; font-size: 0.66rem; color: var(--pm-text-soft); }
+  :global(.px-recent-teams) { font-family: var(--font-display); font-weight: 800; font-size: 0.86rem; color: var(--pm-blue-900); }
+  :global(.px-recent-score) { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--pm-blue-600); padding: 0 0.3rem; }
+  :global(.px-recent-adv) { font-family: var(--font-display); font-weight: 900; font-size: 0.72rem; color: var(--pm-mint-500); }
+  :global(.px-recent-empty) { color: var(--pm-text-soft); font-weight: 600; }
+
+  /* ===== Móvil: la arena se apila ===== */
+  @media (max-width: 640px) {
+    .px-versus { grid-template-columns: 1fr; }
+    .px-team--home { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.2rem), 0 100%); }
+    .px-team--away { clip-path: polygon(0 2.2rem, 100% 0, 100% 100%, 0 100%); }
+    .px-team { min-height: clamp(10rem, 40vw, 14rem); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .px-vs { animation: none; }
+  }
+</style>

@@ -3,43 +3,44 @@ import styles from "./ReglasSection.module.css";
 import RulesHeroHeader from "./RulesHeroHeader.astro";
 import RulesCardsGrid from "./RulesCardsGrid.astro";
 import ScoringPanel from "./ScoringPanel.astro";
+import WorldPodiumPanel from "./WorldPodiumPanel.astro";
 import RulesActionPanel from "./RulesActionPanel.astro";
-import ChallengeMessage from "./ChallengeMessage.astro";
 import FairPlayFooter from "./FairPlayFooter.astro";
 
+// Polla de ELIMINATORIAS: ya no hay grupos. Parte desde dieciseisavos de final.
 const rules = [
   {
     number: "1",
-    title: "Predice los partidos",
-    description: "Elige el resultado de cada partido del Mundial.",
+    title: "Parte en dieciseisavos",
+    description: "Ya no hay grupos. La polla arranca en los dieciseisavos y todos desde cero.",
     icon: "ball",
     tone: "blue",
   },
   {
     number: "2",
-    title: "Suma puntos",
-    description: "Cada acierto te da puntos. Exacto vale más.",
+    title: "Marcador + quién avanza",
+    description: "Predice el resultado de cada cruce. Si empatas, elige quién pasa por penales.",
     icon: "chart",
     tone: "green",
   },
   {
     number: "3",
-    title: "Tu cartón es único",
-    description: "No puedes editarlo después de confirmarlo.",
-    icon: "shield",
+    title: "Arma tu podio",
+    description: "Elige campeón, subcampeón, tercer y cuarto lugar entre los 32 clasificados.",
+    icon: "trophy",
     tone: "purple",
   },
   {
     number: "4",
-    title: "Bloqueo y estadísticas",
-    description: "Se bloquea al confirmar y podrás ver tus estadísticas.",
+    title: "Rondas bloqueadas",
+    description: "Octavos en adelante se abren cuando se conozcan los clasificados.",
     icon: "lock",
     tone: "orange",
   },
   {
     number: "5",
     title: "Gana la gloria",
-    description: "Llega a la cima del ranking y sé el campeón.",
+    description: "Suma puntos cruce a cruce y llega a la cima del ranking.",
     icon: "trophy",
     tone: "red",
   },
@@ -47,25 +48,21 @@ const rules = [
 
 /*
   LONE WOLF:
-  Se otorga cuando un jugador acierta el resultado exacto de un partido
-  y ningún otro jugador acertó ese mismo resultado exacto.
-
-  No es un premio general por racha.
-  No es un premio manual.
-  No se aplica si más de un jugador acertó el exacto.
+  Se otorga cuando un jugador acierta el resultado exacto de un cruce y ningún otro
+  jugador acertó ese mismo resultado exacto. No es premio por racha ni manual.
 */
 const scoringRules = [
   {
     id: "tendencia",
     label: "TENDENCIA",
-    description: "Aciertas ganador o empate",
+    description: "Aciertas quién clasifica (o el ganador)",
     points: "+1",
     icon: "trend",
   },
   {
     id: "exacto",
     label: "EXACTO",
-    description: "Resultado exacto del partido",
+    description: "Resultado exacto del cruce",
     points: "+3",
     icon: "target",
   },
@@ -98,7 +95,7 @@ const scoringRules = [
     <div class={styles.bottomLayout} data-animate="fade-up" style="--i:7">
       <div class={styles.scoringChallenge}>
         <ScoringPanel scoringRules={scoringRules} />
-        <ChallengeMessage />
+        <WorldPodiumPanel />
       </div>
       <RulesActionPanel />
     </div>

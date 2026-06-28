@@ -65,18 +65,31 @@ export function enrichTeams(teams: BaseTeam[], index: Map<string, EquipoInfo>): 
   });
 }
 
-export function groupByGroupId(teams: EnrichedTeam[]): GroupBucket[] {
+const CONFEDERATION_ORDER = ["UEFA", "CONMEBOL", "CONCACAF", "CAF", "AFC", "OFC"];
+
+const CONFEDERATION_NAMES: Record<string, string> = {
+  UEFA: "UEFA · Europa",
+  CONMEBOL: "CONMEBOL · Sudamérica",
+  CONCACAF: "CONCACAF · Norte y Centroamérica",
+  CAF: "CAF · África",
+  AFC: "AFC · Asia",
+  OFC: "OFC · Oceanía",
+};
+
+// Polla de eliminatorias: ya no se agrupa por grupo del Mundial. El álbum se ordena por
+// confederación (vista informativa de las 48 selecciones).
+export function groupByConfederation(teams: EnrichedTeam[]): GroupBucket[] {
   const buckets = new Map<string, EnrichedTeam[]>();
   for (const team of teams) {
-    if (!buckets.has(team.group)) buckets.set(team.group, []);
-    buckets.get(team.group)!.push(team);
+    if (!buckets.has(team.confederation)) buckets.set(team.confederation, []);
+    buckets.get(team.confederation)!.push(team);
   }
-  return Array.from(buckets.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([id, list]) => ({ id, label: `Grupo ${id}`, teams: list }));
+  return CONFEDERATION_ORDER.filter((conf) => buckets.has(conf)).map((conf) => ({
+    id: conf,
+    label: CONFEDERATION_NAMES[conf] ?? conf,
+    teams: buckets.get(conf)!,
+  }));
 }
-
-const CONFEDERATION_ORDER = ["UEFA", "CONMEBOL", "CONCACAF", "CAF", "AFC", "OFC"];
 
 export function uniqueConfederations(teams: BaseTeam[]): string[] {
   const present = new Set(teams.map((t) => t.confederation));

@@ -1,0 +1,16 @@
+{
+  "_doc": "Resultados oficiales de la llave eliminatoria (modo LOCAL). Dos partes: (1) 'slotAssignments' resuelve los placeholders de R32 (1L / 2K / 3CEFHI -> codigo FIFA del equipo real) cuando terminan los grupos; (2) 'results' = marcador + lado que avanza ('home'=slotA, 'away'=slotB) por matchId. Desde 'results' el motor propaga los ganadores a las rondas siguientes (winner/runner-up), desbloquea progresivamente los cruces y deriva el podio real (P104 -> campeon/subcampeon, P103 -> 3o/4o). Vacio = torneo aun no jugado. El /admin local escribe la version viva en localStorage (polla:knockoutResults) y este archivo es el seed/respaldo commiteado.",
+  "slotAssignments": {
+    "1K": "COL",
+    "1L": "ENG",
+    "2J": "AUT",
+    "2K": "POR",
+    "2L": "CRO",
+    "3CEFHI": "ECU",
+    "3AEHIJ": "SEN",
+    "3DEIJL": "GHA",
+    "3EFGIJ": "ALG",
+    "3EHIJK": "COD"
+  },
+  "results": []
+}

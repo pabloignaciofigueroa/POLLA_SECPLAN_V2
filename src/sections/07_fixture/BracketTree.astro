@@ -1,0 +1,387 @@
+---
+// Arbol espejo de la llave (desktop): R32 izquierda + R32 derecha convergiendo a la Final
+// central + Tercer puesto. Conectores dibujados en una capa SVG (bracket-tree.client.js) que
+// mide las posiciones de los nodos y ademas ajusta el arbol al ancho disponible. En movil
+// colapsa a columnas (media query). Reusa BracketMatchCard variant="node" (hooks intactos).
+import BracketMatchCard from "./BracketMatchCard.astro";
+import { sideRoundsOrder } from "../../lib/knockout/bracketTree.js";
+import type { KnockoutMatch, ResolvedSlot } from "../../lib/knockout/model";
+
+interface Item {
+  match: KnockoutMatch;
+  slotA: ResolvedSlot;
+  slotB: ResolvedSlot;
+  predictionEnabled?: boolean;
+}
+interface Props {
+  /** Resultado de buildBracketTree(matches) (módulo JS puro). */
+  tree: any;
+  items: Item[];
+}
+
+const { tree, items = [] } = Astro.props as Props;
+const byId = new Map(items.map((it) => [it.match.id, it]));
+
+const SHORT: Record<string, string> = {
+  R32: "16avos",
+  R16: "Octavos",
+  QF: "Cuartos",
+  SF: "Semifinal",
+  F: "Final",
+  "3P": "Tercer puesto",
+};
+const shortOf = (round: string) => SHORT[round] ?? round;
+
+const final = tree?.center?.final ? byId.get(tree.center.final.id) : null;
+const third = tree?.center?.third ? byId.get(tree.center.third.id) : null;
+// Misma copa que la sección Inicio (base "SECPLAN 2026").
+const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-worldcup-gold.webp";
+---
+
+<div class="ko-tree-scroll">
+  <div class="ko-tree" data-ko-tree>
+    <svg class="ko-connectors" aria-hidden="true" focusable="false" preserveAspectRatio="none"></svg>
+
+    <!-- ===== LADO IZQUIERDO ===== -->
+    <div class="ko-side ko-side--left">
+      {sideRoundsOrder.map((round) => (
+        <div class="ko-round" data-round={round}>
+          <span class="ko-round-label">{shortOf(round)}</span>
+          <div class="ko-round-nodes">
+            {(tree.left?.[round] ?? []).map((m: KnockoutMatch, i: number) => {
+              const it = byId.get(m.id);
+              return it ? (
+                <div class="ko-node-wrap" data-ko-node={m.id} data-ko-side="left" data-ko-winnerto={m.winnerTo ?? ""} data-ko-loserto={m.loserTo ?? ""}>
+                  <BracketMatchCard match={it.match} slotA={it.slotA} slotB={it.slotB} mode="view" variant="node" predictionEnabled={it.predictionEnabled} seedNum={round === "R32" ? i * 2 : undefined} />
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- ===== CENTRO: TROFEO + FINAL + CAMPEÓN + TERCER PUESTO (escenario arcade) ===== -->
+    <div class="ko-center">
+      <div class="ko-trophy-stage">
+        <img class="ko-trophy" src={TROPHY} alt="Trofeo de la Polla Mundialera" width="72" height="96" />
+      </div>
+      <span class="ko-center-label ko-center-label--final">Gran Final</span>
+      {final ? (
+        <div class="ko-node-wrap ko-final" data-ko-node={final.match.id} data-ko-side="center">
+          <BracketMatchCard match={final.match} slotA={final.slotA} slotB={final.slotB} mode="view" variant="node" predictionEnabled={final.predictionEnabled} />
+        </div>
+      ) : null}
+      <span class="ko-champ" aria-hidden="true">¡Campeón!</span>
+      <span class="ko-center-label ko-center-label--third">Tercer puesto</span>
+      {third ? (
+        <div class="ko-node-wrap ko-third" data-ko-node={third.match.id} data-ko-side="center">
+          <BracketMatchCard match={third.match} slotA={third.slotA} slotB={third.slotB} mode="view" variant="node" predictionEnabled={third.predictionEnabled} />
+        </div>
+      ) : null}
+    </div>
+
+    <!-- ===== LADO DERECHO (espejo) ===== -->
+    <div class="ko-side ko-side--right">
+      {sideRoundsOrder.map((round) => (
+        <div class="ko-round" data-round={round}>
+          <span class="ko-round-label">{shortOf(round)}</span>
+          <div class="ko-round-nodes">
+            {(tree.right?.[round] ?? []).map((m: KnockoutMatch, i: number) => {
+              const it = byId.get(m.id);
+              return it ? (
+                <div class="ko-node-wrap" data-ko-node={m.id} data-ko-side="right" data-ko-winnerto={m.winnerTo ?? ""} data-ko-loserto={m.loserTo ?? ""}>
+                  <BracketMatchCard match={it.match} slotA={it.slotA} slotB={it.slotB} mode="view" variant="node" predictionEnabled={it.predictionEnabled} seedNum={round === "R32" ? i * 2 : undefined} />
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .ko-tree-scroll {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.4rem;
+  }
+  .ko-tree {
+    position: relative;
+    isolation: isolate; /* contiene la capa SVG (z-index:-1) dentro del árbol */
+    display: flex;
+    align-items: stretch;
+    gap: clamp(1rem, 2.2vw, 2.7rem);
+    min-width: max-content;
+    padding: 0.4rem 0.25rem 0.2rem;
+  }
+  .ko-connectors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    overflow: visible;
+    pointer-events: none;
+  }
+  /* Conectores eléctricos: cian neón con glow (energía de la llave). */
+  .ko-connectors :global(path) {
+    fill: none;
+    stroke: #5ef3ff;
+    stroke-width: 3.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.96;
+    filter: drop-shadow(0 0 5px rgba(24, 221, 242, 0.9)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+  }
+  .ko-connectors :global(path.ko-conn--lose) {
+    stroke: var(--llave-purple, #a66bff);
+    stroke-width: 2;
+    stroke-dasharray: 3 6;
+    opacity: 0.6;
+    filter: drop-shadow(0 0 4px rgba(124, 53, 255, 0.5));
+  }
+  /* Camino del campeón: el tramo que sale de un cruce ya resuelto se enciende en dorado. */
+  .ko-connectors :global(path.ko-conn--win) {
+    stroke: var(--llave-yellow, #ffd21f);
+    stroke-width: 4;
+    opacity: 1;
+    filter: drop-shadow(0 0 7px rgba(255, 210, 31, 0.8));
+  }
+
+  /* Energía detrás del centro: glow dorado/azul que llena el corazón del cuadro (anti "vacío"). */
+  .ko-tree::before {
+    content: "";
+    position: absolute;
+    inset: -4% -2%;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(26% 30% at 50% 46%, rgba(255, 200, 40, 0.1), transparent 70%);
+  }
+
+  .ko-side {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(1rem, 2.1vw, 2.4rem);
+  }
+  .ko-side--right { flex-direction: row-reverse; }
+
+  /* Escala por ronda (--ko-rs): 16avos en grande, taper hacia el centro; la Final repunta.
+     Se hereda hasta la tarjeta-nodo, que dimensiona todo con calc(... * var(--ko-rs)).
+     Es escala de LAYOUT (no transform): los conectores miden offsets reales y siguen calzando. */
+  .ko-round {
+    display: flex;
+    flex-direction: column;
+    /* El ANCHO usa --ko-rw (cae a --ko-rs); alto/contenido usan --ko-rs.
+       Así los 16avos son MÁS ANCHOS sin ser más altos: los nombres entran completos. */
+    flex: 0 0 calc(clamp(6.6rem, 8.2vw, 8.2rem) * var(--ko-rw, var(--ko-rs, 1)));
+  }
+  /* Cada ronda lleva un acento de color: viaje cromático cian -> azul -> violeta hacia la Final dorada. */
+  .ko-round[data-round="R32"] { --ko-rs: 1.55; --ko-rw: 2.5; }
+  .ko-round[data-round="R16"] { --ko-rs: 1;    --ko-rw: 2.2;  --ko-accent: var(--llave-cyan, #18ddf2); }
+  .ko-round[data-round="QF"]  { --ko-rs: 0.82; --ko-rw: 1.95; --ko-accent: var(--llave-blue, #126dff); }
+  .ko-round[data-round="SF"]  { --ko-rs: 0.7;  --ko-rw: 1.72; --ko-accent: #0c5bd6; }
+  /* Tabs HUD: cada ronda es una pestaña hexagonal estilo videojuego (azul neón; R32 dorada). */
+  .ko-round-label {
+    align-self: center;
+    font-family: var(--font-display);
+    font-weight: 950;
+    font-size: clamp(0.64rem, calc(0.68rem * var(--ko-rs, 1)), 1.12rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    padding: 0.42em 1.35em;
+    margin-bottom: calc(0.42rem * min(var(--ko-rs, 1), 1.3));
+    background: linear-gradient(180deg, #2a8bff, var(--llave-blue-deep, #073b9a));
+    border: 2px solid rgba(120, 246, 255, 0.9);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.22) inset,
+      0 0 22px rgba(24, 221, 242, 0.55),
+      0 6px 16px rgba(7, 23, 53, 0.4);
+    text-shadow: 0 1px 3px rgba(7, 23, 53, 0.5);
+    clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+  }
+  .ko-round[data-round="R32"] .ko-round-label {
+    color: #071735;
+    background: linear-gradient(180deg, #ffe45c, #ffd21f);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow:
+      0 0 0 2px rgba(7, 23, 53, 0.12) inset,
+      0 8px 22px rgba(255, 210, 31, 0.4);
+  }
+  .ko-round-nodes {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 0.3rem;
+  }
+  .ko-node-wrap { position: relative; display: block; }
+
+  /* ===== Centro: escenario del campeón (trofeo gigante + Final dorada + CAMPEÓN) ===== */
+  .ko-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 clamp(13rem, 16.5vw, 18.5rem);
+    gap: 0.5rem;
+    padding: 0 0.25rem;
+  }
+  /* Tarima del trofeo: halo radial dorado + rayos, el corazón luminoso del cuadro. */
+  .ko-trophy-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    padding: 0.3rem 0 0.1rem;
+  }
+  /* Haz ceremonial: rayos dorados radiales (giran lento) + glow concéntrico cálido->frío. */
+  .ko-trophy-stage::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    width: clamp(260px, 28vw, 420px);
+    height: clamp(260px, 28vw, 420px);
+    border-radius: 999px;
+    z-index: 0;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 226, 110, 0.3) 0deg 5deg, transparent 5deg 14deg),
+      radial-gradient(circle, rgba(255, 234, 130, 0.62), rgba(245, 184, 0, 0.24) 32%, rgba(24, 221, 242, 0.18) 60%, transparent 74%);
+    -webkit-mask: radial-gradient(circle, #000 28%, rgba(0, 0, 0, 0.5) 55%, transparent 76%);
+    mask: radial-gradient(circle, #000 28%, rgba(0, 0, 0, 0.5) 55%, transparent 76%);
+    animation: ko-halo-spin 26s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes ko-halo-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  /* Destellos alrededor de la copa. */
+  .ko-trophy-stage::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    width: clamp(260px, 28vw, 420px);
+    height: clamp(260px, 28vw, 420px);
+    z-index: 2;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-image:
+      radial-gradient(2.5px at 16% 26%, #fff 60%, transparent 64%),
+      radial-gradient(2px at 84% 30%, #ffe87a 60%, transparent 64%),
+      radial-gradient(2.5px at 28% 78%, #fff 60%, transparent 64%),
+      radial-gradient(2px at 76% 72%, #ffe87a 60%, transparent 64%),
+      radial-gradient(2px at 50% 14%, #fff 60%, transparent 64%),
+      radial-gradient(2px at 12% 56%, #ffe87a 60%, transparent 64%),
+      radial-gradient(2px at 88% 58%, #fff 60%, transparent 64%);
+  }
+  .ko-trophy {
+    position: relative;
+    z-index: 1;
+    width: 144px;
+    height: 192px;
+    object-fit: contain;
+    filter: drop-shadow(0 18px 30px rgba(245, 184, 0, 0.62)) drop-shadow(0 0 18px rgba(255, 214, 64, 0.55));
+    animation: ko-trophy-pulse 3.6s ease-in-out infinite;
+  }
+  @keyframes ko-trophy-pulse {
+    0%, 100% { transform: translateZ(0) scale(1); }
+    50% { transform: translateZ(0) scale(1.035); }
+  }
+  .ko-center-label {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+  .ko-center-label--final {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: #fff;
+    letter-spacing: 0.16em;
+    padding: 0.3rem 1.1rem;
+    border-radius: var(--pm-radius-pill);
+    background: linear-gradient(180deg, #ffe45c, #ffd21f 55%, #f5b51b);
+    color: #5a3600;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 0 rgba(120, 70, 0, 0.22), 0 10px 22px rgba(224, 160, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  /* Wordmark CAMPEÓN: degradé dorado, grande, con brillo (eco del "CAMPEÓN!" de transmisión). */
+  .ko-champ {
+    font-family: var(--font-display);
+    font-weight: 950;
+    font-size: clamp(1.8rem, 3vw, 3.4rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-align: center;
+    margin-top: 0.2rem;
+    background: linear-gradient(180deg, #fff4cf 4%, #ffce28 38%, #f5b800 60%, #c9821f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 2px 6px rgba(201, 130, 31, 0.45)) drop-shadow(0 0 14px rgba(255, 206, 40, 0.4));
+  }
+  /* Placa morada arcade del tercer puesto. */
+  .ko-center-label--third {
+    font-size: clamp(0.56rem, 0.7vw, 0.74rem);
+    font-weight: 900;
+    color: #fff;
+    margin-top: 0.55rem;
+    letter-spacing: 0.12em;
+    padding: 0.26rem 0.95rem;
+    border-radius: var(--pm-radius-pill);
+    background: linear-gradient(180deg, #e3a05a, #b06a28);
+    border: 2px solid rgba(255, 240, 220, 0.9);
+    box-shadow: 0 5px 0 rgba(90, 50, 15, 0.3), 0 0 22px rgba(201, 130, 59, 0.45);
+    text-shadow: 0 1px 2px rgba(80, 40, 10, 0.5);
+  }
+  .ko-final, .ko-third { width: 100%; }
+  /* La Final es el PREMIO MAYOR: domina el centro (mucho más grande que cualquier otro nodo). */
+  .ko-final { --ko-rs: 1.62; }
+  .ko-third { --ko-rs: 0.9; }
+
+  /* Realce dorado de la Final (segundo foco del cuadro: marco grueso + glow fuerte). */
+  .ko-final > :global(.ko-card) {
+    border: 4px solid var(--pm-gold-500);
+    box-shadow:
+      0 0 0 3px rgba(70, 241, 255, 0.55),
+      0 18px 46px rgba(245, 184, 0, 0.5),
+      0 0 34px rgba(255, 214, 64, 0.45),
+      inset 0 2px 0 rgba(255, 255, 255, 0.8);
+    background:
+      radial-gradient(135% 105% at 50% 0%, rgba(255, 210, 31, 0.36), transparent 72%),
+      linear-gradient(180deg, #fffaf0, var(--pm-white) 60%);
+  }
+  /* Medalla de bronce para el 3er puesto. */
+  .ko-third > :global(.ko-card) {
+    border: 2px solid var(--pm-rank-bronze, #c9823b);
+    box-shadow: 0 8px 20px rgba(201, 130, 59, 0.28);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--pm-rank-bronze, #c9823b) 12%, #fff), var(--pm-white) 70%);
+  }
+
+  /* ===== Móvil (solo teléfonos): colapsa a columnas verticales (sin árbol, sin conectores).
+     Tablets y desktop muestran el árbol completo ajustado a la ventana por bracket-tree.client.js. ===== */
+  @media (max-width: 700px) {
+    .ko-tree-scroll { overflow-x: hidden; }
+    .ko-tree { transform: none !important; flex-direction: column; gap: 1.4rem; min-width: 0; }
+    .ko-connectors { display: none; }
+    .ko-side, .ko-side--right { flex-direction: column; gap: 1rem; }
+    /* En columnas no hay funnel: todos los nodos a escala 1 (la escala por ronda es solo para el árbol). */
+    .ko-round[data-round], .ko-final, .ko-third { --ko-rs: 1; }
+    .ko-round { flex: 1 1 auto; }
+    .ko-round-label { font-size: 0.62rem; }
+    .ko-round-nodes { gap: 0.55rem; }
+    .ko-center { order: 99; flex: 1 1 auto; }
+  }
+</style>

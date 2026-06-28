@@ -1,0 +1,84 @@
+---
+// Panel de puntaje del PODIO MUNDIAL (final del torneo). Va junto al panel de suma por partido.
+const rows = [
+  { medal: "🏆", label: "Campeón", points: "+8" },
+  { medal: "🥈", label: "Segundo", points: "+5" },
+  { medal: "🥉", label: "Tercero", points: "+3" },
+  { medal: "🎖️", label: "Cuarto", points: "+1" },
+];
+---
+
+<section class="wpodium" aria-labelledby="wpodium-title">
+  <div class="wpodium-header">
+    <p id="wpodium-title">Podio Mundial</p>
+  </div>
+  <ul class="wpodium-rows">
+    {rows.map((r) => (
+      <li class="wpodium-row">
+        <span class="wpodium-medal" aria-hidden="true">{r.medal}</span>
+        <span class="wpodium-label">{r.label}</span>
+        <span class="wpodium-pts">{r.points}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .wpodium {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid color-mix(in srgb, var(--pm-yellow-500, #facc15) 55%, transparent);
+    border-radius: 0.95rem;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--pm-yellow-400, #fbbf24) 16%, white)),
+      var(--pm-panel-soft);
+    box-shadow: 0 14px 32px rgba(7, 23, 53, 0.12);
+  }
+  .wpodium-header {
+    padding: 0.48rem 0.95rem;
+    background: linear-gradient(120deg, var(--pm-gold-600, #e0a000) 0 78%, var(--pm-blue-600) 78% 82%, var(--pm-white) 82%);
+  }
+  .wpodium-header p {
+    margin: 0;
+    color: var(--pm-white);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(120, 70, 0, 0.4);
+  }
+  .wpodium-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    flex: 1;
+  }
+  .wpodium-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.95rem;
+    border-top: 1px solid color-mix(in srgb, var(--pm-yellow-500, #facc15) 22%, transparent);
+  }
+  .wpodium-row:first-child { border-top: none; }
+  .wpodium-medal { font-size: 1.15rem; line-height: 1; }
+  .wpodium-label {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--pm-blue-900);
+  }
+  .wpodium-pts {
+    font-family: var(--font-score);
+    font-variant-numeric: tabular-nums;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--pm-orange-600);
+  }
+</style>

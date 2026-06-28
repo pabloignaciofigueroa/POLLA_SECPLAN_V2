@@ -1,7 +1,5 @@
-import {
-  getSupabaseClient,
-  isSupabaseConfigured,
-} from "../supabase/supabaseClient.js";
+// ── MODO SEGURIDAD TOTAL: sin Supabase. Estado de marcadores/resultados 100% LOCAL
+// (localStorage + eventos same-tab/storage). Sin RPC, sin realtime, sin lecturas remotas.
 
 export const LIVE_MATCH_STATE_KEY = "polla:liveMatchState";
 export const LIVE_SCORE_EVENT = "polla:live-score-updated";
@@ -192,27 +190,9 @@ export function getAdminSessionToken() {
     : null;
 }
 
-function requireSupabase() {
-  const client = getSupabaseClient();
-  if (!client) {
-    throw new Error("Supabase no esta configurado en este despliegue.");
-  }
-  return client;
-}
-
-function normalizeRemoteError(error, fallback) {
-  const message = String(error?.message ?? "");
-  if (
-    message.includes("invalid_or_expired_admin_session") ||
-    message.includes("invalid_admin_password")
-  ) {
-    clearAdminSession();
-  }
-  return new Error(message || fallback);
-}
-
 export function isRemoteLiveDataEnabled() {
-  return isSupabaseConfigured();
+  // MODO SEGURIDAD TOTAL: siempre local, nunca remoto.
+  return false;
 }
 
 export function clearAdminSession() {
@@ -231,78 +211,21 @@ export function hasValidAdminSession() {
 }
 
 export async function loginAdmin(password) {
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_admin_login", {
-    p_password: String(password ?? ""),
-  });
-
-  if (error || !data?.token || !data?.expiresAt) {
-    throw normalizeRemoteError(error, "No fue posible validar la clave de administrador.");
-  }
-
-  sessionStorageSet(ADMIN_SESSION_TOKEN_KEY, String(data.token));
-  sessionStorageSet(ADMIN_SESSION_EXPIRES_KEY, String(data.expiresAt));
-  return data;
+  // MODO SEGURIDAD TOTAL: el login de administrador remoto (RPC) quedo deshabilitado.
+  // El admin local de la etapa 2 se definira en una pasada futura.
+  throw new Error(
+    "Modo local: el panel de administrador remoto esta deshabilitado en esta copia."
+  );
 }
 
 export async function validateAdminSession() {
-  if (!hasValidAdminSession()) return false;
-
-  const client = requireSupabase();
-  const token = sessionStorageGet(ADMIN_SESSION_TOKEN_KEY);
-  const { data, error } = await client.rpc("polla_admin_session_is_valid", {
-    p_token: token,
-  });
-
-  if (error || data !== true) {
-    clearAdminSession();
-    return false;
-  }
-  return true;
+  // MODO SEGURIDAD TOTAL: validacion solo local (sin backend).
+  return hasValidAdminSession();
 }
 
-// Lectura schema-agnostica: funciona con la tabla singleton (pre-migracion) y con la
-// multi-fila (post-migracion), porque NO filtra por id/match_id; ambas tienen
-// payload + updated_at. Devuelve TODOS los payloads (el mas nuevo primero).
-async function fetchRemoteLiveMatches() {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from(LIVE_TABLE)
-    .select("payload, updated_at")
-    .order("updated_at", { ascending: false });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible leer el marcador remoto.");
-  return (data ?? []).map((row) => row.payload).filter(Boolean);
-}
-
-async function fetchRemoteOfficialResults() {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from(RESULTS_TABLE)
-    .select("payload, match_number")
-    .order("match_number", { ascending: true });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible leer los resultados remotos.");
-  return (data ?? []).map((row) => row.payload).filter(Boolean);
-}
-
-async function fetchRemoteGroupClosures() {
-  const client = requireSupabase();
-  const { data, error } = await client.from(CLOSURE_TABLE).select("*");
-  if (error) throw normalizeRemoteError(error, "No fue posible leer los cierres de grupo.");
-  return dedupeClosuresByVersion((data ?? []).map(mapClosureRow).filter(Boolean));
-}
-
-/** Todos los marcadores vivos (multi-fila). Cae a cache ante corte breve. */
+/** Todos los marcadores vivos (multi-fila). Modo local: solo cache (localStorage). */
 export async function readLiveMatches() {
-  if (!isRemoteLiveDataEnabled()) return readCachedLiveMatches();
-  try {
-    const list = await fetchRemoteLiveMatches();
-    cacheLiveMatches(list);
-    return list;
-  } catch {
-    return readCachedLiveMatches();
-  }
+  return readCachedLiveMatches();
 }
 
 /** Compat: el marcador vivo legado (single) = el mas nuevo de la multi-fila. */
@@ -312,34 +235,13 @@ export async function readLiveMatchState() {
 }
 
 export async function readGroupClosures() {
-  if (!isRemoteLiveDataEnabled()) return readCachedGroupClosures();
-  try {
-    const closures = await fetchRemoteGroupClosures();
-    cacheGroupClosures(closures);
-    return closures;
-  } catch {
-    return readCachedGroupClosures();
-  }
+  return readCachedGroupClosures();
 }
 
 export async function saveLiveMatchState(state) {
-  if (!isRemoteLiveDataEnabled()) {
-    cacheLiveMatch(state);
-    dispatch(LIVE_SCORE_EVENT, state);
-    return state;
-  }
-
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_save_live_match", {
-    p_token: getAdminToken(),
-    p_payload: state,
-  });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible guardar el marcador.");
-  const saved = data ?? state;
-  cacheLiveMatch(saved);
-  dispatch(LIVE_SCORE_EVENT, saved);
-  return saved;
+  cacheLiveMatch(state);
+  dispatch(LIVE_SCORE_EVENT, state);
+  return state;
 }
 
 /**
@@ -353,21 +255,9 @@ export async function setLiveScore(payload, { allowMultiWrite = MULTI_LIVE_WRITE
       "setLiveScore deshabilitado: el multi-write no se usa hasta migrar los consumidores a liveMatches[] (MULTI_LIVE_WRITE_ENABLED)."
     );
   }
-  if (!isRemoteLiveDataEnabled()) {
-    cacheLiveMatch(payload);
-    dispatch(LIVE_SCORE_EVENT, payload);
-    return payload;
-  }
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_set_live_score", {
-    p_token: getAdminToken(),
-    p_payload: payload,
-  });
-  if (error) throw normalizeRemoteError(error, "No fue posible guardar el marcador.");
-  const saved = data ?? payload;
-  cacheLiveMatch(saved);
-  dispatch(LIVE_SCORE_EVENT, saved);
-  return saved;
+  cacheLiveMatch(payload);
+  dispatch(LIVE_SCORE_EVENT, payload);
+  return payload;
 }
 
 export async function clearLiveScore(matchId, { allowMultiWrite = MULTI_LIVE_WRITE_ENABLED } = {}) {
@@ -377,59 +267,21 @@ export async function clearLiveScore(matchId, { allowMultiWrite = MULTI_LIVE_WRI
       "clearLiveScore deshabilitado: el multi-write no se usa hasta migrar los consumidores (MULTI_LIVE_WRITE_ENABLED)."
     );
   }
-  if (!isRemoteLiveDataEnabled()) {
-    const list = readCachedLiveMatches().filter((item) => item && item.matchId !== matchId);
-    cacheLiveMatches(list);
-    dispatch(LIVE_SCORE_EVENT, null);
-    return list;
-  }
-  const client = requireSupabase();
-  const { error } = await client.rpc("polla_clear_live_score", {
-    p_token: getAdminToken(),
-    p_match_id: matchId,
-  });
-  if (error) throw normalizeRemoteError(error, "No fue posible limpiar el marcador.");
-  const list = (await readLiveMatches()).filter((item) => item && item.matchId !== matchId);
+  const list = readCachedLiveMatches().filter((item) => item && item.matchId !== matchId);
   cacheLiveMatches(list);
   dispatch(LIVE_SCORE_EVENT, null);
   return list;
 }
 
 export async function readOfficialResults() {
-  if (!isRemoteLiveDataEnabled()) return readCachedOfficialResults();
-
-  try {
-    const results = await fetchRemoteOfficialResults();
-    cacheOfficialResults(results);
-    return results;
-  } catch {
-    return readCachedOfficialResults();
-  }
+  return readCachedOfficialResults();
 }
 
 export async function saveOfficialResult(result) {
-  if (!isRemoteLiveDataEnabled()) {
-    const list = readCachedOfficialResults().filter(
-      (item) => item && item.matchId !== result.matchId
-    );
-    list.push(result);
-    cacheOfficialResults(list);
-    dispatch(OFFICIAL_RESULTS_EVENT, list);
-    return list;
-  }
-
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_save_official_result", {
-    p_token: getAdminToken(),
-    p_payload: result,
-  });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible oficializar el resultado.");
-  const list = (await readOfficialResults()).filter(
+  const list = readCachedOfficialResults().filter(
     (item) => item && item.matchId !== result.matchId
   );
-  list.push(data ?? result);
-  list.sort((a, b) => Number(a.matchNumber) - Number(b.matchNumber));
+  list.push(result);
   cacheOfficialResults(list);
   dispatch(OFFICIAL_RESULTS_EVENT, list);
   return list;
@@ -437,25 +289,7 @@ export async function saveOfficialResult(result) {
 
 export async function deleteOfficialResult(matchId) {
   if (!matchId) throw new Error("Falta el identificador del partido.");
-
-  if (!isRemoteLiveDataEnabled()) {
-    const list = readCachedOfficialResults().filter(
-      (item) => item && item.matchId !== matchId
-    );
-    cacheOfficialResults(list);
-    dispatch(OFFICIAL_RESULTS_EVENT, list);
-    return list;
-  }
-
-  const client = requireSupabase();
-  const { error } = await client.rpc("polla_delete_official_result", {
-    p_token: getAdminToken(),
-    p_match_id: matchId,
-  });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible des-finalizar el partido.");
-
-  const list = (await readOfficialResults()).filter(
+  const list = readCachedOfficialResults().filter(
     (item) => item && item.matchId !== matchId
   );
   cacheOfficialResults(list);
@@ -464,94 +298,37 @@ export async function deleteOfficialResult(matchId) {
 }
 
 export async function finalizeOfficialResult(result, nextLiveMatch) {
-  if (!isRemoteLiveDataEnabled()) {
-    await saveOfficialResult(result);
-    // Mismo invariante que la RPC remota: el partido finalizado deja de ser vivo, asi que
-    // se quita SU fila live del cache (los demas marcadores vivos quedan intactos: finalizar
-    // uno no borra el otro). Sin esto el cache local conservaria una fila live fantasma del
-    // match ya oficial.
-    const liveList = readCachedLiveMatches().filter(
-      (item) => item && item.matchId !== result?.matchId
-    );
-    if (nextLiveMatch && nextLiveMatch.matchId) {
-      const deduped = liveList.filter((item) => item.matchId !== nextLiveMatch.matchId);
-      deduped.push(nextLiveMatch);
-      cacheLiveMatches(deduped);
-    } else {
-      cacheLiveMatches(liveList);
-    }
-    dispatch(LIVE_SCORE_EVENT, nextLiveMatch ?? null);
-    return { result, liveMatch: nextLiveMatch };
-  }
-
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_finalize_match", {
-    p_token: getAdminToken(),
-    p_result: result,
-    p_next_live: nextLiveMatch,
-  });
-
-  if (error) throw normalizeRemoteError(error, "No fue posible finalizar el partido.");
-
-  const savedResult = data?.result ?? result;
-  const savedLiveMatch = data?.liveMatch ?? nextLiveMatch;
-  const results = readCachedOfficialResults().filter(
-    (item) => item && item.matchId !== savedResult.matchId
-  );
-  results.push(savedResult);
-  results.sort((a, b) => Number(a.matchNumber) - Number(b.matchNumber));
-  cacheOfficialResults(results);
-  // El partido finalizado deja de ser vivo; el RPC limpio su fila live server-side.
+  await saveOfficialResult(result);
+  // El partido finalizado deja de ser vivo: se quita SU fila live del cache (los demas
+  // marcadores vivos quedan intactos). Sin esto el cache conservaria una fila live fantasma.
   const liveList = readCachedLiveMatches().filter(
-    (item) => item && item.matchId !== savedResult.matchId
+    (item) => item && item.matchId !== result?.matchId
   );
-  if (savedLiveMatch && savedLiveMatch.matchId) liveList.push(savedLiveMatch);
-  cacheLiveMatches(liveList);
-  dispatch(OFFICIAL_RESULTS_EVENT, results);
-  dispatch(LIVE_SCORE_EVENT, savedLiveMatch);
-  return { result: savedResult, liveMatch: savedLiveMatch };
+  if (nextLiveMatch && nextLiveMatch.matchId) {
+    const deduped = liveList.filter((item) => item.matchId !== nextLiveMatch.matchId);
+    deduped.push(nextLiveMatch);
+    cacheLiveMatches(deduped);
+  } else {
+    cacheLiveMatches(liveList);
+  }
+  dispatch(LIVE_SCORE_EVENT, nextLiveMatch ?? null);
+  return { result, liveMatch: nextLiveMatch };
 }
 
-/** Cierre validado de grupo (DEFINICION SIMULTANEA). */
+/** Cierre validado de grupo (DEFINICION SIMULTANEA). Era server-side (RPC) -> deshabilitado en local. */
 export async function closeGroup(groupId, officialFirst, officialSecond, standings = []) {
-  if (!groupId) throw new Error("Falta el grupo a cerrar.");
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_close_group", {
-    p_token: getAdminToken(),
-    p_group_id: groupId,
-    p_first: officialFirst,
-    p_second: officialSecond,
-    p_standings: standings ?? [],
-  });
-  if (error) throw normalizeRemoteError(error, "No fue posible cerrar el grupo.");
-  const closure = mapClosureRow(data);
-  const list = dedupeClosuresByVersion([
-    ...readCachedGroupClosures().filter((c) => c.groupId !== groupId),
-    closure,
-  ]);
-  cacheGroupClosures(list);
-  dispatch(GROUP_CLOSURES_EVENT, list);
-  return closure;
+  // MODO SEGURIDAD TOTAL: el cierre validado de grupo se hacia en el backend. Deshabilitado.
+  throw new Error(
+    "Modo local: el cierre de grupo (validado en backend) esta deshabilitado en esta copia."
+  );
 }
 
-/** Reapertura de grupo (invalida la definitiva). */
+/** Reapertura de grupo (invalida la definitiva). Era server-side (RPC) -> deshabilitada en local. */
 export async function reopenGroup(groupId, reason = null) {
-  if (!groupId) throw new Error("Falta el grupo a reabrir.");
-  const client = requireSupabase();
-  const { data, error } = await client.rpc("polla_reopen_group", {
-    p_token: getAdminToken(),
-    p_group_id: groupId,
-    p_reason: reason,
-  });
-  if (error) throw normalizeRemoteError(error, "No fue posible reabrir el grupo.");
-  const closure = mapClosureRow(data);
-  const list = dedupeClosuresByVersion([
-    ...readCachedGroupClosures().filter((c) => c.groupId !== groupId),
-    closure,
-  ]);
-  cacheGroupClosures(list);
-  dispatch(GROUP_CLOSURES_EVENT, list);
-  return closure;
+  // MODO SEGURIDAD TOTAL: la reapertura validada de grupo se hacia en el backend. Deshabilitada.
+  throw new Error(
+    "Modo local: la reapertura de grupo (validada en backend) esta deshabilitada en esta copia."
+  );
 }
 
 export async function readLiveSnapshot() {
@@ -604,36 +381,14 @@ export function subscribeLiveData(callback) {
   window.addEventListener("storage", onStorage);
   emit();
 
-  let channel = null;
-  const client = getSupabaseClient();
-  if (client) {
-    channel = client
-      .channel("polla:live-data")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: LIVE_TABLE },
-        emit
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: RESULTS_TABLE },
-        emit
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: CLOSURE_TABLE },
-        emit
-      )
-      .subscribe();
-  }
-
+  // MODO SEGURIDAD TOTAL: sin canal realtime remoto. El sync es 100% local
+  // (eventos same-tab + 'storage' entre pestanas del mismo navegador).
   return () => {
     disposed = true;
     window.removeEventListener(LIVE_SCORE_EVENT, onSameTab);
     window.removeEventListener(OFFICIAL_RESULTS_EVENT, onSameTab);
     window.removeEventListener(GROUP_CLOSURES_EVENT, onSameTab);
     window.removeEventListener("storage", onStorage);
-    if (client && channel) client.removeChannel(channel);
   };
 }
 

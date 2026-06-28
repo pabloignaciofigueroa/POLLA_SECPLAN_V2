@@ -1,0 +1,1221 @@
+{
+  "schemaVersion": "polla-secplan-knockout-v1",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "version": "eliminatorias-v2-local",
+  "scope": "knockout_32_teams",
+  "lastUpdatedFromScreenshot": "2026-06-28",
+  "timezone": "America/Santiago",
+  "notes": [
+    "Base armada desde la captura del cuadro FIFA 2026 entregada por el usuario.",
+    "Las horas se dejan como hora Chile según la lectura operativa del proyecto; validar contra fuente oficial antes de producción final.",
+    "V2 eliminatorias parte desde cero: no arrastra puntos de fase de grupos.",
+    "Predicción por partido único: +5 exacto único, +3 exacto compartido, +1 tendencia, 0 error."
+  ],
+  "scoringRules": {
+    "exactUnique": 5,
+    "exactShared": 3,
+    "tendency": 1,
+    "wrong": 0,
+    "appliesTo": "single_match"
+  },
+  "teams": [
+    {
+      "id": "ger",
+      "fifaCode": "GER",
+      "name": "Alemania",
+      "nameEn": "Germany",
+      "confederation": "UEFA",
+      "flagEmoji": "🇩🇪",
+      "flagAsset": "/assets/flags/ger.svg"
+    },
+    {
+      "id": "par",
+      "fifaCode": "PAR",
+      "name": "Paraguay",
+      "nameEn": "Paraguay",
+      "confederation": "CONMEBOL",
+      "flagEmoji": "🇵🇾",
+      "flagAsset": "/assets/flags/par.svg"
+    },
+    {
+      "id": "fra",
+      "fifaCode": "FRA",
+      "name": "Francia",
+      "nameEn": "France",
+      "confederation": "UEFA",
+      "flagEmoji": "🇫🇷",
+      "flagAsset": "/assets/flags/fra.svg"
+    },
+    {
+      "id": "swe",
+      "fifaCode": "SWE",
+      "name": "Suecia",
+      "nameEn": "Sweden",
+      "confederation": "UEFA",
+      "flagEmoji": "🇸🇪",
+      "flagAsset": "/assets/flags/swe.svg"
+    },
+    {
+      "id": "rsa",
+      "fifaCode": "RSA",
+      "name": "Sudáfrica",
+      "nameEn": "South Africa",
+      "confederation": "CAF",
+      "flagEmoji": "🇿🇦",
+      "flagAsset": "/assets/flags/rsa.svg"
+    },
+    {
+      "id": "can",
+      "fifaCode": "CAN",
+      "name": "Canadá",
+      "nameEn": "Canada",
+      "confederation": "CONCACAF",
+      "flagEmoji": "🇨🇦",
+      "flagAsset": "/assets/flags/can.svg"
+    },
+    {
+      "id": "ned",
+      "fifaCode": "NED",
+      "name": "Países Bajos",
+      "nameEn": "Netherlands",
+      "confederation": "UEFA",
+      "flagEmoji": "🇳🇱",
+      "flagAsset": "/assets/flags/ned.svg"
+    },
+    {
+      "id": "mar",
+      "fifaCode": "MAR",
+      "name": "Marruecos",
+      "nameEn": "Morocco",
+      "confederation": "CAF",
+      "flagEmoji": "🇲🇦",
+      "flagAsset": "/assets/flags/mar.svg"
+    },
+    {
+      "id": "por",
+      "fifaCode": "POR",
+      "name": "Portugal",
+      "nameEn": "Portugal",
+      "confederation": "UEFA",
+      "flagEmoji": "🇵🇹",
+      "flagAsset": "/assets/flags/por.svg"
+    },
+    {
+      "id": "cro",
+      "fifaCode": "CRO",
+      "name": "Croacia",
+      "nameEn": "Croatia",
+      "confederation": "UEFA",
+      "flagEmoji": "🇭🇷",
+      "flagAsset": "/assets/flags/cro.svg"
+    },
+    {
+      "id": "esp",
+      "fifaCode": "ESP",
+      "name": "España",
+      "nameEn": "Spain",
+      "confederation": "UEFA",
+      "flagEmoji": "🇪🇸",
+      "flagAsset": "/assets/flags/esp.svg"
+    },
+    {
+      "id": "aut",
+      "fifaCode": "AUT",
+      "name": "Austria",
+      "nameEn": "Austria",
+      "confederation": "UEFA",
+      "flagEmoji": "🇦🇹",
+      "flagAsset": "/assets/flags/aut.svg"
+    },
+    {
+      "id": "usa",
+      "fifaCode": "USA",
+      "name": "Estados Unidos",
+      "nameEn": "United States",
+      "confederation": "CONCACAF",
+      "flagEmoji": "🇺🇸",
+      "flagAsset": "/assets/flags/usa.svg"
+    },
+    {
+      "id": "bih",
+      "fifaCode": "BIH",
+      "name": "Bosnia y Herzegovina",
+      "nameEn": "Bosnia and Herzegovina",
+      "confederation": "UEFA",
+      "flagEmoji": "🇧🇦",
+      "flagAsset": "/assets/flags/bih.svg"
+    },
+    {
+      "id": "bel",
+      "fifaCode": "BEL",
+      "name": "Bélgica",
+      "nameEn": "Belgium",
+      "confederation": "UEFA",
+      "flagEmoji": "🇧🇪",
+      "flagAsset": "/assets/flags/bel.svg"
+    },
+    {
+      "id": "sen",
+      "fifaCode": "SEN",
+      "name": "Senegal",
+      "nameEn": "Senegal",
+      "confederation": "CAF",
+      "flagEmoji": "🇸🇳",
+      "flagAsset": "/assets/flags/sen.svg"
+    },
+    {
+      "id": "bra",
+      "fifaCode": "BRA",
+      "name": "Brasil",
+      "nameEn": "Brazil",
+      "confederation": "CONMEBOL",
+      "flagEmoji": "🇧🇷",
+      "flagAsset": "/assets/flags/bra.svg"
+    },
+    {
+      "id": "jpn",
+      "fifaCode": "JPN",
+      "name": "Japón",
+      "nameEn": "Japan",
+      "confederation": "AFC",
+      "flagEmoji": "🇯🇵",
+      "flagAsset": "/assets/flags/jpn.svg"
+    },
+    {
+      "id": "civ",
+      "fifaCode": "CIV",
+      "name": "Costa de Marfil",
+      "nameEn": "Côte d’Ivoire",
+      "confederation": "CAF",
+      "flagEmoji": "🇨🇮",
+      "flagAsset": "/assets/flags/civ.svg"
+    },
+    {
+      "id": "nor",
+      "fifaCode": "NOR",
+      "name": "Noruega",
+      "nameEn": "Norway",
+      "confederation": "UEFA",
+      "flagEmoji": "🇳🇴",
+      "flagAsset": "/assets/flags/nor.svg"
+    },
+    {
+      "id": "mex",
+      "fifaCode": "MEX",
+      "name": "México",
+      "nameEn": "Mexico",
+      "confederation": "CONCACAF",
+      "flagEmoji": "🇲🇽",
+      "flagAsset": "/assets/flags/mex.svg"
+    },
+    {
+      "id": "ecu",
+      "fifaCode": "ECU",
+      "name": "Ecuador",
+      "nameEn": "Ecuador",
+      "confederation": "CONMEBOL",
+      "flagEmoji": "🇪🇨",
+      "flagAsset": "/assets/flags/ecu.svg"
+    },
+    {
+      "id": "eng",
+      "fifaCode": "ENG",
+      "name": "Inglaterra",
+      "nameEn": "England",
+      "confederation": "UEFA",
+      "flagEmoji": "🏴",
+      "flagAsset": "/assets/flags/eng.svg"
+    },
+    {
+      "id": "cod",
+      "fifaCode": "COD",
+      "name": "RD del Congo",
+      "nameEn": "Congo DR",
+      "confederation": "CAF",
+      "flagEmoji": "🇨🇩",
+      "flagAsset": "/assets/flags/cod.svg"
+    },
+    {
+      "id": "arg",
+      "fifaCode": "ARG",
+      "name": "Argentina",
+      "nameEn": "Argentina",
+      "confederation": "CONMEBOL",
+      "flagEmoji": "🇦🇷",
+      "flagAsset": "/assets/flags/arg.svg"
+    },
+    {
+      "id": "cpv",
+      "fifaCode": "CPV",
+      "name": "Cabo Verde",
+      "nameEn": "Cabo Verde",
+      "confederation": "CAF",
+      "flagEmoji": "🇨🇻",
+      "flagAsset": "/assets/flags/cpv.svg"
+    },
+    {
+      "id": "aus",
+      "fifaCode": "AUS",
+      "name": "Australia",
+      "nameEn": "Australia",
+      "confederation": "AFC",
+      "flagEmoji": "🇦🇺",
+      "flagAsset": "/assets/flags/aus.svg"
+    },
+    {
+      "id": "egy",
+      "fifaCode": "EGY",
+      "name": "Egipto",
+      "nameEn": "Egypt",
+      "confederation": "CAF",
+      "flagEmoji": "🇪🇬",
+      "flagAsset": "/assets/flags/egy.svg"
+    },
+    {
+      "id": "sui",
+      "fifaCode": "SUI",
+      "name": "Suiza",
+      "nameEn": "Switzerland",
+      "confederation": "UEFA",
+      "flagEmoji": "🇨🇭",
+      "flagAsset": "/assets/flags/sui.svg"
+    },
+    {
+      "id": "alg",
+      "fifaCode": "ALG",
+      "name": "Argelia",
+      "nameEn": "Algeria",
+      "confederation": "CAF",
+      "flagEmoji": "🇩🇿",
+      "flagAsset": "/assets/flags/alg.svg"
+    },
+    {
+      "id": "col",
+      "fifaCode": "COL",
+      "name": "Colombia",
+      "nameEn": "Colombia",
+      "confederation": "CONMEBOL",
+      "flagEmoji": "🇨🇴",
+      "flagAsset": "/assets/flags/col.svg"
+    },
+    {
+      "id": "gha",
+      "fifaCode": "GHA",
+      "name": "Ghana",
+      "nameEn": "Ghana",
+      "confederation": "CAF",
+      "flagEmoji": "🇬🇭",
+      "flagAsset": "/assets/flags/gha.svg"
+    }
+  ],
+  "rounds": [
+    {
+      "id": "round_of_32",
+      "label": "Dieciseisavos de final",
+      "order": 1,
+      "matchIds": [
+        "P74",
+        "P77",
+        "P73",
+        "P75",
+        "P83",
+        "P84",
+        "P81",
+        "P82",
+        "P76",
+        "P78",
+        "P79",
+        "P80",
+        "P86",
+        "P88",
+        "P85",
+        "P87"
+      ]
+    },
+    {
+      "id": "round_of_16",
+      "label": "Octavos de final",
+      "order": 2,
+      "matchIds": [
+        "P89",
+        "P90",
+        "P93",
+        "P94",
+        "P91",
+        "P92",
+        "P95",
+        "P96"
+      ]
+    },
+    {
+      "id": "quarter_final",
+      "label": "Cuartos de final",
+      "order": 3,
+      "matchIds": [
+        "P97",
+        "P98",
+        "P99",
+        "P100"
+      ]
+    },
+    {
+      "id": "semi_final",
+      "label": "Semifinal",
+      "order": 4,
+      "matchIds": [
+        "P101",
+        "P102"
+      ]
+    },
+    {
+      "id": "third_place",
+      "label": "Partido por el tercer puesto",
+      "order": 5,
+      "matchIds": [
+        "P103"
+      ]
+    },
+    {
+      "id": "final",
+      "label": "Final",
+      "order": 6,
+      "matchIds": [
+        "P104"
+      ]
+    }
+  ],
+  "matches": [
+    {
+      "id": "P74",
+      "matchNumber": 74,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 1,
+      "dateChile": "2026-06-29",
+      "timeChile": "16:30",
+      "kickoffChile": "2026-06-29T16:30:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "ger"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "par"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P77",
+      "matchNumber": 77,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 2,
+      "dateChile": "2026-06-30",
+      "timeChile": "17:00",
+      "kickoffChile": "2026-06-30T17:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "fra"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "swe"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P73",
+      "matchNumber": 73,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 3,
+      "dateChile": "2026-06-28",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-06-28T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "rsa"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "can"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P75",
+      "matchNumber": 75,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 4,
+      "dateChile": "2026-06-29",
+      "timeChile": "21:00",
+      "kickoffChile": "2026-06-29T21:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "ned"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "mar"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P83",
+      "matchNumber": 83,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 5,
+      "dateChile": "2026-07-02",
+      "timeChile": "19:00",
+      "kickoffChile": "2026-07-02T19:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "por"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "cro"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P84",
+      "matchNumber": 84,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 6,
+      "dateChile": "2026-07-02",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-02T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "esp"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "aut"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P81",
+      "matchNumber": 81,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 7,
+      "dateChile": "2026-07-01",
+      "timeChile": "20:00",
+      "kickoffChile": "2026-07-01T20:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "usa"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "bih"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P82",
+      "matchNumber": 82,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 8,
+      "dateChile": "2026-07-01",
+      "timeChile": "16:00",
+      "kickoffChile": "2026-07-01T16:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "bel"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "sen"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P76",
+      "matchNumber": 76,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 9,
+      "dateChile": "2026-06-29",
+      "timeChile": "13:00",
+      "kickoffChile": "2026-06-29T13:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "bra"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "jpn"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P78",
+      "matchNumber": 78,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 10,
+      "dateChile": "2026-06-30",
+      "timeChile": "13:00",
+      "kickoffChile": "2026-06-30T13:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "civ"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "nor"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P79",
+      "matchNumber": 79,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 11,
+      "dateChile": "2026-06-30",
+      "timeChile": "21:00",
+      "kickoffChile": "2026-06-30T21:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "mex"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "ecu"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P80",
+      "matchNumber": 80,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 12,
+      "dateChile": "2026-07-01",
+      "timeChile": "12:00",
+      "kickoffChile": "2026-07-01T12:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "eng"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "cod"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P86",
+      "matchNumber": 86,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 13,
+      "dateChile": "2026-07-03",
+      "timeChile": "18:00",
+      "kickoffChile": "2026-07-03T18:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "arg"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "cpv"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P88",
+      "matchNumber": 88,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 14,
+      "dateChile": "2026-07-03",
+      "timeChile": "14:00",
+      "kickoffChile": "2026-07-03T14:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "aus"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "egy"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P85",
+      "matchNumber": 85,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 15,
+      "dateChile": "2026-07-02",
+      "timeChile": "23:00",
+      "kickoffChile": "2026-07-02T23:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "sui"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "alg"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P87",
+      "matchNumber": 87,
+      "stage": "round_of_32",
+      "stageLabel": "Dieciseisavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 16,
+      "dateChile": "2026-07-03",
+      "timeChile": "21:30",
+      "kickoffChile": "2026-07-03T21:30:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "team",
+        "teamId": "col"
+      },
+      "away": {
+        "type": "team",
+        "teamId": "gha"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P89",
+      "matchNumber": 89,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 1,
+      "dateChile": "2026-07-04",
+      "timeChile": "17:00",
+      "kickoffChile": "2026-07-04T17:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P74"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P77"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P90",
+      "matchNumber": 90,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 2,
+      "dateChile": "2026-07-04",
+      "timeChile": "13:00",
+      "kickoffChile": "2026-07-04T13:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P73"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P75"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P93",
+      "matchNumber": 93,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 3,
+      "dateChile": "2026-07-06",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-06T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P83"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P84"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P94",
+      "matchNumber": 94,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "left",
+      "bracketOrder": 4,
+      "dateChile": "2026-07-06",
+      "timeChile": "20:00",
+      "kickoffChile": "2026-07-06T20:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P81"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P82"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P91",
+      "matchNumber": 91,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 5,
+      "dateChile": "2026-07-05",
+      "timeChile": "16:00",
+      "kickoffChile": "2026-07-05T16:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P76"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P78"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P92",
+      "matchNumber": 92,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 6,
+      "dateChile": "2026-07-05",
+      "timeChile": "20:00",
+      "kickoffChile": "2026-07-05T20:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P79"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P80"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P95",
+      "matchNumber": 95,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 7,
+      "dateChile": "2026-07-07",
+      "timeChile": "12:00",
+      "kickoffChile": "2026-07-07T12:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P86"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P88"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P96",
+      "matchNumber": 96,
+      "stage": "round_of_16",
+      "stageLabel": "Octavos de final",
+      "bracketSide": "right",
+      "bracketOrder": 8,
+      "dateChile": "2026-07-07",
+      "timeChile": "16:00",
+      "kickoffChile": "2026-07-07T16:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P85"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P87"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P97",
+      "matchNumber": 97,
+      "stage": "quarter_final",
+      "stageLabel": "Cuartos de final",
+      "bracketSide": "left",
+      "bracketOrder": 1,
+      "dateChile": "2026-07-09",
+      "timeChile": "16:00",
+      "kickoffChile": "2026-07-09T16:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P89"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P90"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P98",
+      "matchNumber": 98,
+      "stage": "quarter_final",
+      "stageLabel": "Cuartos de final",
+      "bracketSide": "left",
+      "bracketOrder": 2,
+      "dateChile": "2026-07-10",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-10T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P93"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P94"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P99",
+      "matchNumber": 99,
+      "stage": "quarter_final",
+      "stageLabel": "Cuartos de final",
+      "bracketSide": "right",
+      "bracketOrder": 3,
+      "dateChile": "2026-07-11",
+      "timeChile": "17:00",
+      "kickoffChile": "2026-07-11T17:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P91"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P92"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P100",
+      "matchNumber": 100,
+      "stage": "quarter_final",
+      "stageLabel": "Cuartos de final",
+      "bracketSide": "right",
+      "bracketOrder": 4,
+      "dateChile": "2026-07-11",
+      "timeChile": "21:00",
+      "kickoffChile": "2026-07-11T21:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P95"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P96"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P101",
+      "matchNumber": 101,
+      "stage": "semi_final",
+      "stageLabel": "Semifinal",
+      "bracketSide": "left",
+      "bracketOrder": 1,
+      "dateChile": "2026-07-14",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-14T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P97"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P98"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P102",
+      "matchNumber": 102,
+      "stage": "semi_final",
+      "stageLabel": "Semifinal",
+      "bracketSide": "right",
+      "bracketOrder": 2,
+      "dateChile": "2026-07-15",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-15T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P99"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P100"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P103",
+      "matchNumber": 103,
+      "stage": "third_place",
+      "stageLabel": "Partido por el tercer puesto",
+      "bracketSide": "center",
+      "bracketOrder": 1,
+      "dateChile": "2026-07-18",
+      "timeChile": "17:00",
+      "kickoffChile": "2026-07-18T17:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "loser",
+        "matchId": "P101"
+      },
+      "away": {
+        "type": "loser",
+        "matchId": "P102"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    },
+    {
+      "id": "P104",
+      "matchNumber": 104,
+      "stage": "final",
+      "stageLabel": "Final",
+      "bracketSide": "center",
+      "bracketOrder": 1,
+      "dateChile": "2026-07-19",
+      "timeChile": "15:00",
+      "kickoffChile": "2026-07-19T15:00:00-04:00",
+      "timezone": "America/Santiago",
+      "home": {
+        "type": "winner",
+        "matchId": "P101"
+      },
+      "away": {
+        "type": "winner",
+        "matchId": "P102"
+      },
+      "homeScore": null,
+      "awayScore": null,
+      "homePenaltyScore": null,
+      "awayPenaltyScore": null,
+      "status": "scheduled",
+      "predictionStatus": "open_until_kickoff"
+    }
+  ]
+}

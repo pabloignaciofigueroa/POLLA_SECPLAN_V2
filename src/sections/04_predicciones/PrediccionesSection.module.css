@@ -38,6 +38,17 @@
   align-items: stretch;
 }
 
+/* Desktop/tablet: la sección vive dentro del viewport; el scroll (si hace falta) es INTERNO
+   en la grilla de cruces, nunca scroll del body. */
+@media (min-width: 768px) {
+  .contentShell {
+    height: calc(100svh - var(--layout-header-height));
+    max-height: calc(100svh - var(--layout-header-height));
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 @media (max-width: 1120px) {
   .topGrid {
     grid-template-columns: 1fr;

@@ -1,62 +1,51 @@
 ---
 import styles from "./EquiposSection.module.css";
 import EquiposHero from "./EquiposHero.astro";
-import TeamsSummaryStrip from "./TeamsSummaryStrip.astro";
-import GroupFilterChips from "./GroupFilterChips.astro";
-import TeamsAlbum from "./TeamsAlbum.astro";
+import TeamCard from "./TeamCard.astro";
 import TeamDetailModal from "./TeamDetailModal.astro";
 import ConfederationStrip from "./ConfederationStrip.astro";
 
 import teamsData from "../../data/teams.json";
 import equiposInfoData from "../../data/equipos-info.json";
-import predictionsData from "../../data/predictions.json";
 
 import {
   buildInfoIndex,
   enrichTeams,
-  groupByGroupId,
+  groupByConfederation,
   uniqueConfederations,
 } from "./equipos.logic";
 import type { BaseTeam, EquipoBundle } from "./equipos.logic";
 
-
+// Polla de ELIMINATORIAS: ya no hay fase de grupos. El álbum se ordena por confederación.
 const baseTeams = teamsData as BaseTeam[];
 const bundle = equiposInfoData as EquipoBundle;
 const infoIndex = buildInfoIndex(bundle);
 const enriched = enrichTeams(baseTeams, infoIndex);
-const grouped = groupByGroupId(enriched);
+const byConfederation = groupByConfederation(enriched);
 const confederations = uniqueConfederations(baseTeams);
-const initialGroup = "A";
 
-const summaryStats = {
-  selections: baseTeams.length,
-  groups: grouped.length,
-  confederations: confederations.length,
-};
-const clientPayload = {
-  teams: enriched,
-  groups: grouped.map((g) => ({ id: g.id, label: g.label })),
-  confirmedPlayerIds: predictionsData.submissions.map(
-    (submission) => submission.playerId
-  ),
-};
+const clientPayload = { teams: enriched };
 ---
 
-<section
-  class={styles.equiposSection}
-  id="equipos"
-  data-section="equipos"
-  data-active-group={initialGroup}
->
+<section class={styles.equiposSection} id="equipos" data-section="equipos">
   <div class={styles.contentShell}>
     <div class={styles.topRow} data-animate="fade-up">
       <EquiposHero />
-      <TeamsSummaryStrip stats={summaryStats} />
     </div>
 
-    <GroupFilterChips groups={grouped} initialGroup={initialGroup} />
-
-    <TeamsAlbum grouped={grouped} activeGroup={initialGroup} />
+    <div class="conf-album">
+      {byConfederation.map((bucket) => (
+        <section class="conf-section">
+          <header class="conf-header">
+            <h2 class="conf-title">{bucket.label}</h2>
+            <span class="conf-count">{bucket.teams.length} selecciones</span>
+          </header>
+          <div class="team-grid">
+            {bucket.teams.map((team) => <TeamCard team={team} />)}
+          </div>
+        </section>
+      ))}
+    </div>
 
     <ConfederationStrip confederations={confederations} />
   </div>
@@ -68,3 +57,59 @@ const clientPayload = {
     import "./equipos.client.js";
   </script>
 </section>
+
+<style>
+  .conf-album {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.2rem, 2.6vw, 2rem);
+  }
+  .conf-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  .conf-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    padding: 0.34rem 0.72rem;
+    border-radius: 0.55rem;
+    background: linear-gradient(135deg, var(--pm-blue-700, #1a3a8a), var(--pm-blue-900, #06122a));
+    color: var(--pm-white);
+  }
+  .conf-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    font-weight: 950;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .conf-count {
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    opacity: 0.9;
+    text-transform: uppercase;
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.55rem, 1vw, 0.78rem);
+  }
+  @media (max-width: 1080px) {
+    .team-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

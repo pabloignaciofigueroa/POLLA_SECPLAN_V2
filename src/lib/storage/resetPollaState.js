@@ -1,4 +1,7 @@
-export const POLLA_STORAGE_VERSION = "production-reset-2026-06-12-roster-13";
+// V2 ELIMINATORIAS: el bump de version purga los drafts de la fase de grupos
+// (predictions / qualifiedPredictions / activePredictionGroup) y estrena las llaves
+// del knockout (knockoutPredictions / podiumPredictions).
+export const POLLA_STORAGE_VERSION = "production-reset-2026-06-27-knockout-v2";
 
 export const POLLA_IDENTITY_STORAGE_KEYS = [
   "polla:selectedPlayerId",
@@ -7,18 +10,24 @@ export const POLLA_IDENTITY_STORAGE_KEYS = [
 ];
 
 export const POLLA_LOCAL_STORAGE_KEYS = [
-  "polla:predictions",
-  "polla:qualifiedPredictions",
-  "polla:activePredictionGroup",
+  // Nuevas (eliminatorias)
+  "polla:knockoutPredictions",
+  "polla:podiumPredictions",
+  // Comunes
   "polla:favoriteTeams",
   "polla:finalDownloaded",
   "polla:finalDownloadedAt",
   "polla:finalDownloadedFilename",
   "polla:finalSubmissionPayload",
+  // Legado de grupos (se listan SOLO para limpiarlas en el bump de version)
+  "polla:predictions",
+  "polla:qualifiedPredictions",
+  "polla:activePredictionGroup",
   "polla:predictionCorrectionDrafts",
 ];
 
 export const POLLA_SESSION_STORAGE_KEYS = [
+  // Legado de grupos (se limpian en el bump)
   "polla:activePredictionGroupIntent",
   "polla:predictionEditSession",
 ];

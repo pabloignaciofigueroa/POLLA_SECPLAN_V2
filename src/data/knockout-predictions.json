@@ -1,0 +1,19 @@
+{
+  "_doc": "Dataset canonico de cartones de ELIMINATORIAS (todos los jugadores). Se llena compilando los JSON que cada jugador descarga desde /predicciones (campo 'raw.knockoutPredictions' + 'podium'). Cada submission: { playerId, predictions: { [matchId]: { homeScore, awayScore, advances } }, podium: { champion, runnerUp, third, fourth } }. La /tabla rankea sobre este dataset + lo que haya en localStorage del dispositivo actual. Vacio = aun sin cartones cargados.",
+  "schemaVersion": "2.0-knockout",
+  "submissions": [
+    { "playerId": "jaime", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "italo", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "humberto", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "chelo", "predictions": { "P73": { "homeScore": 0, "awayScore": 1, "advances": "away" } } },
+    { "playerId": "luis_renato", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "narigon", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "carlos", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "pancho", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "antonio", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "martin", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
+    { "playerId": "tanke", "predictions": { "P73": { "homeScore": 2, "awayScore": 0, "advances": "home" } } },
+    { "playerId": "ale", "predictions": { "P73": { "homeScore": 0, "awayScore": 1, "advances": "away" } } },
+    { "playerId": "felipe", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } }
+  ]
+}

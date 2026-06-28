@@ -1,103 +1,107 @@
 ---
+// Seccion 04_predicciones — CAPTURA de la polla de ELIMINATORIAS (bracket completo).
+// Se predicen los cruces cuyos DOS lados ya son equipos concretos (R32 hoy; las rondas
+// siguientes se desbloquean solas a medida que se cargan resultados). Marcador + quién
+// avanza (empate => elegir quién pasa). El podio se define en /podio. 100% local.
 import styles from "./PrediccionesSection.module.css";
-import PredictionHeroHeader from "./PredictionHeroHeader.astro";
-import ProgressSummaryGrid from "./ProgressSummaryGrid.astro";
-import GroupTabs from "./GroupTabs.astro";
-import PredictionWorkspace from "./PredictionWorkspace.astro";
-import PredictionBottomBar from "./PredictionBottomBar.astro";
-import OfficialPredictionAccessPanel from "./OfficialPredictionAccessPanel.astro";
-import fixtureData from "../../data/fixture.json";
-import groupsData from "../../data/groups.json";
-import playersData from "../../data/players.json";
-import h2hData from "../../data/match-h2h-fifa-wikipedia.json";
-import teamInfoData from "../../data/equipos-info.json";
-import predictionsData from "../../data/predictions.json";
-import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
-import playerIdentityUrl from "../../lib/playerIdentity.js?url";
-import predValidationUrl from "./predicciones.validation.js?url";
-import predExportUrl from "./predicciones.export.js?url";
-import predStandingsUrl from "./predicciones.standings.js?url";
+import BracketColumn from "../07_fixture/BracketColumn.astro";
 
-interface Team {
-  id: string;
-  name: string;
-  shortCode: string;
-}
+import knockoutData from "../../data/knockout-matches.json";
+import teamsData from "../../data/teams.json";
+import seed from "../../data/knockout-results.json";
+import { sortBySlot } from "../../lib/knockout/model";
+import type { KnockoutMatch } from "../../lib/knockout/model";
+import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
+import { resolveBracket } from "../../lib/knockout/bracket.js";
 
-interface Match {
-  id: string;
-  matchNumber: number;
-  roundNumber: number;
-  groupId: string;
-  groupLabel: string;
-  stage: string;
-  homeTeam: Team;
-  awayTeam: Team;
-}
+const teamsByCode = buildTeamsByCode(teamsData as any[]);
+const allMatches = sortBySlot(knockoutData.matches as KnockoutMatch[]);
+const resolved = resolveBracket(allMatches, {
+  assignments: (seed as any).slotAssignments ?? {},
+  results: (seed as any).results ?? [],
+  teamsByCode,
+});
+const resolvedById = new Map(resolved.map((r) => [r.match.id, r]));
 
-interface Group {
-  id: string;
-  label: string;
-  teams: Team[];
-  matchIds: string[];
-}
+const itemsFor = (round: string) =>
+  allMatches.filter((m) => m.round === round).map((m) => {
+    const r = resolvedById.get(m.id)!;
+    return { match: m, slotA: r.slotA, slotB: r.slotB, predictionEnabled: r.predictionEnabled };
+  });
 
-interface Player {
-  id: string;
-  name: string;
-}
+const rounds = knockoutData.rounds as { round: string; roundLabel: string }[];
+// Por ahora SOLO se predicen los 16avos. Octavos→Final se OCULTAN del render (NO se borran
+// de datos/lógica/localStorage): se reabren cuando se definan los clasificados.
+const VISIBLE_PREDICTION_ROUNDS = ["R32"];
+const columns = rounds
+  .filter((r) => VISIBLE_PREDICTION_ROUNDS.includes(r.round))
+  .map((r) => ({ ...r, items: itemsFor(r.round) }))
+  .filter((c) => c.items.length > 0);
 
-const groups = groupsData as Group[];
-const matches = fixtureData.matches as Match[];
-const players = playersData as Player[];
-const activeGroupId = "A";
-const activeGroup = groups.find((group) => group.id === activeGroupId) ?? groups[0];
-const fallbackPlayer = {
-  id: "generic",
-  name: "Jugador",
-};
-const totalMatches = fixtureData.totalMatches;
-
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
 const clientPayload = {
-  groups,
-  matches,
-  players,
-  defaultPlayerId: "",
-  resetStateUrl,
-  playerIdentityUrl,
-  validationUrl: predValidationUrl,
-  exportUrl: predExportUrl,
-  standingsUrl: predStandingsUrl,
-  h2hData,
-  teamInfoData,
-  officialDataset: predictionsData,
+  matches: allMatches,
+  teams: teamsLite,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
 };
 ---
 
-<section
-  class={styles.prediccionesSection}
-  id="predicciones"
-  data-section="predicciones"
-  data-active-group-id={activeGroup.id}
-  data-player-id={fallbackPlayer.id}
->
+<section class={styles.prediccionesSection} id="predicciones" data-section="predicciones">
   <div class={styles.contentShell}>
-    <div class={styles.topGrid} data-animate="fade-up">
-      <PredictionHeroHeader player={fallbackPlayer} totalMatches={totalMatches} groupsCount={groups.length} />
-      <ProgressSummaryGrid totalMatches={totalMatches} activeGroup={activeGroup} />
+    <header class="pred-hero" data-animate="fade-up">
+      <div class="pred-hero-main">
+        <p class="pred-eyebrow">etapa 2 / eliminatorias</p>
+        <h1 class="pred-title">Mis predicciones</h1>
+        <p class="pred-identity" data-pred-identity hidden></p>
+      </div>
+      <div class="pred-hero-chips">
+        <span class="pred-chip">16 cruces</span>
+        <a class="pred-chip pred-chip--podio" href="/podio">
+          Podio <strong data-pred-podio-count>0/4</strong>
+          <span class="pred-chip-medals" aria-hidden="true">🏆🥈🥉</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="pred-rounds">
+      {columns.map((c) => (
+        <BracketColumn title={c.roundLabel} items={c.items} mode="capture" />
+      ))}
     </div>
 
-    <OfficialPredictionAccessPanel />
-
-    <GroupTabs groups={groups} activeGroupId={activeGroup.id} />
-
-    <PredictionWorkspace matches={matches} groups={groups} activeGroupId={activeGroup.id} />
-
-    <PredictionBottomBar activeGroup={activeGroup} groups={groups} />
+    <div class="pred-actionbar">
+      <p class="pred-status" data-pred-status aria-live="polite">Sin pronósticos aún.</p>
+      <button type="button" class="pred-download" data-pred-download>Descargar mi polla (JSON)</button>
+    </div>
   </div>
 
-  <script type="application/json" data-predictions-payload set:html={JSON.stringify(clientPayload)} />
+  <script type="application/json" data-knockout-predict-payload set:html={JSON.stringify(clientPayload)} />
   <script>
-    import "./predicciones.client.js";
+    import "./predicciones.knockout.client.js";
   </script>
 </section>
+
+<style>
+  .pred-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: clamp(0.5rem, 1.4vw, 1rem); }
+  .pred-hero-main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .pred-eyebrow { margin: 0; padding: 0.25rem 0.8rem; border-radius: 999px; background: linear-gradient(135deg, rgba(255, 241, 214, 0.96), rgba(255, 228, 232, 0.9)); color: var(--pm-orange-600); font-size: 0.68rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+  .pred-title { margin: 0; font-family: var(--font-display); font-weight: 950; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 0.95; text-transform: uppercase; color: var(--pm-blue-900); }
+  .pred-hero-chips { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .pred-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.32rem 0.75rem; border-radius: 999px; font-family: var(--font-display); font-weight: 850; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-blue-800); background: var(--pm-white); border: 1px solid var(--pm-border-soft); }
+  .pred-chip--podio { color: var(--pm-blue-900); text-decoration: none; border-color: color-mix(in srgb, var(--pm-yellow-500, #facc15) 55%, var(--pm-border-soft)); background: linear-gradient(120deg, color-mix(in srgb, var(--pm-yellow-500, #facc15) 20%, #fff), #fff 62%); }
+  .pred-chip--podio strong { font-family: var(--font-score); font-variant-numeric: tabular-nums; color: var(--pm-orange-600); }
+  .pred-chip-medals { font-size: 0.9rem; }
+  .pred-identity { margin: 0.2rem 0 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--pm-cyan-700, #0e7490); }
+  .pred-rounds { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
+  /* En desktop/tablet la grilla de cruces es el panel con scroll interno (el body no scrollea). */
+  @media (min-width: 768px) {
+    .pred-rounds { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.3rem; }
+  }
+  .pred-actionbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); flex-wrap: wrap; margin-top: clamp(0.6rem, 1.4vw, 1rem); padding-top: 0.6rem; border-top: 1px solid var(--pm-border-soft); }
+  .pred-status { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.84rem; letter-spacing: 0.02em; color: var(--pm-blue-800); }
+  .pred-download { font-family: var(--font-display); font-weight: 900; font-size: 0.9rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.7rem 1.4rem; border: none; border-radius: var(--pm-radius-pill); background: linear-gradient(135deg, var(--pm-yellow-500, #facc15), var(--pm-orange-500, #fb923c)); color: var(--pm-blue-950, #06122a); cursor: pointer; box-shadow: 0 8px 20px rgba(250, 204, 21, 0.28); transition: transform var(--pm-transition-fast); }
+  .pred-download:hover { transform: translateY(-1px); }
+  .pred-download:focus-visible { outline: none; box-shadow: var(--pm-focus-ring-yellow, 0 0 0 3px rgba(250, 204, 21, 0.5)); }
+  @media (prefers-reduced-motion: reduce) { .pred-download { transition: none; } }
+</style>
