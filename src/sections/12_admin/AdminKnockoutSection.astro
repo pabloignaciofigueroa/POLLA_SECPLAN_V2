@@ -96,6 +96,7 @@ const clientPayload = {
                 </span>
                 <span class="adm-team adm-team-away" data-adm-name="away">—</span>
                 <span class="adm-adv">
+                  <span class="adm-adv-label" data-adm-adv-label hidden>⚖ Avanza por penales:</span>
                   <button type="button" class="adm-adv-btn" data-adm-winner="home" aria-pressed="false"><span data-adm-pick="home">LOC</span></button>
                   <button type="button" class="adm-adv-btn" data-adm-winner="away" aria-pressed="false"><span data-adm-pick="away">VIS</span></button>
                 </span>
@@ -190,10 +191,14 @@ const clientPayload = {
   .adm-update:focus-visible, .adm-finish:focus-visible, .adm-step:focus-visible { outline: none; box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(18, 109, 255, 0.4)); }
   .adm-score { width: 2.8rem; height: 2.2rem; text-align: center; font-family: var(--font-score); font-size: 1.05rem; font-weight: 800; }
   .adm-vs { text-align: center; color: var(--pm-text-soft); font-weight: 800; }
-  .adm-adv { display: inline-flex; gap: 0.25rem; }
+  .adm-adv { display: inline-flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+  .adm-adv-label { font-family: var(--font-display); font-weight: 900; font-size: 0.58rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-orange-600, #c2410c); }
+  .adm-adv-label[hidden] { display: none; }
   .adm-adv-btn { padding: 0.2rem 0.5rem; border: 2px solid var(--pm-border-blue); border-radius: var(--pm-radius-pill); background: var(--pm-white); color: var(--pm-blue-800); font-family: var(--font-display); font-weight: 800; font-size: 0.66rem; cursor: pointer; }
   .adm-adv-btn[data-active="true"] { background: var(--pm-cyan-500); border-color: var(--pm-cyan-600); color: var(--pm-blue-900); }
   .adm-adv-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  /* Empate (penales) sin definir: resalta el bloque para que el admin elija quién avanza. */
+  .adm-match[data-adm-tie="true"] .adm-adv { padding: 0.12rem 0.3rem; border-radius: var(--pm-radius-pill); background: color-mix(in srgb, var(--pm-orange-500, #fb923c) 14%, #fff); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pm-orange-500, #fb923c) 42%, transparent); }
   /* Estado del cruce: EN VIVO (rojo) / FINALIZADO (verde). Visible solo con marcador cargado. */
   .adm-state { padding: 0.22rem 0.6rem; border-radius: var(--pm-radius-pill); border: 1px solid var(--pm-border-soft); background: var(--pm-white); font-family: var(--font-display); font-weight: 900; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
   .adm-state[hidden] { display: none; }

@@ -4,6 +4,7 @@ import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
 import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveResults.js";
 import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } from "../../lib/supabase/knockoutData.js";
+import { resolveResult } from "../../lib/knockout/adminResult.js";
 
 (() => {
   const section = document.querySelector('[data-section="admin"]');
@@ -102,6 +103,19 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
     const stepButtons = Array.from(row.querySelectorAll("[data-adm-step]"));
     const updateBtn = row.querySelector("[data-adm-update]");
     const finishBtn = row.querySelector("[data-adm-finish]");
+    const advLabel = row.querySelector("[data-adm-adv-label]");
+
+    // Marca el empate (data-adm-tie -> muestra el bloque "avanza por penales"); en no-empate
+    // fija el ganador automático del marcador (limpia cualquier pick de penales previo).
+    const syncTie = () => {
+      const r = resolveResult({ homeScore: toScore(homeInput?.value), awayScore: toScore(awayInput?.value), draftWinner: row.dataset.draftWinner || null });
+      row.dataset.admTie = r.outcome === "draw" ? "true" : "false";
+      if (advLabel) advLabel.hidden = r.outcome !== "draw";
+      if (r.complete && r.outcome !== "draw" && r.winner) {
+        row.dataset.draftWinner = r.winner;
+        reflectWinnerButtons(row, r.winner);
+      }
+    };
 
     const stored = results[id];
     if (stored) {
@@ -111,6 +125,7 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
       reflectWinnerButtons(row, stored.winner ?? null);
       reflectState(row, stored);
     }
+    syncTie();
 
     const markDirty = (on) => { if (updateBtn) updateBtn.dataset.dirty = on ? "true" : "false"; };
 
@@ -132,9 +147,13 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
       const cur = results[id] ?? { matchId: id, homeScore: null, awayScore: null, winner: null };
       cur.homeScore = h;
       cur.awayScore = a;
-      if (h !== null && a !== null && !isTie(h, a)) cur.winner = h > a ? "home" : "away";
-      else cur.winner = row.dataset.draftWinner || null;
+      // Gana en cancha -> ganador del marcador (resolution regular_time). Empate -> penales
+      // (resolution penalties): el ganador es el elegido (o null si todavía no se eligió).
+      const res = resolveResult({ homeScore: h, awayScore: a, draftWinner: row.dataset.draftWinner || null });
+      cur.winner = res.winner;
+      cur.resolution = res.resolution;
       cur.status = status;
+      row.dataset.draftWinner = res.winner || "";
       results[id] = cur;
       reflectWinnerButtons(row, cur.winner ?? null);
       reflectState(row, cur);
@@ -156,6 +175,7 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
       const cur = toScore(input.value);
       input.value = String(Math.max(0, (cur === null ? 0 : cur) + delta));
       markDirty(true);
+      syncTie();
     };
     stepButtons.forEach((b) => {
       b.addEventListener("click", () => {
@@ -163,8 +183,8 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
         bump(b.getAttribute("data-adm-step") === "home" ? homeInput : awayInput, Number(b.getAttribute("data-dir")) || 0);
       });
     });
-    if (homeInput) homeInput.addEventListener("input", () => markDirty(true));
-    if (awayInput) awayInput.addEventListener("input", () => markDirty(true));
+    if (homeInput) homeInput.addEventListener("input", () => { markDirty(true); syncTie(); });
+    if (awayInput) awayInput.addEventListener("input", () => { markDirty(true); syncTie(); });
 
     winButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -175,6 +195,7 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
         row.dataset.draftWinner = w || "";
         reflectWinnerButtons(row, w);
         markDirty(true);
+        syncTie();
       });
     });
 
@@ -186,7 +207,15 @@ import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } fr
         if (h === null || a === null) { window.alert("Cargá el marcador completo antes de finalizar."); return; }
         const home = row.querySelector('[data-adm-name="home"]')?.textContent ?? "Local";
         const away = row.querySelector('[data-adm-name="away"]')?.textContent ?? "Visita";
-        const ok = window.confirm(`¿Finalizar ${home} ${h} - ${a} ${away}?\n\nAvanza el ganador en el cuadro y suma los puntos. Cierra el marcador.`);
+        const res = resolveResult({ homeScore: h, awayScore: a, draftWinner: row.dataset.draftWinner || null });
+        if (!res.canFinalize) {
+          window.alert("Este partido terminó empatado. Para finalizar una llave eliminatoria debés elegir quién avanzó por penales.");
+          return;
+        }
+        const defn = res.resolution === "penalties"
+          ? `\n\nEmpate en cancha — avanza por PENALES: ${res.winner === "home" ? home : away}.`
+          : "";
+        const ok = window.confirm(`¿Finalizar ${home} ${h} - ${a} ${away}?${defn}\n\nAvanza el ganador en el cuadro y suma los puntos. Cierra el marcador.`);
         if (!ok) return;
         commit("final");
       });
