@@ -1,10 +1,10 @@
 ---
 // Seccion 13_tabla — CARRERA SECPLAN. Tabla dinámica de jugadores. 100% local.
 // IZQ: PODIO (top-3 con foto+medalla) + ESCALERA (ranking con barra de progreso + movimiento).
-// DER: PARTIDO EN CURSO (live card) + IMPACTO EN VIVO (buckets de jugadores) + LEYENDA.
+// DER: PARTIDO EN CURSO (live card) + PREDICCIONES DE JUGADORES + LEYENDA.
 // Puntúa contra los resultados vivos del admin (pre-torneo: 0 pts / "--"). El marcador EN VIVO
 // suma provisional (cambia con cada gol) pero NO avanza el cuadro.
-// Hooks preservados/ampliados: data-tabla-{row,cell,body,note,count,move,podium,cruce*,impact}.
+// Hooks preservados: data-tabla-{row,cell,body,note,count,move,podium,cruce*,pred*}.
 import playersData from "../../data/players.json";
 import knockoutData from "../../data/knockout-matches.json";
 import teamsData from "../../data/teams.json";
@@ -69,7 +69,7 @@ const podiumOrder = [2, 1, 3] as const;
       </section>
 
       <!-- ===== DER: LIVE + IMPACTO + LEYENDA ===== -->
-      <section class="tk-col tk-col--live" aria-label="Partido en curso e impacto">
+      <section class="tk-col tk-col--live" aria-label="Partido en curso y predicciones">
         <h2 class="tk-col-title">Partido en curso</h2>
         <div class="tk-live" data-tabla-cruce data-state="pending">
           <span class="tk-live-when" data-tabla-cruce-when>Por definir</span>
@@ -246,8 +246,8 @@ const podiumOrder = [2, 1, 3] as const;
 
   /* ===== PARTIDO EN CURSO (live card) ===== */
   .tk-live {
-    display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
-    padding: 0.75rem 0.9rem; border-radius: var(--pm-radius-lg);
+    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    padding: 0.5rem 0.85rem; border-radius: var(--pm-radius-lg);
     background: linear-gradient(140deg, color-mix(in srgb, var(--pm-blue-600) 92%, #000) 0%, var(--pm-blue-800) 55%, #061326 100%);
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: var(--pm-shadow-card-strong), inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -257,7 +257,7 @@ const podiumOrder = [2, 1, 3] as const;
   .tk-live-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.7rem; width: 100%; }
   .tk-live-team { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; min-width: 0; }
   .tk-live-flag {
-    width: clamp(2.2rem, 5vw, 3rem); aspect-ratio: 1; border-radius: 999px;
+    width: clamp(1.9rem, 4vw, 2.5rem); aspect-ratio: 1; border-radius: 999px;
     background-size: cover; background-position: center; background-repeat: no-repeat;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.92), 0 5px 12px rgba(0, 0, 0, 0.4);
   }
@@ -265,8 +265,8 @@ const podiumOrder = [2, 1, 3] as const;
   .tk-live-name { font-family: var(--font-display); font-weight: 900; font-size: clamp(0.86rem, 2vw, 1.05rem); text-transform: uppercase; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tk-live-score {
     font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800;
-    font-size: clamp(1.6rem, 4.5vw, 2.4rem); color: #fff; letter-spacing: 0.02em;
-    padding: 0.1rem 0.7rem; border-radius: var(--pm-radius-sm); background: rgba(255, 255, 255, 0.1);
+    font-size: clamp(1.4rem, 4vw, 2rem); color: #fff; letter-spacing: 0.02em;
+    padding: 0.06rem 0.65rem; border-radius: var(--pm-radius-sm); background: rgba(255, 255, 255, 0.1);
   }
   .tk-live-state {
     font-family: var(--font-display); font-weight: 900; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -276,31 +276,6 @@ const podiumOrder = [2, 1, 3] as const;
   .tk-live[data-state="live"] .tk-live-state { color: #fff; background: var(--pm-red-500); box-shadow: 0 0 0 0 var(--pm-red-glow); animation: livePulse 1.5s ease-in-out infinite; }
   .tk-live[data-state="live"] .tk-live-score { background: rgba(255, 64, 88, 0.28); box-shadow: 0 0 24px rgba(255, 64, 88, 0.35); }
   .tk-live[data-state="done"] .tk-live-state { color: #062; background: var(--pm-mint-300); }
-
-  /* ===== IMPACTO EN VIVO (lo pinta el cliente) ===== */
-  .tk-impact { display: flex; flex-direction: column; gap: 0.4rem; }
-  .tk-impact-empty { margin: 0; font-family: var(--font-ui); font-size: 0.74rem; color: var(--pm-text-soft); padding: 0.5rem; }
-  :global(.tk-bucket) {
-    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.5rem;
-    padding: 0.4rem 0.6rem; border-radius: var(--pm-radius-md);
-    background: linear-gradient(120deg, color-mix(in srgb, var(--bk-color, var(--pm-blue-500)) 14%, var(--pm-white)), var(--pm-white) 70%);
-    border: 1px solid color-mix(in srgb, var(--bk-color, var(--pm-blue-500)) 32%, var(--pm-border-soft));
-    box-shadow: var(--pm-shadow-soft);
-  }
-  :global(.tk-bucket--exact) { --bk-color: var(--pm-mint-500); }
-  :global(.tk-bucket--win)   { --bk-color: var(--pm-blue-500); }
-  :global(.tk-bucket--out)   { --bk-color: var(--pm-red-500); }
-  :global(.tk-bucket--none)  { --bk-color: var(--pm-purple-500); }
-  :global(.tk-bucket-head) { display: flex; flex-direction: column; gap: 0.05rem; min-width: 5.4rem; }
-  :global(.tk-bucket-label) { font-family: var(--font-display); font-weight: 900; font-size: 0.62rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-blue-900); line-height: 1.05; }
-  :global(.tk-bucket-sub) { font-family: var(--font-display); font-weight: 800; font-size: 0.56rem; color: color-mix(in srgb, var(--bk-color, var(--pm-blue-500)) 70%, #000); }
-  :global(.tk-bucket-avatars) { display: flex; flex-wrap: wrap; gap: 0.18rem; justify-content: flex-end; }
-  :global(.tk-bucket-av) {
-    width: 1.55rem; height: 1.55rem; border-radius: 999px; object-fit: cover; flex: 0 0 auto;
-    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(7, 23, 53, 0.25);
-    background: var(--pm-panel-soft);
-  }
-  :global(.tk-bucket-empty) { font-family: var(--font-ui); font-size: 0.66rem; color: var(--pm-text-muted); justify-self: end; }
 
   /* ===== LEYENDA ===== */
   .tk-leyenda { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
@@ -317,11 +292,11 @@ const podiumOrder = [2, 1, 3] as const;
   /* ===== PREDICCIONES DE JUGADORES (marcador + bandera + pts dinámicos) ===== */
   .tk-preds-head, .tk-pred-row {
     display: grid; grid-template-columns: minmax(0, 1fr) auto 2.6rem 2rem; align-items: center; gap: 0.4rem;
-    padding: 0.3rem 0.65rem;
+    padding: 0.18rem 0.6rem;
   }
   .tk-preds-head { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-text-soft); }
   .tk-preds-head span:not(:first-child), .tk-pred-row > span:not(:first-child) { text-align: center; }
-  .tk-preds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.22rem; }
+  .tk-preds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.14rem; }
   .tk-pred-row {
     border-radius: var(--pm-radius-sm);
     background: linear-gradient(100deg, color-mix(in srgb, var(--section-accent) 8%, var(--pm-white)), var(--pm-white) 58%);

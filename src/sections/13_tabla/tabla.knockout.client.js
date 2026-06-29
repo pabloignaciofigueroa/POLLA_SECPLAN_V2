@@ -1,7 +1,7 @@
-// CARRERA SECPLAN — ranking de eliminatorias (PODIO + ESCALERA + LIVE + IMPACTO). 100% local.
+// CARRERA SECPLAN — ranking de eliminatorias (PODIO + ESCALERA + LIVE + PREDICCIONES). 100% local.
 // Puntua cartones contra los resultados vivos del admin, reordena en vivo, y suma espectaculo:
 // count-up de puntos, barra de progreso, flechas/pildoras de movimiento, podio top-3 con foto,
-// y buckets de "Impacto en vivo" (quien clavo el marcador, quien acerto ganador, quien quedo fuera).
+// y tabla de predicciones por jugador (marcador + a quien le va + puntos dinamicos).
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { deriveActualPodium, resolveBracket } from "../../lib/knockout/bracket.js";
 import { buildKnockoutLeaderboard } from "../../lib/knockout/scoring.js";
@@ -38,7 +38,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
   const podiumBox = section.querySelector("[data-tabla-podium]");
   const podSlot = { 1: section.querySelector('[data-podium="1"]'), 2: section.querySelector('[data-podium="2"]'), 3: section.querySelector('[data-podium="3"]') };
 
-  // ===== Panel derecho: cruce activo/proximo (live card) + impacto en vivo =====
+  // ===== Panel derecho: cruce activo/proximo (live card) + predicciones de jugadores =====
   const cruceBox = section.querySelector("[data-tabla-cruce]");
   const cruceWhen = section.querySelector("[data-tabla-cruce-when]");
   const cruceHome = section.querySelector("[data-tabla-cruce-home]");
@@ -47,7 +47,6 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
   const cruceAwayFlag = section.querySelector("[data-tabla-cruce-away-flag]");
   const cruceScore = section.querySelector("[data-tabla-cruce-score]");
   const cruceState = section.querySelector("[data-tabla-cruce-state]");
-  const impactBox = section.querySelector("[data-tabla-impact]");
   const predsBox = section.querySelector("[data-tabla-preds]");
   const predRowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-pred="${p.id}"]`)]));
 
@@ -63,51 +62,12 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.empty = "false"; }
     else { el.style.backgroundImage = ""; el.dataset.empty = "true"; }
   };
-  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
   // Puntos simples por cruce (panel informativo): 3 = exacto, 1 = acerto ganador, 0 = fuera, null = sin pronostico.
   const matchPts = (pred, res) => {
     if (!pred || pred.homeScore == null || pred.awayScore == null) return null;
     if (!res || res.homeScore == null || res.awayScore == null) return null;
     if (Number(pred.homeScore) === Number(res.homeScore) && Number(pred.awayScore) === Number(res.awayScore)) return 3;
     return Math.sign(pred.homeScore - pred.awayScore) === Math.sign(res.homeScore - res.awayScore) ? 1 : 0;
-  };
-
-  const avatarImg = (p) => `<img class="tk-bucket-av" src="${esc(p.avatarThumb || p.avatar || "")}" alt="${esc(p.name)}" title="${esc(p.name)}" width="28" height="28" loading="lazy" decoding="async" />`;
-  const bucketHtml = (cls, label, sub, list) => {
-    if (!list.length) return "";
-    const avs = list.map(avatarImg).join("");
-    return `<div class="tk-bucket ${cls}"><span class="tk-bucket-head"><span class="tk-bucket-label">${esc(label)}</span><span class="tk-bucket-sub">${esc(sub)} · ${list.length}</span></span><span class="tk-bucket-avatars">${avs}</span></div>`;
-  };
-
-  const renderImpact = (next, res, predictionsByPlayer) => {
-    if (!impactBox) return;
-    if (!next) { impactBox.innerHTML = '<p class="tk-impact-empty">El impacto aparece cuando haya un cruce definido.</p>'; return; }
-    const m = next.match;
-    const hasScore = res && res.homeScore != null && res.awayScore != null;
-    const exact = [], win = [], out = [], none = [], hasPred = [];
-    for (const p of players) {
-      const pred = (predictionsByPlayer[p.id] || {})[m.id];
-      const has = pred && pred.homeScore != null && pred.awayScore != null;
-      if (!has) { none.push(p); continue; }
-      hasPred.push(p);
-      if (!hasScore) continue;
-      const pts = matchPts(pred, res);
-      if (pts === 3) exact.push(p);
-      else if (pts === 1) win.push(p);
-      else out.push(p);
-    }
-    let html = "";
-    if (hasScore) {
-      html += bucketHtml("tk-bucket--exact", "Exacto", "+5/+3", exact);
-      html += bucketHtml("tk-bucket--win", "Acertaron ganador", "+1", win);
-      html += bucketHtml("tk-bucket--out", "Quedó fuera", "0 pt", out);
-      html += bucketHtml("tk-bucket--none", "Sin pronóstico", "0 pt", none);
-    } else {
-      html += bucketHtml("tk-bucket--win", "Pronosticaron este cruce", "listos", hasPred);
-      html += bucketHtml("tk-bucket--none", "Sin pronóstico", "pendientes", none);
-    }
-    impactBox.innerHTML = html || '<p class="tk-impact-empty">Sin datos de impacto todavía.</p>';
   };
 
   // Tabla de predicciones: cada jugador con su marcador, la bandera del equipo que hace avanzar
@@ -181,7 +141,6 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       setText(cruceScore, "– : –"); setText(cruceState, "Por definir");
       setFlag(cruceHomeFlag, null); setFlag(cruceAwayFlag, null);
       if (cruceBox) cruceBox.dataset.state = "pending";
-      renderImpact(null, null, predictionsByPlayer);
       renderPredsReset();
       return;
     }
@@ -199,7 +158,6 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     setText(cruceState, isFinal ? "Finalizado" : isLive ? "● En vivo" : "Por jugar");
     if (cruceBox) cruceBox.dataset.state = isFinal ? "done" : isLive ? "live" : "upcoming";
 
-    renderImpact(next, hasScore ? res : null, predictionsByPlayer);
     renderPreds(next, res, predictionsByPlayer);
   };
 
