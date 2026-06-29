@@ -10,9 +10,11 @@
     "test": "node --test tests/*.test.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "supabase:sync": "node scripts/sync-supabase.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "astro": "^6.3.7",
     "gsap": "^3.15.0"
   }

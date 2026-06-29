@@ -18,9 +18,18 @@ const resolved = resolveBracket(allMatches, {
   results: (seed as any).results ?? [],
   teamsByCode,
 });
-const next = findNextMatch(resolved);
+const next: any = findNextMatch(resolved);
 
-const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag, crest: t.crest, coverImage: t.coverImage }));
+
+// Estilo por panel: inyecta la BANDERA (medallón) y la FOTO del equipo (cover, "3 jugadores")
+// como custom props; el cliente las re-setea en vivo. Sin equipo concreto → fallback a color.
+function sideStyle(i: number, slot?: { concrete?: boolean; flag?: string | null; coverImage?: string | null }) {
+  let s = `--i:${i}`;
+  if (slot?.concrete && slot.flag) s += `;--px-flag:url("${slot.flag}")`;
+  if (slot?.concrete && slot.coverImage) s += `;--px-cover:url("${slot.coverImage}")`;
+  return s;
+}
 const clientPayload = {
   matches: allMatches,
   teams: teamsLite,
@@ -57,8 +66,9 @@ const b = next?.slotB;
         data-px-team="home"
         data-has-flag={a?.concrete && a.flag ? "true" : "false"}
         data-animate="slide-left"
-        style={`--i:1${a?.concrete && a.flag ? `;--px-flag:url("${a.flag}")` : ""}`}
+        style={sideStyle(1, a)}
       >
+        <span class="px-team-flag" data-px-flag="home" aria-hidden="true"></span>
         <span class="px-team-name" data-px-name="home">{a?.name ?? "—"}</span>
         <span class="px-team-tag">LOCAL</span>
       </div>
@@ -70,8 +80,9 @@ const b = next?.slotB;
         data-px-team="away"
         data-has-flag={b?.concrete && b.flag ? "true" : "false"}
         data-animate="slide-right"
-        style={`--i:1${b?.concrete && b.flag ? `;--px-flag:url("${b.flag}")` : ""}`}
+        style={sideStyle(1, b)}
       >
+        <span class="px-team-flag" data-px-flag="away" aria-hidden="true"></span>
         <span class="px-team-name" data-px-name="away">{b?.name ?? "—"}</span>
         <span class="px-team-tag">VISITA</span>
       </div>
@@ -187,37 +198,55 @@ const b = next?.slotB;
     grid-template-columns: 1fr 1fr;
     border-radius: var(--pm-radius-lg);
     overflow: hidden;
-    box-shadow: var(--pm-shadow-card-strong);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      var(--pm-shadow-card-strong),
+      0 0 50px rgba(255, 138, 0, 0.18);
   }
   .px-versus[hidden] { display: none; }
   .px-team {
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     gap: 0.15rem;
     padding: clamp(0.8rem, 2.4vw, 1.3rem) clamp(0.9rem, 3vw, 1.6rem) clamp(0.9rem, 2.4vw, 1.4rem);
-    min-height: clamp(9.5rem, 18vw, 14rem);
+    min-height: clamp(10rem, 19vw, 14.5rem);
     position: relative;
     background-size: cover;
-    background-position: center;
+    background-position: top center;
     background-repeat: no-repeat;
   }
-  /* La BANDERA (--px-flag) es la masa del panel: full-bleed, bajo un velo de color del equipo
-     y un degradado oscuro abajo para que el nombre se lea. Sin bandera -> degradado base (placeholder). */
+  /* La FOTO del equipo (--px-cover, "3 jugadores") es la masa del panel: full-bleed, bajo un velo
+     de color del rol (local/visita) y un degradado oscuro abajo para que el nombre se lea.
+     Si no hay cover, cae a la BANDERA (--px-flag); sin equipo -> degradado base (placeholder). */
   .px-team--home {
     background-image:
-      linear-gradient(to top, rgba(4, 16, 38, 0.88) 5%, rgba(4, 16, 38, 0.16) 34%, transparent 52%),
-      linear-gradient(135deg, rgba(18, 109, 255, 0.32), rgba(24, 221, 242, 0.05) 48%, transparent 72%),
+      linear-gradient(to top, rgba(4, 16, 38, 0.9) 4%, rgba(4, 16, 38, 0.2) 32%, transparent 56%),
+      linear-gradient(135deg, rgba(18, 109, 255, 0.22), rgba(24, 221, 242, 0.04) 52%, transparent 76%),
+      var(--px-cover, none),
       var(--px-flag, none),
       linear-gradient(135deg, var(--pm-blue-600), var(--pm-cyan-500));
     clip-path: polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0 100%);
   }
   .px-team--away {
     background-image:
-      linear-gradient(to top, rgba(4, 16, 38, 0.88) 5%, rgba(4, 16, 38, 0.16) 34%, transparent 52%),
-      linear-gradient(225deg, rgba(255, 64, 88, 0.34), rgba(255, 138, 0, 0.06) 48%, transparent 72%),
+      linear-gradient(to top, rgba(4, 16, 38, 0.9) 4%, rgba(4, 16, 38, 0.2) 32%, transparent 56%),
+      linear-gradient(225deg, rgba(255, 64, 88, 0.24), rgba(255, 138, 0, 0.05) 52%, transparent 76%),
+      var(--px-cover, none),
       var(--px-flag, none),
       linear-gradient(225deg, var(--pm-red-500), var(--pm-orange-500));
     clip-path: polygon(3rem 0, 100% 0, 100% 100%, 0 100%);
   }
+  /* Medallón de bandera junto al nombre (identidad), sobre la foto. */
+  .px-team-flag {
+    width: clamp(2.3rem, 4.6vw, 3.3rem);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background-image: var(--px-flag, none);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 0 3px #fff, 0 6px 16px rgba(7, 23, 53, 0.45);
+    margin-bottom: 0.45rem;
+  }
+  .px-team[data-has-flag="false"] .px-team-flag { display: none; }
   /* Sin equipo definido: marca "?" sutil sobre la masa de color. */
   .px-team[data-has-flag="false"]::before {
     content: "?";
@@ -260,13 +289,23 @@ const b = next?.slotB;
   }
   .px-stake:empty { display: none; }
   .px-yourpick {
-    align-self: center; font-family: var(--font-display); font-weight: 800; font-size: 0.92rem;
+    align-self: center; font-family: var(--font-display); font-weight: 800; font-size: 0.95rem;
     color: var(--pm-blue-900); text-align: center; min-height: 1.2rem;
-    padding: 0.4rem 0.9rem; border-radius: 999px; background: rgba(255, 255, 255, 0.7);
+    display: inline-flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+    padding: 0.45rem 1rem; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82); border: 1px solid var(--pm-border-soft);
+    box-shadow: var(--pm-shadow-soft);
   }
   .px-yourpick:empty { display: none; }
   .px-yourpick strong { color: var(--pm-cyan-700, #0e7490); }
-  .px-yourpick a { color: var(--pm-cyan-700, #0e7490); font-weight: 900; text-decoration: underline; }
+  .px-yourpick a {
+    color: var(--pm-cta-text); font-weight: 950; text-decoration: none;
+    padding: 0.34rem 0.95rem; border-radius: 999px;
+    background: var(--pm-cta-bg); box-shadow: var(--pm-shadow-yellow);
+    text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.82rem;
+    transition: background var(--pm-transition-fast), transform var(--pm-transition-fast);
+  }
+  .px-yourpick a:hover { background: var(--pm-cta-bg-hover); transform: translateY(-1px); }
 
   /* ===== RECIENTES (placas) ===== */
   .px-recent { display: flex; flex-direction: column; gap: 0.7rem; }

@@ -21,10 +21,33 @@
 
 <style>
   .hero-copy {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: clamp(0.35rem, 0.9vw, 0.68rem);
     margin-top: clamp(-0.7rem, -0.75vw, -0.35rem);
+  }
+
+  .hero-copy::before {
+    content: "";
+    position: absolute;
+    left: -6%;
+    top: 2%;
+    width: 64%;
+    height: 76%;
+    background:
+      radial-gradient(circle at 28% 42%, var(--pm-cyan-glow), transparent 62%),
+      radial-gradient(circle at 64% 70%, var(--pm-gold-glow), transparent 60%);
+    filter: blur(34px);
+    opacity: 0.85;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-copy::before {
+      animation: glowPulse 6s ease-in-out infinite;
+    }
   }
 
   .title {

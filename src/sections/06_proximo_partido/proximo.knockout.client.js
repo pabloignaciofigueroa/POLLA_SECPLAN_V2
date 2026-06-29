@@ -102,6 +102,8 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       if (panel) {
         if (slot.flag) panel.style.setProperty("--px-flag", `url("${slot.flag}")`);
         else panel.style.removeProperty("--px-flag");
+        if (slot.coverImage) panel.style.setProperty("--px-cover", `url("${slot.coverImage}")`);
+        else panel.style.removeProperty("--px-cover");
         panel.dataset.hasFlag = slot.flag ? "true" : "false";
       }
       if (name) name.textContent = slot.name;

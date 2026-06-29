@@ -13,4 +13,9 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: "hover",
   },
+  vite: {
+    // Pre-bundlear supabase-js (se importa dinámico solo si hay env): evita el 504
+    // "Outdated Optimize Dep" de Vite la primera vez que se carga en dev.
+    optimizeDeps: { include: ["@supabase/supabase-js"] },
+  },
 });

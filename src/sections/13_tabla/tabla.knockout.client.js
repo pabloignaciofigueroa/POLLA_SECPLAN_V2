@@ -1,11 +1,13 @@
-// Ranking de eliminatorias (PODIO + ESCALERA). 100% local. Puntua cartones contra los
-// resultados vivos del admin, reordena en vivo, y suma espectaculo: count-up de puntos,
-// .is-score-pop al cambiar, flechas de movimiento y .is-row-rise al subir.
+// CARRERA SECPLAN — ranking de eliminatorias (PODIO + ESCALERA + LIVE + IMPACTO). 100% local.
+// Puntua cartones contra los resultados vivos del admin, reordena en vivo, y suma espectaculo:
+// count-up de puntos, barra de progreso, flechas/pildoras de movimiento, podio top-3 con foto,
+// y buckets de "Impacto en vivo" (quien clavo el marcador, quien acerto ganador, quien quedo fuera).
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { deriveActualPodium, resolveBracket } from "../../lib/knockout/bracket.js";
 import { buildKnockoutLeaderboard } from "../../lib/knockout/scoring.js";
 import { findNextMatch } from "../../lib/knockout/schedule.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout } from "../../lib/supabase/knockoutData.js";
 
 (() => {
   const section = document.querySelector('[data-section="tabla"]');
@@ -19,6 +21,10 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
   const submissions = payload.submissions ?? [];
+  const playerById = new Map(players.map((p) => [p.id, p]));
+  // Si Supabase está configurado, estos se llenan con lo que hay en la base (drop-in del dataset local).
+  let remoteSubmissions = null;
+  let remoteResults = null;
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
@@ -26,16 +32,22 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   const body = section.querySelector("[data-tabla-body]");
   const noteNode = section.querySelector("[data-tabla-note]");
-  const defaultNote = noteNode ? noteNode.textContent : "";
   const rowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-row="${p.id}"]`)]));
 
-  // ===== Panel derecho: cruce activo/próximo + predicciones por jugador =====
+  // ===== Podio top-3 =====
+  const podiumBox = section.querySelector("[data-tabla-podium]");
+  const podSlot = { 1: section.querySelector('[data-podium="1"]'), 2: section.querySelector('[data-podium="2"]'), 3: section.querySelector('[data-podium="3"]') };
+
+  // ===== Panel derecho: cruce activo/proximo (live card) + impacto en vivo =====
   const cruceBox = section.querySelector("[data-tabla-cruce]");
   const cruceWhen = section.querySelector("[data-tabla-cruce-when]");
   const cruceHome = section.querySelector("[data-tabla-cruce-home]");
   const cruceAway = section.querySelector("[data-tabla-cruce-away]");
+  const cruceHomeFlag = section.querySelector("[data-tabla-cruce-home-flag]");
+  const cruceAwayFlag = section.querySelector("[data-tabla-cruce-away-flag]");
   const cruceScore = section.querySelector("[data-tabla-cruce-score]");
   const cruceState = section.querySelector("[data-tabla-cruce-state]");
+  const impactBox = section.querySelector("[data-tabla-impact]");
   const predsBox = section.querySelector("[data-tabla-preds]");
   const predRowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-pred="${p.id}"]`)]));
 
@@ -46,44 +58,77 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     return `${p[2]} ${MES[(p[1] || 1) - 1] || ""} · ${m.timeCL || ""}`;
   };
   const setText = (el, t) => { if (el) el.textContent = t; };
-  // Puntos simples por cruce jugado (panel informativo; el ranking usa el motor oficial de scoring).
+  const setFlag = (el, url) => {
+    if (!el) return;
+    if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.empty = "false"; }
+    else { el.style.backgroundImage = ""; el.dataset.empty = "true"; }
+  };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // Puntos simples por cruce (panel informativo): 3 = exacto, 1 = acerto ganador, 0 = fuera, null = sin pronostico.
   const matchPts = (pred, res) => {
-    if (!pred || !res || res.homeScore == null || res.awayScore == null) return null;
-    if (pred.homeScore == null || pred.awayScore == null) return 0;
+    if (!pred || pred.homeScore == null || pred.awayScore == null) return null;
+    if (!res || res.homeScore == null || res.awayScore == null) return null;
     if (Number(pred.homeScore) === Number(res.homeScore) && Number(pred.awayScore) === Number(res.awayScore)) return 3;
     return Math.sign(pred.homeScore - pred.awayScore) === Math.sign(res.homeScore - res.awayScore) ? 1 : 0;
   };
 
-  const renderCruce = (live, predictionsByPlayer) => {
-    const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
-    const next = findNextMatch(resolved);
-    if (!next) {
-      setText(cruceWhen, "Por definir"); setText(cruceHome, "—"); setText(cruceAway, "—");
-      setText(cruceScore, "– : –"); setText(cruceState, "Por definir");
-      if (cruceBox) cruceBox.dataset.state = "pending";
-      predRowById.forEach((row) => {
-        if (!row) return;
-        setText(row.querySelector("[data-pred-score]"), "– : –");
-        setText(row.querySelector("[data-pred-adv]"), "–");
-        setText(row.querySelector("[data-pred-pts]"), "–");
-        const f = row.querySelector("[data-pred-flag]");
-        if (f) f.dataset.empty = "true";
-        row.dataset.ptsPos = "false";
-      });
-      return;
-    }
-    const m = next.match;
-    const res = live.results[m.id];
-    const hasScore = res && res.homeScore != null && res.awayScore != null;
-    const isFinal = hasScore && res.status === "final";
-    const isLive = hasScore && !isFinal;
-    setText(cruceWhen, fmtWhen(m));
-    setText(cruceHome, next.slotA.name || "—");
-    setText(cruceAway, next.slotB.name || "—");
-    setText(cruceScore, hasScore ? `${res.homeScore} : ${res.awayScore}` : "– : –");
-    setText(cruceState, isFinal ? "Finalizado" : isLive ? "En vivo" : "Por jugar");
-    if (cruceBox) cruceBox.dataset.state = isFinal ? "done" : isLive ? "live" : "upcoming";
+  const avatarImg = (p) => `<img class="tk-bucket-av" src="${esc(p.avatarThumb || p.avatar || "")}" alt="${esc(p.name)}" title="${esc(p.name)}" width="28" height="28" loading="lazy" decoding="async" />`;
+  const bucketHtml = (cls, label, sub, list) => {
+    if (!list.length) return "";
+    const avs = list.map(avatarImg).join("");
+    return `<div class="tk-bucket ${cls}"><span class="tk-bucket-head"><span class="tk-bucket-label">${esc(label)}</span><span class="tk-bucket-sub">${esc(sub)} · ${list.length}</span></span><span class="tk-bucket-avatars">${avs}</span></div>`;
+  };
 
+  const renderImpact = (next, res, predictionsByPlayer) => {
+    if (!impactBox) return;
+    if (!next) { impactBox.innerHTML = '<p class="tk-impact-empty">El impacto aparece cuando haya un cruce definido.</p>'; return; }
+    const m = next.match;
+    const hasScore = res && res.homeScore != null && res.awayScore != null;
+    const exact = [], win = [], out = [], none = [], hasPred = [];
+    for (const p of players) {
+      const pred = (predictionsByPlayer[p.id] || {})[m.id];
+      const has = pred && pred.homeScore != null && pred.awayScore != null;
+      if (!has) { none.push(p); continue; }
+      hasPred.push(p);
+      if (!hasScore) continue;
+      const pts = matchPts(pred, res);
+      if (pts === 3) exact.push(p);
+      else if (pts === 1) win.push(p);
+      else out.push(p);
+    }
+    let html = "";
+    if (hasScore) {
+      html += bucketHtml("tk-bucket--exact", "Exacto", "+5/+3", exact);
+      html += bucketHtml("tk-bucket--win", "Acertaron ganador", "+1", win);
+      html += bucketHtml("tk-bucket--out", "Quedó fuera", "0 pt", out);
+      html += bucketHtml("tk-bucket--none", "Sin pronóstico", "0 pt", none);
+    } else {
+      html += bucketHtml("tk-bucket--win", "Pronosticaron este cruce", "listos", hasPred);
+      html += bucketHtml("tk-bucket--none", "Sin pronóstico", "pendientes", none);
+    }
+    impactBox.innerHTML = html || '<p class="tk-impact-empty">Sin datos de impacto todavía.</p>';
+  };
+
+  // Tabla de predicciones: cada jugador con su marcador, la bandera del equipo que hace avanzar
+  // (a quién le va) y los puntos que suma según el resultado DINÁMICO (cambia con cada gol).
+  const renderPredsReset = () => {
+    predRowById.forEach((row) => {
+      if (!row) return;
+      setText(row.querySelector("[data-pred-score]"), "– : –");
+      setText(row.querySelector("[data-pred-adv]"), "–");
+      setText(row.querySelector("[data-pred-pts]"), "–");
+      const f = row.querySelector("[data-pred-flag]");
+      if (f) f.dataset.empty = "true";
+      row.dataset.ptsPos = "false";
+      row.dataset.ptsLive = "false";
+    });
+  };
+
+  const renderPreds = (next, res, predictionsByPlayer) => {
+    const m = next.match;
+    const hasScore = res && res.homeScore != null && res.awayScore != null;
+    const isLive = hasScore && res.status !== "final";
     predRowById.forEach((row, pid) => {
       if (!row) return;
       const pred = (predictionsByPlayer[pid] || {})[m.id];
@@ -95,7 +140,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
         setText(scoreEl, `${pred.homeScore} : ${pred.awayScore}`);
         const adv = pred.advances === "home" ? next.slotA.shortCode : pred.advances === "away" ? next.slotB.shortCode : "–";
         setText(advEl, adv || "–");
-        // Banderita del equipo que el jugador hace avanzar (a quién le va).
+        // Bandera del equipo que el jugador hace avanzar (a quién le va).
         const flag = pred.advances === "home" ? next.slotA.flag : pred.advances === "away" ? next.slotB.flag : null;
         if (flagEl) {
           if (flag) { flagEl.style.backgroundImage = `url("${flag}")`; flagEl.dataset.empty = "false"; }
@@ -113,8 +158,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       row.dataset.ptsLive = isLive && pts > 0 ? "true" : "false";
     });
 
-    // Reordenar por cercanía al marcador ACTUAL: el más parecido primero, mismo resultado agrupado,
-    // luego por probabilidad de acertarle (menor distancia = más probable). Sin pronóstico, al final.
+    // Reordenar por cercanía al marcador ACTUAL: el más parecido primero (más probable de acertar).
     const ah = hasScore ? Number(res.homeScore) : null;
     const aa = hasScore ? Number(res.awayScore) : null;
     const order = players.map((p) => {
@@ -125,13 +169,38 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       const dist = has && hasScore ? Math.abs(ph - ah) + Math.abs(pa - aa) : 0;
       return { row: predRowById.get(p.id), has: has ? 1 : 0, dist, ph, pa, name: p.name };
     });
-    order.sort((x, y) =>
-      y.has - x.has ||
-      x.dist - y.dist ||
-      x.ph - y.ph || x.pa - y.pa ||
-      String(x.name).localeCompare(String(y.name)),
-    );
+    order.sort((x, y) => y.has - x.has || x.dist - y.dist || x.ph - y.ph || x.pa - y.pa || String(x.name).localeCompare(String(y.name)));
     if (predsBox) order.forEach((o) => { if (o.row) predsBox.appendChild(o.row); });
+  };
+
+  const renderCruce = (live, predictionsByPlayer) => {
+    const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
+    const next = findNextMatch(resolved);
+    if (!next) {
+      setText(cruceWhen, "Por definir"); setText(cruceHome, "—"); setText(cruceAway, "—");
+      setText(cruceScore, "– : –"); setText(cruceState, "Por definir");
+      setFlag(cruceHomeFlag, null); setFlag(cruceAwayFlag, null);
+      if (cruceBox) cruceBox.dataset.state = "pending";
+      renderImpact(null, null, predictionsByPlayer);
+      renderPredsReset();
+      return;
+    }
+    const m = next.match;
+    const res = live.results[m.id];
+    const hasScore = res && res.homeScore != null && res.awayScore != null;
+    const isFinal = hasScore && res.status === "final";
+    const isLive = hasScore && !isFinal;
+    setText(cruceWhen, fmtWhen(m));
+    setText(cruceHome, next.slotA.name || "—");
+    setText(cruceAway, next.slotB.name || "—");
+    setFlag(cruceHomeFlag, next.slotA.flag);
+    setFlag(cruceAwayFlag, next.slotB.flag);
+    setText(cruceScore, hasScore ? `${res.homeScore} : ${res.awayScore}` : "– : –");
+    setText(cruceState, isFinal ? "Finalizado" : isLive ? "● En vivo" : "Por jugar");
+    if (cruceBox) cruceBox.dataset.state = isFinal ? "done" : isLive ? "live" : "upcoming";
+
+    renderImpact(next, hasScore ? res : null, predictionsByPlayer);
+    renderPreds(next, res, predictionsByPlayer);
   };
 
   const prevPos = new Map();
@@ -151,10 +220,24 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     requestAnimationFrame(step);
   };
 
+  const setPodium = (slotEl, row) => {
+    if (!slotEl) return;
+    const p = row ? playerById.get(row.playerId) : null;
+    const img = slotEl.querySelector("[data-podium-avatar]");
+    const nameEl = slotEl.querySelector("[data-podium-name]");
+    const ptsEl = slotEl.querySelector("[data-podium-pts]");
+    if (img) {
+      const src = p?.avatar || p?.avatarThumb || "";
+      if (src) { img.src = src; img.alt = p.name; } else { img.removeAttribute("src"); img.alt = ""; }
+    }
+    if (nameEl) nameEl.textContent = p?.name ?? "—";
+    if (ptsEl) ptsEl.textContent = String(row?.total ?? 0);
+  };
+
   const buildBuckets = () => {
     const predictionsByPlayer = {};
     const podiumByPlayer = {};
-    for (const sub of submissions) {
+    for (const sub of (remoteSubmissions ?? submissions)) {
       if (!sub || !sub.playerId) continue;
       predictionsByPlayer[sub.playerId] = sub.predictions ?? {};
       podiumByPlayer[sub.playerId] = sub.podium ?? {};
@@ -167,7 +250,10 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   };
 
   const render = () => {
-    const live = readLiveKnockout(seed);
+    const effectiveSeed = remoteResults
+      ? { slotAssignments: seed.slotAssignments, results: remoteResults }
+      : seed;
+    const live = readLiveKnockout(effectiveSeed);
     const hasResults = Object.keys(live.results).length > 0;
     const actualPodium = hasResults
       ? deriveActualPodium(matches, { assignments: live.assignments, results: live.results, teamsByCode })
@@ -182,30 +268,38 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       actualPodium,
     });
 
+    const maxTotal = Math.max(1, ...rows.map((r) => r.total));
+
     rows.forEach((row, i) => {
       const card = rowById.get(row.playerId);
       if (!card) return;
+      card.dataset.rank = String(row.position);
+
       const posCell = card.querySelector('[data-cell="pos"]');
       if (posCell) posCell.textContent = String(row.position);
 
       const totalCell = card.querySelector('[data-cell="total"]');
       const totalChanged = totalCell && (parseInt(totalCell.textContent, 10) || 0) !== row.total;
       countUp(totalCell, row.total);
-      const matchCell = card.querySelector('[data-cell="match"]');
-      const podCell = card.querySelector('[data-cell="podium"]');
-      if (matchCell) matchCell.textContent = String(row.matchPoints);
-      if (podCell) podCell.textContent = String(row.podiumPoints);
+
+      // Barra de progreso relativa al líder.
+      const barCell = card.querySelector('[data-cell="bar"]');
+      if (barCell) barCell.style.width = `${row.total > 0 ? Math.max(8, Math.round((row.total / maxTotal) * 100)) : 0}%`;
 
       card.dataset.leader = i === 0 && row.total > 0 ? "true" : "false";
 
       // Movimiento (solo con torneo en curso y cambio real de posicion).
       const before = prevPos.get(row.playerId);
+      const moveEl = card.querySelector("[data-tabla-move]");
       if (!firstRun && hasResults && before != null && before !== row.position) {
         const up = before > row.position;
+        const delta = Math.abs(before - row.position);
         card.dataset.change = up ? "up" : "down";
+        if (moveEl) moveEl.textContent = up ? `▲${delta} sube` : `▼${delta} baja`;
         if (up) fire(card, "is-row-rise");
       } else {
         card.dataset.change = "same";
+        if (moveEl) moveEl.textContent = hasResults ? "= igual" : "";
       }
       if (totalChanged && row.total > 0) fire(card.querySelector(".tk-pts"), "is-score-pop");
       prevPos.set(row.playerId, row.position);
@@ -213,12 +307,35 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       if (body) body.appendChild(card); // reordena segun ranking
     });
 
+    // Podio top-3.
+    setPodium(podSlot[1], rows[0]);
+    setPodium(podSlot[2], rows[1]);
+    setPodium(podSlot[3], rows[2]);
+    if (podiumBox) podiumBox.dataset.started = hasResults ? "true" : "false";
+
     if (body) body.dataset.started = hasResults ? "true" : "false";
-    if (noteNode) noteNode.textContent = hasResults ? "En vivo · actualizado" : "Torneo no iniciado";
+    if (noteNode) noteNode.textContent = hasResults ? "● En vivo · actualizado" : "Torneo no iniciado";
     renderCruce(live, predictionsByPlayer);
     firstRun = false;
   };
 
   render();
   subscribeLiveKnockout(render);
+
+  // Supabase (opcional, gated por env): leé cartones/resultados de la base y re-renderizá en
+  // vivo (Realtime). Si no está configurado o falla, queda el dataset local. No rompe el modo local.
+  if (isSupabaseConfigured()) {
+    (async () => {
+      const pull = async () => {
+        const [subs, res] = await Promise.all([fetchSubmissions(), fetchResults()]);
+        if (subs) remoteSubmissions = subs;
+        if (res) remoteResults = res;
+        render();
+      };
+      try {
+        await pull();
+        await subscribeKnockout(() => { pull().catch(() => {}); });
+      } catch {}
+    })();
+  }
 })();

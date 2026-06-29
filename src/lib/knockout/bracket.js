@@ -70,6 +70,8 @@ function buildResolvedSlot(slot, code, teamsByCode) {
       name: team?.name ?? code,
       shortCode: team?.shortCode ?? code,
       flag: team?.flag ?? null,
+      crest: team?.crest ?? null,
+      coverImage: team?.coverImage ?? null,
       concrete: true,
     };
   }
