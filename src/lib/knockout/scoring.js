@@ -97,14 +97,15 @@ export function buildKnockoutLeaderboard({
     let matchPoints = 0;
     const matchLines = [];
     for (const [matchId, result] of Object.entries(resultsMap)) {
-      // Marcador EN VIVO (jugándose): aún no suma puntos hasta que se finalice.
-      if (result && result.status === "live") continue;
       const pred = bucket[matchId];
       if (!pred) continue;
       const all = predsByMatch.get(matchId) ?? [];
       const scored = scoreKnockoutMatch(pred, result, all);
+      // Marcador EN VIVO: suma PROVISIONAL (la gracia de la polla: cambia con cada gol).
+      // Se marca `live` para que la UI lo muestre como tentativo hasta que se finalice.
+      const live = Boolean(result && result.status === "live");
       matchPoints += scored.points;
-      matchLines.push({ matchId, ...scored });
+      matchLines.push({ matchId, ...scored, live });
     }
     const podiumScored = actualPodium
       ? scorePodium(podiumByPlayer[player.id] ?? {}, actualPodium)

@@ -21,13 +21,6 @@
     "status": "available"
   },
   {
-    "id": "eric",
-    "name": "Eric",
-    "avatar": "/assets/players/eric.webp",
-    "avatarThumb": "/assets/players/thumbs/eric.webp",
-    "status": "available"
-  },
-  {
     "id": "humberto",
     "name": "Humberto",
     "avatar": "/assets/players/humberto.webp",
@@ -93,22 +86,22 @@
   {
     "id": "antonio",
     "name": "Antonio",
-    "avatar": null,
-    "avatarThumb": null,
+    "avatar": "/assets/players/antonio.webp",
+    "avatarThumb": "/assets/players/thumbs/antonio.webp",
     "status": "available"
   },
   {
     "id": "martin",
     "name": "Martín",
-    "avatar": null,
-    "avatarThumb": null,
+    "avatar": "/assets/players/martin.webp",
+    "avatarThumb": "/assets/players/thumbs/martin.webp",
     "status": "available"
   },
   {
     "id": "ale",
     "name": "Ale",
-    "avatar": null,
-    "avatarThumb": null,
+    "avatar": "/assets/players/ale.webp",
+    "avatarThumb": "/assets/players/thumbs/ale.webp",
     "status": "available"
   }
 ]

@@ -24,8 +24,6 @@ export function normalizeResults(results) {
 /** Lado que avanza de un resultado: explicito o inferido del marcador (null si empate sin avance). */
 export function resultWinnerSide(result) {
   if (!result) return null;
-  // Marcador EN VIVO (jugándose): aún no decide ni avanza el cuadro hasta finalizar.
-  if (result.status === "live") return null;
   if (result.winner === "home" || result.winner === "away") return result.winner;
   const h = Number(result.homeScore);
   const a = Number(result.awayScore);
@@ -54,6 +52,8 @@ export function resolveSlotCode(slot, ctx, seen = new Set()) {
   }
   if (slot.type === "winner" || slot.type === "runner-up") {
     const result = ctx.results[slot.from];
+    // El cuadro solo AVANZA con resultados FINALIZADOS: un marcador EN VIVO no mueve equipos.
+    if (result && result.status === "live") return null;
     const side = resultWinnerSide(result);
     if (!side) return null;
     const wanted = slot.type === "winner" ? side : side === "home" ? "away" : "home";
@@ -98,7 +98,10 @@ export function resolveBracket(matches = [], { assignments = {}, results = {}, t
     const codeB = resolveSlotCode(match.slotB, ctx);
     const result = ctx.results[match.id];
     const side = resultWinnerSide(result);
-    const played = Boolean(side);
+    // "played" = cruce CERRADO/finalizado: avanza el cuadro, deriva podio y sale de "próximo".
+    // Un marcador EN VIVO suma puntos PROVISIONAL (scoring) pero NO está "played".
+    const isFinal = Boolean(result) && result.status !== "live";
+    const played = Boolean(side) && isFinal;
     const winnerCode = played ? (side === "home" ? codeA : codeB) : null;
     const loserCode = played ? (side === "home" ? codeB : codeA) : null;
 

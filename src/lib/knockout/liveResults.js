@@ -11,7 +11,12 @@ function safeSet(key, value) {
   try { window.localStorage.setItem(key, value); } catch {}
 }
 
-/** Mergea dos listas/maps de resultados por matchId (el segundo gana). */
+/**
+ * Mergea dos listas/maps de resultados por matchId (el segundo gana), con UNA excepción:
+ * un resultado FINAL en `base` (seed oficial commiteado) NO es pisado por uno LIVE en `override`
+ * (un marcador EN VIVO local viejo). Lo oficial/finalizado manda; una corrección final→final sí
+ * pisa. Cuando `base` es null/vacío (caso del admin editando local) no hay nada que proteger.
+ */
 export function mergeResults(base, override) {
   const toMap = (r) => {
     if (!r) return {};
@@ -22,7 +27,16 @@ export function mergeResults(base, override) {
     }
     return { ...r };
   };
-  return { ...toMap(base), ...toMap(override) };
+  const baseMap = toMap(base);
+  const overrideMap = toMap(override);
+  const merged = { ...baseMap };
+  for (const [matchId, ov] of Object.entries(overrideMap)) {
+    const bs = merged[matchId];
+    // Final oficial (seed) vs live local viejo -> se queda el final oficial.
+    if (bs && bs.status === "final" && ov && ov.status === "live") continue;
+    merged[matchId] = ov;
+  }
+  return merged;
 }
 
 /**

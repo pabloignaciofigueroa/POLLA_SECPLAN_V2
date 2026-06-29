@@ -12,5 +12,7 @@
     "3EFGIJ": "ALG",
     "3EHIJK": "COD"
   },
-  "results": []
+  "results": [
+    { "matchId": "P73", "homeScore": 0, "awayScore": 1, "winner": "away", "status": "final" }
+  ]
 }

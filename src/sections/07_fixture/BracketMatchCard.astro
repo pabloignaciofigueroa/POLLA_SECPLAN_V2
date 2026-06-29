@@ -138,21 +138,22 @@ const teamB = { name: slotB.name, shortCode: slotB.shortCode, flag: slotB.flag ?
     background: linear-gradient(100deg, color-mix(in srgb, var(--pm-green-500) 15%, var(--pm-white)), var(--pm-white) 56%);
   }
 
-  /* ===== Captura COMPACTA (/predicciones): meter los 16 cruces en primera vista (4x4) ===== */
-  .ko-card[data-ko-mode="capture"] { padding: 0.4rem 0.55rem; gap: 0.22rem; border-left-width: 4px; }
+  /* ===== Captura COMPACTA (/predicciones): meter los 16 cruces en primera vista (4x4).
+     Achicadas ~95% de alto para que entren TODAS sin scroll cuando el podio comparte el hero. ===== */
+  .ko-card[data-ko-mode="capture"] { padding: 0.3rem 0.55rem; gap: 0.14rem; border-left-width: 4px; }
   .ko-card[data-ko-mode="capture"] .ko-card-head { gap: 0.4rem; }
   .ko-card[data-ko-mode="capture"] .ko-card-num { font-size: 0.6rem; }
   .ko-card[data-ko-mode="capture"] .ko-card-date { display: none; }
-  .ko-card[data-ko-mode="capture"] .ko-card-pill { font-size: 0.52rem; padding: 0.1rem 0.4rem; }
-  .ko-card[data-ko-mode="capture"] .ko-card-body { gap: 0.18rem; }
+  .ko-card[data-ko-mode="capture"] .ko-card-pill { font-size: 0.52rem; padding: 0.08rem 0.38rem; }
+  .ko-card[data-ko-mode="capture"] .ko-card-body { gap: 0.12rem; }
   .ko-card[data-ko-mode="capture"] .ko-row { gap: 0.4rem; }
-  .ko-card[data-ko-mode="capture"] .ko-flag :global(.team-flag) { width: 1.4rem; height: 1.4rem; }
-  .ko-card[data-ko-mode="capture"] .ko-flag-ph { width: 1.4rem; height: 1.4rem; font-size: 0.7rem; }
-  .ko-card[data-ko-mode="capture"] .ko-team-name { font-size: 0.78rem; }
-  .ko-card[data-ko-mode="capture"] :global([data-score-input]) { width: 2.4rem; height: 2rem; font-size: 1.05rem; }
-  .ko-card[data-ko-mode="capture"] .ko-advance { gap: 0.3rem; margin-top: 0.05rem; }
+  .ko-card[data-ko-mode="capture"] .ko-flag :global(.team-flag) { width: 1.32rem; height: 1.32rem; }
+  .ko-card[data-ko-mode="capture"] .ko-flag-ph { width: 1.32rem; height: 1.32rem; font-size: 0.68rem; }
+  .ko-card[data-ko-mode="capture"] .ko-team-name { font-size: 0.76rem; }
+  .ko-card[data-ko-mode="capture"] :global([data-score-input]) { width: 2.3rem; height: 1.78rem; font-size: 1rem; }
+  .ko-card[data-ko-mode="capture"] .ko-advance { gap: 0.3rem; margin-top: 0; }
   .ko-card[data-ko-mode="capture"] .ko-advance-label { font-size: 0.52rem; margin-right: 0; }
-  .ko-card[data-ko-mode="capture"] .ko-advance-btn { padding: 0.14rem 0.5rem; font-size: 0.62rem; }
+  .ko-card[data-ko-mode="capture"] .ko-advance-btn { padding: 0.1rem 0.48rem; font-size: 0.62rem; }
 
   /* Resaltado del ganador (modo view) */
   .ko-card .ko-row[data-winner="true"] .ko-team-name { color: var(--pm-green-700, #15803d); font-weight: 900; }

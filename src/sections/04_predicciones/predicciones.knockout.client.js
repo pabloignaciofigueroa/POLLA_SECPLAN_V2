@@ -5,8 +5,10 @@
 import { toScore, isTie, inferAdvance, predictionStatus, validateKnockout } from "../../lib/knockout/validation.js";
 import { buildKnockoutPayload, buildFileName, downloadJson } from "./predicciones.export.js";
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
-import { resolveBracket } from "../../lib/knockout/bracket.js";
+import { resolveBracket, normalizeResults, resultWinnerSide } from "../../lib/knockout/bracket.js";
+import { scoreKnockoutMatch } from "../../lib/knockout/scoring.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
 
 (() => {
   const section = document.querySelector('[data-section="predicciones"]');
@@ -18,6 +20,12 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const matches = payload.matches ?? [];
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
+  // Cartones YA ENVIADOS (de ayer): { [playerId]: { [matchId]: { homeScore, awayScore, advances } } }.
+  // Para cruces FINALIZADOS, la predicción del jugador se siembra BLOQUEADA (inmutable) y se descarga.
+  const seededPredictions = payload.seededPredictions ?? {};
+  const podiumSlots = payload.podiumSlots ?? [];
+  const podiumSlotByCode = new Map(podiumSlots.map((s) => [s.code, s]));
+  const validPodiumCodes = new Set(podiumSlots.map((s) => s.code));
 
   const KO_KEY = "polla:knockoutPredictions";
   const PODIUM_KEY = "polla:podiumPredictions";
@@ -42,11 +50,18 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const playerId = getPlayerId();
   const allKo = readJson(KO_KEY, {});
   const bucket = allKo[playerId] ?? {};
-  const readPodium = () => readJson(PODIUM_KEY, {})[playerId] ?? {};
+  const mySeed = seededPredictions[playerId] ?? {}; // mi cartón ya enviado (para cruces finalizados)
+  const allPodium = readJson(PODIUM_KEY, {});
+  const podiumBucket = allPodium[playerId] ?? {};
+  const readPodium = () => podiumBucket;
+  const persistPodium = () => { allPodium[playerId] = podiumBucket; safeSet(PODIUM_KEY, JSON.stringify(allPodium)); };
 
   const statusNode = section.querySelector("[data-pred-status]");
   const downloadBtn = section.querySelector("[data-pred-download]");
   const identityNode = section.querySelector("[data-pred-identity]");
+  const podioCountNode = section.querySelector("[data-pred-podio-count]");
+  const crucesCountNode = section.querySelector("[data-pred-cruces-count]");
+  const lockNote = section.querySelector("[data-pred-lock-note]");
   const isLocked = () => safeGet(FINAL_KEY) === "true";
 
   // identidad
@@ -128,10 +143,49 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       .filter((r) => r.predictionEnabled)
       .map((r) => ({ id: r.match.id, bracketSlot: r.match.bracketSlot, matchNumber: r.match.matchNumber, predictionEnabled: true }));
 
+    // Sembrar BLOQUEADAS las predicciones ya enviadas de los cruces FINALIZADOS (jugados): la del
+    // cartón manda (inmutable), se hidrata en la card y entra en la descarga. No se puede editar.
+    let seededChanged = false;
+    for (const [matchId, pred] of Object.entries(mySeed)) {
+      const r = resolvedById.get(matchId);
+      if (!r || !r.played) continue;
+      const cur = bucket[matchId];
+      const next = {
+        matchId,
+        homeScore: pred.homeScore ?? null,
+        awayScore: pred.awayScore ?? null,
+        advances: pred.advances ?? null,
+        status: "complete",
+        locked: true,
+      };
+      if (!cur || cur.homeScore !== next.homeScore || cur.awayScore !== next.awayScore || cur.advances !== next.advances || cur.locked !== true) {
+        bucket[matchId] = next;
+        seededChanged = true;
+      }
+    }
+    if (seededChanged) { allKo[playerId] = bucket; safeSet(KO_KEY, JSON.stringify(allKo)); }
+
     cards.forEach((card) => {
       const r = resolvedById.get(card.getAttribute("data-ko-match"));
       if (r) patchCard(card, r);
     });
+
+    // Disclaimer: nombrar los cruces ya jugados (bloqueados) y dejar claro que el resto sigue abierto.
+    if (lockNote) {
+      const lockedNames = cards
+        .map((card) => resolvedById.get(card.getAttribute("data-ko-match")))
+        .filter((r) => r && r.played)
+        .map((r) => `${r.slotA.name} vs ${r.slotB.name}`);
+      if (lockedNames.length) {
+        const list = lockedNames.map((n) => `<strong>${n}</strong>`).join(", ");
+        const many = lockedNames.length > 1;
+        lockNote.innerHTML = `${list} ${many ? "ya se jugaron y están bloqueados" : "ya se jugó y está bloqueado"}. El resto de los cruces siguen abiertos para que predigas.`;
+        lockNote.hidden = false;
+      } else {
+        lockNote.hidden = true;
+      }
+    }
+
     updateStatus();
   };
 
@@ -154,6 +208,8 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     const result = validateKnockout(bucket, predictableMatches);
     const podium = readPodium();
     const podiumFilled = ["champion", "runnerUp", "third", "fourth"].filter((k) => podium[k]).length;
+    if (podioCountNode) podioCountNode.textContent = `${podiumFilled}/4`;
+    if (crucesCountNode) crucesCountNode.textContent = String(predictableMatches.length);
     if (statusNode) {
       statusNode.textContent = isLocked()
         ? "Polla descargada y bloqueada."
@@ -199,6 +255,53 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     });
   });
 
+  // --- PODIO (fusionado): campeón / subcampeón / 3º / 4º, sin repetir equipos ---
+  const podiumSelects = new Map(
+    PODIUM_SLOTS.map((k) => [k, section.querySelector(`[data-podium-spot="${k}"]`)]).filter(([, el]) => el),
+  );
+  const updatePodiumPreview = (key) => {
+    const span = section.querySelector(`[data-podium-preview="${key}"]`);
+    const code = podiumBucket[key];
+    const slot = code ? podiumSlotByCode.get(code) : null;
+    if (span) {
+      if (slot && slot.flag) span.innerHTML = `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="48" height="48" />`;
+      else if (slot) span.textContent = slot.shortCode || "?";
+      else span.textContent = "";
+    }
+    const card = section.querySelector(`[data-podium-card="${key}"]`);
+    if (card) card.dataset.filled = code ? "true" : "false";
+  };
+  const refreshPodiumDisabled = () => {
+    const chosen = new Map(); // code -> slot que lo tiene (para no repetir equipo en el podio)
+    for (const k of PODIUM_SLOTS) if (podiumBucket[k]) chosen.set(podiumBucket[k], k);
+    for (const [key, select] of podiumSelects) {
+      Array.from(select.options).forEach((opt) => {
+        if (!opt.value) return;
+        const owner = chosen.get(opt.value);
+        opt.disabled = Boolean(owner) && owner !== key;
+      });
+    }
+  };
+  const syncPodiumLock = () => {
+    const locked = isLocked();
+    for (const [, select] of podiumSelects) select.disabled = locked;
+    if (!locked) refreshPodiumDisabled();
+  };
+  for (const [key, select] of podiumSelects) {
+    if (podiumBucket[key] && validPodiumCodes.has(podiumBucket[key])) select.value = podiumBucket[key];
+    select.addEventListener("change", () => {
+      if (isLocked()) return;
+      const v = select.value;
+      if (v) podiumBucket[key] = v; else delete podiumBucket[key];
+      persistPodium();
+      refreshPodiumDisabled();
+      updatePodiumPreview(key);
+      updateStatus();
+    });
+    updatePodiumPreview(key);
+  }
+  syncPodiumLock();
+
   // --- descarga + bloqueo ---
   const markFinal = (filename, out) => {
     safeSet(FINAL_KEY, "true");
@@ -219,13 +322,31 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
           slotA: { type: "team", code: r.codeA }, slotB: { type: "team", code: r.codeB },
           predictionEnabled: true,
         }));
-      const out = buildKnockoutPayload({ player: who, knockoutPredictions: bucket, podium: readPodium(), matches: exportMatches });
+      // Cruces FINALIZADOS con tu predicción ya enviada -> van BLOQUEADOS en el JSON, con el
+      // resultado oficial y los puntos ya sumados (la del cartón de ayer, inmutable).
+      const live = readLiveKnockout(seed);
+      const resultsMap = normalizeResults(live.results);
+      const settledMatches = Array.from(resolvedById.values())
+        .filter((r) => r.played && bucket[r.match.id])
+        .map((r) => {
+          const res = resultsMap[r.match.id] || null;
+          const allForMatch = Object.values(seededPredictions).map((b) => b && b[r.match.id]).filter(Boolean);
+          const points = res ? scoreKnockoutMatch(bucket[r.match.id], res, allForMatch).points : null;
+          return {
+            id: r.match.id, matchNumber: r.match.matchNumber, round: r.match.round,
+            slotA: { type: "team", code: r.codeA }, slotB: { type: "team", code: r.codeB },
+            result: res ? { homeScore: res.homeScore, awayScore: res.awayScore, winner: resultWinnerSide(res) } : null,
+            points,
+          };
+        });
+      const out = buildKnockoutPayload({ player: who, knockoutPredictions: bucket, podium: readPodium(), matches: exportMatches, settledMatches });
       const filename = buildFileName(who.name || "jugador");
       downloadJson(out, filename);
       const complete = out.summary.completedMatches === out.summary.totalPredictableMatches && out.summary.podiumComplete;
       if (complete) {
         markFinal(filename, out);
         applyResolution(); // bloquea inputs
+        syncPodiumLock(); // bloquea también los selects del podio
         if (statusNode) statusNode.textContent = "¡Polla final descargada y bloqueada!";
         if (downloadBtn) downloadBtn.textContent = "Descargar de nuevo";
       } else if (statusNode) {

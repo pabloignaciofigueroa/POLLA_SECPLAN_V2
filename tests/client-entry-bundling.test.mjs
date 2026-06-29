@@ -15,10 +15,6 @@ const clientEntries = [
   },
   // 08_equipos: álbum estático de 32 clasificados por cruce (sin cliente).
   {
-    section: "src/sections/11_podio/PodioSection.astro",
-    client: "./podio.client.js",
-  },
-  {
     section: "src/sections/12_admin/AdminKnockoutSection.astro",
     client: "./admin.knockout.client.js",
   },

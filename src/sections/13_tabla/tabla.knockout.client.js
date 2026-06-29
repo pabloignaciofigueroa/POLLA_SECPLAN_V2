@@ -106,9 +106,11 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
         setText(advEl, "–");
         if (flagEl) { flagEl.style.backgroundImage = ""; flagEl.dataset.empty = "true"; }
       }
-      const pts = matchPts(pred, isFinal ? res : null);
+      // EN VIVO también suma (provisional): la gracia es que el puntaje cambie con cada gol.
+      const pts = matchPts(pred, hasScore ? res : null);
       setText(ptsEl, pts == null ? "–" : String(pts));
       row.dataset.ptsPos = pts > 0 ? "true" : "false";
+      row.dataset.ptsLive = isLive && pts > 0 ? "true" : "false";
     });
 
     // Reordenar por cercanía al marcador ACTUAL: el más parecido primero, mismo resultado agrupado,

@@ -9,6 +9,7 @@ import OfficialPlayerModal from "./OfficialPlayerModal.astro";
 import playersData from "../../data/players.json";
 // Jugadores "oficiales" = los que ya cargaron cartón de ELIMINATORIAS (no el dataset viejo de grupos).
 import predictionsData from "../../data/knockout-predictions.json";
+import knockoutResults from "../../data/knockout-results.json";
 import resetStateUrl from "../../lib/storage/resetPollaState.js?url";
 import playerIdentityUrl from "../../lib/playerIdentity.js?url";
 import predictionEditAccessUrl from "../../lib/predictions/predictionEditAccess.js?url";
@@ -24,9 +25,19 @@ const players = playersData as Player[];
 const selectedPlayerId = "luis";
 const selectedPlayer =
   players.find((player) => player.id === selectedPlayerId) ?? players[0];
-const officialPlayerIds = predictionsData.submissions.map(
-  (submission) => submission.playerId
+// Un jugador es "oficial" (cartón completo entregado) SOLO si su submission incluye predicciones
+// de cruces AÚN ABIERTOS, no únicamente los ya finalizados (que se siembran bloqueados solos).
+// Tener solo el P73 ya jugado NO cuenta como cartón entregado -> debe poder entrar a predecir el resto.
+const finalizedMatchIds = new Set(
+  ((knockoutResults as any).results ?? [])
+    .filter((r: any) => r && r.status === "final")
+    .map((r: any) => r.matchId)
 );
+const officialPlayerIds = predictionsData.submissions
+  .filter((submission) =>
+    Object.keys(submission.predictions ?? {}).some((mid) => !finalizedMatchIds.has(mid))
+  )
+  .map((submission) => submission.playerId);
 ---
 
 <section

@@ -2,17 +2,20 @@
 // Seccion 04_predicciones — CAPTURA de la polla de ELIMINATORIAS (bracket completo).
 // Se predicen los cruces cuyos DOS lados ya son equipos concretos (R32 hoy; las rondas
 // siguientes se desbloquean solas a medida que se cargan resultados). Marcador + quién
-// avanza (empate => elegir quién pasa). El podio se define en /podio. 100% local.
+// avanza (empate => elegir quién pasa). El PODIO se elige aquí mismo (arriba a la derecha). 100% local.
 import styles from "./PrediccionesSection.module.css";
 import BracketColumn from "../07_fixture/BracketColumn.astro";
 
 import knockoutData from "../../data/knockout-matches.json";
+import knockoutTeams from "../../data/knockout-teams.json";
 import teamsData from "../../data/teams.json";
 import seed from "../../data/knockout-results.json";
+import submissionsData from "../../data/knockout-predictions.json";
 import { sortBySlot } from "../../lib/knockout/model";
 import type { KnockoutMatch } from "../../lib/knockout/model";
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
+import { PODIUM_LABELS } from "../../lib/knockout/podium.js";
 
 const teamsByCode = buildTeamsByCode(teamsData as any[]);
 const allMatches = sortBySlot(knockoutData.matches as KnockoutMatch[]);
@@ -39,30 +42,84 @@ const columns = rounds
   .filter((c) => c.items.length > 0);
 
 const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
+
+// PODIO (fusionado en esta sección): los 32 clasificados como opciones de cada select.
+const podiumSlots = (knockoutTeams.slots as any[]).map((s) => {
+  const team = s.concrete ? teamsByCode.get(s.code) : null;
+  return {
+    code: s.code,
+    name: s.name,
+    concrete: Boolean(s.concrete),
+    flag: team?.flag ?? null,
+    shortCode: team?.shortCode ?? s.code,
+  };
+});
+const PODIUM_SPOTS = [
+  { key: "champion", label: PODIUM_LABELS.champion, medal: "🥇" },
+  { key: "runnerUp", label: PODIUM_LABELS.runnerUp, medal: "🥈" },
+  { key: "third", label: PODIUM_LABELS.third, medal: "🥉" },
+  { key: "fourth", label: PODIUM_LABELS.fourth, medal: "4️⃣" },
+];
+
+// Predicciones YA ENVIADAS por jugador (cartones de ayer). Para cruces FINALIZADOS, /predicciones
+// muestra la predicción del jugador BLOQUEADA (no editable), la puntúa y la incluye en el JSON.
+// Forma: { [playerId]: { [matchId]: { homeScore, awayScore, advances } } }.
+const seededPredictions: Record<string, Record<string, any>> = {};
+for (const sub of ((submissionsData as any).submissions ?? [])) {
+  if (sub && sub.playerId) seededPredictions[sub.playerId] = sub.predictions ?? {};
+}
+
 const clientPayload = {
   matches: allMatches,
   teams: teamsLite,
   seedAssignments: (seed as any).slotAssignments ?? {},
   seedResults: (seed as any).results ?? [],
+  podiumSlots,
+  seededPredictions,
 };
 ---
 
 <section class={styles.prediccionesSection} id="predicciones" data-section="predicciones">
   <div class={styles.contentShell}>
-    <header class="pred-hero" data-animate="fade-up">
-      <div class="pred-hero-main">
+    <header class="pred-hero">
+      <div class="pred-hero-main" data-animate="fade-up">
         <p class="pred-eyebrow">etapa 2 / eliminatorias</p>
         <h1 class="pred-title">Mis predicciones</h1>
         <p class="pred-identity" data-pred-identity hidden></p>
+        <div class="pred-hero-chips">
+          <span class="pred-chip"><strong data-pred-cruces-count>16</strong> cruces por jugar</span>
+          <span class="pred-chip pred-chip--podio">
+            Podio <strong data-pred-podio-count>0/4</strong>
+            <span class="pred-chip-medals" aria-hidden="true">🏆🥈🥉</span>
+          </span>
+        </div>
       </div>
-      <div class="pred-hero-chips">
-        <span class="pred-chip">16 cruces</span>
-        <a class="pred-chip pred-chip--podio" href="/podio">
-          Podio <strong data-pred-podio-count>0/4</strong>
-          <span class="pred-chip-medals" aria-hidden="true">🏆🥈🥉</span>
-        </a>
+
+      <div class="pred-podio" data-pred-podio aria-label="Tu podio">
+        {PODIUM_SPOTS.map((spot) => (
+          <article class="pred-podio-card" data-podium-card={spot.key}>
+            <header class="pred-podio-head">
+              <span class="pred-podio-medal" aria-hidden="true">{spot.medal}</span>
+              <span class="pred-podio-label">{spot.label}</span>
+            </header>
+            <div class="pred-podio-pick">
+              <span class="pred-podio-flag" data-podium-preview={spot.key} aria-hidden="true"></span>
+              <label class="pred-podio-select">
+                <span class="sr-only">{spot.label}</span>
+                <select data-podium-spot={spot.key}>
+                  <option value="">— Elegir equipo —</option>
+                  {podiumSlots.map((s) => (
+                    <option value={s.code}>{s.name}{s.concrete ? "" : " (por definir)"}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </article>
+        ))}
       </div>
     </header>
+
+    <p class="pred-lock-note" data-pred-lock-note hidden></p>
 
     <div class="pred-rounds">
       {columns.map((c) => (
@@ -83,17 +140,46 @@ const clientPayload = {
 </section>
 
 <style>
-  .pred-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: clamp(0.5rem, 1.4vw, 1rem); }
-  .pred-hero-main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .pred-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(0.8rem, 2.2vw, 1.8rem); flex-wrap: wrap; margin-bottom: clamp(0.35rem, 1vw, 0.8rem); }
+  .pred-hero-main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.28rem; }
   .pred-eyebrow { margin: 0; padding: 0.25rem 0.8rem; border-radius: 999px; background: linear-gradient(135deg, rgba(255, 241, 214, 0.96), rgba(255, 228, 232, 0.9)); color: var(--pm-orange-600); font-size: 0.68rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
   .pred-title { margin: 0; font-family: var(--font-display); font-weight: 950; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 0.95; text-transform: uppercase; color: var(--pm-blue-900); }
-  .pred-hero-chips { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .pred-hero-chips { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.15rem; }
   .pred-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.32rem 0.75rem; border-radius: 999px; font-family: var(--font-display); font-weight: 850; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-blue-800); background: var(--pm-white); border: 1px solid var(--pm-border-soft); }
   .pred-chip--podio { color: var(--pm-blue-900); text-decoration: none; border-color: color-mix(in srgb, var(--pm-yellow-500, #facc15) 55%, var(--pm-border-soft)); background: linear-gradient(120deg, color-mix(in srgb, var(--pm-yellow-500, #facc15) 20%, #fff), #fff 62%); }
   .pred-chip--podio strong { font-family: var(--font-score); font-variant-numeric: tabular-nums; color: var(--pm-orange-600); }
   .pred-chip-medals { font-size: 0.9rem; }
   .pred-identity { margin: 0.2rem 0 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--pm-cyan-700, #0e7490); }
+
+  /* PODIO fusionado en Predicciones (arriba a la derecha) — colores por medalla. */
+  .pred-podio { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(0.4rem, 0.9vw, 0.65rem); width: min(100%, 33rem); align-content: start; }
+  .pred-podio-card { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.5rem 0.6rem; border-radius: var(--pm-radius-md); box-shadow: var(--pm-shadow-soft); border: 1.5px solid transparent; }
+  .pred-podio-card[data-podium-card="champion"] { background: linear-gradient(135deg, #fff3c4, #ffd84d); border-color: #efb400; }
+  .pred-podio-card[data-podium-card="runnerUp"] { background: linear-gradient(135deg, #eef2f8, #c4cfe0); border-color: #9fb0cc; }
+  .pred-podio-card[data-podium-card="third"] { background: linear-gradient(135deg, #f6d8b4, #db9c5c); border-color: #c07d3a; }
+  .pred-podio-card[data-podium-card="fourth"] { background: linear-gradient(135deg, #cfe6ff, #5aa6ff); border-color: #2b86f0; }
+  .pred-podio-head { display: flex; align-items: center; gap: 0.32rem; }
+  .pred-podio-medal { font-size: 1rem; filter: drop-shadow(0 1px 2px rgba(7, 23, 53, 0.25)); }
+  .pred-podio-label { font-family: var(--font-display); font-weight: 950; font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pm-blue-950, #06122a); }
+  .pred-podio-pick { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.38rem; }
+  .pred-podio-flag { display: inline-grid; place-items: center; width: 1.55rem; height: 1.55rem; border-radius: 999px; overflow: hidden; background: #fff; border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: 0 1px 4px rgba(7, 23, 53, 0.22); flex: 0 0 auto; font-family: var(--font-display); font-size: 0.58rem; font-weight: 900; color: var(--pm-blue-800); }
+  .pred-podio-flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pred-podio-select { display: block; min-width: 0; }
+  .pred-podio select { width: 100%; padding: 0.32rem 0.42rem; border: 1.5px solid rgba(7, 23, 53, 0.2); border-radius: var(--pm-radius-sm); background: var(--pm-white); color: var(--pm-blue-900); font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; cursor: pointer; }
+  .pred-podio select:disabled { opacity: 0.7; cursor: not-allowed; }
+  .pred-podio select:focus-visible { outline: none; border-color: var(--pm-cyan-500); box-shadow: var(--pm-focus-ring); }
+  .pred-podio-card[data-filled="true"] { box-shadow: 0 0 0 2px var(--pm-mint-500, #34d399), var(--pm-shadow-soft); }
+  @media (max-width: 900px) { .pred-podio { width: 100%; } }
+  /* Disclaimer: cruces ya jugados (bloqueados) vs el resto abierto. */
+  .pred-lock-note { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 clamp(0.4rem, 1vw, 0.7rem); padding: 0.5rem 0.85rem; border-radius: var(--pm-radius-md); background: linear-gradient(120deg, color-mix(in srgb, #7c3aed 16%, #fff), #fff 70%); border: 1.5px solid color-mix(in srgb, #7c3aed 38%, var(--pm-border-soft)); color: var(--pm-blue-900); font-family: var(--font-display); font-weight: 750; font-size: clamp(0.72rem, 1.3vw, 0.84rem); line-height: 1.25; box-shadow: var(--pm-shadow-soft); }
+  .pred-lock-note::before { content: "🔒"; font-size: 1rem; flex: 0 0 auto; }
+  .pred-lock-note[hidden] { display: none; }
+  .pred-lock-note strong { color: #6d28d9; }
   .pred-rounds { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
+  /* Compactar el bloque de cruces SOLO en /predicciones para que entren los 16 sin scroll. */
+  .pred-rounds :global(.bracket-area) { gap: 0.45rem; }
+  .pred-rounds :global(.bracket-title) { font-size: clamp(0.95rem, 1.5vw, 1.25rem); }
+  .pred-rounds :global(.bracket-grid) { gap: clamp(0.45rem, 0.9vw, 0.7rem); }
   /* En desktop/tablet la grilla de cruces es el panel con scroll interno (el body no scrollea). */
   @media (min-width: 768px) {
     .pred-rounds { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.3rem; }

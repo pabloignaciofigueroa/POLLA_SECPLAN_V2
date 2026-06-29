@@ -32,48 +32,71 @@ function slotCode(slot) {
   return slot && slot.type === "team" && slot.code ? slot.code : null;
 }
 
+/** Una predicción ya enviada de un cruce que se jugó: misma forma + resultado oficial y puntos. */
+function buildPredictionEntry(match, knockoutPredictions, { locked = false } = {}) {
+  const pred = knockoutPredictions[match.id] ?? {};
+  const codeA = slotCode(match.slotA);
+  const codeB = slotCode(match.slotB);
+  const qualifiedTeam =
+    pred.advances === "home" ? codeA : pred.advances === "away" ? codeB : null;
+  const entry = {
+    matchId: match.id,
+    matchNumber: match.matchNumber,
+    round: match.round,
+    slotA: codeA,
+    slotB: codeB,
+    homeScore: pred.homeScore ?? null,
+    awayScore: pred.awayScore ?? null,
+    advances: pred.advances ?? null,
+    qualifiedTeam,
+  };
+  if (locked) {
+    entry.locked = true;
+    entry.result = match.result ?? null;
+    entry.points = match.points ?? null;
+  }
+  return entry;
+}
+
 /**
  * Construye el JSON oficial de la polla de eliminatorias.
- * Incluye SOLO los cruces predecibles (R32 con ambos lados concretos) + el podio.
+ * Incluye los cruces predecibles (R32 con ambos lados concretos, editables) + los cruces ya
+ * FINALIZADOS con tu predicción enviada (bloqueados, con resultado oficial y puntos) + el podio.
  * @param {object} args
  * @param {object} args.player                { id, name|displayName }
  * @param {object} args.knockoutPredictions   bucket del jugador { [matchId]: { homeScore, awayScore, advances } }
  * @param {object} args.podium                { champion, runnerUp, third, fourth }
- * @param {Array}  args.matches               todos los cruces (se filtra predictionEnabled)
+ * @param {Array}  args.matches               cruces predecibles (se filtra predictionEnabled)
+ * @param {Array}  args.settledMatches        cruces ya jugados con tu predicción { id, matchNumber, round, slotA, slotB, result, points }
  */
 export function buildKnockoutPayload({
   player,
   knockoutPredictions = {},
   podium = {},
   matches = [],
+  settledMatches = [],
   submittedAt = new Date().toISOString(),
 }) {
   const predictable = matches
     .filter((m) => m && m.predictionEnabled === true)
     .sort((a, b) => a.matchNumber - b.matchNumber);
 
-  const predictions = predictable.map((match) => {
-    const pred = knockoutPredictions[match.id] ?? {};
-    const codeA = slotCode(match.slotA);
-    const codeB = slotCode(match.slotB);
-    const qualifiedTeam =
-      pred.advances === "home" ? codeA : pred.advances === "away" ? codeB : null;
-    return {
-      matchId: match.id,
-      matchNumber: match.matchNumber,
-      round: match.round,
-      slotA: codeA,
-      slotB: codeB,
-      homeScore: pred.homeScore ?? null,
-      awayScore: pred.awayScore ?? null,
-      advances: pred.advances ?? null,
-      qualifiedTeam,
-    };
-  });
+  const openPredictions = predictable.map((match) => buildPredictionEntry(match, knockoutPredictions));
+  const lockedPredictions = (settledMatches ?? [])
+    .slice()
+    .sort((a, b) => a.matchNumber - b.matchNumber)
+    .map((match) => buildPredictionEntry(match, knockoutPredictions, { locked: true }));
 
-  const completedMatches = predictions.filter(
+  // Todas las predicciones en un solo listado, ordenadas por número de cruce (P73 primero).
+  const predictions = [...openPredictions, ...lockedPredictions].sort(
+    (a, b) => a.matchNumber - b.matchNumber,
+  );
+
+  // "Completados" cuenta SOLO los cruces aún editables (los bloqueados no entran al gating final).
+  const completedMatches = openPredictions.filter(
     (p) => p.homeScore !== null && p.awayScore !== null && p.advances,
   ).length;
+  const lockedPoints = lockedPredictions.reduce((sum, p) => sum + (Number(p.points) || 0), 0);
 
   const cleanPodium = {
     champion: podium.champion ?? null,
@@ -97,6 +120,8 @@ export function buildKnockoutPayload({
     summary: {
       totalPredictableMatches: predictable.length,
       completedMatches,
+      lockedMatches: lockedPredictions.length,
+      lockedPoints,
       podiumComplete,
     },
     predictions,
