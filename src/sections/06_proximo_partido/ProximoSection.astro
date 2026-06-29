@@ -157,6 +157,9 @@ const b = next?.slotB;
       flex-direction: column;
       justify-content: center;
     }
+    /* La ARENA (imágenes verticales) toma TODO el alto disponible y se luce a lo grande. */
+    .px-shell { flex: 1 1 auto; min-height: 0; }
+    .px-versus { flex: 1 1 auto; min-height: 0; }
   }
 
   /* ===== BANNER ===== */
@@ -196,6 +199,9 @@ const b = next?.slotB;
     position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: min(100%, 38rem);   /* angosta -> cada panel queda RETRATO 3:4 = aspecto de la foto vertical */
+    margin-inline: auto;
     border-radius: var(--pm-radius-lg);
     overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.7);
@@ -208,10 +214,12 @@ const b = next?.slotB;
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     gap: 0.15rem;
     padding: clamp(0.8rem, 2.4vw, 1.3rem) clamp(0.9rem, 3vw, 1.6rem) clamp(0.9rem, 2.4vw, 1.4rem);
-    min-height: clamp(10rem, 19vw, 14.5rem);
+    /* Retrato: piso alto para que la foto VERTICAL (cuerpo entero + fuego) se vea entera. En
+       desktop el flex:1 de la arena lo estira aún más. */
+    min-height: clamp(14rem, 34vh, 24rem);
     position: relative;
     background-size: cover;
-    background-position: top center;
+    background-position: center;
     background-repeat: no-repeat;
   }
   /* La FOTO del equipo (--px-cover, "3 jugadores") es la masa del panel: full-bleed, bajo un velo
@@ -328,10 +336,11 @@ const b = next?.slotB;
 
   /* ===== Móvil: la arena se apila ===== */
   @media (max-width: 640px) {
-    .px-versus { grid-template-columns: 1fr; }
+    .px-versus { grid-template-columns: 1fr; max-width: 24rem; }
     .px-team--home { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.2rem), 0 100%); }
     .px-team--away { clip-path: polygon(0 2.2rem, 100% 0, 100% 100%, 0 100%); }
-    .px-team { min-height: clamp(10rem, 40vw, 14rem); }
+    /* Móvil: paneles RETRATO (3:4) apilados para que la foto vertical entera se luzca (scroll ok). */
+    .px-team { min-height: clamp(18rem, 84vw, 27rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .px-vs { animation: none; }
