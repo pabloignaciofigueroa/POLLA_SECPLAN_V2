@@ -4,7 +4,7 @@
 // y tabla de predicciones por jugador (marcador + a quien le va + puntos dinamicos).
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { deriveActualPodium, resolveBracket } from "../../lib/knockout/bracket.js";
-import { buildKnockoutLeaderboard } from "../../lib/knockout/scoring.js";
+import { buildKnockoutLeaderboard, scoreKnockoutMatch } from "../../lib/knockout/scoring.js";
 import { findNextMatch } from "../../lib/knockout/schedule.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
 import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout } from "../../lib/supabase/knockoutData.js";
@@ -62,20 +62,14 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.empty = "false"; }
     else { el.style.backgroundImage = ""; el.dataset.empty = "true"; }
   };
-  // Puntos por cruce (panel informativo): BASE por marcador (3 exacto / 1 tendencia por dirección,
-  // incluye empate / 0) + BONUS PENALES (+1 solo final empatado + predijo empate + acertó quién pasa).
-  // El campo "advances" NO da tendencia; en vivo NO hay bonus. (Coincide con scoreKnockoutMatch.)
-  const matchPts = (pred, res) => {
+  // Puntos por cruce (panel informativo): usa el MISMO scorer del ranking (scoreKnockoutMatch),
+  // así el panel y la escalera NUNCA divergen. Incluye LONE WOLF (+5 exacto único) — que exige
+  // conocer TODAS las predicciones del cruce: por eso recibe `allForMatch`. (Antes había una copia
+  // simplificada acá que daba +3 a cualquier exacto y nunca el +5 del exacto único.)
+  const matchPts = (pred, res, allForMatch) => {
     if (!pred || pred.homeScore == null || pred.awayScore == null) return null;
     if (!res || res.homeScore == null || res.awayScore == null) return null;
-    const ph = Number(pred.homeScore), pa = Number(pred.awayScore);
-    const rh = Number(res.homeScore), ra = Number(res.awayScore);
-    let base = 0;
-    if (ph === rh && pa === ra) base = 3;
-    else if (Math.sign(ph - pa) === Math.sign(rh - ra)) base = 1;
-    const isFinal = res.status === "final" || res.status === "finished";
-    const bonus = isFinal && rh === ra && ph === pa && pred.advances && pred.advances === res.winner ? 1 : 0;
-    return base + bonus;
+    return scoreKnockoutMatch(pred, res, allForMatch).points;
   };
 
   // Tabla de predicciones: cada jugador con su marcador, la bandera del equipo que hace avanzar
@@ -97,6 +91,10 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     const m = next.match;
     const hasScore = res && res.homeScore != null && res.awayScore != null;
     const isLive = hasScore && res.status !== "final";
+    // Todas las predicciones (completas) del cruce: necesarias para el LONE WOLF (exacto ÚNICO → +5).
+    const allForMatch = players
+      .map((p) => (predictionsByPlayer[p.id] || {})[m.id])
+      .filter((p) => p && p.homeScore != null && p.awayScore != null);
     predRowById.forEach((row, pid) => {
       if (!row) return;
       const pred = (predictionsByPlayer[pid] || {})[m.id];
@@ -120,7 +118,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
         if (flagEl) { flagEl.style.backgroundImage = ""; flagEl.dataset.empty = "true"; }
       }
       // EN VIVO también suma (provisional): la gracia es que el puntaje cambie con cada gol.
-      const pts = matchPts(pred, hasScore ? res : null);
+      const pts = matchPts(pred, hasScore ? res : null, allForMatch);
       setText(ptsEl, pts == null ? "–" : String(pts));
       row.dataset.ptsPos = pts > 0 ? "true" : "false";
       row.dataset.ptsLive = isLive && pts > 0 ? "true" : "false";
