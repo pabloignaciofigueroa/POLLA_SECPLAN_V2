@@ -57,6 +57,41 @@ export async function fetchResults() {
 }
 
 /**
+ * ESCRITURA de un resultado oficial (lo usa el ADMIN). Upsert por match_id.
+ * Requiere la policy de escritura en knockout_results (migración 0002). Devuelve true si escribió.
+ * @param {{matchId:string, homeScore:number|null, awayScore:number|null, winner:string|null, status:string}} result
+ */
+export async function upsertResult(result) {
+  const supabase = await getSupabase();
+  if (!supabase || !result || !result.matchId) return false;
+  const row = {
+    match_id: result.matchId,
+    home_score: result.homeScore ?? null,
+    away_score: result.awayScore ?? null,
+    winner: result.winner ?? null,
+    status: result.status ?? "final",
+  };
+  const { error } = await supabase.from("knockout_results").upsert(row, { onConflict: "match_id" });
+  return !error;
+}
+
+/** Borra un resultado oficial por match_id (admin: cuando se limpia un marcador). */
+export async function deleteResult(matchId) {
+  const supabase = await getSupabase();
+  if (!supabase || !matchId) return false;
+  const { error } = await supabase.from("knockout_results").delete().eq("match_id", matchId);
+  return !error;
+}
+
+/** Borra TODOS los resultados oficiales (admin: "Borrar resultados"). */
+export async function deleteAllResults() {
+  const supabase = await getSupabase();
+  if (!supabase) return false;
+  const { error } = await supabase.from("knockout_results").delete().neq("match_id", "__nope__");
+  return !error;
+}
+
+/**
  * Realtime: llama callback cuando cambian predicciones/resultados/podio.
  * @returns {Promise<() => void>} función para desuscribirse (no-op si no hay Supabase).
  */

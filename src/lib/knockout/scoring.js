@@ -36,10 +36,20 @@ export function scoreKnockoutMatch(prediction, result, allPredictionsForMatch = 
     return { points: base.points, hitType: base.hitType };
   }
 
-  // Marcador no exacto: +1 si acertaste quien clasifica.
+  // Marcador no exacto: +1 por TENDENCIA. Dos maneras de acertarla (gana la que aplique):
+  //  (a) acertaste el LADO que gana/avanza  (advances === ganador actual), o
+  //  (b) acertaste la DIRECCIÓN del marcador (mismo signo), que cubre EMPATE-vs-EMPATE.
+  // (b) es clave para el marcador EN VIVO: un 0:0 en vivo premia a quien predijo empate
+  // (Martín/Pancho), SIN quitarle el punto a quien acertó el avance (Carlos/Pancho en 0:1).
   const actualSide = resultWinnerSide(result);
-  if (actualSide && prediction.advances === actualSide) {
-    return { points: 1, hitType: "qualifier" };
+  const ph = Number(prediction.homeScore);
+  const pa = Number(prediction.awayScore);
+  const rh = Number(result.homeScore);
+  const ra = Number(result.awayScore);
+  const sameDirection =
+    [ph, pa, rh, ra].every(Number.isFinite) && Math.sign(ph - pa) === Math.sign(rh - ra);
+  if ((actualSide && prediction.advances === actualSide) || sameDirection) {
+    return { points: 1, hitType: "tendency" };
   }
 
   return { points: 0, hitType: "none" };

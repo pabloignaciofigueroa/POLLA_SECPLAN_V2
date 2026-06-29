@@ -3,6 +3,7 @@
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
 import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveResults.js";
+import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } from "../../lib/supabase/knockoutData.js";
 
 (() => {
   const section = document.querySelector('[data-section="admin"]');
@@ -125,6 +126,7 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
         markDirty(false);
         persist();
         renderLabels();
+        if (isSupabaseConfigured()) deleteResult(id);
         return;
       }
       const cur = results[id] ?? { matchId: id, homeScore: null, awayScore: null, winner: null };
@@ -139,6 +141,13 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
       markDirty(false);
       persist();
       renderLabels();
+      // Propaga el resultado a Supabase para que se vea en OTROS dispositivos (incógnito, etc.).
+      // Requiere la policy de escritura (migración 0002). Si falla, queda local y avisa por consola.
+      if (isSupabaseConfigured()) {
+        upsertResult(cur).then((ok) => {
+          if (!ok) console.warn(`[admin] No se pudo escribir ${id} en Supabase. ¿Corriste la migración 0002 (policy de escritura)?`);
+        });
+      }
     };
 
     // Steppers −/+ (clamp a >= 0) y tipeo: editan el borrador y marcan "sin guardar".
@@ -191,6 +200,7 @@ import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveRe
       for (const k of Object.keys(assignments)) delete assignments[k];
       for (const k of Object.keys(results)) delete results[k];
       writeLocalKnockout({ slotAssignments: {}, results: {} });
+      if (isSupabaseConfigured()) deleteAllResults();
       section.querySelectorAll("[data-adm-assign]").forEach((s) => (s.value = ""));
       section.querySelectorAll('[data-adm-score]').forEach((i) => (i.value = ""));
       section.querySelectorAll("[data-adm-match]").forEach((row) => {

@@ -25,14 +25,34 @@ test("scoreKnockoutMatch: exacto compartido = 3", () => {
   assert.equal(r.hitType, "exact");
 });
 
-test("scoreKnockoutMatch: clasificado correcto (marcador no exacto) = 1", () => {
+test("scoreKnockoutMatch: tendencia correcta (marcador no exacto) = 1", () => {
   const r = scoreKnockoutMatch(
     { homeScore: 1, awayScore: 0, advances: "home" },
     { homeScore: 3, awayScore: 0, winner: "home" },
     [{ homeScore: 1, awayScore: 0 }, { homeScore: 3, awayScore: 0 }],
   );
   assert.equal(r.points, 1);
-  assert.equal(r.hitType, "qualifier");
+  assert.equal(r.hitType, "tendency");
+});
+
+test("scoreKnockoutMatch: empate EN VIVO premia la tendencia de empate = 1", () => {
+  const r = scoreKnockoutMatch(
+    { homeScore: 1, awayScore: 1, advances: "home" },
+    { homeScore: 0, awayScore: 0, status: "live" },
+    [{ homeScore: 1, awayScore: 1 }, { homeScore: 0, awayScore: 0 }],
+  );
+  assert.equal(r.points, 1, "predijo empate y va 0:0 -> +1 por tendencia");
+  assert.equal(r.hitType, "tendency");
+});
+
+test("scoreKnockoutMatch: predijo empate pero su avance va GANANDO en vivo = 1 (no pierde el punto)", () => {
+  // Pancho: 1:1 con JPN (away) avanzando; va 0:1 (JPN ganando) -> +1 por acertar el avance.
+  const r = scoreKnockoutMatch(
+    { homeScore: 1, awayScore: 1, advances: "away" },
+    { homeScore: 0, awayScore: 1, status: "live" },
+    [{ homeScore: 1, awayScore: 1 }, { homeScore: 0, awayScore: 1 }],
+  );
+  assert.equal(r.points, 1);
 });
 
 test("scoreKnockoutMatch: clasificado equivocado = 0", () => {
