@@ -116,7 +116,7 @@ const b = next?.slotB;
     position: relative;
     isolation: isolate;
     min-height: calc(100svh - var(--layout-header-height));
-    padding: clamp(1.2rem, 3vw, 2.6rem);
+    padding: clamp(0.5rem, 1.5vw, 1.1rem);
     background-image: image-set(
       url("/assets/backgrounds/avif/06_proximo_partido_background.avif") type("image/avif"),
       url("/assets/backgrounds/webp/06_proximo_partido_background.webp") type("image/webp"));
@@ -145,7 +145,7 @@ const b = next?.slotB;
     margin-inline: auto;
     display: flex;
     flex-direction: column;
-    gap: clamp(0.7rem, 1.6vw, 1.15rem);
+    gap: clamp(0.35rem, 1vw, 0.7rem);
   }
   /* Desktop/tablet: la arena vive centrada dentro del viewport (sin scroll del body). */
   @media (min-width: 768px) {
@@ -157,9 +157,18 @@ const b = next?.slotB;
       flex-direction: column;
       justify-content: center;
     }
-    /* La ARENA (imágenes verticales) toma TODO el alto disponible y se luce a lo grande. */
-    .px-shell { flex: 1 1 auto; min-height: 0; }
-    .px-versus { flex: 1 1 auto; min-height: 0; }
+    /* Paneles RETRATO grandes: alto por viewport, ancho derivado por aspect 3:4. La arena se
+       dimensiona a los paneles (columnas auto) y queda centrada -> grande sin achatar las fotos. */
+    .px-shell { min-height: 0; }
+    /* Ancho EXPLÍCITO = alto × 1.5 (dos paneles 3:4), centrado y sin estirar. */
+    .px-versus {
+      flex: 0 0 auto;
+      align-self: center;
+      width: min(93vh, 49.5rem);
+      max-width: 100%;
+      margin-inline: auto;
+    }
+    .px-team { height: min(62vh, 33rem); min-height: 0; }
   }
 
   /* ===== BANNER ===== */
@@ -199,8 +208,7 @@ const b = next?.slotB;
     position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 100%;
-    max-width: min(100%, 38rem);   /* angosta -> cada panel queda RETRATO 3:4 = aspecto de la foto vertical */
+    max-width: 100%;
     margin-inline: auto;
     border-radius: var(--pm-radius-lg);
     overflow: hidden;
@@ -272,17 +280,17 @@ const b = next?.slotB;
     font-family: var(--font-display); font-weight: 800; font-size: 0.64rem; letter-spacing: 0.22em;
     text-transform: uppercase; color: rgba(255, 255, 255, 0.85);
   }
+  /* VS: SOLO el texto AMARILLO, centrado EXACTO (alto y ancho) sobre la arena. Sin círculo,
+     sin borde blanco, fondo transparente: lo único que se ve es el "VS". */
   .px-vs {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
-    width: clamp(4rem, 9vw, 6.4rem); height: clamp(4rem, 9vw, 6.4rem);
-    display: grid; place-items: center; border-radius: 999px;
-    background: linear-gradient(135deg, var(--pm-yellow-400), var(--pm-orange-500));
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.9), 0 0 42px rgba(255, 138, 0, 0.65);
+    position: absolute; inset: 0; z-index: 3;
+    display: grid; place-items: center; pointer-events: none;
   }
   .px-vs-text {
     font-family: var(--font-display); font-style: italic; font-weight: 950;
-    font-size: clamp(1.5rem, 4vw, 2.8rem); color: #fff;
-    text-shadow: 0 2px 6px rgba(7, 23, 53, 0.35);
+    font-size: clamp(2.8rem, 8vw, 6rem); color: var(--pm-yellow-400, #fbbf24);
+    letter-spacing: 0.02em;
+    text-shadow: 0 3px 14px rgba(7, 23, 53, 0.72), 0 0 34px rgba(255, 190, 0, 0.55);
   }
   .px-empty { margin: 0; text-align: center; color: var(--pm-blue-900); font-weight: 700; padding: 2rem; }
   .px-empty[hidden] { display: none; }
@@ -316,9 +324,9 @@ const b = next?.slotB;
   .px-yourpick a:hover { background: var(--pm-cta-bg-hover); transform: translateY(-1px); }
 
   /* ===== RECIENTES (placas) ===== */
-  .px-recent { display: flex; flex-direction: column; gap: 0.7rem; }
+  .px-recent { display: flex; flex-direction: column; gap: 0.35rem; }
   .px-recent-title {
-    margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 1rem;
+    margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 0.8rem;
     text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-blue-900);
   }
   .px-recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.55rem; }
