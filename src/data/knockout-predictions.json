@@ -295,7 +295,7 @@
         "P75": {
           "homeScore": 1,
           "awayScore": 1,
-          "advances": null
+          "advances": "home"
         },
         "P76": {
           "homeScore": 2,
