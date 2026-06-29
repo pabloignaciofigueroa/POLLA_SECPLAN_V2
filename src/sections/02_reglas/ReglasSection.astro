@@ -55,14 +55,14 @@ const scoringRules = [
   {
     id: "tendencia",
     label: "TENDENCIA",
-    description: "Aciertas quién clasifica (o el ganador)",
+    description: "Aciertas la dirección del marcador: gana local, empate o gana visita",
     points: "+1",
     icon: "trend",
   },
   {
     id: "exacto",
     label: "EXACTO",
-    description: "Resultado exacto del cruce",
+    description: "Resultado exacto del cruce (ya incluye la tendencia)",
     points: "+3",
     icon: "target",
   },
@@ -72,6 +72,13 @@ const scoringRules = [
     description: "Exacto único entre todos los jugadores",
     points: "+5",
     icon: "wolf",
+  },
+  {
+    id: "penales",
+    label: "BONUS PENALES",
+    description: "El partido termina empatado, predijiste empate y aciertas quién pasa por penales",
+    points: "+1",
+    icon: "target",
   },
 ];
 ---

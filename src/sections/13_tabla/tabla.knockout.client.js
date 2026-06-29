@@ -62,12 +62,20 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.empty = "false"; }
     else { el.style.backgroundImage = ""; el.dataset.empty = "true"; }
   };
-  // Puntos simples por cruce (panel informativo): 3 = exacto, 1 = acerto ganador, 0 = fuera, null = sin pronostico.
+  // Puntos por cruce (panel informativo): BASE por marcador (3 exacto / 1 tendencia por dirección,
+  // incluye empate / 0) + BONUS PENALES (+1 solo final empatado + predijo empate + acertó quién pasa).
+  // El campo "advances" NO da tendencia; en vivo NO hay bonus. (Coincide con scoreKnockoutMatch.)
   const matchPts = (pred, res) => {
     if (!pred || pred.homeScore == null || pred.awayScore == null) return null;
     if (!res || res.homeScore == null || res.awayScore == null) return null;
-    if (Number(pred.homeScore) === Number(res.homeScore) && Number(pred.awayScore) === Number(res.awayScore)) return 3;
-    return Math.sign(pred.homeScore - pred.awayScore) === Math.sign(res.homeScore - res.awayScore) ? 1 : 0;
+    const ph = Number(pred.homeScore), pa = Number(pred.awayScore);
+    const rh = Number(res.homeScore), ra = Number(res.awayScore);
+    let base = 0;
+    if (ph === rh && pa === ra) base = 3;
+    else if (Math.sign(ph - pa) === Math.sign(rh - ra)) base = 1;
+    const isFinal = res.status === "final" || res.status === "finished";
+    const bonus = isFinal && rh === ra && ph === pa && pred.advances && pred.advances === res.winner ? 1 : 0;
+    return base + bonus;
   };
 
   // Tabla de predicciones: cada jugador con su marcador, la bandera del equipo que hace avanzar

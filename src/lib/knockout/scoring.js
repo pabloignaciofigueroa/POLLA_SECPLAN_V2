@@ -1,58 +1,71 @@
 // Puntaje de la llave eliminatoria - modulo ESM puro (sin DOM). Modo local.
 //
-// Tiers por cruce (excluyentes, gana el mayor):
-//   marcador EXACTO unico (lone wolf) ... +5
-//   marcador EXACTO compartido .......... +3
-//   CLASIFICADO correcto (acertaste quien avanza, marcador no exacto) ... +1
-//   error ............................... 0
-// Reusa calculatePointsForPrediction (fuente unica del 5/3/1/0 de marcador) y solo
-// reemplaza la "tendencia" por el "clasificado correcto" (semantica de eliminacion directa).
+// PUNTAJE = BASE por marcador (excluyente) + BONUS PENALES (separado):
+//   BASE (solo el MARCADOR de cancha; el campo "advances" NO interviene en la tendencia):
+//     +5 EXACTO unico (lone wolf) / +3 EXACTO compartido / +1 TENDENCIA (misma direccion:
+//     local gana / EMPATE / visita gana) / 0 error. El exacto NO suma ademas tendencia.
+//   BONUS PENALES (+1): SOLO si el partido FINALIZO empatado en cancha, el jugador predijo
+//     empate, y acerto el equipo que avanzo por penales. NUNCA en vivo. Maximo por cruce = 6.
 //
 // Podio: +5 campeon / +3 subcampeon / +1 tercero / +1 cuarto, por acierto EXACTO de puesto.
 import { calculatePointsForPrediction } from "../liveMatch/liveScoring.js";
-import { normalizeResults, resultWinnerSide } from "./bracket.js";
+import { normalizeResults } from "./bracket.js";
+
+/** Resultado del marcador: "home" | "draw" | "away" | null (marcador incompleto). */
+function outcomeOf(homeScore, awayScore) {
+  const h = Number(homeScore);
+  const a = Number(awayScore);
+  if (!Number.isFinite(h) || !Number.isFinite(a)) return null;
+  if (h > a) return "home";
+  if (a > h) return "away";
+  return "draw";
+}
 
 // Puntaje de podio mundial (debe cuadrar con /reglas y la leyenda de /tabla): +5/+3/+1/+1.
 export const PODIUM_POINTS = { champion: 5, runnerUp: 3, third: 1, fourth: 1 };
 
 /**
- * Puntua un cruce para una prediccion.
- * @param {object} prediction              { homeScore, awayScore, advances }
- * @param {object} result                  { homeScore, awayScore, winner }
+ * Puntua un cruce: BASE por marcador + BONUS PENALES. Devuelve los tres separados.
+ * @param {object} prediction              { homeScore, awayScore, advances: "home"|"away" }
+ * @param {object} result                  { homeScore, awayScore, winner: "home"|"away", status }
  * @param {Array}  allPredictionsForMatch  todas las predicciones del cruce (para lone wolf)
- * @returns {{ points:number, hitType:string }}
+ * @returns {{ points:number, base:number, bonus:number, hitType:string }}
  */
 export function scoreKnockoutMatch(prediction, result, allPredictionsForMatch = []) {
-  if (!prediction || !result) return { points: 0, hitType: "none" };
+  if (!prediction || !result) return { points: 0, base: 0, bonus: 0, hitType: "none" };
 
-  const base = calculatePointsForPrediction(
+  // ===== BASE: SOLO por el marcador de cancha (categorías excluyentes; "advances" NO interviene). =====
+  const exact = calculatePointsForPrediction(
     { homeScore: prediction.homeScore, awayScore: prediction.awayScore },
     { homeScore: result.homeScore, awayScore: result.awayScore },
     allPredictionsForMatch.map((p) => ({ homeScore: p.homeScore, awayScore: p.awayScore })),
   );
-
-  // Marcador exacto (unico o compartido): tier mayor.
-  if (base.hitType === "lone_wolf" || base.hitType === "exact") {
-    return { points: base.points, hitType: base.hitType };
+  const predOutcome = outcomeOf(prediction.homeScore, prediction.awayScore);
+  const finalOutcome = outcomeOf(result.homeScore, result.awayScore);
+  let base = 0;
+  let hitType = "none";
+  if (exact.hitType === "lone_wolf" || exact.hitType === "exact") {
+    base = exact.points; // +5 / +3 (el exacto ya incluye la tendencia; no se suma +1)
+    hitType = exact.hitType;
+  } else if (predOutcome !== null && predOutcome === finalOutcome) {
+    base = 1; // TENDENCIA: misma dirección del marcador (incluye empate-vs-empate)
+    hitType = "tendency";
   }
 
-  // Marcador no exacto: +1 por TENDENCIA. Dos maneras de acertarla (gana la que aplique):
-  //  (a) acertaste el LADO que gana/avanza  (advances === ganador actual), o
-  //  (b) acertaste la DIRECCIÓN del marcador (mismo signo), que cubre EMPATE-vs-EMPATE.
-  // (b) es clave para el marcador EN VIVO: un 0:0 en vivo premia a quien predijo empate
-  // (Martín/Pancho), SIN quitarle el punto a quien acertó el avance (Carlos/Pancho en 0:1).
-  const actualSide = resultWinnerSide(result);
-  const ph = Number(prediction.homeScore);
-  const pa = Number(prediction.awayScore);
-  const rh = Number(result.homeScore);
-  const ra = Number(result.awayScore);
-  const sameDirection =
-    [ph, pa, rh, ra].every(Number.isFinite) && Math.sign(ph - pa) === Math.sign(rh - ra);
-  if ((actualSide && prediction.advances === actualSide) || sameDirection) {
-    return { points: 1, hitType: "tendency" };
-  }
+  // ===== BONUS PENALES (+1): SOLO partido FINALIZADO, empatado en cancha, el jugador predijo
+  // empate, y acertó el equipo que avanzó por penales. NUNCA en vivo. =====
+  const isFinal = result.status === "final" || result.status === "finished";
+  const bonus =
+    isFinal &&
+    finalOutcome === "draw" &&
+    predOutcome === "draw" &&
+    prediction.advances &&
+    result.winner &&
+    prediction.advances === result.winner
+      ? 1
+      : 0;
 
-  return { points: 0, hitType: "none" };
+  return { points: base + bonus, base, bonus, hitType };
 }
 
 /**
