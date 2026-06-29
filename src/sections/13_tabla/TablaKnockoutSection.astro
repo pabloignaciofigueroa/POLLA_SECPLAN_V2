@@ -87,11 +87,6 @@ const podiumOrder = [2, 1, 3] as const;
           <span class="tk-live-state" data-tabla-cruce-state>Por jugar</span>
         </div>
 
-        <h2 class="tk-col-title">Impacto en vivo</h2>
-        <div class="tk-impact" data-tabla-impact>
-          <p class="tk-impact-empty">El impacto aparece cuando haya un cruce definido.</p>
-        </div>
-
         <h2 class="tk-col-title">Predicciones de jugadores</h2>
         <div class="tk-preds-head" aria-hidden="true">
           <span>Jugador</span><span>Marcador</span><span>Avanza</span><span>Pts</span>
@@ -170,13 +165,13 @@ const podiumOrder = [2, 1, 3] as const;
   /* ===== PODIO ===== */
   .tk-podium { list-style: none; margin: 0; padding: 0.2rem 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; align-items: end; }
   .tk-pod {
-    position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
-    padding: 0.6rem 0.5rem 0.55rem; border-radius: var(--pm-radius-md);
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    padding: 0.4rem 0.5rem 0.4rem; border-radius: var(--pm-radius-md);
     background: linear-gradient(160deg, color-mix(in srgb, var(--pod-color, var(--pm-blue-500)) 24%, var(--pm-white)), var(--pm-white) 78%);
     border: 1px solid color-mix(in srgb, var(--pod-color, var(--pm-blue-500)) 36%, var(--pm-border-soft));
     box-shadow: 0 14px 30px color-mix(in srgb, var(--pod-color, var(--pm-blue-500)) 28%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   }
-  .tk-pod--1 { --pod-color: var(--pm-rank-gold); transform: translateY(-0.55rem); padding-top: 0.85rem; }
+  .tk-pod--1 { --pod-color: var(--pm-rank-gold); transform: translateY(-0.4rem); padding-top: 0.6rem; }
   .tk-pod--2 { --pod-color: var(--pm-rank-silver); }
   .tk-pod--3 { --pod-color: var(--pm-rank-bronze); }
   .tk-pod-rank {
@@ -187,12 +182,12 @@ const podiumOrder = [2, 1, 3] as const;
     box-shadow: 0 4px 10px color-mix(in srgb, var(--pod-color, var(--pm-blue-500)) 50%, transparent);
   }
   .tk-pod-avatar {
-    width: clamp(2.8rem, 6vw, 3.7rem); aspect-ratio: 1; border-radius: 999px; overflow: hidden;
-    display: grid; place-items: center; margin-top: 0.45rem;
+    width: clamp(2.4rem, 5vw, 3.1rem); aspect-ratio: 1; border-radius: 999px; overflow: hidden;
+    display: grid; place-items: center; margin-top: 0.35rem;
     background: var(--pm-panel-soft); border: 3px solid color-mix(in srgb, var(--pod-color, var(--pm-blue-500)) 70%, #fff);
     box-shadow: 0 6px 14px rgba(7, 23, 53, 0.22);
   }
-  .tk-pod--1 .tk-pod-avatar { width: clamp(3.2rem, 7vw, 4.3rem); }
+  .tk-pod--1 .tk-pod-avatar { width: clamp(2.8rem, 6vw, 3.7rem); }
   .tk-pod-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .tk-pod-name { font-family: var(--font-display); font-weight: 900; font-size: 0.82rem; text-transform: uppercase; color: var(--pm-blue-900); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tk-pod-pts { font-family: var(--font-display); font-weight: 800; font-size: 0.62rem; text-transform: uppercase; color: var(--pm-text-soft); }
@@ -203,38 +198,38 @@ const podiumOrder = [2, 1, 3] as const;
   }
 
   /* ===== ESCALERA (ranking) ===== */
-  .tk-ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.34rem; }
+  .tk-ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.18rem; }
   .tk-card {
     display: grid;
-    grid-template-columns: 1.9rem 2.1rem minmax(0, 1fr) auto auto;
-    align-items: center; gap: 0.5rem;
-    padding: 0.4rem 0.7rem; border-radius: var(--pm-radius-md);
+    grid-template-columns: 1.6rem 1.7rem minmax(0, 1fr) auto auto;
+    align-items: center; gap: 0.45rem;
+    padding: 0.2rem 0.6rem; border-radius: var(--pm-radius-md);
     background: linear-gradient(100deg, color-mix(in srgb, var(--section-accent) 14%, var(--pm-white)), var(--pm-white) 62%);
     box-shadow: inset 4px 0 0 var(--section-accent), var(--pm-shadow-soft);
     transition: box-shadow var(--pm-transition-base);
   }
   .tk-rank {
-    font-family: var(--font-score); font-weight: 800; font-size: 0.9rem; color: #fff; text-align: center;
-    width: 1.7rem; height: 1.7rem; display: grid; place-items: center; margin-inline: auto; border-radius: 999px;
+    font-family: var(--font-score); font-weight: 800; font-size: 0.8rem; color: #fff; text-align: center;
+    width: 1.45rem; height: 1.45rem; display: grid; place-items: center; margin-inline: auto; border-radius: 999px;
     background: linear-gradient(135deg, var(--pm-blue-500), var(--pm-cyan-500));
     box-shadow: 0 3px 8px rgba(18, 109, 255, 0.32);
   }
-  .tk-avatar { width: 2.1rem; height: 2.1rem; border-radius: 999px; overflow: hidden; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); display: inline-grid; place-items: center; flex: 0 0 auto; border: 2px solid var(--pm-cyan-400, #46f1ff); box-shadow: 0 2px 6px rgba(7, 23, 53, 0.18); }
+  .tk-avatar { width: 1.7rem; height: 1.7rem; border-radius: 999px; overflow: hidden; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); display: inline-grid; place-items: center; flex: 0 0 auto; border: 2px solid var(--pm-cyan-400, #46f1ff); box-shadow: 0 2px 6px rgba(7, 23, 53, 0.18); }
   .tk-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .tk-id { display: flex; flex-direction: column; gap: 0.22rem; min-width: 0; }
-  .tk-name { font-family: var(--font-display); font-weight: 900; font-size: 0.92rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; }
-  .tk-bar { display: block; width: 100%; height: 0.42rem; border-radius: 999px; background: color-mix(in srgb, var(--pm-blue-500) 12%, var(--pm-ice)); overflow: hidden; }
+  .tk-id { display: flex; flex-direction: column; gap: 0.14rem; min-width: 0; }
+  .tk-name { font-family: var(--font-display); font-weight: 900; font-size: 0.84rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; }
+  .tk-bar { display: block; width: 100%; height: 0.32rem; border-radius: 999px; background: color-mix(in srgb, var(--pm-blue-500) 12%, var(--pm-ice)); overflow: hidden; }
   .tk-bar-fill {
     display: block; height: 100%; width: 0%; border-radius: 999px;
     background: linear-gradient(90deg, var(--pm-blue-500), var(--pm-cyan-500));
     transition: width 480ms var(--ease-out);
   }
   .tk-pts { display: flex; flex-direction: column; align-items: flex-end; line-height: 0.85; }
-  .tk-pts b { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.3rem; color: var(--pm-blue-600); }
-  .tk-pts small { font-family: var(--font-display); font-weight: 800; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pm-text-soft); }
+  .tk-pts b { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.05rem; color: var(--pm-blue-600); }
+  .tk-pts small { font-family: var(--font-display); font-weight: 800; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pm-text-soft); }
   .tk-move {
-    font-family: var(--font-display); font-weight: 900; font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase;
-    min-width: 3.1rem; text-align: center; padding: 0.16rem 0.4rem; border-radius: 999px;
+    font-family: var(--font-display); font-weight: 900; font-size: 0.54rem; letter-spacing: 0.04em; text-transform: uppercase;
+    min-width: 2.9rem; text-align: center; padding: 0.12rem 0.36rem; border-radius: 999px;
     color: var(--pm-text-soft); background: color-mix(in srgb, var(--pm-text-soft) 12%, var(--pm-white));
   }
   .tk-card[data-change="up"] .tk-move { color: var(--pm-green-700); background: var(--pm-green-100); }
