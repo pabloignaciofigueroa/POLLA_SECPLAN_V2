@@ -28,20 +28,6 @@
     "status": "available"
   },
   {
-    "id": "isaias",
-    "name": "Isaías",
-    "avatar": "/assets/players/isaias.webp",
-    "avatarThumb": "/assets/players/thumbs/isaias.webp",
-    "status": "available"
-  },
-  {
-    "id": "luis",
-    "name": "Luis",
-    "avatar": "/assets/players/luis.webp",
-    "avatarThumb": "/assets/players/thumbs/luis.webp",
-    "status": "selected"
-  },
-  {
     "id": "luis_renato",
     "name": "Luis Renato",
     "avatar": "/assets/players/luis_renato.webp",

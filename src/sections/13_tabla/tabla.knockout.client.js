@@ -200,10 +200,12 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       predictionsByPlayer[sub.playerId] = sub.predictions ?? {};
       podiumByPlayer[sub.playerId] = sub.podium ?? {};
     }
+    // localStorage del dispositivo se MERGEA por cruce sobre lo remoto (no reemplaza el bucket
+    // completo): así un draft local de un jugador no borra el resto de su cartón ya cargado.
     const lsPreds = readJson("polla:knockoutPredictions", {});
-    for (const [pid, bucket] of Object.entries(lsPreds)) predictionsByPlayer[pid] = bucket;
+    for (const [pid, bucket] of Object.entries(lsPreds)) predictionsByPlayer[pid] = { ...(predictionsByPlayer[pid] ?? {}), ...bucket };
     const lsPod = readJson("polla:podiumPredictions", {});
-    for (const [pid, pod] of Object.entries(lsPod)) podiumByPlayer[pid] = pod;
+    for (const [pid, pod] of Object.entries(lsPod)) podiumByPlayer[pid] = { ...(podiumByPlayer[pid] ?? {}), ...pod };
     return { predictionsByPlayer, podiumByPlayer };
   };
 

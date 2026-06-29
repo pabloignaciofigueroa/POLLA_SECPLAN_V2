@@ -22,7 +22,7 @@ interface Player {
 }
 
 const players = playersData as Player[];
-const selectedPlayerId = "luis";
+const selectedPlayerId = "carlos";
 const selectedPlayer =
   players.find((player) => player.id === selectedPlayerId) ?? players[0];
 // Un jugador es "oficial" (cartón completo entregado) SOLO si su submission incluye predicciones
@@ -445,7 +445,7 @@ const officialPlayerIds = predictionsData.submissions
 
       const initialConfirmed = storedIdIsValid && getStoredConfirmed();
       const initialPlayerId =
-        (initialConfirmed && getStoredSelectedId()) || section.dataset.defaultPlayerId || "luis";
+        (initialConfirmed && getStoredSelectedId()) || section.dataset.defaultPlayerId || "carlos";
       const initialCard = findCard(initialPlayerId);
 
       paintSelected(initialCard, initialConfirmed);

@@ -233,6 +233,18 @@ function cartonToRows(carton) {
     const players = await loadJson("src/data/players.json");
     const { count } = await upsert(supabase, "players", playerRows(players), "id");
     log(`✓ players: ${count}`);
+    // Prune: jugadores en la base que ya NO están en players.json se borran (FK cascade
+    // elimina sus predicciones/podio). Así, dar de baja a alguien en players.json lo limpia.
+    if (!DRY) {
+      const wanted = new Set(players.map((p) => p.id));
+      const { data: existing } = await supabase.from("players").select("id");
+      const toDelete = (existing ?? []).map((r) => r.id).filter((id) => !wanted.has(id));
+      if (toDelete.length) {
+        const { error } = await supabase.from("players").delete().in("id", toDelete);
+        if (error) throw new Error(`prune players: ${error.message}`);
+        log(`✓ prune: borrados ${toDelete.length} (${toDelete.join(", ")})`);
+      }
+    }
   }
 
   // 2) Resultados oficiales (seed commiteado)
