@@ -40,6 +40,9 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     requestAnimationFrame(step);
   };
 
+  // Consenso + total = SOLO los cartones compilados (el dataset oficial). Es "una lectura de
+  // lo que existe": NO se mezcla el localStorage del dispositivo que mira, porque un jugador
+  // fantasma (viejo/borrado) o un borrador parcial corromperian el conteo (14 falso, cruces en 12).
   const buildBuckets = () => {
     const predictionsByPlayer = {};
     const podiumByPlayer = {};
@@ -48,11 +51,19 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
       predictionsByPlayer[sub.playerId] = sub.predictions ?? {};
       podiumByPlayer[sub.playerId] = sub.podium ?? {};
     }
-    const lsPreds = readJson("polla:knockoutPredictions", {});
-    for (const [pid, b] of Object.entries(lsPreds)) predictionsByPlayer[pid] = b;
-    const lsPod = readJson("polla:podiumPredictions", {});
-    for (const [pid, p] of Object.entries(lsPod)) podiumByPlayer[pid] = p;
     return { predictionsByPlayer, podiumByPlayer };
+  };
+
+  // Para "tu resumen": superpone el borrador local SOLO sobre la fila del jugador seleccionado
+  // (merge por-cruce, sin borrar su carton del dataset), sin tocar el consenso ni el total.
+  const withMyOverlay = (preds, pods, pid) => {
+    const lsPreds = readJson("polla:knockoutPredictions", {});
+    const lsPod = readJson("polla:podiumPredictions", {});
+    const p = { ...preds };
+    const q = { ...pods };
+    if (lsPreds[pid] && typeof lsPreds[pid] === "object") p[pid] = { ...(preds[pid] ?? {}), ...lsPreds[pid] };
+    if (lsPod[pid] && typeof lsPod[pid] === "object") q[pid] = lsPod[pid];
+    return { predictionsByPlayer: p, podiumByPlayer: q };
   };
 
   const render = () => {
@@ -65,14 +76,15 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     const concreteIds = resolved.filter((r) => r.codeA && r.codeB).map((r) => r.match.id);
     const consensus = buildMatchConsensus(predictionsByPlayer, concreteIds);
 
-    // --- tu resumen ---
+    // --- tu resumen (con overlay del borrador local del jugador seleccionado) ---
     const playerId = getPlayerId();
-    const myBucket = predictionsByPlayer[playerId] ?? {};
-    const myPodium = podiumByPlayer[playerId] ?? {};
+    const mine = withMyOverlay(predictionsByPlayer, podiumByPlayer, playerId);
+    const myBucket = mine.predictionsByPlayer[playerId] ?? {};
+    const myPodium = mine.podiumByPlayer[playerId] ?? {};
     const prof = buildPlayerProfile(myBucket, myPodium);
     const hasResults = Object.keys(live.results).length > 0;
     const actualPodium = hasResults ? deriveActualPodium(matches, { assignments: live.assignments, results: live.results, teamsByCode }) : null;
-    const board = buildKnockoutLeaderboard({ players, predictionsByPlayer, podiumByPlayer, results: live.results, actualPodium });
+    const board = buildKnockoutLeaderboard({ players, predictionsByPlayer: mine.predictionsByPlayer, podiumByPlayer: mine.podiumByPlayer, results: live.results, actualPodium });
     const myRow = board.find((r) => r.playerId === playerId);
 
     const predicted = $("[data-es-predicted]");
