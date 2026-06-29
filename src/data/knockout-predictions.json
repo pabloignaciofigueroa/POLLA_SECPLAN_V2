@@ -2,18 +2,771 @@
   "_doc": "Dataset canonico de cartones de ELIMINATORIAS (todos los jugadores). Se llena compilando los JSON que cada jugador descarga desde /predicciones (campo 'raw.knockoutPredictions' + 'podium'). Cada submission: { playerId, predictions: { [matchId]: { homeScore, awayScore, advances } }, podium: { champion, runnerUp, third, fourth } }. La /tabla rankea sobre este dataset + lo que haya en localStorage del dispositivo actual. Vacio = aun sin cartones cargados.",
   "schemaVersion": "2.0-knockout",
   "submissions": [
-    { "playerId": "jaime", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "italo", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "humberto", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "chelo", "predictions": { "P73": { "homeScore": 0, "awayScore": 1, "advances": "away" } } },
-    { "playerId": "luis_renato", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "narigon", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "carlos", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "pancho", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "antonio", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "martin", "predictions": { "P73": { "homeScore": 0, "awayScore": 2, "advances": "away" } } },
-    { "playerId": "tanke", "predictions": { "P73": { "homeScore": 2, "awayScore": 0, "advances": "home" } } },
-    { "playerId": "ale", "predictions": { "P73": { "homeScore": 0, "awayScore": 1, "advances": "away" } } },
-    { "playerId": "felipe", "predictions": { "P73": { "homeScore": 1, "awayScore": 2, "advances": "away" } } }
+    {
+      "playerId": "jaime",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "italo",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P76": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P80": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 2,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P83": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 2,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P86": {
+          "homeScore": 4,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "humberto",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "chelo",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P80": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P83": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        }
+      },
+      "podium": {
+        "champion": "ESP",
+        "runnerUp": "ARG",
+        "third": "FRA",
+        "fourth": "BRA"
+      }
+    },
+    {
+      "playerId": "luis_renato",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": null
+        },
+        "P76": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P80": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P83": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 0,
+          "awayScore": 1,
+          "advances": "away"
+        }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "ARG",
+        "third": "GER",
+        "fourth": "ENG"
+      }
+    },
+    {
+      "playerId": "narigon",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P80": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P83": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "ARG",
+        "third": "BRA",
+        "fourth": "ESP"
+      }
+    },
+    {
+      "playerId": "carlos",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "pancho",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 2,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P80": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 0,
+          "awayScore": 0,
+          "advances": "away"
+        },
+        "P83": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P85": {
+          "homeScore": 0,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P86": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P88": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "POR",
+        "third": "USA",
+        "fourth": "SEN"
+      }
+    },
+    {
+      "playerId": "antonio",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "martin",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 0,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P80": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P83": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "away"
+        },
+        "P84": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 0,
+          "awayScore": 0,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "tanke",
+      "predictions": {
+        "P73": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P74": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 2,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 0,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P80": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P83": {
+          "homeScore": 3,
+          "awayScore": 2,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 0,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "ARG",
+        "third": "BRA",
+        "fourth": "POR"
+      }
+    },
+    {
+      "playerId": "ale",
+      "predictions": {
+        "P73": {
+          "homeScore": 0,
+          "awayScore": 1,
+          "advances": "away"
+        }
+      }
+    },
+    {
+      "playerId": "felipe",
+      "predictions": {
+        "P73": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
+        },
+        "P74": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P75": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P76": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P77": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P78": {
+          "homeScore": 1,
+          "awayScore": 3,
+          "advances": "away"
+        },
+        "P79": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P80": {
+          "homeScore": 3,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P81": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P82": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P83": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P84": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P85": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P86": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P87": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P88": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "ARG",
+        "third": "BRA",
+        "fourth": "POR"
+      }
+    }
   ]
 }
