@@ -4,6 +4,7 @@
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
 
 (() => {
   const section = document.querySelector('[data-section="fixture"]');
@@ -50,8 +51,12 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   const cards = Array.from(section.querySelectorAll("[data-ko-match]"));
 
+  // Resultados de Supabase (fuente de verdad cross-device). null hasta que llegan; mientras, seed+local.
+  let remoteResults = null;
+  const effSeed = () => (remoteResults ? { slotAssignments: seed.slotAssignments, results: remoteResults } : seed);
+
   const render = () => {
-    const live = readLiveKnockout(seed);
+    const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
     const byId = new Map(resolved.map((r) => [r.match.id, r]));
     const bucket = readPlayerBucket();
@@ -99,4 +104,5 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   render();
   subscribeLiveKnockout(render);
+  attachRemoteResults((res) => { remoteResults = res; render(); });
 })();

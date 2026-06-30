@@ -3,7 +3,7 @@
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
 import { readLocalKnockout, writeLocalKnockout } from "../../lib/knockout/liveResults.js";
-import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured } from "../../lib/supabase/knockoutData.js";
+import { upsertResult, deleteResult, deleteAllResults, isSupabaseConfigured, fetchResults, subscribeKnockout } from "../../lib/supabase/knockoutData.js";
 import { resolveResult } from "../../lib/knockout/adminResult.js";
 
 (() => {
@@ -30,6 +30,9 @@ import { resolveResult } from "../../lib/knockout/adminResult.js";
   const isTie = (h, a) => h !== null && a !== null && h === a;
 
   const persist = () => writeLocalKnockout({ slotAssignments: assignments, results });
+
+  // Guarda el syncTie de cada fila para re-sincronizar el UI de penales tras un pull de Supabase.
+  const rowSyncById = new Map();
 
   const resolveAll = () => {
     const resolved = resolveBracket(matches, { assignments, results, teamsByCode });
@@ -126,6 +129,7 @@ import { resolveResult } from "../../lib/knockout/adminResult.js";
       reflectState(row, stored);
     }
     syncTie();
+    rowSyncById.set(id, syncTie);
 
     const markDirty = (on) => { if (updateBtn) updateBtn.dataset.dirty = on ? "true" : "false"; };
 
@@ -244,4 +248,55 @@ import { resolveResult } from "../../lib/knockout/adminResult.js";
   }
 
   renderLabels();
+
+  // ===== Supabase = FUENTE DE VERDAD (cross-device) =====
+  // Refleja en el formulario un resultado guardado (o lo limpia). Respeta ediciones EN CURSO (dirty).
+  const seedRow = (row) => {
+    const id = row.getAttribute("data-adm-match");
+    if (row.querySelector("[data-adm-update]")?.dataset.dirty === "true") return; // no pisar lo que se tipea
+    const homeInput = row.querySelector('[data-adm-score="home"]');
+    const awayInput = row.querySelector('[data-adm-score="away"]');
+    const stored = results[id];
+    if (stored) {
+      if (homeInput) homeInput.value = stored.homeScore != null ? String(stored.homeScore) : "";
+      if (awayInput) awayInput.value = stored.awayScore != null ? String(stored.awayScore) : "";
+      row.dataset.draftWinner = stored.winner ?? "";
+      reflectWinnerButtons(row, stored.winner ?? null);
+      reflectState(row, stored);
+    } else {
+      if (homeInput) homeInput.value = "";
+      if (awayInput) awayInput.value = "";
+      row.dataset.draftWinner = "";
+      reflectWinnerButtons(row, null);
+      reflectState(row, null);
+    }
+    rowSyncById.get(id)?.();
+  };
+
+  // Trae los resultados oficiales de Supabase y los refleja: en CUALQUIER dispositivo se ve qué
+  // partidos están EN VIVO / FINALIZADOS (evita 2 partidos vivos a la vez o resultados duplicados).
+  const applyRemoteResults = (res) => {
+    if (!Array.isArray(res)) return;
+    const incoming = new Set();
+    for (const r of res) {
+      if (!r || !r.matchId) continue;
+      incoming.add(r.matchId);
+      results[r.matchId] = {
+        matchId: r.matchId, homeScore: r.homeScore, awayScore: r.awayScore,
+        winner: r.winner, status: r.status, resolution: results[r.matchId]?.resolution,
+      };
+    }
+    // Lo que ya NO está en SQL (borrado desde otro dispositivo) se limpia local: el SQL manda.
+    for (const id of Object.keys(results)) if (!incoming.has(id)) delete results[id];
+    persist(); // cache local para offline
+    section.querySelectorAll("[data-adm-match]").forEach(seedRow);
+    renderLabels();
+  };
+
+  if (isSupabaseConfigured()) {
+    const modeBadge = section.querySelector("[data-adm-mode]");
+    if (modeBadge) modeBadge.textContent = "admin · sincronizado (sql)";
+    fetchResults().then(applyRemoteResults);
+    subscribeKnockout(() => { fetchResults().then(applyRemoteResults); });
+  }
 })();

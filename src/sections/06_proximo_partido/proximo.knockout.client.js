@@ -4,6 +4,7 @@ import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket } from "../../lib/knockout/bracket.js";
 import { findNextMatch, recentResults } from "../../lib/knockout/schedule.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
 
 (() => {
   const section = document.querySelector('[data-section="proximo"]');
@@ -16,6 +17,10 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
   const roundLabelById = new Map(matches.map((m) => [m.id, m.roundLabel]));
+
+  // Resultados de Supabase (fuente de verdad cross-device). null hasta que llegan; mientras, seed+local.
+  let remoteResults = null;
+  const effSeed = () => (remoteResults ? { slotAssignments: seed.slotAssignments, results: remoteResults } : seed);
 
   const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
   const getPlayerId = () => {
@@ -67,7 +72,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   };
 
   const render = () => {
-    const live = readLiveKnockout(seed);
+    const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
     const next = findNextMatch(resolved, { nowKey: nowKey() });
     const bucket = readBucket();
@@ -141,7 +146,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
     }
     list.innerHTML = recent
       .map((it) => {
-        const live = readLiveKnockout(seed);
+        const live = readLiveKnockout(effSeed());
         const r = live.results[it.match.id] ?? {};
         const adv = it.winnerCode ? `→ ${teamsByCode.get(it.winnerCode)?.shortCode ?? it.winnerCode}` : "";
         return `<li class="px-recent-card"><span class="px-recent-id">${it.match.id}</span><span class="px-recent-teams">${it.slotA.shortCode}<span class="px-recent-score">${r.homeScore ?? "?"}-${r.awayScore ?? "?"}</span>${it.slotB.shortCode}</span><span class="px-recent-adv">${adv}</span></li>`;
@@ -151,4 +156,5 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   render();
   subscribeLiveKnockout(render);
+  attachRemoteResults((res) => { remoteResults = res; render(); });
 })();

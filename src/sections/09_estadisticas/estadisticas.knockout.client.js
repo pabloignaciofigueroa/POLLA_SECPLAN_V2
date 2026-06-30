@@ -4,6 +4,7 @@ import { resolveBracket, deriveActualPodium } from "../../lib/knockout/bracket.j
 import { buildMatchConsensus, countCartones, buildPlayerProfile } from "../../lib/knockout/community.js";
 import { buildKnockoutLeaderboard } from "../../lib/knockout/scoring.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
 
 (() => {
   const section = document.querySelector('[data-section="estadisticas"]');
@@ -17,6 +18,10 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
   const submissions = payload.submissions ?? [];
+
+  // Resultados de Supabase (fuente de verdad cross-device). null hasta que llegan; mientras, seed+local.
+  let remoteResults = null;
+  const effSeed = () => (remoteResults ? { slotAssignments: seed.slotAssignments, results: remoteResults } : seed);
 
   const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
   const readJson = (k, fb) => { try { const p = JSON.parse(safeGet(k) || "null"); return p && typeof p === "object" ? p : fb; } catch { return fb; } };
@@ -67,7 +72,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   };
 
   const render = () => {
-    const live = readLiveKnockout(seed);
+    const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
     const resolvedById = new Map(resolved.map((r) => [r.match.id, r]));
     const { predictionsByPlayer, podiumByPlayer } = buildBuckets();
@@ -139,4 +144,5 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   render();
   subscribeLiveKnockout(render);
+  attachRemoteResults((res) => { remoteResults = res; render(); });
 })();
