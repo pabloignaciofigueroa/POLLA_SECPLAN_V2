@@ -26,6 +26,12 @@
 - **Sin backend obligatorio ("modo seguridad total"):** la app corre 100% local con los JSON
   commiteados (`src/data/knockout-*.json` como *seed*) + `localStorage` como estado runtime.
   Supabase es una capa de lectura/realtime opcional con **fallback local automático**.
+- **🌐 Supabase = fuente de verdad de RESULTADOS cross-device (2026-06-29):** cuando hay env
+  (`PUBLIC_SUPABASE_*` — en `.env.local` y en Vercel), TODAS las secciones de resultados leen del SQL:
+  `/admin` (siembra el form desde SQL + escribe), `/tabla`, `/fixture`, `/proximo`, `/estadisticas`.
+  El helper compartido es **`src/lib/knockout/remoteResults.js`** (`attachRemoteResults` = pull + realtime,
+  no-op si Supabase off). Sin env → cada uno cae a `liveResults.js` (localStorage+seed), idéntico a antes.
+  Deploy = Vercel `polla-secplan-v2`. ⛔ Repo/deploy: SOLO `v2`/`polla-secplan-v2` (ver `hard-rule` en memoria).
 - **⚠️ V2 = eliminatorias.** La app migró de *fase de grupos* (V1) a *eliminatorias* (R32→Final).
   Mucho código de la carpeta de cada sección y TODA `lib/statistics/` + `lib/tabla/` son **legacy/huérfanos**
   (ver sección *Estado V2 vs Legacy*). Los `*.map.md` viejos y `gotchas.md` describen en parte V1: **verifica

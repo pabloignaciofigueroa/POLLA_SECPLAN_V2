@@ -17,6 +17,8 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
 8. Admin
 9. Cards compartidas y borrado seguro
 10. Documentos y greps
+11. Repos, deploy y alcance permitido (REGLA DURA)
+12. Supabase como fuente de verdad cross-device
 
 ---
 
@@ -303,3 +305,42 @@ gotcha durable nuevo, agregarlo aqui (no solo al workflow de la jornada).
     iguale el -X del grupo; un exacto de UN solo jugador es lone_wolf (+5), no tendencia
     (+1) ni exacto compartido (+3) -> hay que meter un segundo jugador con la misma
     prediccion para forzar el +3. Probar el delta con un script chico antes de fijar el assert.
+
+## 11. Repos, deploy y alcance permitido (REGLA DURA)
+
+- **PROHIBIDO tocar nada que no sea los 3 destinos del proyecto:** repo GitHub **POLLA_SECPLAN_V2**
+  (remoto `v2`), Vercel **polla-secplan-v2**, y la carpeta **(41) LOCAL_AISLADA**. NADA mas.
+  - El 2026-06-29 se pusheo el codigo V2 a `polla_secplan_2026` (remoto `origin`, el repo VIEJO de FASE
+    DE GRUPOS, ~2 meses de trabajo del usuario) "por si Vercel usaba ese repo". Casi se lo borra. Quedo
+    recuperable solo porque fue fast-forward (`git push origin af8650b:main --force` / `reset --hard af8650b`
+    lo restaura), pero el riesgo fue real y el usuario quedo furioso.
+  - **Fix/patron:** `git push` SOLO al remoto `v2`. NUNCA `git push origin`, nunca "a los dos por las
+    dudas", nunca inferir el destino. Antes de cualquier push/deploy/borrado: verificar que el destino es
+    uno de los 3 permitidos; si no, NO hacerlo y preguntar. (El repo local tiene los 2 remotos
+    configurados — ignorar `origin`; idealmente `git remote remove origin` para que sea imposible.)
+- **No tocar el Vercel viejo** `polla-secplan-2026.vercel.app` (es la pagina de grupos que el usuario
+  usa para promocionarse). Solo `polla-secplan-v2.vercel.app`.
+
+## 12. Supabase como fuente de verdad cross-device
+
+- **Sintoma:** el admin carga un resultado en su PC, se ve ahi pero NO en celular / incognito / otro
+  equipo. Parece que "no se graba".
+- **Causa 1 (env del deploy):** `import.meta.env.PUBLIC_SUPABASE_*` se hornea en BUILD. Si Vercel no
+  tiene esas env vars, el sitio desplegado corre 100% local por navegador (no lee ni escribe Supabase),
+  aunque `.env.local` local si las tenga. -> setear `PUBLIC_SUPABASE_URL` + `PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+  en Vercel (Production+Preview) y redeploy. (NO subir `SUPABASE_SECRET_KEY` al browser/Vercel-build.)
+- **Causa 2 (codigo, la de fondo):** que el deploy lea Supabase NO basta si solo UNA seccion lo usa.
+  Antes solo `/tabla`. Cada seccion de resultados debe leer del SQL via el helper compartido
+  `src/lib/knockout/remoteResults.js` (`attachRemoteResults` = pull + realtime, no-op si Supabase off).
+  Lo usan `/fixture` `/proximo` `/estadisticas` (resultados de SQL como `seed.results`). **`/admin` ademas
+  SIEMBRA el form desde SQL al abrir + realtime** (si lee solo localStorage, en otro equipo sale VACIO ->
+  riesgo de cargar 2 partidos vivos a la vez o duplicar un resultado). Respeta ediciones en curso (`dirty`)
+  para no pisar lo que se esta tipeando.
+- **Verificar si un DEPLOY lee Supabase (no fallar el check):** NO basta grepear los 3 chunks `_astro/*.js`
+  referenciados directo en el HTML. La URL de Supabase vive en el chunk de `knockoutData` (`client.js`), que
+  se importa transitivamente desde el script de la seccion. Hay que SEGUIR el grafo de imports (fetch del
+  chunk de la seccion -> sus imports -> ...) y buscar el host ahi. Un check superficial da falso-negativo
+  (paso el 2026-06-29: conclui "Vercel no tiene env" cuando si las tenia).
+- **Seguridad (trade-off aceptado):** escribir `knockout_results` esta abierto a la publishable key
+  (migracion 0002). El gate de /admin es UI client-side. Si se quiere blindar: Edge Function que valide la
+  clave server-side. Fuera de alcance por ahora.
