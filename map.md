@@ -56,8 +56,14 @@ Nav (orden Header): Inicio · Reglas · Jugador · Predicciones · **Próximo** 
 
 ## ⚠️ Estado V2 (eliminatorias) vs LEGACY (grupos) — leer antes de borrar nada
 
+> ✅ **LIMPIEZA 2026-06-29:** la mayoría de este código muerto YA FUE ELIMINADO (61 archivos):
+> componentes huérfanos de 04/07/08/03, `lib/tabla/*`, `lib/admin/` (vacío), 15 JSON legacy/mock de
+> `src/data/`, y la página dev **`/wireframe`** + sus componentes. Verificado con build (10 páginas) + tests (90).
+> Lo de abajo queda como **registro histórico**. Lo que se CONSERVÓ (acoplado a tests): `lib/statistics/*`
+> (3 archivos los usan `tests/score-race-timeline` y `stat-cards-rerank`), `lib/liveMatch/*`, `lib/scoring/*`.
+
 La migración grupos→eliminatorias dejó **mucho código muerto** en su sitio (no se borró para no perder datos).
-Estos archivos **NO** los usa la página real; solo los referencia `src/pages/wireframe.astro` (índice dev) o tests:
+Estos archivos **NO** los usaba la página real; solo los referenciaba `src/pages/wireframe.astro` (índice dev) o tests:
 
 - **Secciones — componentes huérfanos:**
   - `04_predicciones/`: todos los `*.astro` salvo `ScoreInput.astro` (lo usa el bracket). `PredictionWorkspace`, `MatchesPanel`, `MatchPredictionRow`, `ProgressCard`, etc. son del wireframe V1. El render real usa `07_fixture/BracketColumn`→`BracketMatchCard` en `mode="capture"`.
