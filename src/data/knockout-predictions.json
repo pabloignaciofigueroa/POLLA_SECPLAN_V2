@@ -176,6 +176,12 @@
           "awayScore": 2,
           "advances": "away"
         }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "BRA",
+        "third": "ARG",
+        "fourth": "ESP"
       }
     },
     {
@@ -898,6 +904,12 @@
           "awayScore": 0,
           "advances": "away"
         }
+      },
+      "podium": {
+        "champion": "FRA",
+        "runnerUp": "ENG",
+        "third": "ARG",
+        "fourth": "ESP"
       }
     },
     {
