@@ -8,7 +8,6 @@ import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket, normalizeResults, resultWinnerSide } from "../../lib/knockout/bracket.js";
 import { scoreKnockoutMatch } from "../../lib/knockout/scoring.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
-import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
 
 (() => {
   const section = document.querySelector('[data-section="predicciones"]');
@@ -23,16 +22,12 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
   // Cartones YA ENVIADOS (de ayer): { [playerId]: { [matchId]: { homeScore, awayScore, advances } } }.
   // Para cruces FINALIZADOS, la predicción del jugador se siembra BLOQUEADA (inmutable) y se descarga.
   const seededPredictions = payload.seededPredictions ?? {};
-  const podiumSlots = payload.podiumSlots ?? [];
-  const podiumSlotByCode = new Map(podiumSlots.map((s) => [s.code, s]));
-  const validPodiumCodes = new Set(podiumSlots.map((s) => s.code));
 
   const KO_KEY = "polla:knockoutPredictions";
-  const PODIUM_KEY = "polla:podiumPredictions";
   const FINAL_KEY = "polla:finalDownloaded";
-  const FINAL_AT_KEY = "polla:finalDownloadedAt";
-  const FINAL_NAME_KEY = "polla:finalDownloadedFilename";
-  const FINAL_PAYLOAD_KEY = "polla:finalSubmissionPayload";
+  // OCTAVOS: la predicción NUNCA se bloquea. Limpiamos el candado viejo de 16avos para que quien
+  // ya descargó su cartón anterior pueda predecir octavos y descargar el JSON las veces que quiera.
+  try { window.localStorage.removeItem(FINAL_KEY); } catch {}
 
   const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
   const safeSet = (k, v) => { try { window.localStorage.setItem(k, v); } catch {} };
@@ -51,18 +46,14 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
   const allKo = readJson(KO_KEY, {});
   const bucket = allKo[playerId] ?? {};
   const mySeed = seededPredictions[playerId] ?? {}; // mi cartón ya enviado (para cruces finalizados)
-  const allPodium = readJson(PODIUM_KEY, {});
-  const podiumBucket = allPodium[playerId] ?? {};
-  const readPodium = () => podiumBucket;
-  const persistPodium = () => { allPodium[playerId] = podiumBucket; safeSet(PODIUM_KEY, JSON.stringify(allPodium)); };
 
   const statusNode = section.querySelector("[data-pred-status]");
   const downloadBtn = section.querySelector("[data-pred-download]");
   const identityNode = section.querySelector("[data-pred-identity]");
-  const podioCountNode = section.querySelector("[data-pred-podio-count]");
   const crucesCountNode = section.querySelector("[data-pred-cruces-count]");
   const lockNote = section.querySelector("[data-pred-lock-note]");
-  const isLocked = () => safeGet(FINAL_KEY) === "true";
+  // OCTAVOS: nunca hay bloqueo final; los inputs quedan editables mientras el cruce siga abierto.
+  const isLocked = () => false;
 
   // identidad
   const player = getPlayer();
@@ -79,10 +70,12 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
   let resolvedById = new Map();
   let predictableMatches = [];
 
+  // Banderas RECTANGULARES (no círculos) en /predicciones — el cliente sobrescribe el SSR.
+  // Tamaño AL DOBLE para que la bandera gane protagonismo (el resto de la tarjeta queda igual).
   const flagHtml = (slot) =>
     slot.flag
-      ? `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="64" height="48" style="width:1.85rem;height:1.85rem;border-radius:999px;object-fit:cover;display:block;border:1px solid rgba(7,23,53,0.12);">`
-      : `<span style="display:inline-grid;place-items:center;width:1.85rem;height:1.85rem;border-radius:999px;background:rgba(18,109,255,0.08);color:#1a3a8a;border:1px dashed rgba(7,23,53,0.12);font-weight:900;font-size:0.8rem;">?</span>`;
+      ? `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="96" height="72" style="width:4.8rem;height:3.4rem;border-radius:8px;object-fit:cover;display:block;border:1px solid rgba(7,23,53,0.16);box-shadow:0 2px 7px rgba(7,23,53,0.24);">`
+      : `<span style="display:inline-grid;place-items:center;width:4.8rem;height:3.4rem;border-radius:8px;background:rgba(18,109,255,0.08);color:#1a3a8a;border:1px dashed rgba(7,23,53,0.16);font-weight:900;font-size:1.4rem;">?</span>`;
 
   const reflectAdvanceButtons = (card, advances) => {
     card.querySelectorAll("[data-advance-pick]").forEach((btn) => {
@@ -90,6 +83,13 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.dataset.active = active ? "true" : "false";
     });
+  };
+
+  // Modo PENALES: cuando el marcador es empate con ambos goles cargados, la card entra en
+  // "elige quién pasa" (el CSS resalta el bloque de avance).
+  const reflectTie = (card, p) => {
+    const tie = p && p.homeScore !== null && p.awayScore !== null && isTie(p.homeScore, p.awayScore);
+    card.dataset.tie = tie ? "true" : "false";
   };
 
   const setCardStatus = (card, prediction) => {
@@ -132,6 +132,7 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
     if (homeInput) homeInput.value = stored && stored.homeScore != null ? String(stored.homeScore) : "";
     if (awayInput) awayInput.value = stored && stored.awayScore != null ? String(stored.awayScore) : "";
     reflectAdvanceButtons(card, stored?.advances ?? null);
+    reflectTie(card, stored);
     if (editable) setCardStatus(card, stored);
   };
 
@@ -206,14 +207,9 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
 
   function updateStatus() {
     const result = validateKnockout(bucket, predictableMatches);
-    const podium = readPodium();
-    const podiumFilled = ["champion", "runnerUp", "third", "fourth"].filter((k) => podium[k]).length;
-    if (podioCountNode) podioCountNode.textContent = `${podiumFilled}/4`;
     if (crucesCountNode) crucesCountNode.textContent = String(predictableMatches.length);
     if (statusNode) {
-      statusNode.textContent = isLocked()
-        ? "Polla descargada y bloqueada."
-        : `${result.completedMatches}/${result.totalMatches} cruces · podio ${podiumFilled}/4`;
+      statusNode.textContent = `${result.completedMatches}/${result.totalMatches} cruces de octavos pronosticados`;
     }
   }
 
@@ -234,6 +230,7 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
       }
       p.status = predictionStatus(p);
       reflectAdvanceButtons(card, p.advances);
+      reflectTie(card, p);
       setCardStatus(card, p);
       persist();
     };
@@ -249,67 +246,16 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
         p.advances = complete && !isTie(p.homeScore, p.awayScore) ? inferAdvance(p.homeScore, p.awayScore) : clicked;
         p.status = predictionStatus(p);
         reflectAdvanceButtons(card, p.advances);
+        reflectTie(card, p);
         setCardStatus(card, p);
         persist();
       });
     });
   });
 
-  // --- PODIO (fusionado): campeón / subcampeón / 3º / 4º, sin repetir equipos ---
-  const podiumSelects = new Map(
-    PODIUM_SLOTS.map((k) => [k, section.querySelector(`[data-podium-spot="${k}"]`)]).filter(([, el]) => el),
-  );
-  const updatePodiumPreview = (key) => {
-    const span = section.querySelector(`[data-podium-preview="${key}"]`);
-    const code = podiumBucket[key];
-    const slot = code ? podiumSlotByCode.get(code) : null;
-    if (span) {
-      if (slot && slot.flag) span.innerHTML = `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="48" height="48" />`;
-      else if (slot) span.textContent = slot.shortCode || "?";
-      else span.textContent = "";
-    }
-    const card = section.querySelector(`[data-podium-card="${key}"]`);
-    if (card) card.dataset.filled = code ? "true" : "false";
-  };
-  const refreshPodiumDisabled = () => {
-    const chosen = new Map(); // code -> slot que lo tiene (para no repetir equipo en el podio)
-    for (const k of PODIUM_SLOTS) if (podiumBucket[k]) chosen.set(podiumBucket[k], k);
-    for (const [key, select] of podiumSelects) {
-      Array.from(select.options).forEach((opt) => {
-        if (!opt.value) return;
-        const owner = chosen.get(opt.value);
-        opt.disabled = Boolean(owner) && owner !== key;
-      });
-    }
-  };
-  const syncPodiumLock = () => {
-    const locked = isLocked();
-    for (const [, select] of podiumSelects) select.disabled = locked;
-    if (!locked) refreshPodiumDisabled();
-  };
-  for (const [key, select] of podiumSelects) {
-    if (podiumBucket[key] && validPodiumCodes.has(podiumBucket[key])) select.value = podiumBucket[key];
-    select.addEventListener("change", () => {
-      if (isLocked()) return;
-      const v = select.value;
-      if (v) podiumBucket[key] = v; else delete podiumBucket[key];
-      persistPodium();
-      refreshPodiumDisabled();
-      updatePodiumPreview(key);
-      updateStatus();
-    });
-    updatePodiumPreview(key);
-  }
-  syncPodiumLock();
-
-  // --- descarga + bloqueo ---
-  const markFinal = (filename, out) => {
-    safeSet(FINAL_KEY, "true");
-    safeSet(FINAL_AT_KEY, new Date().toISOString());
-    safeSet(FINAL_NAME_KEY, filename);
-    safeSet(FINAL_PAYLOAD_KEY, JSON.stringify(out));
-  };
-
+  // --- descarga ILIMITADA (sin bloqueo) ---
+  // El JSON de octavos COMPLEMENTA al cartón anterior (el scoring suma por matchId). El botón se
+  // puede apretar las veces que se quiera: nunca congela inputs ni marca la polla como "final".
   if (downloadBtn) {
     downloadBtn.addEventListener("click", () => {
       const who = getPlayer();
@@ -339,18 +285,11 @@ import { PODIUM_SLOTS } from "../../lib/knockout/podium.js";
             points,
           };
         });
-      const out = buildKnockoutPayload({ player: who, knockoutPredictions: bucket, podium: readPodium(), matches: exportMatches, settledMatches });
+      const out = buildKnockoutPayload({ player: who, knockoutPredictions: bucket, matches: exportMatches, settledMatches });
       const filename = buildFileName(who.name || "jugador");
       downloadJson(out, filename);
-      const complete = out.summary.completedMatches === out.summary.totalPredictableMatches && out.summary.podiumComplete;
-      if (complete) {
-        markFinal(filename, out);
-        applyResolution(); // bloquea inputs
-        syncPodiumLock(); // bloquea también los selects del podio
-        if (statusNode) statusNode.textContent = "¡Polla final descargada y bloqueada!";
-        if (downloadBtn) downloadBtn.textContent = "Descargar de nuevo";
-      } else if (statusNode) {
-        statusNode.textContent = "Borrador descargado. Faltan cruces o podio para la versión final.";
+      if (statusNode) {
+        statusNode.textContent = `Predicción descargada (${out.summary.completedMatches}/${out.summary.totalPredictableMatches}). La puedes bajar las veces que quieras.`;
       }
     });
   }

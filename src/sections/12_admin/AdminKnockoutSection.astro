@@ -75,41 +75,52 @@ const clientPayload = {
 
     <section class="adm-block">
       <h2 class="adm-block-title">2 · Cargar resultados</h2>
-      {rounds.map((rnd) => (
-        <div class="adm-round">
-          <h3 class="adm-round-title">{rnd.roundLabel}</h3>
-          <div class="adm-matches">
-            {allMatches.filter((m) => m.round === rnd.round).map((m) => (
-              <div class="adm-match" data-adm-match={m.id}>
-                <span class="adm-match-id">{m.id}</span>
-                <span class="adm-team" data-adm-name="home">—</span>
-                <span class="adm-stepper">
-                  <button type="button" class="adm-step" data-adm-step="home" data-dir="-1" aria-label={`Menos gol local ${m.id}`}>−</button>
-                  <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="home" aria-label={`Goles local ${m.id}`} />
-                  <button type="button" class="adm-step" data-adm-step="home" data-dir="1" aria-label={`Más gol local ${m.id}`}>+</button>
-                </span>
-                <span class="adm-vs">-</span>
-                <span class="adm-stepper">
-                  <button type="button" class="adm-step" data-adm-step="away" data-dir="-1" aria-label={`Menos gol visita ${m.id}`}>−</button>
-                  <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="away" aria-label={`Goles visita ${m.id}`} />
-                  <button type="button" class="adm-step" data-adm-step="away" data-dir="1" aria-label={`Más gol visita ${m.id}`}>+</button>
-                </span>
-                <span class="adm-team adm-team-away" data-adm-name="away">—</span>
-                <span class="adm-adv">
-                  <span class="adm-adv-label" data-adm-adv-label hidden>⚖ Avanza por penales:</span>
-                  <button type="button" class="adm-adv-btn" data-adm-winner="home" aria-pressed="false"><span data-adm-pick="home">LOC</span></button>
-                  <button type="button" class="adm-adv-btn" data-adm-winner="away" aria-pressed="false"><span data-adm-pick="away">VIS</span></button>
-                </span>
-                <span class="adm-actions">
-                  <button type="button" class="adm-update" data-adm-update>Actualizar</button>
-                  <button type="button" class="adm-finish" data-adm-finish>Finalizar</button>
-                  <span class="adm-state" data-adm-state hidden>En vivo</span>
-                </span>
-              </div>
-            ))}
+      {rounds.map((rnd) => {
+        const matchEls = allMatches.filter((m) => m.round === rnd.round).map((m) => (
+          <div class="adm-match" data-adm-match={m.id}>
+            <span class="adm-match-id">{m.id}</span>
+            <span class="adm-team" data-adm-name="home">—</span>
+            <span class="adm-stepper">
+              <button type="button" class="adm-step" data-adm-step="home" data-dir="-1" aria-label={`Menos gol local ${m.id}`}>−</button>
+              <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="home" aria-label={`Goles local ${m.id}`} />
+              <button type="button" class="adm-step" data-adm-step="home" data-dir="1" aria-label={`Más gol local ${m.id}`}>+</button>
+            </span>
+            <span class="adm-vs">-</span>
+            <span class="adm-stepper">
+              <button type="button" class="adm-step" data-adm-step="away" data-dir="-1" aria-label={`Menos gol visita ${m.id}`}>−</button>
+              <input class="adm-score" type="number" inputmode="numeric" min="0" data-adm-score="away" aria-label={`Goles visita ${m.id}`} />
+              <button type="button" class="adm-step" data-adm-step="away" data-dir="1" aria-label={`Más gol visita ${m.id}`}>+</button>
+            </span>
+            <span class="adm-team adm-team-away" data-adm-name="away">—</span>
+            <span class="adm-adv">
+              <span class="adm-adv-label" data-adm-adv-label hidden>⚖ Avanza por penales:</span>
+              <button type="button" class="adm-adv-btn" data-adm-winner="home" aria-pressed="false"><span data-adm-pick="home">LOC</span></button>
+              <button type="button" class="adm-adv-btn" data-adm-winner="away" aria-pressed="false"><span data-adm-pick="away">VIS</span></button>
+            </span>
+            <span class="adm-actions">
+              <button type="button" class="adm-update" data-adm-update>Actualizar</button>
+              <button type="button" class="adm-finish" data-adm-finish>Finalizar</button>
+              <span class="adm-state" data-adm-state hidden>En vivo</span>
+            </span>
           </div>
-        </div>
-      ))}
+        ));
+        // Los 16avos (R32) ya se jugaron: se colapsan por defecto para enfocar octavos. El resto
+        // de las rondas queda expandido. Los data-adm-match siguen en el DOM (el cliente los hidrata).
+        return rnd.round === "R32" ? (
+          <details class="adm-round adm-round--collapsible">
+            <summary class="adm-round-summary">
+              {rnd.roundLabel}
+              <span class="adm-round-hint">ya jugados · toca para ver/ocultar</span>
+            </summary>
+            <div class="adm-matches">{matchEls}</div>
+          </details>
+        ) : (
+          <div class="adm-round">
+            <h3 class="adm-round-title">{rnd.roundLabel}</h3>
+            <div class="adm-matches">{matchEls}</div>
+          </div>
+        );
+      })}
     </section>
   </div>
 
@@ -167,6 +178,22 @@ const clientPayload = {
   .adm-assign select { padding: 0.4rem 0.5rem; }
   .adm-round { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.6rem; }
   .adm-round-title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-purple-700, #6d28d9); }
+  /* 16avos (R32) colapsable: <details> cerrado por defecto para enfocar octavos. */
+  .adm-round--collapsible[open] { gap: 0.4rem; }
+  .adm-round-summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--pm-purple-700, #6d28d9);
+    padding: 0.5rem 0.7rem; border-radius: var(--pm-radius-sm);
+    background: var(--pm-purple-100, #f1ecff); border: 1px dashed var(--pm-purple-300, #c9b8ff);
+  }
+  .adm-round-summary::-webkit-details-marker { display: none; }
+  .adm-round-summary::before { content: "▸"; font-size: 0.8rem; transition: transform var(--pm-transition-fast); }
+  .adm-round--collapsible[open] .adm-round-summary::before { transform: rotate(90deg); }
+  .adm-round-summary:hover { border-color: var(--pm-purple-500, #7c3aed); }
+  .adm-round-summary:focus-visible { outline: none; box-shadow: var(--pm-focus-ring, 0 0 0 3px rgba(18, 109, 255, 0.4)); }
+  .adm-round-hint { font-weight: 700; font-size: 0.62rem; letter-spacing: 0.02em; text-transform: none; color: var(--pm-text-soft); }
+  .adm-round--collapsible .adm-matches { margin-top: 0.4rem; }
   .adm-matches { display: flex; flex-direction: column; gap: 0.35rem; }
   .adm-match { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--pm-border-soft); border-radius: var(--pm-radius-sm); background: var(--pm-white); }
   .adm-match[data-played="true"] { border-color: var(--pm-state-completed-border, #16a34a); }

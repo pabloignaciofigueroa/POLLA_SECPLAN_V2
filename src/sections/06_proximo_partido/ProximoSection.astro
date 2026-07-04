@@ -93,14 +93,6 @@ const b = next?.slotB;
     <!-- STAKE + PICK -->
     <p class="px-stake" data-px-stake data-animate="fade-up" style="--i:3"></p>
     <div class="px-yourpick" data-px-yourpick></div>
-
-    <!-- RECIENTES -->
-    <section class="px-recent">
-      <h2 class="px-recent-title">Resultados recientes</h2>
-      <ul class="px-recent-list" data-px-recent>
-        <li class="px-recent-empty">Aún sin resultados cargados.</li>
-      </ul>
-    </section>
   </div>
 
   <script type="application/json" data-proximo-payload set:html={JSON.stringify(clientPayload)} />
@@ -323,32 +315,16 @@ const b = next?.slotB;
   }
   .px-yourpick a:hover { background: var(--pm-cta-bg-hover); transform: translateY(-1px); }
 
-  /* ===== RECIENTES (placas) ===== */
-  .px-recent { display: flex; flex-direction: column; gap: 0.35rem; }
-  .px-recent-title {
-    margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 0.8rem;
-    text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-blue-900);
-  }
-  .px-recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.55rem; }
-  /* Las placas de recientes las inyecta el cliente (innerHTML) -> :global para que apliquen. */
-  :global(.px-recent-card) {
-    display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.8rem;
-    border-radius: var(--pm-radius-md); background: var(--pm-white);
-    box-shadow: var(--pm-shadow-soft); border-left: 4px solid var(--pm-mint-500);
-  }
-  :global(.px-recent-id) { font-family: var(--font-display); font-weight: 900; font-size: 0.66rem; color: var(--pm-text-soft); }
-  :global(.px-recent-teams) { font-family: var(--font-display); font-weight: 800; font-size: 0.86rem; color: var(--pm-blue-900); }
-  :global(.px-recent-score) { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--pm-blue-600); padding: 0 0.3rem; }
-  :global(.px-recent-adv) { font-family: var(--font-display); font-weight: 900; font-size: 0.72rem; color: var(--pm-mint-500); }
-  :global(.px-recent-empty) { color: var(--pm-text-soft); font-weight: 600; }
-
-  /* ===== Móvil: la arena se apila ===== */
+  /* ===== Móvil: arena LADO A LADO (más ancha, menos alta) — aprovecha el ancho del teléfono ===== */
   @media (max-width: 640px) {
-    .px-versus { grid-template-columns: 1fr; max-width: 24rem; }
-    .px-team--home { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2.2rem), 0 100%); }
-    .px-team--away { clip-path: polygon(0 2.2rem, 100% 0, 100% 100%, 0 100%); }
-    /* Móvil: paneles RETRATO (3:4) apilados para que la foto vertical entera se luzca (scroll ok). */
-    .px-team { min-height: clamp(18rem, 84vw, 27rem); }
+    /* Dos paneles en fila con corte diagonal vertical (como desktop, pero compacto). */
+    .px-versus { grid-template-columns: 1fr 1fr; max-width: 100%; }
+    .px-team--home { clip-path: polygon(0 0, 100% 0, calc(100% - 1.4rem) 100%, 0 100%); }
+    .px-team--away { clip-path: polygon(1.4rem 0, 100% 0, 100% 100%, 0 100%); }
+    .px-team { min-height: clamp(9.5rem, 44vw, 15rem); padding: 0.7rem 0.5rem 0.85rem; }
+    .px-team-name { font-size: clamp(0.92rem, 4.4vw, 1.4rem); }
+    .px-team-flag { width: clamp(1.9rem, 8vw, 2.6rem); margin-bottom: 0.3rem; }
+    .px-vs-text { font-size: clamp(2rem, 11vw, 3.4rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .px-vs { animation: none; }

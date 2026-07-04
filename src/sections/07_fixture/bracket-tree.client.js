@@ -66,21 +66,24 @@
       drawConnectors();
       return;
     }
-    // Ajuste a la VENTANA completa: la llave entera (16avos -> Final) debe verse sin scroll
-    // en desktop y tablet. Escala = min(ancho disponible, alto disponible hasta el borde inferior).
+    // Ajuste a la VENTANA completa: la llave (octavos -> Final) LLENA el espacio disponible sin
+    // scroll. Escala = min(ancho, alto) SIN tope de 1: al haber quitado los 16avos sobra espacio,
+    // así que el árbol se agranda hasta tocar el ancho o el alto (lo que ocurra primero) en vez de
+    // quedar chico con un vacío abajo.
     const availW = scroll.clientWidth - 8;
     const top = scroll.getBoundingClientRect().top;
     // Reserva el alto de la franja HUD inferior (si existe) para que no quede tapada ni desborde.
     const hud = scroll.parentElement && scroll.parentElement.querySelector("[data-bottom-hud]");
     const hudReserve = hud ? hud.offsetHeight + 16 : 10;
     const availH = window.innerHeight - top - hudReserve - 4;
-    const scale = Math.max(0.1, Math.min(1, availW / natW, availH / natH));
+    const scale = Math.max(0.1, Math.min(availW / natW, availH / natH));
     tree.style.transformOrigin = "top left";
-    // Centra horizontalmente el árbol escalado dentro del contenedor.
+    // Centra el árbol escalado (horizontal y verticalmente) dentro del alto completo del contenedor.
     const tx = Math.max(0, (scroll.clientWidth - natW * scale) / 2);
-    tree.style.transform = `translate(${tx}px, 0) scale(${scale})`;
-    // El contenedor reserva exactamente el alto escalado: nada de scroll vertical extra.
-    scroll.style.height = Math.ceil(natH * scale) + "px";
+    const ty = Math.max(0, (availH - natH * scale) / 2);
+    tree.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    // El contenedor toma TODO el alto disponible: el árbol queda centrado, sin vacío arriba/abajo.
+    scroll.style.height = Math.ceil(availH) + "px";
     drawConnectors();
   };
 

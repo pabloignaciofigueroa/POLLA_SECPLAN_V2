@@ -33,6 +33,53 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
   const body = section.querySelector("[data-tabla-body]");
   const noteNode = section.querySelector("[data-tabla-note]");
   const rowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-row="${p.id}"]`)]));
+  const matchNumById = new Map(matches.map((m) => [m.id, m.matchNumber ?? 0]));
+
+  // Cada fila del ranking se despliega para mostrar su HISTORIAL de puntos (cruce a cruce),
+  // así nadie puede reclamar cómo le fue. Se cablea una sola vez; el contenido se re-renderiza vivo.
+  const toggleRow = (card) => {
+    if (!card) return;
+    const open = card.getAttribute("aria-expanded") === "true";
+    card.setAttribute("aria-expanded", open ? "false" : "true");
+    const hist = card.querySelector("[data-tabla-history]");
+    if (hist) hist.hidden = open;
+  };
+  rowById.forEach((card) => {
+    if (!card) return;
+    card.addEventListener("click", () => toggleRow(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleRow(card); }
+    });
+  });
+
+  const HIT_LABEL = { lone_wolf: "Lone Wolf", exact: "Exacto", tendency: "Tendencia", none: "Sin acierto" };
+  // HTML del historial de puntos de un jugador (cruces ya puntuados, orden por número de cruce).
+  const buildHistoryHtml = (row, bucket, live, resolvedById) => {
+    const lines = (row.matchLines ?? [])
+      .slice()
+      .sort((a, b) => (matchNumById.get(a.matchId) ?? 0) - (matchNumById.get(b.matchId) ?? 0));
+    if (!lines.length) return '<p class="tk-hist-empty">Aún sin cruces puntuados.</p>';
+    const items = lines
+      .map((ln) => {
+        const r = resolvedById.get(ln.matchId);
+        const res = live.results[ln.matchId] || {};
+        const pred = bucket[ln.matchId] || {};
+        const teams = r ? `${r.slotA.shortCode || "?"} vs ${r.slotB.shortCode || "?"}` : ln.matchId;
+        const predScore = pred.homeScore != null && pred.awayScore != null ? `${pred.homeScore}-${pred.awayScore}` : "–";
+        const realScore = res.homeScore != null && res.awayScore != null ? `${res.homeScore}-${res.awayScore}` : "–";
+        const extras = `${ln.live ? " · en vivo" : ""}${ln.bonus ? " · +1 penales" : ""}`;
+        const hit = ln.hitType || "none";
+        return `<li class="tk-hist-item" data-live="${ln.live ? "true" : "false"}">`
+          + `<span class="tk-hist-match"><span class="tk-hist-teams">${teams}</span>`
+          + `<span class="tk-hist-detail">Tu ${predScore} · real ${realScore}${extras}</span></span>`
+          + `<span class="tk-hist-badge" data-hit="${hit}">${HIT_LABEL[hit] ?? "—"}</span>`
+          + `<span class="tk-hist-pts">${ln.points > 0 ? "+" : ""}${ln.points}</span></li>`;
+      })
+      .join("");
+    const podiumBits = row.podiumPoints > 0 ? ` · Podio ${row.podiumPoints}` : "";
+    return `<ul class="tk-hist-list">${items}</ul>`
+      + `<div class="tk-hist-foot"><span>Cruces ${row.matchPoints}${podiumBits}</span><b>${row.total} pts</b></div>`;
+  };
 
   // ===== Podio top-3 =====
   const podiumBox = section.querySelector("[data-tabla-podium]");
@@ -226,6 +273,12 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       : null;
     const { predictionsByPlayer, podiumByPlayer } = buildBuckets();
 
+    // Resolución de la llave para nombrar los cruces en el historial desplegable.
+    const resolvedById = new Map(
+      resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode })
+        .map((r) => [r.match.id, r]),
+    );
+
     const rows = buildKnockoutLeaderboard({
       players,
       predictionsByPlayer,
@@ -269,6 +322,10 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       }
       if (totalChanged && row.total > 0) fire(card.querySelector(".tk-pts"), "is-score-pop");
       prevPos.set(row.playerId, row.position);
+
+      // Historial de puntos desplegable (cruce a cruce).
+      const histEl = card.querySelector("[data-tabla-history]");
+      if (histEl) histEl.innerHTML = buildHistoryHtml(row, predictionsByPlayer[row.playerId] ?? {}, live, resolvedById);
 
       if (body) body.appendChild(card); // reordena segun ranking
     });

@@ -44,6 +44,19 @@
   }
 }
 
+/* Desktop: la sección LLENA el viewport (sin scroll); el álbum (portada + lista) ocupa el alto. */
+@media (min-width: 900px) {
+  .contentShell {
+    height: calc(100svh - var(--layout-header-height));
+    max-height: calc(100svh - var(--layout-header-height));
+    min-height: 0;
+    overflow: hidden;
+  }
+  .topRow {
+    align-items: start;
+  }
+}
+
 @media (max-width: 720px) {
   .contentShell {
     width: min(100% - 1rem, 1500px);

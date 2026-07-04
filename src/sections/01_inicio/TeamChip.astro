@@ -18,6 +18,7 @@ const { team, ariaHidden = false } = Astro.props;
 
 <span
   class="chip"
+  data-team-code={team.shortCode}
   aria-hidden={ariaHidden ? "true" : undefined}
   title={team.name}
 >

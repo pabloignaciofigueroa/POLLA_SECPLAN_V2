@@ -111,7 +111,7 @@ export function buildKnockoutPayload({
   return {
     schemaVersion: SCHEMA_VERSION,
     competition: COMPETITION,
-    stage: "knockout-round-of-32",
+    stage: "knockout-round-of-16",
     submittedAt,
     player: {
       id: player?.id ?? "",

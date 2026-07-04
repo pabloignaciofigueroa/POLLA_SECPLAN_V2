@@ -1,45 +1,32 @@
 ---
-// Seccion 08_equipos — ALBUM de los 32 CLASIFICADOS a dieciseisavos, AGRUPADOS POR CRUCE.
-// Polla de ELIMINATORIAS: ya no hay fase de grupos ni 48 selecciones. Resuelve los 16avos
-// (R32) a equipos reales (slotAssignments) y muestra cada cruce con sus dos equipos. 100% local.
+// Seccion 08_equipos — ALBUM de los 16 CLASIFICADOS a OCTAVOS (master-detail). 100% local.
+// DERECHA: lista de los 16 equipos que avanzaron (bandera + nombre), clickeables.
+// IZQUIERDA: portada GRANDE del equipo seleccionado + nombre + confederación.
+// Los 16 se derivan de los resultados vivos (localStorage/Supabase) en el cliente: el SSR pinta
+// el esqueleto y `equipos.knockout.client.js` lo llena. NO toca datos ni predicciones.
 import styles from "./EquiposSection.module.css";
 import EquiposHero from "./EquiposHero.astro";
-import TeamFlag from "../../components/ui/TeamFlag.astro";
 
 import teamsData from "../../data/teams.json";
 import knockoutData from "../../data/knockout-matches.json";
 import seed from "../../data/knockout-results.json";
-import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
-import { resolveBracket } from "../../lib/knockout/bracket.js";
 
-const teamByCode = new Map((teamsData as any[]).map((t) => [t.shortCode, t]));
-const teamsByCode = buildTeamsByCode(
-  (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag })),
-);
-const resolved = resolveBracket((knockoutData as any).matches, {
-  assignments: (seed as any).slotAssignments ?? {},
-  results: (seed as any).results ?? [],
-  teamsByCode,
-});
+const teamsLite = (teamsData as any[]).map((t) => ({
+  code: t.shortCode,
+  id: t.id,
+  name: t.name,
+  shortCode: t.shortCode,
+  flag: t.flag ?? null,
+  coverImage: t.coverImage ?? null,
+  confederation: t.confederation ?? "",
+}));
 
-const MESES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-const fmtDate = (d?: string, t?: string) => {
-  if (!d) return "";
-  const [, m, dd] = d.split("-").map(Number);
-  return `${String(dd).padStart(2, "0")} ${MESES[(m ?? 1) - 1] ?? ""}${t ? ` · ${t}` : ""}`;
+const clientPayload = {
+  teams: teamsLite,
+  matches: (knockoutData as any).matches,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
 };
-const view = (code: string | null) => {
-  const t = code ? teamByCode.get(code) : null;
-  return t ? { name: t.name, shortCode: t.shortCode, flag: t.flag, confederation: t.confederation } : null;
-};
-const cruces = resolved
-  .filter((r) => r.match.round === "R32")
-  .map((r) => ({
-    id: r.match.id,
-    when: fmtDate(r.match.dateCL, r.match.timeCL),
-    home: view(r.codeA),
-    away: view(r.codeB),
-  }));
 ---
 
 <section class={styles.equiposSection} id="equipos" data-section="equipos">
@@ -48,70 +35,130 @@ const cruces = resolved
       <EquiposHero />
     </div>
 
-    <div class="cruce-album">
-      {cruces.map((cruce) => (
-        <article class="cruce-card">
-          <header class="cruce-head">
-            <span class="cruce-id">{cruce.id}</span>
-            <span class="cruce-phase">16avos</span>
-            {cruce.when ? <span class="cruce-when">{cruce.when}</span> : null}
-          </header>
-          <div class="cruce-teams">
-            {[cruce.home, cruce.away].map((team, i) => (
-              <div class:list={["cruce-team", i === 1 ? "cruce-team--away" : ""]}>
-                <span class="cruce-flag">
-                  {team?.flag ? <TeamFlag team={team} size="md" /> : <span class="cruce-flag-ph" aria-hidden="true">?</span>}
-                </span>
-                <span class="cruce-team-info">
-                  <span class="cruce-team-name">{team?.name ?? "Por definir"}</span>
-                  <span class="cruce-team-conf">{team?.confederation ?? ""}</span>
-                </span>
-              </div>
-            ))}
-            <span class="cruce-vs" aria-hidden="true">VS</span>
-          </div>
-        </article>
-      ))}
+    <div class="eq-board">
+      <!-- IZQUIERDA (50%): portada grande del equipo seleccionado -->
+      <div class="eq-detail" data-eq-detail>
+        <figure class="eq-cover">
+          <img class="eq-cover-img" data-eq-cover src="" alt="" width="640" height="425" loading="lazy" decoding="async" />
+          <figcaption class="eq-detail-info">
+            <span class="eq-detail-conf" data-eq-conf></span>
+            <span class="eq-detail-name" data-eq-name>—</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- DERECHA (50%): lista de los 16 clasificados -->
+      <div class="eq-list-wrap">
+        <p class="eq-list-title">Clasificados a octavos</p>
+        <div class="eq-list" data-eq-list role="list" aria-label="Clasificados a octavos">
+          <p class="eq-list-empty" data-eq-empty>Cargando clasificados…</p>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script type="application/json" data-equipos-payload set:html={JSON.stringify(clientPayload)} />
+  <script>
+    import "./equipos.knockout.client.js";
+  </script>
 </section>
 
 <style>
-  .cruce-album {
+  .eq-board {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(0.7rem, 1.6vw, 1.1rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(0.8rem, 1.8vw, 1.4rem);
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
   }
-  .cruce-card {
+
+  /* ===== IZQUIERDA: portada grande (llena el alto de la columna) ===== */
+  .eq-detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .eq-cover {
+    position: relative;
+    margin: 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: var(--pm-radius-lg);
+    overflow: hidden;
+    background: var(--pm-panel-soft, #f3f7ff);
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    box-shadow: var(--pm-shadow-card-strong), 0 0 44px rgba(18, 109, 255, 0.14);
+    line-height: 0;
+  }
+  .eq-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .eq-cover-img[src=""] { opacity: 0; }
+  .eq-detail-info {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    padding: 0.6rem 0.85rem;
-    border-radius: var(--pm-radius-md);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92));
+    gap: 0.1rem;
+    padding: clamp(0.7rem, 2vw, 1.3rem) clamp(0.85rem, 2.4vw, 1.5rem);
+    background: linear-gradient(to top, rgba(4, 16, 38, 0.92) 8%, rgba(4, 16, 38, 0.35) 55%, transparent);
+  }
+  .eq-detail-conf {
+    font-family: var(--font-display); font-weight: 900; font-size: clamp(0.58rem, 1.1vw, 0.72rem);
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--pm-cyan-300, #7fe8f5);
+  }
+  .eq-detail-name {
+    font-family: var(--font-display); font-weight: 950;
+    font-size: clamp(1.5rem, 4vw, 3rem); line-height: 0.95; text-transform: uppercase; color: #fff;
+    text-shadow: 0 2px 14px rgba(7, 23, 53, 0.55);
+  }
+
+  /* ===== DERECHA: lista de 16 (llena el alto de la columna) ===== */
+  .eq-list-wrap { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; min-height: 0; }
+  .eq-list-title {
+    margin: 0; flex: 0 0 auto; font-family: var(--font-display); font-weight: 900; font-size: 0.82rem;
+    letter-spacing: 0.05em; text-transform: uppercase; color: var(--pm-blue-900);
+  }
+  .eq-list {
+    flex: 1 1 auto; min-height: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: clamp(0.4rem, 0.9vw, 0.65rem); align-content: stretch;
+  }
+  .eq-list-empty { grid-column: 1 / -1; margin: 0; font-family: var(--font-display); font-weight: 700; color: var(--pm-text-soft); padding: 0.6rem 0; }
+
+  /* Las fichas de equipo las inyecta el cliente (innerHTML) -> :global para que apliquen. */
+  :global(.eq-item) {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.7rem; border-radius: var(--pm-radius-md);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--pm-blue-500) 10%, #fff), #fff 66%);
     border: 1px solid var(--pm-border-soft);
     box-shadow: var(--pm-shadow-soft);
+    cursor: pointer; text-align: left; width: 100%;
+    transition: border-color var(--pm-transition-fast), box-shadow var(--pm-transition-fast), transform var(--pm-transition-fast);
   }
-  .cruce-head { display: flex; align-items: center; gap: 0.5rem; }
-  .cruce-id { font-family: var(--font-display); font-weight: 950; font-size: 0.82rem; color: var(--pm-blue-700); }
-  .cruce-phase { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pm-orange-600); }
-  .cruce-when { margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 0.58rem; color: var(--pm-text-soft); }
-  .cruce-teams { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center; }
-  .cruce-team { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-  .cruce-team--away { flex-direction: row-reverse; text-align: right; }
-  .cruce-flag :global(.team-flag) { width: 2rem; height: 2rem; }
-  .cruce-flag-ph { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; background: var(--pm-blue-50, rgba(18, 109, 255, 0.08)); color: var(--pm-blue-700); font-family: var(--font-display); font-weight: 900; flex: 0 0 auto; }
-  .cruce-team-info { display: flex; flex-direction: column; min-width: 0; }
-  .cruce-team-name { font-family: var(--font-display); font-weight: 900; font-size: 0.82rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .cruce-team-conf { font-family: var(--font-display); font-weight: 700; font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pm-text-soft); }
-  .cruce-vs {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    font-family: var(--font-display); font-weight: 950; font-size: 0.62rem; color: #fff;
-    background: linear-gradient(135deg, var(--pm-blue-600), var(--pm-orange-500));
-    padding: 0.1rem 0.36rem; border-radius: 999px; border: 1.5px solid #fff;
-    box-shadow: 0 2px 6px rgba(7, 23, 53, 0.28);
+  :global(.eq-item:hover) { transform: translateY(-1px); border-color: var(--pm-cyan-500); }
+  :global(.eq-item:focus-visible) { outline: none; box-shadow: var(--pm-focus-ring); }
+  :global(.eq-item[aria-current="true"]) {
+    border-color: var(--pm-cyan-600);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--pm-cyan-500) 22%, #fff), #fff 62%);
+    box-shadow: 0 0 0 2px var(--pm-cyan-500), var(--pm-shadow-soft);
   }
-  @media (max-width: 760px) {
-    .cruce-album { grid-template-columns: 1fr; }
+  :global(.eq-item-flag) {
+    width: 2.1rem; height: 1.5rem; border-radius: 5px; flex: 0 0 auto;
+    object-fit: cover; border: 1px solid rgba(7, 23, 53, 0.14); box-shadow: 0 1px 4px rgba(7, 23, 53, 0.2);
+    background: var(--pm-panel-soft);
+  }
+  :global(.eq-item-name) {
+    font-family: var(--font-display); font-weight: 900; font-size: 0.86rem; text-transform: uppercase;
+    color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+
+  @media (max-width: 900px) {
+    .eq-board { grid-template-columns: 1fr; }
+    .eq-detail { position: static; }
+  }
+  @media (max-width: 480px) {
+    .eq-list { grid-template-columns: 1fr; }
   }
 </style>

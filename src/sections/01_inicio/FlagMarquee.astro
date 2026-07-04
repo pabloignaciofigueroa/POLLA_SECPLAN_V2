@@ -1,17 +1,27 @@
 ---
 import teams from "../../data/teams.json";
 import knockoutTeams from "../../data/knockout-teams.json";
+import knockoutMatches from "../../data/knockout-matches.json";
+import seed from "../../data/knockout-results.json";
 import TeamChip from "./TeamChip.astro";
 
-// Polla de ELIMINATORIAS: solo los 32 clasificados a dieciseisavos (orden = knockout-teams).
+// Polla de ELIMINATORIAS. Etapa OCTAVOS: se muestran SOLO los 16 clasificados que avanzaron de
+// 16avos. El SSR renderiza los 32 (fallback sin-JS); el cliente los filtra a los 16 ganadores
+// reales derivados de los resultados vivos (localStorage/Supabase). Orden = knockout-teams.
 const byCode = new Map((teams as any[]).map((t) => [t.shortCode, t]));
 const qualified = (knockoutTeams.slots as any[])
   .filter((s) => s.concrete)
   .map((s) => byCode.get(s.code))
   .filter(Boolean);
+
+const marqueePayload = {
+  matches: (knockoutMatches as any).matches,
+  seedAssignments: (seed as any).slotAssignments ?? {},
+  seedResults: (seed as any).results ?? [],
+};
 ---
 
-<aside class="marquee" data-section="flag-marquee" aria-label="32 clasificados a dieciseisavos">
+<aside class="marquee" data-section="flag-marquee" aria-label="16 clasificados a octavos">
   <div class="summary">
     <span class="icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -23,22 +33,27 @@ const qualified = (knockoutTeams.slots as any[])
     </span>
     <div class="summary-text">
       <span class="summary-label">Clasificados</span>
-      <span class="summary-value">32 SELECCIONES</span>
+      <span class="summary-value">16 SELECCIONES</span>
     </div>
   </div>
 
   <div class="viewport">
-    <div class="track">
+    <div class="track" data-marquee-track>
       {qualified.map((team) => <TeamChip team={team} />)}
       {qualified.map((team) => <TeamChip team={team} ariaHidden />)}
     </div>
   </div>
 
   <div class="phase-status">
-    <span>Dieciseisavos</span>
+    <span>Octavos</span>
     <span class="dot" aria-hidden="true">·</span>
-    <span>16 cruces</span>
+    <span>8 cruces</span>
   </div>
+
+  <script type="application/json" data-marquee-payload set:html={JSON.stringify(marqueePayload)} />
+  <script>
+    import "./inicio.marquee.client.js";
+  </script>
 </aside>
 
 <style>
