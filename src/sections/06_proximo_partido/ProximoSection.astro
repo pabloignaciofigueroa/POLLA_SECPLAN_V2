@@ -139,8 +139,9 @@ const b = next?.slotB;
     flex-direction: column;
     gap: clamp(0.35rem, 1vw, 0.7rem);
   }
-  /* Desktop/tablet: la arena vive centrada dentro del viewport (sin scroll del body). */
-  @media (min-width: 768px) {
+  /* Desktop (nav completa, ≥901px — alineado al breakpoint del header): la arena vive centrada
+     dentro del viewport (sin scroll del body). ≤900 = mobile/hamburguesa, ver más abajo. */
+  @media (min-width: 901px) {
     .px {
       height: calc(100svh - var(--layout-header-height));
       max-height: calc(100svh - var(--layout-header-height));
@@ -315,16 +316,20 @@ const b = next?.slotB;
   }
   .px-yourpick a:hover { background: var(--pm-cta-bg-hover); transform: translateY(-1px); }
 
-  /* ===== Móvil: arena LADO A LADO (más ancha, menos alta) — aprovecha el ancho del teléfono ===== */
-  @media (max-width: 640px) {
-    /* Dos paneles en fila con corte diagonal vertical (como desktop, pero compacto). */
-    .px-versus { grid-template-columns: 1fr 1fr; max-width: 100%; }
-    .px-team--home { clip-path: polygon(0 0, 100% 0, calc(100% - 1.4rem) 100%, 0 100%); }
-    .px-team--away { clip-path: polygon(1.4rem 0, 100% 0, 100% 100%, 0 100%); }
-    .px-team { min-height: clamp(9.5rem, 44vw, 15rem); padding: 0.7rem 0.5rem 0.85rem; }
-    .px-team-name { font-size: clamp(0.92rem, 4.4vw, 1.4rem); }
-    .px-team-flag { width: clamp(1.9rem, 8vw, 2.6rem); margin-bottom: 0.3rem; }
-    .px-vs-text { font-size: clamp(2rem, 11vw, 3.4rem); }
+  /* ===== Móvil/hamburguesa (≤900px, alineado al header): la arena usa TODO el ancho del teléfono
+     y el contenido se CENTRA en el alto del viewport (sin vacío a los lados ni abajo). ===== */
+  @media (max-width: 900px) {
+    /* Centrar verticalmente el bloque dentro del alto disponible. */
+    .px { display: flex; flex-direction: column; justify-content: center; }
+    .px-shell { flex: 0 0 auto; width: 100%; }
+    /* Arena a ANCHO COMPLETO (dos paneles lado a lado con corte diagonal). */
+    .px-versus { grid-template-columns: 1fr 1fr; width: 100%; max-width: 100%; margin-inline: 0; }
+    .px-team--home { clip-path: polygon(0 0, 100% 0, calc(100% - 1.6rem) 100%, 0 100%); }
+    .px-team--away { clip-path: polygon(1.6rem 0, 100% 0, 100% 100%, 0 100%); }
+    .px-team { min-height: clamp(12rem, 40vw, 18rem); padding: 0.9rem 0.6rem 1rem; }
+    .px-team-name { font-size: clamp(1.05rem, 4.6vw, 1.9rem); }
+    .px-team-flag { width: clamp(2.2rem, 8vw, 3.2rem); margin-bottom: 0.35rem; }
+    .px-vs-text { font-size: clamp(2.4rem, 12vw, 4.5rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     .px-vs { animation: none; }
