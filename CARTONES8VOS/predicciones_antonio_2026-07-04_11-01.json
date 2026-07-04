@@ -1,0 +1,595 @@
+{
+  "schemaVersion": "2.0-knockout",
+  "competition": "Polla Mundialera SECPLAN 2026",
+  "stage": "knockout-round-of-16",
+  "submittedAt": "2026-07-04T15:01:29.999Z",
+  "player": {
+    "id": "antonio",
+    "displayName": "Antonio"
+  },
+  "summary": {
+    "totalPredictableMatches": 8,
+    "completedMatches": 8,
+    "lockedMatches": 16,
+    "lockedPoints": 13,
+    "podiumComplete": false
+  },
+  "predictions": [
+    {
+      "matchId": "P73",
+      "matchNumber": 73,
+      "round": "R32",
+      "slotA": "RSA",
+      "slotB": "CAN",
+      "homeScore": 0,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "CAN",
+      "locked": true,
+      "result": {
+        "homeScore": 0,
+        "awayScore": 1,
+        "winner": "away"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P74",
+      "matchNumber": 74,
+      "round": "R32",
+      "slotA": "GER",
+      "slotB": "PAR",
+      "homeScore": 2,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "GER",
+      "locked": true,
+      "result": {
+        "homeScore": 1,
+        "awayScore": 1,
+        "winner": "away"
+      },
+      "points": 0
+    },
+    {
+      "matchId": "P75",
+      "matchNumber": 75,
+      "round": "R32",
+      "slotA": "NED",
+      "slotB": "MAR",
+      "homeScore": 3,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "NED",
+      "locked": true,
+      "result": {
+        "homeScore": 1,
+        "awayScore": 1,
+        "winner": "away"
+      },
+      "points": 0
+    },
+    {
+      "matchId": "P76",
+      "matchNumber": 76,
+      "round": "R32",
+      "slotA": "BRA",
+      "slotB": "JPN",
+      "homeScore": 3,
+      "awayScore": 2,
+      "advances": "home",
+      "qualifiedTeam": "BRA",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 1,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P77",
+      "matchNumber": 77,
+      "round": "R32",
+      "slotA": "FRA",
+      "slotB": "SWE",
+      "homeScore": 3,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "FRA",
+      "locked": true,
+      "result": {
+        "homeScore": 3,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 3
+    },
+    {
+      "matchId": "P78",
+      "matchNumber": 78,
+      "round": "R32",
+      "slotA": "CIV",
+      "slotB": "NOR",
+      "homeScore": 0,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "NOR",
+      "locked": true,
+      "result": {
+        "homeScore": 1,
+        "awayScore": 2,
+        "winner": "away"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P79",
+      "matchNumber": 79,
+      "round": "R32",
+      "slotA": "MEX",
+      "slotB": "ECU",
+      "homeScore": 0,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "ECU",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 0
+    },
+    {
+      "matchId": "P80",
+      "matchNumber": 80,
+      "round": "R32",
+      "slotA": "ENG",
+      "slotB": "COD",
+      "homeScore": 3,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "ENG",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 1,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P81",
+      "matchNumber": 81,
+      "round": "R32",
+      "slotA": "USA",
+      "slotB": "BIH",
+      "homeScore": 1,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "USA",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P82",
+      "matchNumber": 82,
+      "round": "R32",
+      "slotA": "BEL",
+      "slotB": "SEN",
+      "homeScore": 2,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "BEL",
+      "locked": true,
+      "result": {
+        "homeScore": 3,
+        "awayScore": 2,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P83",
+      "matchNumber": 83,
+      "round": "R32",
+      "slotA": "POR",
+      "slotB": "CRO",
+      "homeScore": 2,
+      "awayScore": 3,
+      "advances": "away",
+      "qualifiedTeam": "CRO",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 1,
+        "winner": "home"
+      },
+      "points": 0
+    },
+    {
+      "matchId": "P84",
+      "matchNumber": 84,
+      "round": "R32",
+      "slotA": "ESP",
+      "slotB": "AUT",
+      "homeScore": 2,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "ESP",
+      "locked": true,
+      "result": {
+        "homeScore": 3,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P85",
+      "matchNumber": 85,
+      "round": "R32",
+      "slotA": "SUI",
+      "slotB": "ALG",
+      "homeScore": 1,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "SUI",
+      "locked": true,
+      "result": {
+        "homeScore": 2,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P86",
+      "matchNumber": 86,
+      "round": "R32",
+      "slotA": "ARG",
+      "slotB": "CPV",
+      "homeScore": 2,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "ARG",
+      "locked": true,
+      "result": {
+        "homeScore": 3,
+        "awayScore": 2,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P87",
+      "matchNumber": 87,
+      "round": "R32",
+      "slotA": "COL",
+      "slotB": "GHA",
+      "homeScore": 3,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "COL",
+      "locked": true,
+      "result": {
+        "homeScore": 1,
+        "awayScore": 0,
+        "winner": "home"
+      },
+      "points": 1
+    },
+    {
+      "matchId": "P88",
+      "matchNumber": 88,
+      "round": "R32",
+      "slotA": "AUS",
+      "slotB": "EGY",
+      "homeScore": 1,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "EGY",
+      "locked": true,
+      "result": {
+        "homeScore": 1,
+        "awayScore": 1,
+        "winner": "away"
+      },
+      "points": 0
+    },
+    {
+      "matchId": "P89",
+      "matchNumber": 89,
+      "round": "R16",
+      "slotA": "PAR",
+      "slotB": "FRA",
+      "homeScore": 0,
+      "awayScore": 3,
+      "advances": "away",
+      "qualifiedTeam": "FRA"
+    },
+    {
+      "matchId": "P90",
+      "matchNumber": 90,
+      "round": "R16",
+      "slotA": "CAN",
+      "slotB": "MAR",
+      "homeScore": 1,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "CAN"
+    },
+    {
+      "matchId": "P91",
+      "matchNumber": 91,
+      "round": "R16",
+      "slotA": "BRA",
+      "slotB": "NOR",
+      "homeScore": 2,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "BRA"
+    },
+    {
+      "matchId": "P92",
+      "matchNumber": 92,
+      "round": "R16",
+      "slotA": "MEX",
+      "slotB": "ENG",
+      "homeScore": 1,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "MEX"
+    },
+    {
+      "matchId": "P93",
+      "matchNumber": 93,
+      "round": "R16",
+      "slotA": "POR",
+      "slotB": "ESP",
+      "homeScore": 1,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "ESP"
+    },
+    {
+      "matchId": "P94",
+      "matchNumber": 94,
+      "round": "R16",
+      "slotA": "USA",
+      "slotB": "BEL",
+      "homeScore": 2,
+      "awayScore": 1,
+      "advances": "home",
+      "qualifiedTeam": "USA"
+    },
+    {
+      "matchId": "P95",
+      "matchNumber": 95,
+      "round": "R16",
+      "slotA": "ARG",
+      "slotB": "EGY",
+      "homeScore": 2,
+      "awayScore": 0,
+      "advances": "home",
+      "qualifiedTeam": "ARG"
+    },
+    {
+      "matchId": "P96",
+      "matchNumber": 96,
+      "round": "R16",
+      "slotA": "SUI",
+      "slotB": "COL",
+      "homeScore": 1,
+      "awayScore": 2,
+      "advances": "away",
+      "qualifiedTeam": "COL"
+    }
+  ],
+  "podium": {
+    "champion": null,
+    "runnerUp": null,
+    "third": null,
+    "fourth": null
+  },
+  "raw": {
+    "knockoutPredictions": {
+      "P73": {
+        "matchId": "P73",
+        "homeScore": 0,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete",
+        "locked": true
+      },
+      "P74": {
+        "matchId": "P74",
+        "homeScore": 2,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P75": {
+        "matchId": "P75",
+        "homeScore": 3,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P76": {
+        "matchId": "P76",
+        "homeScore": 3,
+        "awayScore": 2,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P77": {
+        "matchId": "P77",
+        "homeScore": 3,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P78": {
+        "matchId": "P78",
+        "homeScore": 0,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete",
+        "locked": true
+      },
+      "P79": {
+        "matchId": "P79",
+        "homeScore": 0,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete",
+        "locked": true
+      },
+      "P80": {
+        "matchId": "P80",
+        "homeScore": 3,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P81": {
+        "matchId": "P81",
+        "homeScore": 1,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P82": {
+        "matchId": "P82",
+        "homeScore": 2,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P83": {
+        "matchId": "P83",
+        "homeScore": 2,
+        "awayScore": 3,
+        "advances": "away",
+        "status": "complete",
+        "locked": true
+      },
+      "P84": {
+        "matchId": "P84",
+        "homeScore": 2,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P85": {
+        "matchId": "P85",
+        "homeScore": 1,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P86": {
+        "matchId": "P86",
+        "homeScore": 2,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P87": {
+        "matchId": "P87",
+        "homeScore": 3,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete",
+        "locked": true
+      },
+      "P88": {
+        "matchId": "P88",
+        "homeScore": 1,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete",
+        "locked": true
+      },
+      "P93": {
+        "matchId": "P93",
+        "homeScore": 1,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete"
+      },
+      "P90": {
+        "matchId": "P90",
+        "homeScore": 1,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete"
+      },
+      "P89": {
+        "matchId": "P89",
+        "homeScore": 0,
+        "awayScore": 3,
+        "advances": "away",
+        "status": "complete"
+      },
+      "P92": {
+        "matchId": "P92",
+        "homeScore": 1,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete"
+      },
+      "P91": {
+        "matchId": "P91",
+        "homeScore": 2,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete"
+      },
+      "P94": {
+        "matchId": "P94",
+        "homeScore": 2,
+        "awayScore": 1,
+        "advances": "home",
+        "status": "complete"
+      },
+      "P95": {
+        "matchId": "P95",
+        "homeScore": 2,
+        "awayScore": 0,
+        "advances": "home",
+        "status": "complete"
+      },
+      "P96": {
+        "matchId": "P96",
+        "homeScore": 1,
+        "awayScore": 2,
+        "advances": "away",
+        "status": "complete"
+      }
+    },
+    "podium": {
+      "champion": null,
+      "runnerUp": null,
+      "third": null,
+      "fourth": null
+    }
+  }
+}
