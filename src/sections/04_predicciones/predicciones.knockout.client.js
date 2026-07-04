@@ -8,6 +8,7 @@ import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
 import { resolveBracket, normalizeResults, resultWinnerSide } from "../../lib/knockout/bracket.js";
 import { scoreKnockoutMatch } from "../../lib/knockout/scoring.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
+import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
 
 (() => {
   const section = document.querySelector('[data-section="predicciones"]');
@@ -19,6 +20,10 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   const matches = payload.matches ?? [];
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
+  // Supabase = fuente de verdad de resultados (igual que /tabla y /proximo). Sin esto, en incógnito
+  // u otro dispositivo (sin localStorage) octavos NO resolvían: quedaban "Ganador P##" y bloqueados.
+  let remoteResults = null;
+  const effSeed = () => (remoteResults ? { slotAssignments: seed.slotAssignments, results: remoteResults } : seed);
   // Cartones YA ENVIADOS (de ayer): { [playerId]: { [matchId]: { homeScore, awayScore, advances } } }.
   // Para cruces FINALIZADOS, la predicción del jugador se siembra BLOQUEADA (inmutable) y se descarga.
   const seededPredictions = payload.seededPredictions ?? {};
@@ -137,7 +142,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
   };
 
   const applyResolution = () => {
-    const live = readLiveKnockout(seed);
+    const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
     resolvedById = new Map(resolved.map((r) => [r.match.id, r]));
     predictableMatches = resolved
@@ -270,7 +275,7 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
         }));
       // Cruces FINALIZADOS con tu predicción ya enviada -> van BLOQUEADOS en el JSON, con el
       // resultado oficial y los puntos ya sumados (la del cartón de ayer, inmutable).
-      const live = readLiveKnockout(seed);
+      const live = readLiveKnockout(effSeed());
       const resultsMap = normalizeResults(live.results);
       const settledMatches = Array.from(resolvedById.values())
         .filter((r) => r.played && bucket[r.match.id])
@@ -296,4 +301,5 @@ import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/live
 
   applyResolution();
   subscribeLiveKnockout(applyResolution);
+  attachRemoteResults((res) => { remoteResults = res; applyResolution(); });
 })();
