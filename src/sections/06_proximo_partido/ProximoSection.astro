@@ -319,14 +319,15 @@ const b = next?.slotB;
   /* ===== Móvil/hamburguesa (≤900px, alineado al header): la arena usa TODO el ancho del teléfono
      y el contenido se CENTRA en el alto del viewport (sin vacío a los lados ni abajo). ===== */
   @media (max-width: 900px) {
-    /* Centrar verticalmente el bloque dentro del alto disponible. */
-    .px { display: flex; flex-direction: column; justify-content: center; }
-    .px-shell { flex: 0 0 auto; width: 100%; }
-    /* Arena a ANCHO COMPLETO (dos paneles lado a lado con corte diagonal). */
+    /* El contenido LLENA el alto del viewport: el shell ocupa toda la sección y reparte sus
+       bloques (banner / arena / en-juego / pronóstico) de arriba a abajo (space-evenly). */
+    .px { display: flex; flex-direction: column; }
+    .px-shell { flex: 1 1 auto; width: 100%; min-height: 0; justify-content: space-evenly; }
+    /* Arena a ANCHO COMPLETO (dos paneles lado a lado con corte diagonal) y ALTA (crece con el viewport). */
     .px-versus { grid-template-columns: 1fr 1fr; width: 100%; max-width: 100%; margin-inline: 0; }
     .px-team--home { clip-path: polygon(0 0, 100% 0, calc(100% - 1.6rem) 100%, 0 100%); }
     .px-team--away { clip-path: polygon(1.6rem 0, 100% 0, 100% 100%, 0 100%); }
-    .px-team { min-height: clamp(12rem, 40vw, 18rem); padding: 0.9rem 0.6rem 1rem; }
+    .px-team { min-height: min(46vh, 24rem); padding: 0.9rem 0.6rem 1rem; }
     .px-team-name { font-size: clamp(1.05rem, 4.6vw, 1.9rem); }
     .px-team-flag { width: clamp(2.2rem, 8vw, 3.2rem); margin-bottom: 0.35rem; }
     .px-vs-text { font-size: clamp(2.4rem, 12vw, 4.5rem); }
