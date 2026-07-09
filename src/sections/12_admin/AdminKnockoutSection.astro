@@ -104,9 +104,9 @@ const clientPayload = {
             </span>
           </div>
         ));
-        // Los 16avos (R32) ya se jugaron: se colapsan por defecto para enfocar octavos. El resto
-        // de las rondas queda expandido. Los data-adm-match siguen en el DOM (el cliente los hidrata).
-        return rnd.round === "R32" ? (
+        // 16avos (R32) y octavos (R16) ya se jugaron: se colapsan por defecto para enfocar cuartos.
+        // El resto queda expandido. Los data-adm-match siguen en el DOM (el cliente los hidrata).
+        return (rnd.round === "R32" || rnd.round === "R16") ? (
           <details class="adm-round adm-round--collapsible">
             <summary class="adm-round-summary">
               {rnd.roundLabel}
@@ -178,7 +178,7 @@ const clientPayload = {
   .adm-assign select { padding: 0.4rem 0.5rem; }
   .adm-round { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.6rem; }
   .adm-round-title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pm-purple-700, #6d28d9); }
-  /* 16avos (R32) colapsable: <details> cerrado por defecto para enfocar octavos. */
+  /* 16avos (R32) + octavos (R16) colapsables: <details> cerrado por defecto para enfocar cuartos. */
   .adm-round--collapsible[open] { gap: 0.4rem; }
   .adm-round-summary {
     cursor: pointer; list-style: none; display: flex; align-items: center; gap: 0.5rem;

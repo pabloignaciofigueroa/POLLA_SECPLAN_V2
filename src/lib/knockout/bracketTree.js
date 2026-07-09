@@ -13,10 +13,10 @@
 //   LEFT  = [P74,P77,P73,P75,P83,P84,P81,P82]
 //   RIGHT = [P76,P78,P79,P80,P86,P88,P85,P87]
 
-// ETAPA OCTAVOS: los 16avos (R32) YA se jugaron y se OCULTAN del árbol visual. Octavos (R16) pasa
-// a ser la columna más externa; el resto gana aire y tamaño. (El bracket completo sigue en datos
-// y en `buildBracketTree`; acá solo se decide qué rondas se renderizan por lado.)
-const SIDE_ROUNDS = ["R16", "QF", "SF"];
+// ETAPA CUARTOS: los 16avos (R32) y octavos (R16) YA se jugaron y se OCULTAN del árbol visual.
+// Cuartos (QF) pasa a ser la columna más externa; el resto gana aire y tamaño. (El bracket completo
+// sigue en datos y en `buildBracketTree`; acá solo se decide qué rondas se renderizan por lado.)
+const SIDE_ROUNDS = ["QF", "SF"];
 
 /** Mapa targetId -> [matches que lo alimentan], cada lista ordenada por bracketSlot asc. */
 function buildFeederIndex(matches) {

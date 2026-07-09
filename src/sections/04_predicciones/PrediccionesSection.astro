@@ -39,10 +39,10 @@ const itemsFor = (round: string) =>
     });
 
 const rounds = knockoutData.rounds as { round: string; roundLabel: string }[];
-// ETAPA OCTAVOS: se predicen los 8 cruces de R16. Los 16avos (R32) ya se jugaron y salen del
-// render de captura (siguen en datos/lógica/localStorage). El cliente habilita R16 solo cuando
+// ETAPA CUARTOS: se predicen los 4 cruces de QF. 16avos (R32) y octavos (R16) ya se jugaron y salen
+// del render de captura (siguen en datos/lógica/localStorage). El cliente habilita QF solo cuando
 // ambos lados resuelven a equipos concretos con los resultados vivos.
-const VISIBLE_PREDICTION_ROUNDS = ["R16"];
+const VISIBLE_PREDICTION_ROUNDS = ["QF"];
 const columns = rounds
   .filter((r) => VISIBLE_PREDICTION_ROUNDS.includes(r.round))
   .map((r) => ({ ...r, items: itemsFor(r.round) }))
@@ -51,7 +51,7 @@ const columns = rounds
 const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
 
 // El PODIO (campeón/subcampeón/3º/4º) YA se predijo en la etapa de 16avos y está en la base de
-// datos de los cartones anteriores: NO se vuelve a elegir aquí en octavos.
+// datos de los cartones anteriores: NO se vuelve a elegir aquí en cuartos.
 
 // Predicciones YA ENVIADAS por jugador (cartones de ayer). Para cruces FINALIZADOS, /predicciones
 // muestra la predicción del jugador BLOQUEADA (no editable), la puntúa y la incluye en el JSON.
@@ -74,11 +74,11 @@ const clientPayload = {
   <div class={styles.contentShell}>
     <header class="pred-hero">
       <div class="pred-hero-main" data-animate="fade-up">
-        <p class="pred-eyebrow">etapa 3 / octavos de final</p>
+        <p class="pred-eyebrow">etapa 4 / cuartos de final</p>
         <h1 class="pred-title">Mis predicciones</h1>
         <p class="pred-identity" data-pred-identity hidden></p>
         <div class="pred-hero-chips">
-          <span class="pred-chip"><strong data-pred-cruces-count>8</strong> cruces de octavos</span>
+          <span class="pred-chip"><strong data-pred-cruces-count>4</strong> cruces de cuartos</span>
           <span class="pred-chip pred-chip--stage" aria-hidden="true">🔥 Ronda en vivo</span>
         </div>
       </div>
@@ -121,7 +121,7 @@ const clientPayload = {
   .pred-lock-note[hidden] { display: none; }
   .pred-lock-note strong { color: #6d28d9; }
   .pred-rounds { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
-  /* OCTAVOS: 8 cruces en 4 columnas × 2 filas — TODO a la vista, SIN scroll (es un resultado). */
+  /* CUARTOS: 4 cruces en una sola fila — TODO a la vista, SIN scroll (es un resultado). */
   .pred-rounds :global(.bracket-area) { gap: clamp(0.4rem, 1vw, 0.75rem); }
   .pred-rounds :global(.bracket-title) { font-size: clamp(1rem, 1.7vw, 1.4rem); }
   .pred-rounds :global(.bracket-grid) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.45rem, 0.9vw, 0.7rem); }

@@ -1,8 +1,8 @@
 ---
-// Seccion 08_equipos — ALBUM de los 16 CLASIFICADOS a OCTAVOS (master-detail). 100% local.
-// DERECHA: lista de los 16 equipos que avanzaron (bandera + nombre), clickeables.
+// Seccion 08_equipos — ALBUM de los 8 CLASIFICADOS a CUARTOS (master-detail). 100% local.
+// DERECHA: lista de los 8 equipos que avanzaron (bandera + nombre), clickeables.
 // IZQUIERDA: portada GRANDE del equipo seleccionado + nombre + confederación.
-// Los 16 se derivan de los resultados vivos (localStorage/Supabase) en el cliente: el SSR pinta
+// Los 8 se derivan de los resultados vivos (localStorage/Supabase) en el cliente: el SSR pinta
 // el esqueleto y `equipos.knockout.client.js` lo llena. NO toca datos ni predicciones.
 import styles from "./EquiposSection.module.css";
 import EquiposHero from "./EquiposHero.astro";
@@ -47,10 +47,10 @@ const clientPayload = {
         </figure>
       </div>
 
-      <!-- DERECHA (50%): lista de los 16 clasificados -->
+      <!-- DERECHA (50%): lista de los 8 clasificados -->
       <div class="eq-list-wrap">
-        <p class="eq-list-title">Clasificados a octavos</p>
-        <div class="eq-list" data-eq-list role="list" aria-label="Clasificados a octavos">
+        <p class="eq-list-title">Clasificados a cuartos</p>
+        <div class="eq-list" data-eq-list role="list" aria-label="Clasificados a cuartos">
           <p class="eq-list-empty" data-eq-empty>Cargando clasificados…</p>
         </div>
       </div>

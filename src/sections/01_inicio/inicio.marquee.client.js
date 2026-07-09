@@ -1,5 +1,5 @@
-// Marquee de INICIO — etapa OCTAVOS. Filtra las banderas del SSR (los 32 clasificados) a los
-// 16 que AVANZARON de 16avos. Fuente de verdad: resultados de Supabase (igual que /tabla y
+// Marquee de INICIO — etapa CUARTOS. Filtra las banderas del SSR (los 32 clasificados) a los
+// 8 que AVANZARON de octavos. Fuente de verdad: resultados de Supabase (igual que /tabla y
 // /proximo) con fallback a localStorage + seed. 100% local si Supabase no está configurado.
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
 import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
@@ -21,13 +21,13 @@ import { resolveBracket } from "../../lib/knockout/bracket.js";
   let remoteResults = null;
   const effSeed = () => (remoteResults ? { slotAssignments: seed.slotAssignments, results: remoteResults } : seed);
 
-  // Códigos de los que avanzaron = winnerCode de los cruces R32 ya finalizados.
+  // Códigos de los que avanzaron = winnerCode de los cruces R16 (octavos) ya finalizados.
   const advancerCodes = () => {
     const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results });
     const set = new Set();
     for (const r of resolved) {
-      if (r.match.round === "R32" && r.winnerCode) set.add(r.winnerCode);
+      if (r.match.round === "R16" && r.winnerCode) set.add(r.winnerCode);
     }
     return set;
   };
@@ -36,7 +36,7 @@ import { resolveBracket } from "../../lib/knockout/bracket.js";
     const set = advancerCodes();
     // Si aún no hay una ronda completa de clasificados (resultados no cargados todavía), se deja el
     // fallback SSR (los 32) en vez de colapsar el marquee a 1-2 banderas.
-    if (set.size < 8) return;
+    if (set.size < 4) return;
     track.querySelectorAll("[data-team-code]").forEach((chip) => {
       const code = chip.getAttribute("data-team-code");
       chip.style.display = set.has(code) ? "" : "none";

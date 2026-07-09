@@ -214,7 +214,7 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
     const result = validateKnockout(bucket, predictableMatches);
     if (crucesCountNode) crucesCountNode.textContent = String(predictableMatches.length);
     if (statusNode) {
-      statusNode.textContent = `${result.completedMatches}/${result.totalMatches} cruces de octavos pronosticados`;
+      statusNode.textContent = `${result.completedMatches}/${result.totalMatches} cruces de cuartos pronosticados`;
     }
   }
 
