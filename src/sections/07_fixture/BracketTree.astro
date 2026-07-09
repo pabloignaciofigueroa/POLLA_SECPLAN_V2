@@ -180,11 +180,12 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
        Así los 16avos son MÁS ANCHOS sin ser más altos: los nombres entran completos. */
     flex: 0 0 calc(clamp(6.6rem, 8.2vw, 8.2rem) * var(--ko-rw, var(--ko-rs, 1)));
   }
-  /* ETAPA OCTAVOS: los 16avos ya no se renderizan; octavos (R16) es la ronda HERO (grande) y el
-     resto crece hacia la Final. Acento de color: cian -> azul -> violeta hacia la Final dorada. */
+  /* ETAPA CUARTOS: 16avos y octavos ya no se renderizan; CUARTOS (QF) es la ronda HERO (la que tiene
+     equipos reales) — cards al doble; SF/Final quedan como placeholders más chicos. TODO en la card
+     escala con --ko-rs (bandera, nombre, horario). Acento: azul -> violeta hacia la Final dorada. */
   .ko-round[data-round="R16"] { --ko-rs: 1.8;  --ko-rw: 2.35; --ko-accent: var(--llave-cyan, #18ddf2); }
-  .ko-round[data-round="QF"]  { --ko-rs: 1.35; --ko-rw: 1.95; --ko-accent: var(--llave-blue, #126dff); }
-  .ko-round[data-round="SF"]  { --ko-rs: 1.1;  --ko-rw: 1.72; --ko-accent: #0c5bd6; }
+  .ko-round[data-round="QF"]  { --ko-rs: 2.7;  --ko-rw: 3.3;  --ko-accent: var(--llave-blue, #126dff); }
+  .ko-round[data-round="SF"]  { --ko-rs: 1.15; --ko-rw: 1.72; --ko-accent: #0c5bd6; }
   /* Tabs HUD: cada ronda es una pestaña hexagonal estilo videojuego (azul neón; R32 dorada). */
   .ko-round-label {
     align-self: center;
