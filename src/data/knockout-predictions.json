@@ -144,6 +144,16 @@
           "homeScore": 3,
           "awayScore": 0,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
         }
       },
       "podium": {
@@ -294,6 +304,16 @@
         "P100": {
           "homeScore": 2,
           "awayScore": 0,
+          "advances": "home"
+        },
+        "P101": {
+          "homeScore": 3,
+          "awayScore": 2,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 2,
+          "awayScore": 2,
           "advances": "home"
         }
       },
@@ -446,6 +466,16 @@
           "homeScore": 2,
           "awayScore": 1,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
         }
       },
       "podium": {
@@ -595,6 +625,16 @@
         },
         "P100": {
           "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P101": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 2,
           "awayScore": 0,
           "advances": "home"
         }
@@ -748,6 +788,16 @@
           "homeScore": 1,
           "awayScore": 0,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 1,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
         }
       },
       "podium": {
@@ -898,6 +948,16 @@
         "P100": {
           "homeScore": 2,
           "awayScore": 0,
+          "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 2,
+          "awayScore": 1,
           "advances": "home"
         }
       },
@@ -1050,6 +1110,16 @@
           "homeScore": 1,
           "awayScore": 1,
           "advances": "away"
+        },
+        "P101": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 3,
+          "awayScore": 1,
+          "advances": "home"
         }
       },
       "podium": {
@@ -1201,6 +1271,16 @@
           "homeScore": 1,
           "awayScore": 2,
           "advances": "away"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
         }
       },
       "podium": {
@@ -1352,6 +1432,16 @@
           "homeScore": 2,
           "awayScore": 0,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
         }
       },
       "podium": {
@@ -1500,6 +1590,16 @@
           "advances": "away"
         },
         "P100": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P101": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P102": {
           "homeScore": 2,
           "awayScore": 1,
           "advances": "home"
@@ -1654,6 +1754,16 @@
           "homeScore": 2,
           "awayScore": 0,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 3,
+          "awayScore": 2,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
         }
       },
       "podium": {
@@ -1805,6 +1915,16 @@
           "homeScore": 2,
           "awayScore": 0,
           "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
+          "homeScore": 1,
+          "awayScore": 2,
+          "advances": "away"
         }
       },
       "podium": {
@@ -1953,6 +2073,16 @@
           "advances": "away"
         },
         "P100": {
+          "homeScore": 1,
+          "awayScore": 0,
+          "advances": "home"
+        },
+        "P101": {
+          "homeScore": 2,
+          "awayScore": 1,
+          "advances": "home"
+        },
+        "P102": {
           "homeScore": 1,
           "awayScore": 0,
           "advances": "home"
