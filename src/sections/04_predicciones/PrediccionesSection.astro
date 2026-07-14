@@ -39,19 +39,22 @@ const itemsFor = (round: string) =>
     });
 
 const rounds = knockoutData.rounds as { round: string; roundLabel: string }[];
-// ETAPA CUARTOS: se predicen los 4 cruces de QF. 16avos (R32) y octavos (R16) ya se jugaron y salen
-// del render de captura (siguen en datos/lógica/localStorage). El cliente habilita QF solo cuando
-// ambos lados resuelven a equipos concretos con los resultados vivos.
-const VISIBLE_PREDICTION_ROUNDS = ["QF"];
+// ETAPA SEMIFINALES: se predicen los 2 cruces de SF. 16avos (R32), octavos (R16) y cuartos (QF) ya
+// se jugaron y salen del render de captura (siguen en datos/lógica/localStorage). El cliente habilita
+// SF solo cuando ambos lados resuelven a equipos concretos con los resultados vivos.
+const VISIBLE_PREDICTION_ROUNDS = ["SF"];
 const columns = rounds
   .filter((r) => VISIBLE_PREDICTION_ROUNDS.includes(r.round))
   .map((r) => ({ ...r, items: itemsFor(r.round) }))
   .filter((c) => c.items.length > 0);
 
-const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag }));
+// `crest` y `coverImage` viajan al cliente para la captura de SEMIFINALES: el cliente es quien
+// resuelve los equipos (el SSR aún los ve como "Ganador P97") y por lo tanto también es quien pinta
+// la foto del equipo y el escudo en cada panel.
+const teamsLite = (teamsData as any[]).map((t) => ({ code: t.shortCode, name: t.name, shortCode: t.shortCode, flag: t.flag, crest: t.crest, coverImage: t.coverImage }));
 
 // El PODIO (campeón/subcampeón/3º/4º) YA se predijo en la etapa de 16avos y está en la base de
-// datos de los cartones anteriores: NO se vuelve a elegir aquí en cuartos.
+// datos de los cartones anteriores: NO se vuelve a elegir aquí en semifinales.
 
 // Predicciones YA ENVIADAS por jugador (cartones de ayer). Para cruces FINALIZADOS, /predicciones
 // muestra la predicción del jugador BLOQUEADA (no editable), la puntúa y la incluye en el JSON.
@@ -74,11 +77,11 @@ const clientPayload = {
   <div class={styles.contentShell}>
     <header class="pred-hero">
       <div class="pred-hero-main" data-animate="fade-up">
-        <p class="pred-eyebrow">etapa 4 / cuartos de final</p>
+        <p class="pred-eyebrow">etapa 5 / semifinales</p>
         <h1 class="pred-title">Mis predicciones</h1>
         <p class="pred-identity" data-pred-identity hidden></p>
         <div class="pred-hero-chips">
-          <span class="pred-chip"><strong data-pred-cruces-count>4</strong> cruces de cuartos</span>
+          <span class="pred-chip"><strong data-pred-cruces-count>2</strong> cruces de semifinales</span>
           <span class="pred-chip pred-chip--stage" aria-hidden="true">🔥 Ronda en vivo</span>
         </div>
       </div>
@@ -121,11 +124,14 @@ const clientPayload = {
   .pred-lock-note[hidden] { display: none; }
   .pred-lock-note strong { color: #6d28d9; }
   .pred-rounds { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
-  /* CUARTOS: 4 cruces en GRILLA 2×2 (2 arriba, 2 abajo) — cards grandes, TODO a la vista SIN scroll. */
+  /* SEMIFINALES: los 2 cruces lado a lado, en grande — TODO a la vista SIN scroll.
+     El selector lleva [data-round="SF"] a propósito: BracketColumn define un default
+     `.bracket-grid[data-round="SF"]` de misma especificidad (0,2,0) que limita las cards a 18rem;
+     con el atributo acá ganamos (0,3,0) y el ancho manda desde esta sección. */
   .pred-rounds :global(.bracket-area) { gap: clamp(0.5rem, 1.2vw, 0.95rem); }
   .pred-rounds :global(.bracket-title) { font-size: clamp(1.1rem, 1.9vw, 1.55rem); }
-  .pred-rounds :global(.bracket-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(0.7rem, 1.5vw, 1.2rem); width: 100%; max-width: min(62rem, 100%); margin-inline: auto; }
-  @media (max-width: 640px) { .pred-rounds :global(.bracket-grid) { grid-template-columns: 1fr; max-width: 30rem; } }
+  .pred-rounds :global(.bracket-grid[data-round="SF"]) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 2.4vw, 2rem); width: 100%; max-width: min(88rem, 100%); margin-inline: auto; }
+  @media (max-width: 640px) { .pred-rounds :global(.bracket-grid[data-round="SF"]) { grid-template-columns: 1fr; max-width: 30rem; } }
   /* Desktop/tablet: el bloque de cruces LLENA el alto y se centra; nada de scroll interno. */
   @media (min-width: 768px) {
     .pred-rounds { flex: 1 1 auto; min-height: 0; overflow: hidden; justify-content: center; }

@@ -1,4 +1,4 @@
-// EQUIPOS (master-detail) — etapa CUARTOS. Deriva los 8 clasificados desde la fuente de verdad de
+// EQUIPOS (master-detail) — etapa SEMIFINALES. Deriva los 4 clasificados desde la fuente de verdad de
 // resultados (Supabase, igual que /tabla y /proximo; fallback a localStorage + seed), pinta la lista
 // de la derecha y la portada grande de la izquierda. No toca datos ni predicciones.
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
@@ -41,18 +41,23 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
     });
   };
 
-  // Los 8 = los equipos concretos de los 4 cruces de cuartos (QF), ordenados por horario y con
+  // Ronda que representa la etapa actual del álbum. Cambiar SOLO esto al pasar de fase: el total
+  // esperado de equipos se deriva de los cruces de la ronda (2 por cruce), no se hardcodea.
+  const PHASE_ROUND = "SF";
+  const expectedTeams = matches.filter((m) => m.round === PHASE_ROUND).length * 2;
+
+  // Los equipos concretos de los cruces de la ronda actual, ordenados por horario y con
   // cada pareja adyacente (local y visita del mismo cruce).
   const advancerCodes = () => {
     const live = readLiveKnockout(effSeed());
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
-    const qf = resolved
-      .filter((r) => r.match.round === "QF")
+    const sf = resolved
+      .filter((r) => r.match.round === PHASE_ROUND)
       .sort((a, b) =>
         `${a.match.dateCL ?? ""}T${a.match.timeCL ?? ""}`.localeCompare(`${b.match.dateCL ?? ""}T${b.match.timeCL ?? ""}`),
       );
     const codes = [];
-    for (const r of qf) {
+    for (const r of sf) {
       if (r.codeA) codes.push(r.codeA);
       if (r.codeB) codes.push(r.codeB);
     }
@@ -63,7 +68,7 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
     const codes = advancerCodes();
     // Mientras no haya una ronda completa de clasificados (resultados aún cargando), mantener el
     // estado "cargando" en vez de mostrar 1-2 equipos sueltos.
-    if (codes.length < 8) {
+    if (codes.length < expectedTeams) {
       if (!listEl.querySelector("[data-code]")) {
         listEl.innerHTML = '<p class="eq-list-empty">Cargando clasificados…</p>';
       }

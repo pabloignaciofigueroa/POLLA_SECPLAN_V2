@@ -5,8 +5,8 @@ import knockoutMatches from "../../data/knockout-matches.json";
 import seed from "../../data/knockout-results.json";
 import TeamChip from "./TeamChip.astro";
 
-// Polla de ELIMINATORIAS. Etapa CUARTOS: se muestran SOLO los 8 clasificados que avanzaron de
-// octavos. El SSR renderiza los 32 (fallback sin-JS); el cliente los filtra a los 8 ganadores
+// Polla de ELIMINATORIAS. Etapa SEMIFINALES: se muestran SOLO los 4 clasificados que avanzaron de
+// cuartos. El SSR renderiza los 32 (fallback sin-JS); el cliente los filtra a los 4 ganadores
 // reales derivados de los resultados vivos (localStorage/Supabase). Orden = knockout-teams.
 const byCode = new Map((teams as any[]).map((t) => [t.shortCode, t]));
 const qualified = (knockoutTeams.slots as any[])
@@ -21,7 +21,7 @@ const marqueePayload = {
 };
 ---
 
-<aside class="marquee" data-section="flag-marquee" aria-label="8 clasificados a cuartos">
+<aside class="marquee" data-section="flag-marquee" aria-label="4 clasificados a semifinales">
   <div class="summary">
     <span class="icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -33,7 +33,7 @@ const marqueePayload = {
     </span>
     <div class="summary-text">
       <span class="summary-label">Clasificados</span>
-      <span class="summary-value">8 SELECCIONES</span>
+      <span class="summary-value">4 SELECCIONES</span>
     </div>
   </div>
 
@@ -45,9 +45,9 @@ const marqueePayload = {
   </div>
 
   <div class="phase-status">
-    <span>Cuartos</span>
+    <span>Semifinales</span>
     <span class="dot" aria-hidden="true">·</span>
-    <span>4 cruces</span>
+    <span>2 cruces</span>
   </div>
 
   <script type="application/json" data-marquee-payload set:html={JSON.stringify(marqueePayload)} />

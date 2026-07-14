@@ -180,6 +180,66 @@ const teamB = { name: slotB.name, shortCode: slotB.shortCode, flag: slotB.flag ?
   .ko-card[data-tie="true"] .ko-advance-btn { border-color: #f6b73c; box-shadow: 0 0 0 2px rgba(246, 183, 60, 0.22); }
   .ko-card[data-tie="true"] .ko-advance-btn[data-active="true"] { background: linear-gradient(135deg, #f59e0b, #f97316); border-color: #ea580c; color: #fff; }
 
+  /* ===== Captura SEMIFINALES (/predicciones): solo 2 cruces, así que cada lado deja de ser una fila
+     y pasa a ser un PANEL ALTO con la foto del equipo de fondo (mismo recurso que usa /proximo),
+     el escudo en marca de agua, bandera grande y el marcador encima. El cliente inyecta --ko-cover
+     y --ko-crest al resolver el equipo; sin foto, el panel cae al fondo plano de siempre.
+     Acotado a [data-ko-round="SF"][data-ko-mode="capture"]: la llave y el resto de rondas intactos. ===== */
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] { padding: 0; gap: 0; overflow: hidden; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-card-head { padding: 0.7rem 0.9rem 0.5rem; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-card-body { gap: 0.5rem; padding: 0 0.7rem; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-row {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: clamp(8rem, 24vh, 15rem);
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--pm-radius-md);
+    border: 2px solid color-mix(in srgb, var(--pm-cyan-500) 26%, var(--pm-border-soft));
+    background: linear-gradient(120deg, color-mix(in srgb, var(--pm-blue-500, #126dff) 10%, #fff), #fff 70%);
+  }
+  /* Foto del equipo: full-bleed bajo un velo para que el texto y el marcador sigan legibles. */
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-row[data-has-cover="true"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: var(--ko-cover, none);
+    background-size: cover;
+    background-position: center 22%;
+  }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-row[data-has-cover="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.55) 44%, rgba(255, 255, 255, 0.12) 100%);
+  }
+  /* Escudo en marca de agua, anclado a la derecha del panel. */
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-row[data-has-cover="true"] .ko-team-name::after {
+    content: "";
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(3.4rem, 5vw, 5rem);
+    aspect-ratio: 1;
+    z-index: -1;
+    background-image: var(--ko-crest, none);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.28;
+    pointer-events: none;
+  }
+  /* Bandera y marcador al tamaño de la ronda hero (el cliente lee --ko-flag-w/h para el <img>). */
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-row { --ko-flag-w: 9rem; --ko-flag-h: 6.4rem; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-flag :global(.team-flag),
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-flag-ph { width: 9rem; height: 6.4rem; border-radius: 12px; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-team-name { font-size: clamp(1.3rem, 2vw, 1.9rem); font-weight: 950; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] :global([data-score-input]) { width: 5.4rem; height: 4.6rem; font-size: 2.6rem; }
+  .ko-card[data-ko-mode="capture"][data-ko-round="SF"] .ko-advance { padding: 0.55rem 0.9rem 0.75rem; margin-top: 0.35rem; }
+
   /* Resaltado del ganador (modo view) */
   .ko-card .ko-row[data-winner="true"] .ko-team-name { color: var(--pm-green-700, #15803d); font-weight: 900; }
 

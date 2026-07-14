@@ -115,7 +115,9 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
     isolation: isolate; /* contiene la capa SVG (z-index:-1) dentro del árbol */
     display: flex;
     align-items: stretch;
-    gap: clamp(1rem, 2.2vw, 2.7rem);
+    /* ETAPA SEMIFINALES: con solo 3 columnas la separación es la que da los conectores largos de
+       cuadro de transmisión y la que termina de llevar el árbol a lo ancho. */
+    gap: clamp(1rem, 6vw, 7rem);
     min-width: max-content;
     padding: 0.4rem 0.25rem 0.2rem;
   }
@@ -180,12 +182,16 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
        Así los 16avos son MÁS ANCHOS sin ser más altos: los nombres entran completos. */
     flex: 0 0 calc(clamp(6.6rem, 8.2vw, 8.2rem) * var(--ko-rw, var(--ko-rs, 1)));
   }
-  /* ETAPA CUARTOS: 16avos y octavos ya no se renderizan; CUARTOS (QF) es la ronda HERO (la que tiene
-     equipos reales) — cards al doble; SF/Final quedan como placeholders más chicos. TODO en la card
-     escala con --ko-rs (bandera, nombre, horario). Acento: azul -> violeta hacia la Final dorada. */
+  /* ETAPA SEMIFINALES: 16avos, octavos y cuartos ya no se renderizan; la SEMIFINAL (SF) es la ronda
+     HERO de cada lado (la que tiene equipos reales) y el CENTRO —Final + Tercer puesto— es el foco
+     del cuadro. TODO en la card escala con --ko-rs (bandera, nombre, horario). Acento: azul ->
+     violeta hacia la Final dorada. */
   .ko-round[data-round="R16"] { --ko-rs: 1.8;  --ko-rw: 2.35; --ko-accent: var(--llave-cyan, #18ddf2); }
   .ko-round[data-round="QF"]  { --ko-rs: 2.16; --ko-rw: 2.64; --ko-accent: var(--llave-blue, #126dff); }
-  .ko-round[data-round="SF"]  { --ko-rs: 1.15; --ko-rw: 1.72; --ko-accent: #0c5bd6; }
+  /* La SF tiene alto de sobra (la altura de la columna la fija el centro), así que crece en las dos
+     dimensiones: --ko-rs sube el contenido y --ko-rw ensancha la tarjeta hasta que el árbol llena
+     el ancho en vez de quedar flotando al centro. */
+  .ko-round[data-round="SF"]  { --ko-rs: 2.9;  --ko-rw: 3.4;  --ko-accent: var(--llave-blue, #126dff); }
   /* Tabs HUD: cada ronda es una pestaña hexagonal estilo videojuego (azul neón; R32 dorada). */
   .ko-round-label {
     align-self: center;
@@ -230,7 +236,9 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 0 0 clamp(13rem, 16vw, 19rem);
+    /* ETAPA SEMIFINALES: al quedar solo una columna por lado, el centro se lleva el ancho liberado:
+       la Final y el Tercer puesto son ahora el foco del cuadro. */
+    flex: 0 0 clamp(17rem, 42vw, 46rem);
     gap: 0.5rem;
     padding: 0 0.25rem;
   }
@@ -335,12 +343,12 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
   }
   /* Placa morada arcade del tercer puesto. */
   .ko-center-label--third {
-    font-size: clamp(0.56rem, 0.7vw, 0.74rem);
+    font-size: clamp(0.72rem, 1vw, 0.98rem);
     font-weight: 900;
     color: #fff;
-    margin-top: 0.55rem;
+    margin-top: 0.7rem;
     letter-spacing: 0.12em;
-    padding: 0.26rem 0.95rem;
+    padding: 0.32rem 1.15rem;
     border-radius: var(--pm-radius-pill);
     background: linear-gradient(180deg, #e3a05a, #b06a28);
     border: 2px solid rgba(255, 240, 220, 0.9);
@@ -348,9 +356,11 @@ const TROPHY = "/assets/polla-mundialera/sections/01_inicio/trophy-secplan-world
     text-shadow: 0 1px 2px rgba(80, 40, 10, 0.5);
   }
   .ko-final, .ko-third { width: 100%; }
-  /* La Final es el PREMIO MAYOR: domina el centro (mucho más grande que cualquier otro nodo). */
-  .ko-final { --ko-rs: 2.2; }
-  .ko-third { --ko-rs: 1.3; }
+  /* La Final es el PREMIO MAYOR: domina el centro (mucho más grande que cualquier otro nodo).
+     ETAPA SEMIFINALES: Final y Tercer puesto suben de escala — son los dos cruces que el cuadro
+     está esperando y ya no compiten con 16avos/octavos/cuartos por el espacio. */
+  .ko-final { --ko-rs: 3.1; }
+  .ko-third { --ko-rs: 2; }
 
   /* Realce dorado de la Final (segundo foco del cuadro: marco grueso + glow fuerte). */
   .ko-final > :global(.ko-card) {

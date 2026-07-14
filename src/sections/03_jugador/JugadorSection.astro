@@ -22,9 +22,10 @@ const players = playersData as Player[];
 const selectedPlayerId = "carlos";
 const selectedPlayer =
   players.find((player) => player.id === selectedPlayerId) ?? players[0];
-// ETAPA CUARTOS: la predicción está DESBLOQUEADA para todos. 16avos y octavos ya se jugaron y ahora
-// toca predecir los 4 cruces de cuartos, así que el CTA "Ir a predicciones" NUNCA intercepta con
-// el modal de "cartón oficial ya entregado". Se deja la lista vacía (el modal queda inactivo).
+// ETAPA SEMIFINALES: la predicción está DESBLOQUEADA para todos. 16avos, octavos y cuartos ya se
+// jugaron y ahora toca predecir los 2 cruces de semifinales, así que el CTA "Ir a predicciones"
+// NUNCA intercepta con el modal de "cartón oficial ya entregado". Se deja la lista vacía (el modal
+// queda inactivo).
 // (Los datos y la suma de puntos de rondas previas se mantienen intactos; el nuevo JSON complementa.)
 const officialPlayerIds: string[] = [];
 ---

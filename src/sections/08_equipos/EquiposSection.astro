@@ -1,8 +1,8 @@
 ---
-// Seccion 08_equipos — ALBUM de los 8 CLASIFICADOS a CUARTOS (master-detail). 100% local.
-// DERECHA: lista de los 8 equipos que avanzaron (bandera + nombre), clickeables.
+// Seccion 08_equipos — ALBUM de los 4 CLASIFICADOS a SEMIFINALES (master-detail). 100% local.
+// DERECHA: lista de los 4 equipos que avanzaron (bandera + nombre), clickeables.
 // IZQUIERDA: portada GRANDE del equipo seleccionado + nombre + confederación.
-// Los 8 se derivan de los resultados vivos (localStorage/Supabase) en el cliente: el SSR pinta
+// Los 4 se derivan de los resultados vivos (localStorage/Supabase) en el cliente: el SSR pinta
 // el esqueleto y `equipos.knockout.client.js` lo llena. NO toca datos ni predicciones.
 import styles from "./EquiposSection.module.css";
 import EquiposHero from "./EquiposHero.astro";
@@ -47,10 +47,10 @@ const clientPayload = {
         </figure>
       </div>
 
-      <!-- DERECHA (50%): lista de los 8 clasificados -->
+      <!-- DERECHA (50%): lista de los 4 clasificados -->
       <div class="eq-list-wrap">
-        <p class="eq-list-title">Clasificados a cuartos</p>
-        <div class="eq-list" data-eq-list role="list" aria-label="Clasificados a cuartos">
+        <p class="eq-list-title">Clasificados a semifinales</p>
+        <div class="eq-list" data-eq-list role="list" aria-label="Clasificados a semifinales">
           <p class="eq-list-empty" data-eq-empty>Cargando clasificados…</p>
         </div>
       </div>
@@ -127,10 +127,13 @@ const clientPayload = {
   }
   .eq-list-empty { grid-column: 1 / -1; margin: 0; font-family: var(--font-display); font-weight: 700; color: var(--pm-text-soft); padding: 0.6rem 0; }
 
-  /* Las fichas de equipo las inyecta el cliente (innerHTML) -> :global para que apliquen. */
+  /* Las fichas de equipo las inyecta el cliente (innerHTML) -> :global para que apliquen.
+     ETAPA SEMIFINALES: son 4 fichas en 2 filas (antes 8 en 4), así que cada una se estira al doble
+     de alto; la bandera y el nombre suben en proporción para que la ficha no quede vacía. */
   :global(.eq-item) {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.5rem 0.7rem; border-radius: var(--pm-radius-md);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(0.5rem, 1.1vw, 1rem);
+    padding: clamp(0.5rem, 1vw, 1rem) clamp(0.7rem, 1.2vw, 1.2rem); border-radius: var(--pm-radius-md);
     background: linear-gradient(100deg, color-mix(in srgb, var(--pm-blue-500) 10%, #fff), #fff 66%);
     border: 1px solid var(--pm-border-soft);
     box-shadow: var(--pm-shadow-soft);
@@ -145,13 +148,13 @@ const clientPayload = {
     box-shadow: 0 0 0 2px var(--pm-cyan-500), var(--pm-shadow-soft);
   }
   :global(.eq-item-flag) {
-    width: 2.1rem; height: 1.5rem; border-radius: 5px; flex: 0 0 auto;
-    object-fit: cover; border: 1px solid rgba(7, 23, 53, 0.14); box-shadow: 0 1px 4px rgba(7, 23, 53, 0.2);
+    width: min(62%, 12rem); height: auto; aspect-ratio: 4 / 3; border-radius: 12px; flex: 0 1 auto; min-height: 0;
+    object-fit: cover; border: 1.5px solid rgba(7, 23, 53, 0.14); box-shadow: 0 4px 14px rgba(7, 23, 53, 0.26);
     background: var(--pm-panel-soft);
   }
   :global(.eq-item-name) {
-    font-family: var(--font-display); font-weight: 900; font-size: 0.86rem; text-transform: uppercase;
-    color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+    font-family: var(--font-display); font-weight: 900; font-size: clamp(0.95rem, 1.5vw, 1.6rem); text-transform: uppercase;
+    color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%;
   }
 
   @media (max-width: 900px) {

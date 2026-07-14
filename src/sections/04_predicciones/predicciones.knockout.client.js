@@ -19,6 +19,9 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
   try { payload = JSON.parse(payloadNode?.textContent || "{}"); } catch { payload = {}; }
   const matches = payload.matches ?? [];
   const teamsByCode = buildTeamsByCode(payload.teams ?? []);
+  // Meta del equipo (escudo + foto). `resolveBracket` solo devuelve flag/nombre, así que la portada
+  // y el crest se buscan acá por shortCode al parchear cada lado.
+  const teamMeta = new Map((payload.teams ?? []).map((t) => [t.shortCode || t.code, t]));
   const seed = { slotAssignments: payload.seedAssignments ?? {}, results: payload.seedResults ?? [] };
   // Supabase = fuente de verdad de resultados (igual que /tabla y /proximo). Sin esto, en incógnito
   // u otro dispositivo (sin localStorage) octavos NO resolvían: quedaban "Ganador P##" y bloqueados.
@@ -76,11 +79,12 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
   let predictableMatches = [];
 
   // Banderas RECTANGULARES (no círculos) en /predicciones — el cliente sobrescribe el SSR.
-  // Tamaño AL DOBLE para que la bandera gane protagonismo (el resto de la tarjeta queda igual).
+  // El TAMAÑO sale de --ko-flag-w/--ko-flag-h (con el valor de siempre como fallback) para que cada
+  // ronda lo module desde el CSS: en semifinales la bandera va mucho más grande.
   const flagHtml = (slot) =>
     slot.flag
-      ? `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="96" height="72" style="width:4.8rem;height:3.4rem;border-radius:8px;object-fit:cover;display:block;border:1px solid rgba(7,23,53,0.16);box-shadow:0 2px 7px rgba(7,23,53,0.24);">`
-      : `<span style="display:inline-grid;place-items:center;width:4.8rem;height:3.4rem;border-radius:8px;background:rgba(18,109,255,0.08);color:#1a3a8a;border:1px dashed rgba(7,23,53,0.16);font-weight:900;font-size:1.4rem;">?</span>`;
+      ? `<img src="${slot.flag}" alt="" loading="lazy" decoding="async" width="96" height="72" style="width:var(--ko-flag-w,4.8rem);height:var(--ko-flag-h,3.4rem);border-radius:8px;object-fit:cover;display:block;border:1px solid rgba(7,23,53,0.16);box-shadow:0 2px 7px rgba(7,23,53,0.24);">`
+      : `<span style="display:inline-grid;place-items:center;width:var(--ko-flag-w,4.8rem);height:var(--ko-flag-h,3.4rem);border-radius:8px;background:rgba(18,109,255,0.08);color:#1a3a8a;border:1px dashed rgba(7,23,53,0.16);font-weight:900;font-size:1.4rem;">?</span>`;
 
   const reflectAdvanceButtons = (card, advances) => {
     card.querySelectorAll("[data-advance-pick]").forEach((btn) => {
@@ -115,6 +119,16 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
       if (flag) flag.innerHTML = flagHtml(slot);
       if (name) { name.textContent = slot.name; name.dataset.concrete = slot.concrete ? "true" : "false"; }
       if (pick) pick.textContent = slot.shortCode || (side === "home" ? "LOC" : "VIS");
+      // Foto del equipo + escudo del panel (solo cuando el lado ya es un equipo concreto).
+      const row = card.querySelector(`.ko-row[data-slot="${side}"]`);
+      if (row) {
+        const meta = slot.concrete ? teamMeta.get(slot.shortCode) : null;
+        if (meta?.coverImage) row.style.setProperty("--ko-cover", `url("${meta.coverImage}")`);
+        else row.style.removeProperty("--ko-cover");
+        if (meta?.crest) row.style.setProperty("--ko-crest", `url("${meta.crest}")`);
+        else row.style.removeProperty("--ko-crest");
+        row.dataset.hasCover = meta?.coverImage ? "true" : "false";
+      }
     };
     setSide("home", r.slotA);
     setSide("away", r.slotB);
@@ -214,7 +228,7 @@ import { attachRemoteResults } from "../../lib/knockout/remoteResults.js";
     const result = validateKnockout(bucket, predictableMatches);
     if (crucesCountNode) crucesCountNode.textContent = String(predictableMatches.length);
     if (statusNode) {
-      statusNode.textContent = `${result.completedMatches}/${result.totalMatches} cruces de cuartos pronosticados`;
+      statusNode.textContent = `${result.completedMatches}/${result.totalMatches} cruces de semifinales pronosticados`;
     }
   }
 
