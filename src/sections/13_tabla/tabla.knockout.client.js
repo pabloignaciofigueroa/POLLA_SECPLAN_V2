@@ -121,9 +121,8 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
   const wpodSlotEl = new Map(
     ["champion", "runnerUp", "third", "fourth"].map((k) => [k, section.querySelector(`[data-wpod="${k}"]`)]),
   );
-  // Podio apostado por CADA jugador (su pick por puesto + lo que suma).
-  const wpredsBox = section.querySelector("[data-tabla-wpreds]");
-  const wpredRowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-wpred="${p.id}"]`)]));
+  // El podio apostado por cada jugador vive en la MISMA fila de predicciones (celdas 🥇🥈🥉4º),
+  // junto a su marcador y su total parcial. Una fila = todo lo del jugador.
 
   // ===== Panel derecho: cruce activo/proximo (live card) + predicciones de jugadores =====
   const cruceBox = section.querySelector("[data-tabla-cruce]");
@@ -168,11 +167,12 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (wpodTag) wpodTag.hidden = !anyLive;
   };
 
-  // Tabla "podio de cada jugador": su apuesta por puesto + puntos. Se alimenta de row.podiumLines
-  // (mismo scorer del ranking, así nunca divergen). Ordena por puntos de podio desc.
+  // Rellena, en la fila de cada jugador, su PODIO apostado (pick por puesto) + puntos de podio +
+  // TOTAL parcial. Se alimenta de row.podiumLines/total (mismo scorer del ranking: nunca divergen).
+  // No reordena: el orden lo maneja renderPreds (por cercanía al marcador en vivo).
   const renderPodiumPicks = (rows, podiumByPlayer) => {
     const rowByPlayer = new Map(rows.map((r) => [r.playerId, r]));
-    for (const [pid, el] of wpredRowById) {
+    for (const [pid, el] of predRowById) {
       if (!el) continue;
       const row = rowByPlayer.get(pid);
       const picks = podiumByPlayer[pid] ?? {};
@@ -188,14 +188,8 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       }
       const pts = row?.podiumPoints ?? 0;
       setText(el.querySelector("[data-wpick-pts]"), pts > 0 ? `+${pts}` : "0");
-      el.dataset.ptsPos = pts > 0 ? "true" : "false";
-    }
-    // El que más suma, arriba (desempata por el total general).
-    if (wpredsBox) {
-      [...wpredRowById.entries()]
-        .map(([pid, el]) => ({ el, pts: rowByPlayer.get(pid)?.podiumPoints ?? 0, total: rowByPlayer.get(pid)?.total ?? 0 }))
-        .sort((a, b) => b.pts - a.pts || b.total - a.total)
-        .forEach((o) => { if (o.el) wpredsBox.appendChild(o.el); });
+      el.dataset.podPos = pts > 0 ? "true" : "false";
+      setText(el.querySelector("[data-pred-total]"), String(row?.total ?? 0));
     }
   };
   // Puntos por cruce (panel informativo): usa el MISMO scorer del ranking (scoreKnockoutMatch),

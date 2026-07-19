@@ -119,26 +119,12 @@ const podiumOrder = [2, 1, 3] as const;
           ))}
         </ol>
 
-        <!-- Podio que apostó CADA jugador + lo que suma. Se ilumina el acierto en vivo. -->
-        <div class="tk-wpred-head" aria-hidden="true">
-          <span>Jugador</span><span>🥇</span><span>🥈</span><span>🥉</span><span>4º</span><span>Pts</span>
-        </div>
-        <ul class="tk-wpreds" data-tabla-wpreds>
-          {players.map((p) => (
-            <li class="tk-wpred-row" data-tabla-wpred={p.id} data-pts-pos="false">
-              <span class="tk-wpred-name">{p.name}</span>
-              <span class="tk-wpred-pick" data-wpick="champion" data-state="pending">—</span>
-              <span class="tk-wpred-pick" data-wpick="runnerUp" data-state="pending">—</span>
-              <span class="tk-wpred-pick" data-wpick="third" data-state="pending">—</span>
-              <span class="tk-wpred-pick" data-wpick="fourth" data-state="pending">—</span>
-              <span class="tk-wpred-pts" data-wpick-pts>–</span>
-            </li>
-          ))}
-        </ul>
-
+        <!-- Una fila por jugador con TODO: su apuesta del partido (marcador/avanza/pts),
+             su podio apostado por puesto, los puntos de podio y el TOTAL parcial. -->
         <h2 class="tk-col-title">Predicciones de jugadores</h2>
         <div class="tk-preds-head" aria-hidden="true">
           <span>Jugador</span><span>Marcador</span><span>Avanza</span><span>Pts</span>
+          <span>🥇</span><span>🥈</span><span>🥉</span><span>4º</span><span>Podio</span><span>Total</span>
         </div>
         <ul class="tk-preds" data-tabla-preds>
           {players.map((p) => (
@@ -150,6 +136,12 @@ const podiumOrder = [2, 1, 3] as const;
               </span>
               <span class="tk-pred-adv" data-pred-adv>–</span>
               <span class="tk-pred-pts" data-pred-pts>–</span>
+              <span class="tk-wpred-pick" data-wpick="champion" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="runnerUp" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="third" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="fourth" data-state="pending">—</span>
+              <span class="tk-wpred-pts" data-wpick-pts>–</span>
+              <span class="tk-pred-total" data-pred-total>0</span>
             </li>
           ))}
         </ul>
@@ -401,21 +393,7 @@ const podiumOrder = [2, 1, 3] as const;
     .tk-wpod-slot[data-live="true"], .tk-wpod-tag { animation: none; }
   }
 
-  /* ===== PODIO DE CADA JUGADOR (su apuesta + lo que suma) ===== */
-  .tk-wpred-head, .tk-wpred-row {
-    display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 2.45rem) 2.1rem;
-    align-items: center; gap: 0.28rem; padding: 0.16rem 0.6rem;
-  }
-  .tk-wpred-head { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-text-soft); }
-  .tk-wpred-head span:not(:first-child), .tk-wpred-row > span:not(:first-child) { text-align: center; }
-  .tk-wpreds { list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.12rem; }
-  .tk-wpred-row {
-    border-radius: var(--pm-radius-sm);
-    background: linear-gradient(100deg, color-mix(in srgb, var(--section-accent) 8%, var(--pm-white)), var(--pm-white) 58%);
-    border: 1px solid var(--pm-border-soft);
-    box-shadow: var(--pm-shadow-soft);
-  }
-  .tk-wpred-name { font-family: var(--font-display); font-weight: 800; font-size: 0.74rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* ===== PODIO DE CADA JUGADOR (celdas dentro de la fila de predicciones) ===== */
   .tk-wpred-pick {
     font-family: var(--font-score); font-weight: 800; font-size: 0.63rem; line-height: 1;
     padding: 0.16rem 0.1rem; border-radius: 3px; color: var(--pm-text-soft);
@@ -425,9 +403,14 @@ const podiumOrder = [2, 1, 3] as const;
   /* Acertó ese puesto: se prende en verde. Falló: se apaga. */
   .tk-wpred-pick[data-state="hit"] { color: var(--pm-green-700, #15803d); background: var(--pm-green-100); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pm-green-600, #16a34a) 40%, transparent); }
   .tk-wpred-pick[data-state="miss"] { color: color-mix(in srgb, var(--pm-text-soft) 70%, transparent); background: transparent; text-decoration: line-through; }
-  .tk-wpred-pts { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.8rem; color: var(--pm-text-soft); }
-  .tk-wpred-row[data-pts-pos="true"] { border-color: color-mix(in srgb, var(--pm-rank-gold) 55%, var(--pm-border-soft)); }
-  .tk-wpred-row[data-pts-pos="true"] .tk-wpred-pts { color: var(--pm-green-600, #16a34a); }
+  .tk-wpred-pts { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.76rem; color: var(--pm-text-soft); }
+  .tk-pred-row[data-pod-pos="true"] .tk-wpred-pts { color: var(--pm-green-600, #16a34a); }
+  .tk-pred-row[data-pod-pos="true"] { border-color: color-mix(in srgb, var(--pm-rank-gold) 55%, var(--pm-border-soft)); }
+  /* TOTAL parcial del jugador (cruces + podio), lo que va sumando ahora mismo. */
+  .tk-pred-total {
+    font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 900; font-size: 0.92rem;
+    color: var(--pm-cyan-700, #0e7490);
+  }
 
   /* ===== LEYENDA ===== */
   .tk-leyenda { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
@@ -442,9 +425,12 @@ const podiumOrder = [2, 1, 3] as const;
   .tk-ley--pod { border-color: color-mix(in srgb, var(--pm-rank-gold) 55%, var(--pm-border-soft)); }
 
   /* ===== PREDICCIONES DE JUGADORES (marcador + bandera + pts dinámicos) ===== */
+  /* 10 columnas: jugador | marcador | avanza | pts | 🥇🥈🥉4º | podio | total */
   .tk-preds-head, .tk-pred-row {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto 2.6rem 2rem; align-items: center; gap: 0.4rem;
-    padding: 0.18rem 0.6rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 2.3rem 1.7rem repeat(4, 2.05rem) 2rem 2.3rem;
+    align-items: center; gap: 0.26rem;
+    padding: 0.18rem 0.5rem;
   }
   .tk-preds-head { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-text-soft); }
   .tk-preds-head span:not(:first-child), .tk-pred-row > span:not(:first-child) { text-align: center; }
