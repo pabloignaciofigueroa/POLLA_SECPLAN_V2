@@ -122,6 +122,52 @@ export function resolveBracket(matches = [], { assignments = {}, results = {}, t
   });
 }
 
+/**
+ * Deriva el podio EN VIVO: igual que deriveActualPodium, pero un marcador EN CURSO ya define
+ * ganador PROVISIONAL (P104 -> campeon/subcampeon, P103 -> 3o/4o). Misma convencion que el
+ * puntaje por cruce, que tambien suma provisional y cambia con cada gol.
+ *
+ * NO altera el cuadro: `resolveBracket` sigue sin avanzar equipos con marcador en vivo. Aca solo
+ * se leen `codeA`/`codeB` (que YA estan resueltos, porque dependen de rondas anteriores cerradas)
+ * y se decide el lado con el marcador actual. Empate en curso => sin ganador (null): no se inventa.
+ *
+ * @returns {{champion,runnerUp,third,fourth, live:{champion,runnerUp,third,fourth}}}
+ *          `live[slot] = true` => provisional (partido en curso), para marcarlo en la UI.
+ */
+export function deriveLivePodium(matches = [], { assignments = {}, results = {}, teamsByCode } = {}) {
+  const items = resolveBracket(matches, { assignments, results, teamsByCode });
+  const byId = new Map(items.map((it) => [it.match.id, it]));
+  const map = normalizeResults(results);
+
+  const sidesOf = (matchId) => {
+    const item = byId.get(matchId);
+    if (!item) return null;
+    const result = map[matchId];
+    const side = resultWinnerSide(result); // null si empate o sin marcador
+    if (!side) return null;
+    return {
+      winner: (side === "home" ? item.codeA : item.codeB) ?? null,
+      loser: (side === "home" ? item.codeB : item.codeA) ?? null,
+      live: Boolean(result) && result.status === "live",
+    };
+  };
+
+  const final = sidesOf("P104");
+  const third = sidesOf("P103");
+  return {
+    champion: final?.winner ?? null,
+    runnerUp: final?.loser ?? null,
+    third: third?.winner ?? null,
+    fourth: third?.loser ?? null,
+    live: {
+      champion: Boolean(final?.live),
+      runnerUp: Boolean(final?.live),
+      third: Boolean(third?.live),
+      fourth: Boolean(third?.live),
+    },
+  };
+}
+
 /** Deriva el podio REAL desde los resultados: Final (P104) -> campeon/subcampeon, 3er puesto (P103) -> 3o/4o. */
 export function deriveActualPodium(matches = [], { assignments = {}, results = {}, teamsByCode } = {}) {
   const items = resolveBracket(matches, { assignments, results, teamsByCode });

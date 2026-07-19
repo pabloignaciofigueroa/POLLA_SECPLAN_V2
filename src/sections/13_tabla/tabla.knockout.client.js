@@ -3,7 +3,7 @@
 // count-up de puntos, barra de progreso, flechas/pildoras de movimiento, podio top-3 con foto,
 // y tabla de predicciones por jugador (marcador + a quien le va + puntos dinamicos).
 import { buildTeamsByCode } from "../../lib/knockout/canPredict.js";
-import { deriveActualPodium, resolveBracket } from "../../lib/knockout/bracket.js";
+import { deriveLivePodium, resolveBracket } from "../../lib/knockout/bracket.js";
 import { buildKnockoutLeaderboard, scoreKnockoutMatch } from "../../lib/knockout/scoring.js";
 import { findNextMatch } from "../../lib/knockout/schedule.js";
 import { readLiveKnockout, subscribeLiveKnockout } from "../../lib/knockout/liveResults.js";
@@ -54,7 +54,37 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
 
   const HIT_LABEL = { lone_wolf: "Lone Wolf", exact: "Exacto", tendency: "Tendencia", none: "Sin acierto" };
   // HTML del historial de puntos de un jugador (cruces ya puntuados, orden por número de cruce).
-  const buildHistoryHtml = (row, bucket, live, resolvedById) => {
+  // Etiquetas del podio mundial (mismo orden y puntaje que scorePodium: +5/+3/+1/+1).
+  const POD_SLOT = [
+    { key: "champion", medal: "🥇", label: "Campeón" },
+    { key: "runnerUp", medal: "🥈", label: "Subcampeón" },
+    { key: "third", medal: "🥉", label: "Tercero" },
+    { key: "fourth", medal: "4º", label: "Cuarto" },
+  ];
+  // Desglose del podio de un jugador: su pick vs el real, acierto y puntos. `actualPodium.live`
+  // marca lo provisional (final en curso). Se alimenta de row.podiumLines (ya viene de scorePodium).
+  const buildPodiumHtml = (row, actualPodium) => {
+    const lines = row.podiumLines ?? [];
+    if (!lines.length) return "";
+    const bySlot = new Map(lines.map((l) => [l.slot, l]));
+    const items = POD_SLOT.map(({ key, medal, label }) => {
+      const ln = bySlot.get(key);
+      if (!ln) return "";
+      const isLive = Boolean(actualPodium?.live?.[key]);
+      const pick = ln.pick || "—";
+      const actual = ln.actual || "—";
+      const state = ln.actual ? (ln.hit ? "hit" : "miss") : "pending";
+      const mark = state === "hit" ? "✓" : state === "miss" ? "✗" : "—";
+      return `<li class="tk-pod-line" data-state="${state}" data-live="${isLive ? "true" : "false"}">`
+        + `<span class="tk-pod-slot">${medal} ${label}</span>`
+        + `<span class="tk-pod-detail">tú ${pick} · real ${actual}${isLive ? " · en vivo" : ""}</span>`
+        + `<span class="tk-pod-mark">${mark}</span>`
+        + `<span class="tk-pod-pts">${ln.points > 0 ? "+" : ""}${ln.points}</span></li>`;
+    }).join("");
+    return `<div class="tk-pod-block"><p class="tk-pod-head">Podio mundial</p><ul class="tk-pod-lines">${items}</ul></div>`;
+  };
+
+  const buildHistoryHtml = (row, bucket, live, resolvedById, actualPodium) => {
     const lines = (row.matchLines ?? [])
       .slice()
       .sort((a, b) => (matchNumById.get(a.matchId) ?? 0) - (matchNumById.get(b.matchId) ?? 0));
@@ -76,14 +106,21 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
           + `<span class="tk-hist-pts">${ln.points > 0 ? "+" : ""}${ln.points}</span></li>`;
       })
       .join("");
-    const podiumBits = row.podiumPoints > 0 ? ` · Podio ${row.podiumPoints}` : "";
+    const podiumBits = row.podiumPoints > 0 ? ` · Podio +${row.podiumPoints}` : "";
     return `<ul class="tk-hist-list">${items}</ul>`
+      + buildPodiumHtml(row, actualPodium)
       + `<div class="tk-hist-foot"><span>Cruces ${row.matchPoints}${podiumBits}</span><b>${row.total} pts</b></div>`;
   };
 
   // ===== Podio top-3 =====
   const podiumBox = section.querySelector("[data-tabla-podium]");
   const podSlot = { 1: section.querySelector('[data-podium="1"]'), 2: section.querySelector('[data-podium="2"]'), 3: section.querySelector('[data-podium="3"]') };
+
+  // ===== Podio MUNDIAL (campeón/subcampeón/3º/4º) — se llena en vivo desde P103/P104 =====
+  const wpodTag = section.querySelector("[data-wpodium-tag]");
+  const wpodSlotEl = new Map(
+    ["champion", "runnerUp", "third", "fourth"].map((k) => [k, section.querySelector(`[data-wpod="${k}"]`)]),
+  );
 
   // ===== Panel derecho: cruce activo/proximo (live card) + predicciones de jugadores =====
   const cruceBox = section.querySelector("[data-tabla-cruce]");
@@ -108,6 +145,24 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (!el) return;
     if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.empty = "false"; }
     else { el.style.backgroundImage = ""; el.dataset.empty = "true"; }
+  };
+
+  // Pinta el podio MUNDIAL. Un slot en data-live="true" es PROVISIONAL: la final sigue en curso
+  // y puede cambiar con el próximo gol (por eso late en rojo, igual que la tarjeta del partido).
+  const renderWorldPodium = (actualPodium) => {
+    let anyLive = false;
+    for (const [key, el] of wpodSlotEl) {
+      if (!el) continue;
+      const code = actualPodium?.[key] ?? null;
+      const isLive = Boolean(actualPodium?.live?.[key]) && Boolean(code);
+      if (isLive) anyLive = true;
+      const team = code ? teamsByCode.get?.(code) : null;
+      el.dataset.set = code ? "true" : "false";
+      el.dataset.live = isLive ? "true" : "false";
+      setText(el.querySelector("[data-wpod-team]"), code ? (team?.shortCode ?? code) : "—");
+      setFlag(el.querySelector("[data-wpod-flag]"), team?.flag ?? null);
+    }
+    if (wpodTag) wpodTag.hidden = !anyLive;
   };
   // Puntos por cruce (panel informativo): usa el MISMO scorer del ranking (scoreKnockoutMatch),
   // así el panel y la escalera NUNCA divergen. Incluye LONE WOLF (+5 exacto único) — que exige
@@ -268,8 +323,10 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       : seed;
     const live = readLiveKnockout(effectiveSeed);
     const hasResults = Object.keys(live.results).length > 0;
+    // Podio EN VIVO: el marcador en curso de la final ya mueve campeon/subcampeon (provisional),
+    // igual que el puntaje por cruce. `actualPodium.live[slot]` marca lo que aun no esta cerrado.
     const actualPodium = hasResults
-      ? deriveActualPodium(matches, { assignments: live.assignments, results: live.results, teamsByCode })
+      ? deriveLivePodium(matches, { assignments: live.assignments, results: live.results, teamsByCode })
       : null;
     const { predictionsByPlayer, podiumByPlayer } = buildBuckets();
 
@@ -325,12 +382,14 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
 
       // Historial de puntos desplegable (cruce a cruce).
       const histEl = card.querySelector("[data-tabla-history]");
-      if (histEl) histEl.innerHTML = buildHistoryHtml(row, predictionsByPlayer[row.playerId] ?? {}, live, resolvedById);
+      if (histEl) histEl.innerHTML = buildHistoryHtml(row, predictionsByPlayer[row.playerId] ?? {}, live, resolvedById, actualPodium);
 
       if (body) body.appendChild(card); // reordena segun ranking
     });
 
     // Podio top-3.
+    renderWorldPodium(actualPodium);
+
     setPodium(podSlot[1], rows[0]);
     setPodium(podSlot[2], rows[1]);
     setPodium(podSlot[3], rows[2]);
