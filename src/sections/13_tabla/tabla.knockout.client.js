@@ -121,6 +121,9 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
   const wpodSlotEl = new Map(
     ["champion", "runnerUp", "third", "fourth"].map((k) => [k, section.querySelector(`[data-wpod="${k}"]`)]),
   );
+  // Podio apostado por CADA jugador (su pick por puesto + lo que suma).
+  const wpredsBox = section.querySelector("[data-tabla-wpreds]");
+  const wpredRowById = new Map(players.map((p) => [p.id, section.querySelector(`[data-tabla-wpred="${p.id}"]`)]));
 
   // ===== Panel derecho: cruce activo/proximo (live card) + predicciones de jugadores =====
   const cruceBox = section.querySelector("[data-tabla-cruce]");
@@ -163,6 +166,37 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       setFlag(el.querySelector("[data-wpod-flag]"), team?.flag ?? null);
     }
     if (wpodTag) wpodTag.hidden = !anyLive;
+  };
+
+  // Tabla "podio de cada jugador": su apuesta por puesto + puntos. Se alimenta de row.podiumLines
+  // (mismo scorer del ranking, así nunca divergen). Ordena por puntos de podio desc.
+  const renderPodiumPicks = (rows, podiumByPlayer) => {
+    const rowByPlayer = new Map(rows.map((r) => [r.playerId, r]));
+    for (const [pid, el] of wpredRowById) {
+      if (!el) continue;
+      const row = rowByPlayer.get(pid);
+      const picks = podiumByPlayer[pid] ?? {};
+      const bySlot = new Map((row?.podiumLines ?? []).map((l) => [l.slot, l]));
+      for (const { key } of POD_SLOT) {
+        const cell = el.querySelector(`[data-wpick="${key}"]`);
+        if (!cell) continue;
+        const ln = bySlot.get(key);
+        const pick = ln?.pick ?? picks[key] ?? null;
+        cell.textContent = pick || "—";
+        // pending = ese puesto aún no se define (sin resultado todavía).
+        cell.dataset.state = !pick || !ln?.actual ? "pending" : ln.hit ? "hit" : "miss";
+      }
+      const pts = row?.podiumPoints ?? 0;
+      setText(el.querySelector("[data-wpick-pts]"), pts > 0 ? `+${pts}` : "0");
+      el.dataset.ptsPos = pts > 0 ? "true" : "false";
+    }
+    // El que más suma, arriba (desempata por el total general).
+    if (wpredsBox) {
+      [...wpredRowById.entries()]
+        .map(([pid, el]) => ({ el, pts: rowByPlayer.get(pid)?.podiumPoints ?? 0, total: rowByPlayer.get(pid)?.total ?? 0 }))
+        .sort((a, b) => b.pts - a.pts || b.total - a.total)
+        .forEach((o) => { if (o.el) wpredsBox.appendChild(o.el); });
+    }
   };
   // Puntos por cruce (panel informativo): usa el MISMO scorer del ranking (scoreKnockoutMatch),
   // así el panel y la escalera NUNCA divergen. Incluye LONE WOLF (+5 exacto único) — que exige
@@ -389,6 +423,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
 
     // Podio top-3.
     renderWorldPodium(actualPodium);
+    renderPodiumPicks(rows, podiumByPlayer);
 
     setPodium(podSlot[1], rows[0]);
     setPodium(podSlot[2], rows[1]);

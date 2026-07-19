@@ -119,6 +119,23 @@ const podiumOrder = [2, 1, 3] as const;
           ))}
         </ol>
 
+        <!-- Podio que apostó CADA jugador + lo que suma. Se ilumina el acierto en vivo. -->
+        <div class="tk-wpred-head" aria-hidden="true">
+          <span>Jugador</span><span>🥇</span><span>🥈</span><span>🥉</span><span>4º</span><span>Pts</span>
+        </div>
+        <ul class="tk-wpreds" data-tabla-wpreds>
+          {players.map((p) => (
+            <li class="tk-wpred-row" data-tabla-wpred={p.id} data-pts-pos="false">
+              <span class="tk-wpred-name">{p.name}</span>
+              <span class="tk-wpred-pick" data-wpick="champion" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="runnerUp" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="third" data-state="pending">—</span>
+              <span class="tk-wpred-pick" data-wpick="fourth" data-state="pending">—</span>
+              <span class="tk-wpred-pts" data-wpick-pts>–</span>
+            </li>
+          ))}
+        </ul>
+
         <h2 class="tk-col-title">Predicciones de jugadores</h2>
         <div class="tk-preds-head" aria-hidden="true">
           <span>Jugador</span><span>Marcador</span><span>Avanza</span><span>Pts</span>
@@ -383,6 +400,34 @@ const podiumOrder = [2, 1, 3] as const;
   @media (prefers-reduced-motion: reduce) {
     .tk-wpod-slot[data-live="true"], .tk-wpod-tag { animation: none; }
   }
+
+  /* ===== PODIO DE CADA JUGADOR (su apuesta + lo que suma) ===== */
+  .tk-wpred-head, .tk-wpred-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 2.45rem) 2.1rem;
+    align-items: center; gap: 0.28rem; padding: 0.16rem 0.6rem;
+  }
+  .tk-wpred-head { font-family: var(--font-display); font-weight: 800; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pm-text-soft); }
+  .tk-wpred-head span:not(:first-child), .tk-wpred-row > span:not(:first-child) { text-align: center; }
+  .tk-wpreds { list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+  .tk-wpred-row {
+    border-radius: var(--pm-radius-sm);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--section-accent) 8%, var(--pm-white)), var(--pm-white) 58%);
+    border: 1px solid var(--pm-border-soft);
+    box-shadow: var(--pm-shadow-soft);
+  }
+  .tk-wpred-name { font-family: var(--font-display); font-weight: 800; font-size: 0.74rem; text-transform: uppercase; color: var(--pm-blue-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tk-wpred-pick {
+    font-family: var(--font-score); font-weight: 800; font-size: 0.63rem; line-height: 1;
+    padding: 0.16rem 0.1rem; border-radius: 3px; color: var(--pm-text-soft);
+    background: color-mix(in srgb, var(--pm-text-soft) 8%, transparent);
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  /* Acertó ese puesto: se prende en verde. Falló: se apaga. */
+  .tk-wpred-pick[data-state="hit"] { color: var(--pm-green-700, #15803d); background: var(--pm-green-100); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pm-green-600, #16a34a) 40%, transparent); }
+  .tk-wpred-pick[data-state="miss"] { color: color-mix(in srgb, var(--pm-text-soft) 70%, transparent); background: transparent; text-decoration: line-through; }
+  .tk-wpred-pts { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.8rem; color: var(--pm-text-soft); }
+  .tk-wpred-row[data-pts-pos="true"] { border-color: color-mix(in srgb, var(--pm-rank-gold) 55%, var(--pm-border-soft)); }
+  .tk-wpred-row[data-pts-pos="true"] .tk-wpred-pts { color: var(--pm-green-600, #16a34a); }
 
   /* ===== LEYENDA ===== */
   .tk-leyenda { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
