@@ -124,7 +124,7 @@ const podiumOrder = [2, 1, 3] as const;
         <h2 class="tk-col-title">Predicciones de jugadores</h2>
         <div class="tk-preds-head" aria-hidden="true">
           <span>Jugador</span><span>Marcador</span><span>Avanza</span><span>Pts</span>
-          <span>🥇</span><span>🥈</span><span>Podio</span><span>Total</span>
+          <span>🥇</span><span>🥈</span><span>Podio</span><span>Suma</span>
         </div>
         <ul class="tk-preds" data-tabla-preds>
           {players.map((p) => (
@@ -139,7 +139,7 @@ const podiumOrder = [2, 1, 3] as const;
               <span class="tk-wpred-pick" data-wpick="champion" data-state="pending">—</span>
               <span class="tk-wpred-pick" data-wpick="runnerUp" data-state="pending">—</span>
               <span class="tk-wpred-pts" data-wpick-pts>–</span>
-              <span class="tk-pred-total" data-pred-total>0</span>
+              <span class="tk-pred-suma" data-pred-suma>–</span>
             </li>
           ))}
         </ul>
@@ -404,11 +404,13 @@ const podiumOrder = [2, 1, 3] as const;
   .tk-wpred-pts { font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.76rem; color: var(--pm-text-soft); }
   .tk-pred-row[data-pod-pos="true"] .tk-wpred-pts { color: var(--pm-green-600, #16a34a); }
   .tk-pred-row[data-pod-pos="true"] { border-color: color-mix(in srgb, var(--pm-rank-gold) 55%, var(--pm-border-soft)); }
-  /* TOTAL parcial del jugador (cruces + podio), lo que va sumando ahora mismo. */
-  .tk-pred-total {
+  /* Lo que SUMA el jugador con esta definición (puntos del cruce + puntos de podio).
+     El acumulado NO va acá: ese es el ranking de la izquierda. */
+  .tk-pred-suma {
     font-family: var(--font-score); font-variant-numeric: tabular-nums; font-weight: 900; font-size: 0.92rem;
-    color: var(--pm-cyan-700, #0e7490);
+    color: var(--pm-text-soft);
   }
+  .tk-pred-row[data-suma-pos="true"] .tk-pred-suma { color: var(--pm-green-600, #16a34a); }
 
   /* ===== LEYENDA ===== */
   .tk-leyenda { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }

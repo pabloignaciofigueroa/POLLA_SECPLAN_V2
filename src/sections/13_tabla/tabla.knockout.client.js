@@ -189,8 +189,14 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       const pts = row?.podiumPoints ?? 0;
       setText(el.querySelector("[data-wpick-pts]"), pts > 0 ? `+${pts}` : "0");
       el.dataset.podPos = pts > 0 ? "true" : "false";
-      setText(el.querySelector("[data-pred-total]"), String(row?.total ?? 0));
     }
+  };
+
+  /** Puntos de podio por jugador — alimenta la columna SUMA de la tabla de predicciones. */
+  const podiumPtsMap = (rows) => {
+    const out = {};
+    for (const r of rows) out[r.playerId] = r.podiumPoints ?? 0;
+    return out;
   };
   // Puntos por cruce (panel informativo): usa el MISMO scorer del ranking (scoreKnockoutMatch),
   // así el panel y la escalera NUNCA divergen. Incluye LONE WOLF (+5 exacto único) — que exige
@@ -204,8 +210,9 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
 
   // Tabla de predicciones: cada jugador con su marcador, la bandera del equipo que hace avanzar
   // (a quién le va) y los puntos que suma según el resultado DINÁMICO (cambia con cada gol).
-  const renderPredsReset = () => {
-    predRowById.forEach((row) => {
+  // Sin cruce en juego, lo que suma cada jugador es solo su podio.
+  const renderPredsReset = (podPts = {}) => {
+    predRowById.forEach((row, pid) => {
       if (!row) return;
       setText(row.querySelector("[data-pred-score]"), "– : –");
       setText(row.querySelector("[data-pred-adv]"), "–");
@@ -214,10 +221,13 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       if (f) f.dataset.empty = "true";
       row.dataset.ptsPos = "false";
       row.dataset.ptsLive = "false";
+      const suma = podPts[pid] ?? 0;
+      setText(row.querySelector("[data-pred-suma]"), suma > 0 ? `+${suma}` : "0");
+      row.dataset.sumaPos = suma > 0 ? "true" : "false";
     });
   };
 
-  const renderPreds = (next, res, predictionsByPlayer) => {
+  const renderPreds = (next, res, predictionsByPlayer, podPts = {}) => {
     const m = next.match;
     const hasScore = res && res.homeScore != null && res.awayScore != null;
     const isLive = hasScore && res.status !== "final";
@@ -252,6 +262,11 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       setText(ptsEl, pts == null ? "–" : String(pts));
       row.dataset.ptsPos = pts > 0 ? "true" : "false";
       row.dataset.ptsLive = isLive && pts > 0 ? "true" : "false";
+      // SUMA = lo que se lleva el jugador con esta definición: cruce + podio.
+      // (El acumulado va en el ranking de la izquierda, no acá.)
+      const suma = (pts ?? 0) + (podPts[pid] ?? 0);
+      setText(row.querySelector("[data-pred-suma]"), suma > 0 ? `+${suma}` : "0");
+      row.dataset.sumaPos = suma > 0 ? "true" : "false";
     });
 
     // Reordenar por cercanía al marcador ACTUAL: el más parecido primero (más probable de acertar).
@@ -269,7 +284,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     if (predsBox) order.forEach((o) => { if (o.row) predsBox.appendChild(o.row); });
   };
 
-  const renderCruce = (live, predictionsByPlayer) => {
+  const renderCruce = (live, predictionsByPlayer, podPts = {}) => {
     const resolved = resolveBracket(matches, { assignments: live.assignments, results: live.results, teamsByCode });
     const next = findNextMatch(resolved);
     if (!next) {
@@ -277,7 +292,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
       setText(cruceScore, "– : –"); setText(cruceState, "Por definir");
       setFlag(cruceHomeFlag, null); setFlag(cruceAwayFlag, null);
       if (cruceBox) cruceBox.dataset.state = "pending";
-      renderPredsReset();
+      renderPredsReset(podPts);
       return;
     }
     const m = next.match;
@@ -294,7 +309,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
     setText(cruceState, isFinal ? "Finalizado" : isLive ? "● En vivo" : "Por jugar");
     if (cruceBox) cruceBox.dataset.state = isFinal ? "done" : isLive ? "live" : "upcoming";
 
-    renderPreds(next, res, predictionsByPlayer);
+    renderPreds(next, res, predictionsByPlayer, podPts);
   };
 
   const prevPos = new Map();
@@ -426,7 +441,7 @@ import { isSupabaseConfigured, fetchSubmissions, fetchResults, subscribeKnockout
 
     if (body) body.dataset.started = hasResults ? "true" : "false";
     if (noteNode) noteNode.textContent = hasResults ? "● En vivo · actualizado" : "Torneo no iniciado";
-    renderCruce(live, predictionsByPlayer);
+    renderCruce(live, predictionsByPlayer, podiumPtsMap(rows));
     firstRun = false;
   };
 
